@@ -46,7 +46,7 @@ interface CodeEditorProps {
 const CodeEditor: React.FC<CodeEditorProps> = ({
   initialCode = "",
   readOnly = false,
-  height = "440px",
+  height = "100%",
   placeholder,
   onCodeChange,
   canRun = true,
@@ -226,9 +226,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const lang = language.replace(firstLetter, firstLetter.toUpperCase());
 
   return (
-    <div className="border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+    <div className="rounded-lg overflow-hidden bg-white dark:bg-gray-800">
       {/* Header */}
-      <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+      <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700">
         <div className="flex items-center space-x-1.5 sm:space-x-2">
           <div className="hidden sm:flex space-x-1">
             <div className="w-3 h-3 rounded-full bg-red-400"></div>
@@ -279,11 +279,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       {/* Code Editor */}
       <div
         className={`relative ${
-          isExpanded ? "fixed inset-0 bg-white dark:bg-gray-800" : ""
+          isExpanded ? " inset-0 bg-white dark:bg-gray-800" : ""
         }`}
       >
         {isExpanded && (
-          <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+          <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700">
             <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 truncate">
               {lang} Console - Fullscreen
             </span>
@@ -299,7 +299,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         )}
 
         <Editor
-          height={isExpanded ? "calc(100vh - 140px)" : height}
+          height={isExpanded ? "100%" : height}
           defaultLanguage={
             language === "nodejs" || language === "node"
               ? "javascript"

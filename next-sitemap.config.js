@@ -144,6 +144,48 @@ export default {
       paths.push(...quizPaths);
     }
 
+    // Exercises
+    const exercisesData = await safeFetch(`${baseUrl}/api/exercises`);
+    if (exercisesData?.data) {
+      const exercisePaths = exercisesData.data
+        .filter(exercise => exercise.published)
+        .map(exercise => ({
+          loc: `/exercises/${exercise.slug}`,
+          changefreq: "weekly",
+          priority: 0.7,
+          lastmod: new Date(exercise.updatedAt || exercise.createdAt).toISOString(),
+        }));
+      paths.push(...exercisePaths);
+    }
+
+    // Cheat Sheets
+    const cheatSheetsData = await safeFetch(`${baseUrl}/api/cheat-sheets`);
+    if (cheatSheetsData?.data) {
+      const cheatSheetPaths = cheatSheetsData.data
+        .filter(sheet => sheet.published)
+        .map(sheet => ({
+          loc: `/cheat-sheets/${sheet.slug}`,
+          changefreq: "weekly",
+          priority: 0.7,
+          lastmod: new Date(sheet.updatedAt || sheet.createdAt).toISOString(),
+        }));
+      paths.push(...cheatSheetPaths);
+    }
+
+    // Study Plans
+    const studyPlansData = await safeFetch(`${baseUrl}/api/study-plans`);
+    if (studyPlansData?.data) {
+      const studyPlanPaths = studyPlansData.data
+        .filter(plan => plan.published)
+        .map(plan => ({
+          loc: `/study-plan/${plan.slug}`,
+          changefreq: "monthly",
+          priority: 0.6,
+          lastmod: new Date(plan.updatedAt || plan.createdAt).toISOString(),
+        }));
+      paths.push(...studyPlanPaths);
+    }
+
     // Projects
     const projectsData = await safeFetch(`${baseUrl}/api/projects`);
     if (projectsData?.success && projectsData?.data) {
@@ -161,7 +203,9 @@ export default {
       { loc: "/tutorials", priority: 0.9 },
       { loc: "/quizzes", priority: 0.8 },
       { loc: "/practice", priority: 0.8 },
+      { loc: "/exercises", priority: 0.8 },
       { loc: "/projects", priority: 0.7 },
+      { loc: "/cheat-sheets", priority: 0.8 },
       { loc: "/pricing", priority: 0.8 },
       { loc: "/dashboard", priority: 0.6 },
       { loc: "/settings", priority: 0.4 },

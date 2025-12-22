@@ -291,7 +291,7 @@ export function HTMLEditorPreview({
             </span>
           </div>
           <Editor
-            height="300px"
+            height="400px"
             defaultLanguage="html"
             value={html}
             onChange={(value) => setHtml(value || "")}

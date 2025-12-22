@@ -7,25 +7,13 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     
-    if (!session?.user?.id) {
+    if (session?.user?.role !== "ADMIN") {
       return NextResponse.json(
         {
           success: false,
           error: "Authentication required",
         },
         { status: 401 }
-      );
-    }
-
-    // Check if user is admin (you can implement your own admin check logic)
-    const isAdmin = await ProjectService.isUserAdmin(session.user.id);
-    if (!isAdmin) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Admin privileges required",
-        },
-        { status: 403 }
       );
     }
 

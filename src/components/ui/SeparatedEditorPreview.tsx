@@ -18,7 +18,7 @@ interface SeparatedEditorPreviewProps {
   initialHtml: string;
   initialCss?: string;
   title?: string;
-  height?: number;
+  height?: string;
   showHtmlEditor?: boolean;
   showCssEditor?: boolean;
   instructions?: string;
@@ -29,7 +29,7 @@ export function SeparatedEditorPreview({
   initialHtml,
   initialCss = "",
   title = "HTML & CSS Editor",
-  height = 400,
+  height = "50%",
   showHtmlEditor = true,
   showCssEditor = true,
   instructions,
@@ -94,10 +94,10 @@ ${css}
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-6 h-[${height}px]`}
+      className={` dark:border-gray-700 rounded-lg overflow-hidden mb-6 h-full`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-4 py-3">
+      <div className="bg-gradient-to-r from-blue-500 to-blue-700 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="text-white font-semibold flex items-center gap-2">
             <Code2 className="w-5 h-5" />
@@ -106,14 +106,14 @@ ${css}
           <div className="flex items-center gap-2">
             <button
               onClick={handleReset}
-              className="text-white/80 hover:text-white transition-colors p-1.5 rounded hover:bg-white/10 cursor-pointer"
+              className="text-white/80 hover:text-white transition-colors active:scale-95 p-1.5 rounded hover:bg-white/10 cursor-pointer"
               title="Reset to original"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
             <button
               onClick={handleCopy}
-              className="text-white/80 hover:text-white transition-colors p-1.5 rounded hover:bg-white/10 cursor-pointer"
+              className="text-white/80 hover:text-white transition-colors p-1.5 active:scale-95 rounded hover:bg-white/10 cursor-pointer"
               title="Copy code"
             >
               {copied ? (
@@ -124,7 +124,7 @@ ${css}
             </button>
             <button
               onClick={() => setIsVisible(!isVisible)}
-              className="text-white/80 hover:text-white transition-colors p-1.5 rounded hover:bg-white/10 cursor-pointer"
+              className="text-white/80 hover:text-white transition-colors p-1.5 active:scale-95 rounded hover:bg-white/10 cursor-pointer"
               title={isVisible ? "Hide preview" : "Show preview"}
             >
               {isVisible ? (
@@ -143,7 +143,7 @@ ${css}
           {mission && (
             <div className="mb-2">
               <h4 className="text-yellow-800 dark:text-yellow-300 font-semibold text-sm mb-1">
-                🎯 Your Mission:
+                Your Mission:
               </h4>
               <p className="text-yellow-700 dark:text-yellow-200 text-sm">
                 {mission}
@@ -153,7 +153,7 @@ ${css}
           {instructions && (
             <div>
               <h4 className="text-yellow-800 dark:text-yellow-300 font-semibold text-sm mb-1">
-                💡 Instructions:
+                Instructions:
               </h4>
               <p className="text-yellow-700 dark:text-yellow-200 text-sm">
                 {instructions}
@@ -164,14 +164,14 @@ ${css}
       )}
 
       {/* Tab Navigation */}
-      <div className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
-        <div className="flex">
+      <div className="my-2 bg-gray-700 border border-transparent rounded-xl">
+        <div className="flex space-x-2 border border-transparent rounded-xl p-2">
           {showHtmlEditor && (
             <button
               onClick={() => setActiveTab("html")}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2 text-sm font-medium border-b-2 flex items-center gap-2 cursor-pointer rounded-xl backdrop-blur-3xl bg-blue-500 hover:bg-blue-700 transition-all duration-100 active:scale-90 ${
                 activeTab === "html"
-                  ? "border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-gray-800"
+                  ? "border-blue-500 bg-blue-700" 
                   : "border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
               }`}
             >
@@ -182,9 +182,9 @@ ${css}
           {showCssEditor && (
             <button
               onClick={() => setActiveTab("css")}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2 text-sm font-medium border-b-2 flex items-center gap-2 cursor-pointer rounded-xl bg-purple-500 hover:bg-purple-700 active:scale-95 transition-all duration-100 ${
                 activeTab === "css"
-                  ? "border-purple-500 text-purple-600 dark:text-purple-400 bg-white dark:bg-gray-800"
+                  ? "border-purple-500 bg-white dark:bg-purple-900"
                   : "border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
               }`}
             >
@@ -192,38 +192,28 @@ ${css}
               CSS
             </button>
           )}
-          <button
-            onClick={() => setActiveTab("preview")}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
-              activeTab === "preview"
-                ? "border-green-500 text-green-600 dark:text-green-400 bg-white dark:bg-gray-800"
-                : "border-transparent text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
-            }`}
-          >
-            <Play className="w-4 h-4" />
-            Preview
-          </button>
         </div>
       </div>
 
       {/* Content Area */}
-      <div>
+      <div className="h-full">
         {/* HTML Editor */}
         {activeTab === "html" && showHtmlEditor && (
-          <div className="h-[30rem]">
-            <CodeEditor
+             <CodeEditor
+              height={height}
               key={`html-${resetKey}`}
               language="html"
               initialCode={html}
               onCodeChange={(code) => setHtml(code)}
             ></CodeEditor>
-          </div>
         )}
 
         {/* CSS Editor */}
         {activeTab === "css" && showCssEditor && (
-          <div className="h-[30rem]">
+          <div className="h-full">
             <CodeEditor
+              height={height}
+
               key={`css-${resetKey}`}
               language="css"
               initialCode={css}

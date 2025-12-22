@@ -39,7 +39,7 @@ export async function generateMetadata({
       };
     }
 
-    const categoryName = categoryMeta.name || category;
+    const categoryName: string = categoryMeta.name || category;
 
     return {
       title: `${categoryName} Tutorials - ${tutorialCount}+ Lessons | Learn ${categoryName} | Vibed to Cracked`,

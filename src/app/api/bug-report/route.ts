@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`🐛 Bug report submitted: ${title} [${severity}] by ${userName || 'Anonymous'}`);
+    console.log(`Bug report submitted: ${title} [${severity}] by ${userName || 'Anonymous'}`);
 
     return NextResponse.json(
       { 

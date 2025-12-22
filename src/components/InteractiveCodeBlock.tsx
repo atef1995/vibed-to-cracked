@@ -19,7 +19,7 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
   initialCode,
   editable = true,
   title,
-  height = "200px",
+  height = "300px",
   description,
   language = "javascript",
 }) => {
