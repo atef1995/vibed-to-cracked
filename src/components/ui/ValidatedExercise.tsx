@@ -17,15 +17,11 @@ import CodeEditor from "../CodeEditor";
 import { submitExerciseAction } from "@/lib/actions";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "./Toast";
+import { getValidator } from "@/lib/exerciseValidators";
 
 interface TestCase {
   description: string;
-  validate: (
-    html: string,
-    css: string,
-    js: string,
-    iframeWindow?: Window | null
-  ) => boolean | Promise<boolean>;
+  validatorKey: string;
 }
 
 interface ValidatedExerciseProps {
@@ -116,27 +112,61 @@ export function ValidatedExercise({
     setIsChecking(true);
     setTestResults([]);
 
-    // Get iframe window for functional testing
-    const iframeWindow = iframeRef.current?.contentWindow;
-
-    // Small delay to ensure iframe content is fully loaded
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Use existing iframe if available, otherwise create a temporary one
+    let iframeWindow: Window | null = iframeRef.current?.contentWindow || null;
+    let tempIframe: HTMLIFrameElement | null = null;
+    
+    if (!iframeWindow) {
+      tempIframe = document.createElement('iframe');
+      tempIframe.style.display = 'none';
+      document.body.appendChild(tempIframe);
+      
+      // Get the iframe window and document
+      iframeWindow = tempIframe.contentWindow;
+      if (!iframeWindow) {
+        setIsChecking(false);
+        return;
+      }
+      
+      const doc = iframeWindow.document;
+      const previewHtml = generatePreviewHTML();
+      
+      // Write HTML directly to iframe document
+      doc.open();
+      doc.write(previewHtml);
+      doc.close();
+      
+      // Wait for content to be parsed and scripts to execute
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
 
     const results = [];
     let passedCount = 0;
 
     for (const testCase of testCases) {
       try {
-        const passed = await testCase.validate(html, css, js, iframeWindow);
+        // Get validator function from registry
+        const validateFn = getValidator(exerciseId || "", testCase.validatorKey);
+
+        if (!validateFn) {
+          results.push({
+            passed: false,
+            description: `${testCase.description} (Validator not found)`,
+          });
+          continue;
+        }
+
+        const passed = await validateFn(html, css, js, iframeWindow);
         results.push({
           passed,
           description: testCase.description,
         });
         if (passed) passedCount++;
       } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
         results.push({
           passed: false,
-          description: `${testCase.description} (Error: ${error})`,
+          description: `${testCase.description} (Error: ${errorMsg})`,
         });
       }
     }
@@ -144,6 +174,12 @@ export function ValidatedExercise({
     setTestResults(results);
     const allTestsPassed = passedCount === testCases.length;
     setAllPassed(allTestsPassed);
+
+    // Clean up temporary iframe if it was created
+    if (tempIframe) {
+      document.body.removeChild(tempIframe);
+      console.log("🧹 Temporary iframe cleaned up");
+    }
 
     // Submit to server if user is logged in and all tests passed
     if (allTestsPassed && session?.user && exerciseId) {
@@ -348,44 +384,47 @@ export function ValidatedExercise({
       </div>
 
       {/* Editor Content */}
-      <div>
+      <div className="m-3">
         {activeTab === "html" && showHtmlEditor && (
-          <div className="h-[25rem]">
+          <div className="h-full">
             <CodeEditor
               language="html"
               initialCode={html}
               onCodeChange={setHtml}
+              height="430px"
             />
           </div>
         )}
 
         {activeTab === "css" && showCssEditor && (
-          <div className="h-[25rem]">
+          <div className="h-full">
             <CodeEditor
               language="css"
               initialCode={css}
               onCodeChange={setCss}
+              height="430px"
             />
           </div>
         )}
 
         {activeTab === "js" && showJsEditor && (
-          <div className="h-[25rem]">
+          <div className="h-full">
             <CodeEditor
               language="javascript"
               initialCode={js}
               onCodeChange={setJs}
+              height="430px"
             />
           </div>
         )}
 
         {activeTab === "preview" && (
-          <div className="h-[25rem]">
+          <div className="min-h-96">
             <iframe
               ref={iframeRef}
               srcDoc={generatePreviewHTML()}
               title="Preview"
-              className="w-full h-full border-0"
+              className="min-h-96 w-full h-full border-0"
               sandbox="allow-scripts"
             />
           </div>

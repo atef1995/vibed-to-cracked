@@ -12,15 +12,15 @@ export function HtmlButtonExercise() {
       testCases={[
         {
           description: "HTML contains a <button> element",
-          validate: (html) => html.toLowerCase().includes("<button"),
+          validatorKey: "hasButton",
         },
         {
           description: "Button has id='myButton'",
-          validate: (html) => html.includes('id="myButton"') || html.includes("id='myButton'"),
+          validatorKey: "hasButtonId",
         },
         {
           description: "Button contains text 'Click Me!'",
-          validate: (html) => html.includes("Click Me!"),
+          validatorKey: "hasButtonText",
         },
       ]}
       hints={[
@@ -31,6 +31,7 @@ export function HtmlButtonExercise() {
       solution={{
         html: '<button id="myButton">Click Me!</button>',
       }}
+      exerciseId="example-html-button"
     />
   );
 }
@@ -47,18 +48,15 @@ export function CssStylingExercise() {
       testCases={[
         {
           description: "h1 has blue color",
-          validate: (html, css) =>
-            css.includes("color") && css.includes("blue"),
+          validatorKey: "h1BlueColor",
         },
         {
           description: "h1 is centered",
-          validate: (html, css) =>
-            css.includes("text-align") && css.includes("center"),
+          validatorKey: "h1Centered",
         },
         {
           description: "h1 font-size is 32px",
-          validate: (html, css) =>
-            css.includes("font-size") && css.includes("32px"),
+          validatorKey: "h1FontSize",
         },
       ]}
       hints={[
@@ -75,6 +73,7 @@ export function CssStylingExercise() {
   font-size: 32px;
 }`,
       }}
+      exerciseId="example-css-styling"
     />
   );
 }
@@ -91,18 +90,15 @@ export function JavaScriptClickExercise() {
       testCases={[
         {
           description: "Code selects the button by id",
-          validate: (html, css, js) =>
-            js.includes("getElementById") && js.includes("greetBtn"),
+          validatorKey: "incrementId",
         },
         {
           description: "Code adds a click event listener",
-          validate: (html, css, js) =>
-            js.includes("addEventListener") && js.includes("click"),
+          validatorKey: "eventListeners",
         },
         {
           description: "Code shows an alert",
-          validate: (html, css, js) =>
-            js.includes("alert"),
+          validatorKey: "hasButtonText",
         },
       ]}
       hints={[
@@ -116,6 +112,7 @@ export function JavaScriptClickExercise() {
   alert('Hello!');
 });`,
       }}
+      exerciseId="example-js-counter"
     />
   );
 }
@@ -138,28 +135,23 @@ let count = 0;
       testCases={[
         {
           description: "HTML has a counter display element with id='counter'",
-          validate: (html) => html.includes('id="counter"') || html.includes("id='counter'"),
+          validatorKey: "counterId",
         },
         {
           description: "HTML has increment button with id='increment'",
-          validate: (html) => html.includes('id="increment"') || html.includes("id='increment'"),
+          validatorKey: "incrementId",
         },
         {
           description: "HTML has decrement button with id='decrement'",
-          validate: (html) => html.includes('id="decrement"') || html.includes("id='decrement'"),
+          validatorKey: "decrementId",
         },
         {
           description: "JavaScript declares a count variable",
-          validate: (html, css, js) =>
-            js.includes("let count") || js.includes("var count") || js.includes("const count"),
+          validatorKey: "counterLogic",
         },
         {
           description: "JavaScript has event listeners for both buttons",
-          validate: (html, css, js) => {
-            const hasIncrement = js.includes("increment") && js.includes("addEventListener");
-            const hasDecrement = js.includes("decrement") && js.includes("addEventListener");
-            return hasIncrement && hasDecrement;
-          },
+          validatorKey: "eventListeners",
         },
       ]}
       hints={[
@@ -210,6 +202,7 @@ decrementBtn.addEventListener('click', function() {
   counterDisplay.textContent = count;
 });`,
       }}
+      exerciseId="example-js-counter"
     />
   );
 }

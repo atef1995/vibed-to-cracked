@@ -1,6 +1,19 @@
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+
+ if (session?.user?.role !== "ADMIN") {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required",
+        },
+        { status: 401 }
+      );
+    }
   console.log("🧪 Test webhook endpoint called");
   
   try {

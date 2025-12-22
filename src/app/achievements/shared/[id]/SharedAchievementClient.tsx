@@ -125,8 +125,8 @@ export default function SharedAchievementClient({
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-      } catch {
-        console.log("Share cancelled or failed");
+      } catch (error) {
+        console.error("Share cancelled or failed", error);
       }
     } else {
       // Fallback to copying URL

@@ -147,7 +147,7 @@ const mdxComponents = {
   ),
   code: (props: React.HTMLAttributes<HTMLElement>) => {
     // Check if this is an inline code or a code block
-    console.log({ className: props.className });
+    // console.log({ className: props.className });
 
     const isInline = !props.className;
 

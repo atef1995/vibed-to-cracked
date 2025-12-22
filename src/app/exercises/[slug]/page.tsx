@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import { useEffect, use, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -21,7 +21,7 @@ interface ExerciseData {
   showJsEditor: boolean;
   testCases: Array<{
     description: string;
-    validate: (html?: string, css?: string, js?: string) => boolean;
+    validatorKey: string;
   }>;
   hints: string[];
   solution: {
@@ -102,43 +102,8 @@ export default function ExercisePage({
     );
   }
 
-  // Convert test cases from stored format to function format
-  const testCasesWithFunctions = (exercise.testCases?.map(
-    (tc: { description: string; validate: unknown }) => ({
-      description: tc.description,
-      validate: (
-        html: string,
-        css: string,
-        js: string,
-        iframeWindow?: Window | null
-      ): boolean => {
-        try {
-          // If validate is a string (arrow function code), evaluate it
-          if (typeof tc.validate === "string") {
-            // Create function from string: "(html, css, js, iframeWindow) => ..."
-            const fn = new Function("return " + tc.validate)();
-            return fn(html, css, js, iframeWindow);
-          }
-          // If it's already a function, use it directly
-          else if (typeof tc.validate === "function") {
-            return tc.validate(html, css, js);
-          }
-          return false;
-        } catch (err) {
-          console.error("Error running validation:", err);
-          return false;
-        }
-      },
-    })
-  ) || []) as Array<{
-    description: string;
-    validate: (
-      html: string,
-      css: string,
-      js: string,
-      iframeWindow?: Window | null
-    ) => boolean | Promise<boolean>;
-  }>;
+  // Pass test cases directly - ValidatedExercise will look them up from registry
+  const testCasesForComponent = exercise.testCases || [];
 
   const difficultyLabel =
     exercise.difficulty.charAt(0).toUpperCase() + exercise.difficulty.slice(1);
@@ -199,10 +164,10 @@ export default function ExercisePage({
             initialJs={exercise.initialJs || ""}
             showCssEditor={exercise.showCssEditor}
             showJsEditor={exercise.showJsEditor}
-            testCases={testCasesWithFunctions}
+            testCases={testCasesForComponent}
             hints={exercise.hints}
             solution={exercise.solution}
-            exerciseId={exercise.id}
+            exerciseId={exercise.slug}
           />
         </div>
 

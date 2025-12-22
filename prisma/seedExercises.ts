@@ -32,19 +32,19 @@ Requirements:
       testCases: [
         {
           description: "Button has padding",
-          validate: `(html, css) => css.includes('padding')`,
+          validatorKey: "padding",
         },
         {
           description: "Button has rounded corners",
-          validate: `(html, css) => css.includes('border-radius')`,
+          validatorKey: "borderRadius",
         },
         {
           description: "Button has background color",
-          validate: `(html, css) => css.includes('background')`,
+          validatorKey: "backgroundColor",
         },
         {
           description: "Button has cursor pointer",
-          validate: `(html, css) => css.includes('cursor')`,
+          validatorKey: "cursor",
         },
       ],
       hints: [
@@ -118,19 +118,19 @@ a.active {
       testCases: [
         {
           description: "Uses flexbox display",
-          validate: `(html, css) => css.includes('display: flex') || css.includes('display:flex')`,
+          validatorKey: "flexDisplay",
         },
         {
           description: "Has justify-content property",
-          validate: `(html, css) => css.includes('justify-content')`,
+          validatorKey: "justifyContent",
         },
         {
           description: "Has media query for mobile",
-          validate: `(html, css) => css.includes('@media')`,
+          validatorKey: "mediaQuery",
         },
         {
           description: "Styles the active class",
-          validate: `(html, css) => css.includes('.active') || css.includes('active')`,
+          validatorKey: "activeClass",
         },
       ],
       hints: [
@@ -211,6 +211,7 @@ Requirements:
 
 .container {
   display: flex;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
 }
@@ -259,15 +260,7 @@ li {
   
   if (input.value.trim() === '') return;
   
-  const li = document.createElement('li');
-  li.innerHTML = \`
-    <span>\${input.value}</span>
-    <button class="delete-btn" onclick="deleteTask(this)">Delete</button>
-  \`;
   
-  taskList.appendChild(li);
-  input.value = '';
-  input.focus();
 }
 
 function deleteTask(btn) {
@@ -279,19 +272,19 @@ function deleteTask(btn) {
       testCases: [
         {
           description: "Has an addTask function",
-          validate: `(html, css, js) => js.includes('function addTask')`,
+          validatorKey: "addTaskFunction",
         },
         {
           description: "Gets elements by ID",
-          validate: `(html, css, js) => js.includes('getElementById')`,
+          validatorKey: "getElementById",
         },
         {
           description: "Creates list items dynamically",
-          validate: `(html, css, js) => js.includes('createElement')`,
+          validatorKey: "createElement",
         },
         {
           description: "Has a deleteTask function",
-          validate: `(html, css, js) => js.includes('deleteTask')`,
+          validatorKey: "deleteTaskFunction",
         },
       ],
       hints: [
@@ -490,19 +483,19 @@ let previousValue = '';
  * Called when a number button is clicked
  * Should add the number to the current input and update the display
  */
-function appendNumber(num) {
+window.appendNumber = function(num) {
   // Prevent multiple decimal points
   if (num === '.' && currentInput.includes('.')) return;
 
   currentInput += num;
   updateDisplay();
-}
+};
 
 /**
  * Called when an operator button (+, -, *, /) is clicked
  * Should store the current value and operator for calculation
  */
-function appendOperator(op) {
+window.appendOperator = function(op) {
   if (currentInput === '') return;
 
   if (previousValue !== '') {
@@ -512,7 +505,7 @@ function appendOperator(op) {
   previousValue = currentInput;
   currentInput = '';
   operator = op;
-}
+};
 
 /**
  * Called when the equals button is clicked
@@ -520,7 +513,7 @@ function appendOperator(op) {
  * HINT: Use parseFloat() to convert strings to numbers
  * HINT: Don't forget to handle division by zero!
  */
-function calculate() {
+window.calculate = function() {
   if (!operator || !currentInput || !previousValue) return;
 
   const prev = parseFloat(previousValue);
@@ -534,18 +527,18 @@ function calculate() {
   operator = null;
   previousValue = '';
   updateDisplay();
-}
+};
 
 /**
  * Called when the clear button is clicked
  * Should reset all calculator state
  */
-function clearDisplay() {
+window.clearDisplay = function() {
   currentInput = '';
   previousValue = '';
   operator = null;
   updateDisplay();
-}
+};
 
 /**
  * Updates the display with the current input
@@ -559,122 +552,31 @@ function updateDisplay() {
       testCases: [
         {
           description: "Addition works correctly (5 + 3 = 8)",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return false;
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber || !win.appendOperator || !win.calculate) return false;
-    win.clearDisplay();
-    win.appendNumber('5');
-    win.appendOperator('+');
-    win.appendNumber('3');
-    win.calculate();
-    const display = win.document.getElementById('display');
-    return display && parseFloat(display.value) === 8;
-  } catch(e) { return false; }
-}`,
+          validatorKey: "addition",
         },
         {
           description: "Subtraction works correctly (10 - 4 = 6)",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return false;
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber || !win.appendOperator || !win.calculate) return false;
-    win.clearDisplay();
-    win.appendNumber('1');
-    win.appendNumber('0');
-    win.appendOperator('-');
-    win.appendNumber('4');
-    win.calculate();
-    const display = win.document.getElementById('display');
-    return display && parseFloat(display.value) === 6;
-  } catch(e) { return false; }
-}`,
+          validatorKey: "subtraction",
         },
         {
           description: "Multiplication works correctly (6 * 7 = 42)",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return false;
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber || !win.appendOperator || !win.calculate) return false;
-    win.clearDisplay();
-    win.appendNumber('6');
-    win.appendOperator('*');
-    win.appendNumber('7');
-    win.calculate();
-    const display = win.document.getElementById('display');
-    return display && parseFloat(display.value) === 42;
-  } catch(e) { return false; }
-}`,
+          validatorKey: "multiplication",
         },
         {
           description: "Division works correctly (20 / 4 = 5)",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return false;
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber || !win.appendOperator || !win.calculate) return false;
-    win.clearDisplay();
-    win.appendNumber('2');
-    win.appendNumber('0');
-    win.appendOperator('/');
-    win.appendNumber('4');
-    win.calculate();
-    const display = win.document.getElementById('display');
-    return display && parseFloat(display.value) === 5;
-  } catch(e) { return false; }
-}`,
+          validatorKey: "division",
         },
         {
           description: "Prevents division by zero",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return js.includes('=== 0') || js.includes('== 0');
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber || !win.appendOperator || !win.calculate) return false;
-    win.clearDisplay();
-    win.appendNumber('5');
-    win.appendOperator('/');
-    win.appendNumber('0');
-    const displayBefore = win.document.getElementById('display').value;
-    win.calculate();
-    const displayAfter = win.document.getElementById('display').value;
-    // Display should either show error message or remain unchanged (not show Infinity or NaN)
-    return displayAfter !== 'Infinity' && displayAfter !== 'NaN' && !displayAfter.includes('Infinity');
-  } catch(e) { return false; }
-}`,
+          validatorKey: "divisionByZero",
         },
         {
           description: "Decimal numbers are supported",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return js.includes("includes('.')");
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber) return false;
-    win.clearDisplay();
-    win.appendNumber('3');
-    win.appendNumber('.');
-    win.appendNumber('5');
-    const display = win.document.getElementById('display');
-    return display && display.value.includes('.');
-  } catch(e) { return false; }
-}`,
+          validatorKey: "decimal",
         },
         {
           description: "Clear button resets calculator state",
-          validate: `(html, css, js, iframeWindow) => {
-  if (!iframeWindow) return js.includes('clearDisplay');
-  try {
-    const win = iframeWindow;
-    if (!win.clearDisplay || !win.appendNumber) return false;
-    win.appendNumber('5');
-    win.clearDisplay();
-    const display = win.document.getElementById('display');
-    return display && display.value === '';
-  } catch(e) { return false; }
-}`,
+          validatorKey: "clear",
         },
       ],
       hints: [

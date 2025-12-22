@@ -146,7 +146,7 @@ export function FeedbackModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center md:justify-end p-0 md:p-4">
+    <div className="fixed inset-0 z-50 flex md:items-center items-center justify-center p-0 md:p-4 w-full h-full">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity"

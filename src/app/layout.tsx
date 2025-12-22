@@ -22,9 +22,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vibed to Cracked - JavaScript Learning with Mood",
+  title: "Vibed to Cracked - Programming Learning with Mood",
   description:
-    "Learn JavaScript at your own pace with mood-driven content. Choose chill, rush, or grind mode for personalized learning.",
+    "Become a Web Developmer at your own pace with mood-driven content. Choose chill, rush, or grind mode for personalized learning.",
 };
 
 export default function RootLayout({

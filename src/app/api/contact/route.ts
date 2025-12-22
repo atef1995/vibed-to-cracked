@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log(`📧 Contact form submitted by ${name} (${email}): ${subject}`);
+    console.log(`Contact form submitted by ${name} (${email}): ${subject}`);
 
     return NextResponse.json(
       {

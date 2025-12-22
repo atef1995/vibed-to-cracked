@@ -18,9 +18,10 @@ export async function generateMetadata({
     if (!response.ok) {
       throw new Error("Tutorial not found");
     }
-
+    
     const data = await response.json();
-    const tutorial = data.data?.[0];
+
+    const tutorial = data.data;
 
     if (!tutorial) {
       return {
