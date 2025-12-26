@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ProgressService } from "@/lib/progressService";
 import { StudyPlanService } from "@/lib/services/studyPlanService";
+import { QuizService } from "@/lib/quizService";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,15 +20,47 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { tutorialId, answers, timeSpent, quizData, quizId } = body;
-    console.log({ body });
+    const { tutorialId, answers, timeSpent, quizId } = body;
 
-    if (!tutorialId || !answers || !quizData) {
+    if (!tutorialId || !answers || !quizId) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required fields: tutorialId, answers, quizId" },
         { status: 400 }
       );
     }
+
+    // SECURITY FIX: Fetch quiz from database instead of trusting client data
+    // This prevents users from modifying quiz data before submission
+    const quiz = await QuizService.getQuizById(quizId);
+
+    if (!quiz) {
+      return NextResponse.json(
+        { error: "Quiz not found" },
+        { status: 404 }
+      );
+    }
+
+    // Validate that the quiz belongs to the correct tutorial
+    if (quiz.tutorialId !== tutorialId) {
+      return NextResponse.json(
+        { error: "Quiz does not belong to this tutorial" },
+        { status: 400 }
+      );
+    }
+
+    // Validate answer count matches quiz questions
+    if (answers.length > quiz.questions.length) {
+      return NextResponse.json(
+        { error: "Invalid answer count" },
+        { status: 400 }
+      );
+    }
+
+    // Convert quiz to quizData format for ProgressService
+    const quizData = {
+      questions: quiz.questions,
+      passingScore: 70, // Default passing score
+    };
 
     const result = await ProgressService.submitQuizAttempt(
       session.user.id,
