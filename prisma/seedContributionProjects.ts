@@ -21,8 +21,8 @@ async function seedContributionProjects() {
       title: "Portfolio Site Template",
       description:
         "Build a modern, responsive portfolio website with Next.js and Tailwind CSS. Perfect for beginners to learn real-world development workflows with GitHub PRs and code reviews.",
-      githubRepoUrl: "https://github.com/vibed-to-cracked/portfolio-template",
-      githubOwner: "vibed-to-cracked",
+      githubRepoUrl: "https://github.com/atef1995/portfolio-template",
+      githubOwner: "atef1995",
       githubRepo: "portfolio-template",
       category: "frontend",
       difficulty: 2,

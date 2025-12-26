@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ProgressService } from "@/lib/progressService";
 import { StudyPlanService } from "@/lib/services/studyPlanService";
+import { validateJavaScriptSafety } from "@/lib/validators/codeValidator";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,6 +19,19 @@ export async function POST(request: NextRequest) {
     if (!challengeId || !code || typeof passed !== "boolean") {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    // SECURITY FIX: Validate code safety before storing
+    const codeValidation = validateJavaScriptSafety(code);
+    if (!codeValidation.safe) {
+      return NextResponse.json(
+        { 
+          error: "Code contains unsafe patterns",
+          reason: codeValidation.reason,
+          patterns: codeValidation.patterns,
+        },
         { status: 400 }
       );
     }

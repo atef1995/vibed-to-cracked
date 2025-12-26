@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ProgressService } from "@/lib/progressService";
+import { validateExerciseCodeSafety } from "@/lib/validators/codeValidator";
 
 interface ExerciseSubmissionResult {
   success: boolean;
@@ -75,6 +76,17 @@ export async function submitExerciseAction(
         achievements: [],
         passed: false,
         error: "Missing required fields",
+      };
+    }
+
+    // SECURITY FIX: Validate code safety before storing
+    const codeValidation = validateExerciseCodeSafety(html, css, js);
+    if (!codeValidation.safe) {
+      return {
+        success: false,
+        achievements: [],
+        passed: false,
+        error: `Code contains unsafe patterns. ${codeValidation.reason || "Please check your code and try again."}`,
       };
     }
 

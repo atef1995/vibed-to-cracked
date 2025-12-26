@@ -3,6 +3,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ProgressService } from "@/lib/progressService";
+import { validateJavaScriptSafety } from "@/lib/validators/codeValidator";
 
 interface ChallengeStartResult {
   success: boolean;
@@ -130,6 +131,17 @@ export async function submitChallengeAction(
         achievements: [],
         passed: false,
         error: "Missing required fields",
+      };
+    }
+
+    // SECURITY FIX: Validate code safety before storing
+    const codeValidation = validateJavaScriptSafety(code);
+    if (!codeValidation.safe) {
+      return {
+        success: false,
+        achievements: [],
+        passed: false,
+        error: `Code contains unsafe patterns. ${codeValidation.reason || "Please check your code and try again."}`,
       };
     }
 
