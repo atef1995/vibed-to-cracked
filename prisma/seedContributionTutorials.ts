@@ -27,6 +27,18 @@ const CONTRIBUTION_CATEGORY = {
 // Tutorials for each contribution project
 const CONTRIBUTION_TUTORIALS = [
   {
+    slug: "portfolio-project-setup",
+    title: "Setting Up The Portfolio Project",
+    description: "A guide on how to set up the protfolio project",
+    mdxFile: "portfolio-site/00-project-setup",
+    difficulty: 1,
+    order: 1,
+    published: true,
+    isPremium: false,
+    requiredPlan: "FREE",
+    estimatedTime: 60, // 1 hour
+  },
+  {
     slug: "portfolio-site-dark-mode",
     title: "Implementing Dark Mode in Portfolio Site",
     description:
@@ -34,7 +46,7 @@ const CONTRIBUTION_TUTORIALS = [
     content: null, // Will be loaded from MDX file
     mdxFile: "portfolio-site/dark-mode",
     difficulty: 2,
-    order: 1,
+    order: 2,
     published: true,
     isPremium: false,
     requiredPlan: "FREE",
@@ -48,7 +60,7 @@ const CONTRIBUTION_TUTORIALS = [
     content: null,
     mdxFile: "portfolio-site/contact-form",
     difficulty: 2,
-    order: 2,
+    order: 3,
     published: true,
     isPremium: false,
     requiredPlan: "FREE",
@@ -62,7 +74,7 @@ const CONTRIBUTION_TUTORIALS = [
     content: null,
     mdxFile: "portfolio-site/blog-section",
     difficulty: 3,
-    order: 3,
+    order: 4,
     published: true,
     isPremium: true,
     requiredPlan: "PRO",
@@ -76,7 +88,7 @@ const CONTRIBUTION_TUTORIALS = [
     content: null,
     mdxFile: "portfolio-site/admin-dashboard",
     difficulty: 4,
-    order: 4,
+    order: 5,
     published: true,
     isPremium: true,
     requiredPlan: "PRO",
@@ -90,7 +102,7 @@ const CONTRIBUTION_TUTORIALS = [
     content: null,
     mdxFile: "portfolio-site/analytics",
     difficulty: 3,
-    order: 5,
+    order: 6,
     published: true,
     isPremium: true,
     requiredPlan: "PRO",
@@ -102,14 +114,21 @@ async function seedContributionTutorials() {
   try {
     console.log("🌱 Starting contribution tutorials seeding...");
 
-    // Create the contribution projects category
-    const category = await prisma.category.upsert({
+    let category = await prisma.category.findFirst({
       where: { slug: CONTRIBUTION_CATEGORY.slug },
-      update: CONTRIBUTION_CATEGORY,
-      create: CONTRIBUTION_CATEGORY,
     });
 
-    console.log(`✅ Created category: ${category.title}`);
+    if (!category) {
+      // Create the contribution projects category
+      category = await prisma.category.upsert({
+        where: { slug: CONTRIBUTION_CATEGORY.slug },
+        update: CONTRIBUTION_CATEGORY,
+        create: CONTRIBUTION_CATEGORY,
+      });
+      console.log(`✅ Created category: ${category.title}`);
+    } else {
+      console.log(category + " found");
+    }
 
     // Create tutorials for this category
     for (const tutorialData of CONTRIBUTION_TUTORIALS) {

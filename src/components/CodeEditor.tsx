@@ -12,6 +12,9 @@ import Editor from "@monaco-editor/react";
 import type { editor } from "monaco-editor";
 import { useTheme } from "@/components/providers/ThemeProvider";
 import Console from "./Console";
+import Button from "./ui/Button";
+import { BUTTON_COLOR } from "@/types/button";
+import { Copy, Check } from "lucide-react";
 
 interface ExecutionResult {
   output: string[];
@@ -57,6 +60,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [forceUpdateCounter, setForceUpdateCounter] = useState(0);
   const [streamingOutput, setStreamingOutput] = useState<string[]>([]);
   const { resolvedTheme } = useTheme();
@@ -230,7 +234,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700">
         <div className="flex items-center space-x-1.5 sm:space-x-2">
-          <div className="hidden sm:flex space-x-1">
+          <div className="hidden sm:flex space-x-1.5">
             <div className="w-3 h-3 rounded-full bg-red-400"></div>
             <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
             <div className="w-3 h-3 rounded-full bg-green-400"></div>
@@ -239,6 +243,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             {lang}
           </span>
         </div>
+      <Button className="absolute w-16" color={BUTTON_COLOR.BLUE} onClick={async () => {
+          await navigator.clipboard.writeText(initialCode);
+          setIsCopied(true);
+          window.setInterval(()=>setIsCopied(false),4000)
+        }
+      }>
+        {isCopied ? <Check /> : <Copy />}
+      </Button>
 
         {!readOnly && (
           <div className="flex items-center space-x-1.5 sm:space-x-2">
@@ -275,7 +287,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           </div>
         )}
       </div>
-
       {/* Code Editor */}
       <div
         className={`relative ${
