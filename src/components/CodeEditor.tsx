@@ -14,7 +14,7 @@ import { useTheme } from "@/components/providers/ThemeProvider";
 import Console from "./Console";
 import Button from "./ui/Button";
 import { BUTTON_COLOR } from "@/types/button";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Expand, Minimize, Play, StopCircle } from "lucide-react";
 
 interface ExecutionResult {
   output: string[];
@@ -243,20 +243,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             {lang}
           </span>
         </div>
-      <Button className="absolute w-16" color={BUTTON_COLOR.BLUE} onClick={async () => {
-          await navigator.clipboard.writeText(initialCode);
-          setIsCopied(true);
-          window.setInterval(()=>setIsCopied(false),4000)
-        }
-      }>
-        {isCopied ? <Check /> : <Copy />}
-      </Button>
 
-        {!readOnly && (
+        
           <div className="flex items-center space-x-1.5 sm:space-x-2">
-            <button
+            <Button
+              className="absolute w-16"
+              color={BUTTON_COLOR.BLUE}
+              title="Copy"
+              onClick={async () => {
+                await navigator.clipboard.writeText(initialCode);
+                setIsCopied(true);
+                window.setInterval(() => setIsCopied(false), 4000);
+              }}
+            >
+              {isCopied ? <Check /> : <Copy />}
+            </Button>
+            <Button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="px-2 py-1 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 bg-gray-100 hover:bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-xs rounded border border-gray-300 dark:border-gray-500 transition-colors flex items-center justify-center gap-1 cursor-pointer touch-manipulation"
+              className="w-fit"
+              color={BUTTON_COLOR.BLUE}
               title={
                 isExpanded
                   ? "Exit fullscreen (ESC)"
@@ -264,28 +269,24 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               }
             >
               {isExpanded ? (
-                <>
-                  <span className="text-xs">⤓</span>
-                  <span className="hidden sm:inline">Collapse</span>
-                </>
+                <Minimize/>
               ) : (
-                <>
-                  <span className="text-xs">⤢</span>
-                  <span className="hidden sm:inline">Expand</span>
-                </>
+                <Expand/>
               )}
-            </button>
-            {canRun && (
-              <button
+            </Button>
+            { !readOnly && canRun && (
+              <Button
+                color={BUTTON_COLOR.BLUE}
                 onClick={handleRunCode}
                 disabled={isRunning || !code.trim()}
-                className="px-3 py-1 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:bg-gray-400 text-white text-xs sm:text-sm rounded font-medium transition-colors cursor-pointer touch-manipulation"
+                className=""
+                title="Run"
+                loading={isRunning}
               >
-                {isRunning ? "⏳" : "▶"} Run
-              </button>
+                {isRunning ? <StopCircle/> : <Play/>}
+              </Button>
             )}
           </div>
-        )}
       </div>
       {/* Code Editor */}
       <div
