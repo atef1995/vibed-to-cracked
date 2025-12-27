@@ -32,7 +32,7 @@ const CONTRIBUTION_TUTORIALS = [
     description:
       "Learn how to implement a dynamic dark mode toggle in the portfolio site template using Next.js and Tailwind CSS.",
     content: null, // Will be loaded from MDX file
-    mdxFile: "portfolio-site/dark-mode.mdx",
+    mdxFile: "portfolio-site/dark-mode",
     difficulty: 2,
     order: 1,
     published: true,
@@ -46,7 +46,7 @@ const CONTRIBUTION_TUTORIALS = [
     description:
       "Create a fully functional contact form with validation and email service integration using React Hook Form and SendGrid.",
     content: null,
-    mdxFile: "portfolio-site/contact-form.mdx",
+    mdxFile: "portfolio-site/contact-form",
     difficulty: 2,
     order: 2,
     published: true,
@@ -60,7 +60,7 @@ const CONTRIBUTION_TUTORIALS = [
     description:
       "Implement a blog section that renders content from MDX files with syntax highlighting and reading time estimation.",
     content: null,
-    mdxFile: "portfolio-site/blog-section.mdx",
+    mdxFile: "portfolio-site/blog-section",
     difficulty: 3,
     order: 3,
     published: true,
@@ -74,7 +74,7 @@ const CONTRIBUTION_TUTORIALS = [
     description:
       "Create a protected admin dashboard with analytics charts and content management capabilities.",
     content: null,
-    mdxFile: "portfolio-site/admin-dashboard.mdx",
+    mdxFile: "portfolio-site/admin-dashboard",
     difficulty: 4,
     order: 4,
     published: true,
@@ -88,7 +88,7 @@ const CONTRIBUTION_TUTORIALS = [
     description:
       "Add Google Analytics 4 and performance monitoring with Web Vitals to your portfolio site.",
     content: null,
-    mdxFile: "portfolio-site/analytics.mdx",
+    mdxFile: "portfolio-site/analytics",
     difficulty: 3,
     order: 5,
     published: true,
