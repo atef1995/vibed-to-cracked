@@ -1025,6 +1025,919 @@ export const challengeData = [
       },
     ],
   },
+  {
+    slug: "array-filter",
+    title: "Filter Even Numbers",
+    description: "Create a function that filters an array to keep only even numbers.",
+    difficulty: "EASY",
+    type: "ARRAY",
+    estimatedTime: "8 minutes",
+    order: 19,
+    starter: `function filterEven(numbers) {
+  // Return array with only even numbers
+  
+}`,
+    solution: `function filterEven(numbers) {
+  return numbers.filter(num => num % 2 === 0);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use the filter method to keep only numbers that are even!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick filter with arrow function - check if num % 2 === 0!",
+      },
+      {
+        mood: "GRIND",
+        content: "Master the filter method and modulo operator. Understand how it processes each element.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3, 4, 5, 6]],
+        expected: [2, 4, 6],
+        description: "filterEven([1, 2, 3, 4, 5, 6]) should return [2, 4, 6]",
+        order: 0,
+      },
+      {
+        input: [[10, 15, 20, 25]],
+        expected: [10, 20],
+        description: "filterEven([10, 15, 20, 25]) should return [10, 20]",
+        order: 1,
+      },
+      {
+        input: [[1, 3, 5]],
+        expected: [],
+        description: "filterEven([1, 3, 5]) should return []",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-map-double",
+    title: "Double Each Number",
+    description: "Create a function that doubles each number in an array.",
+    difficulty: "EASY",
+    type: "ARRAY",
+    estimatedTime: "8 minutes",
+    order: 20,
+    starter: `function doubleNumbers(numbers) {
+  // Return array with each number doubled
+  
+}`,
+    solution: `function doubleNumbers(numbers) {
+  return numbers.map(num => num * 2);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use map to transform each number - multiply by 2!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick map with arrow function - just multiply each by 2!",
+      },
+      {
+        mood: "GRIND",
+        content: "Understand map vs filter vs reduce. Map transforms, filter selects, reduce combines.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3]],
+        expected: [2, 4, 6],
+        description: "doubleNumbers([1, 2, 3]) should return [2, 4, 6]",
+        order: 0,
+      },
+      {
+        input: [[5, 10]],
+        expected: [10, 20],
+        description: "doubleNumbers([5, 10]) should return [10, 20]",
+        order: 1,
+      },
+      {
+        input: [[0]],
+        expected: [0],
+        description: "doubleNumbers([0]) should return [0]",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-sum-reduce",
+    title: "Sum Array with Reduce",
+    description: "Create a function that sums an array using the reduce method.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "10 minutes",
+    order: 21,
+    starter: `function sumWithReduce(numbers) {
+  // Use reduce to sum the array
+  
+}`,
+    solution: `function sumWithReduce(numbers) {
+  return numbers.reduce((sum, num) => sum + num, 0);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Reduce accumulates values - start with 0, add each number to the sum!",
+      },
+      {
+        mood: "RUSH",
+        content: "Reduce with accumulator - (sum, num) => sum + num, starting at 0!",
+      },
+      {
+        mood: "GRIND",
+        content: "Master reduce - it's one of the most powerful array methods. Understand accumulator and initial value.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3, 4]],
+        expected: 10,
+        description: "sumWithReduce([1, 2, 3, 4]) should return 10",
+        order: 0,
+      },
+      {
+        input: [[0]],
+        expected: 0,
+        description: "sumWithReduce([0]) should return 0",
+        order: 1,
+      },
+      {
+        input: [[-1, -2, -3]],
+        expected: -6,
+        description: "sumWithReduce([-1, -2, -3]) should return -6",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "string-includes-substring",
+    title: "Check for Substring",
+    description: "Create a function that checks if a string contains a substring.",
+    difficulty: "EASY",
+    type: "STRING",
+    estimatedTime: "6 minutes",
+    order: 22,
+    starter: `function hasSubstring(str, substring) {
+  // Return true if str contains substring
+  
+}`,
+    solution: `function hasSubstring(str, substring) {
+  return str.includes(substring);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use the includes method - it's the easiest way to check if a string contains another!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick check with includes() method!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn includes, indexOf, and other string search methods. Understand case sensitivity.",
+      },
+    ],
+    tests: [
+      {
+        input: ["hello world", "world"],
+        expected: true,
+        description: "hasSubstring('hello world', 'world') should return true",
+        order: 0,
+      },
+      {
+        input: ["hello world", "xyz"],
+        expected: false,
+        description: "hasSubstring('hello world', 'xyz') should return false",
+        order: 1,
+      },
+      {
+        input: ["JavaScript", "Script"],
+        expected: true,
+        description: "hasSubstring('JavaScript', 'Script') should return true",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "string-repeat",
+    title: "Repeat String",
+    description: "Create a function that repeats a string n times.",
+    difficulty: "EASY",
+    type: "STRING",
+    estimatedTime: "7 minutes",
+    order: 23,
+    starter: `function repeatString(str, times) {
+  // Return string repeated n times
+  
+}`,
+    solution: `function repeatString(str, times) {
+  return str.repeat(times);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use the repeat method - super simple!",
+      },
+      {
+        mood: "RUSH",
+        content: "Just use str.repeat(times)!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn repeat method. Also consider what happens with negative or zero times.",
+      },
+    ],
+    tests: [
+      {
+        input: ["ab", 3],
+        expected: "ababab",
+        description: "repeatString('ab', 3) should return 'ababab'",
+        order: 0,
+      },
+      {
+        input: ["hi", 1],
+        expected: "hi",
+        description: "repeatString('hi', 1) should return 'hi'",
+        order: 1,
+      },
+      {
+        input: ["x", 5],
+        expected: "xxxxx",
+        description: "repeatString('x', 5) should return 'xxxxx'",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "object-keys-to-array",
+    title: "Extract Object Keys",
+    description: "Create a function that extracts all keys from an object into an array.",
+    difficulty: "EASY",
+    type: "OBJECT",
+    estimatedTime: "6 minutes",
+    order: 24,
+    starter: `function getObjectKeys(obj) {
+  // Return array of object keys
+  
+}`,
+    solution: `function getObjectKeys(obj) {
+  return Object.keys(obj);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use Object.keys() to get all property names!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick with Object.keys()!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn Object.keys(), Object.values(), Object.entries() and when to use each.",
+      },
+    ],
+    tests: [
+      {
+        input: [{ a: 1, b: 2, c: 3 }],
+        expected: ["a", "b", "c"],
+        description: "getObjectKeys({a: 1, b: 2, c: 3}) should return ['a', 'b', 'c']",
+        order: 0,
+      },
+      {
+        input: [{ name: "John", age: 30 }],
+        expected: ["name", "age"],
+        description: "getObjectKeys({name: 'John', age: 30}) should return ['name', 'age']",
+        order: 1,
+      },
+      {
+        input: [{}],
+        expected: [],
+        description: "getObjectKeys({}) should return []",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "object-values-to-array",
+    title: "Extract Object Values",
+    description: "Create a function that extracts all values from an object into an array.",
+    difficulty: "EASY",
+    type: "OBJECT",
+    estimatedTime: "6 minutes",
+    order: 25,
+    starter: `function getObjectValues(obj) {
+  // Return array of object values
+  
+}`,
+    solution: `function getObjectValues(obj) {
+  return Object.values(obj);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use Object.values() to get all property values!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick with Object.values()!",
+      },
+      {
+        mood: "GRIND",
+        content: "Compare Object.keys(), Object.values(), and Object.entries().",
+      },
+    ],
+    tests: [
+      {
+        input: [{ a: 1, b: 2, c: 3 }],
+        expected: [1, 2, 3],
+        description: "getObjectValues({a: 1, b: 2, c: 3}) should return [1, 2, 3]",
+        order: 0,
+      },
+      {
+        input: [{ name: "John", age: 30 }],
+        expected: ["John", 30],
+        description: "getObjectValues({name: 'John', age: 30}) should return ['John', 30]",
+        order: 1,
+      },
+      {
+        input: [{}],
+        expected: [],
+        description: "getObjectValues({}) should return []",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-find-first",
+    title: "Find First Match",
+    description: "Create a function that returns the first element matching a condition.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "9 minutes",
+    order: 26,
+    starter: `function findFirstGreaterThan(numbers, value) {
+  // Return first number greater than value
+  
+}`,
+    solution: `function findFirstGreaterThan(numbers, value) {
+  return numbers.find(num => num > value);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use find() to get the first element that matches your condition!",
+      },
+      {
+        mood: "RUSH",
+        content: "Find returns first match - use arrow function to check condition!",
+      },
+      {
+        mood: "GRIND",
+        content: "Understand find vs filter - find returns single element or undefined, filter returns array.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3, 4, 5], 2],
+        expected: 3,
+        description: "findFirstGreaterThan([1, 2, 3, 4, 5], 2) should return 3",
+        order: 0,
+      },
+      {
+        input: [[10, 20, 30], 25],
+        expected: 30,
+        description: "findFirstGreaterThan([10, 20, 30], 25) should return 30",
+        order: 1,
+      },
+      {
+        input: [[1, 2], 10],
+        expected: undefined,
+        description: "findFirstGreaterThan([1, 2], 10) should return undefined",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-some",
+    title: "Check Array Has Condition",
+    description: "Create a function that checks if at least one element matches a condition.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "8 minutes",
+    order: 27,
+    starter: `function hasNegativeNumber(numbers) {
+  // Return true if array has any negative number
+  
+}`,
+    solution: `function hasNegativeNumber(numbers) {
+  return numbers.some(num => num < 0);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use some() to check if ANY element matches your condition!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick check with some() - stops at first match!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn some() and every() - some returns true if ANY match, every if ALL match.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, -2, 3]],
+        expected: true,
+        description: "hasNegativeNumber([1, -2, 3]) should return true",
+        order: 0,
+      },
+      {
+        input: [[1, 2, 3]],
+        expected: false,
+        description: "hasNegativeNumber([1, 2, 3]) should return false",
+        order: 1,
+      },
+      {
+        input: [[-5, -10]],
+        expected: true,
+        description: "hasNegativeNumber([-5, -10]) should return true",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-every",
+    title: "Check All Match Condition",
+    description: "Create a function that checks if all elements match a condition.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "8 minutes",
+    order: 28,
+    starter: `function allPositive(numbers) {
+  // Return true if all numbers are positive
+  
+}`,
+    solution: `function allPositive(numbers) {
+  return numbers.every(num => num > 0);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use every() to check if ALL elements match your condition!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick check with every() - stops at first non-match!",
+      },
+      {
+        mood: "GRIND",
+        content: "Compare some() vs every() - know when to use each for different validations.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3]],
+        expected: true,
+        description: "allPositive([1, 2, 3]) should return true",
+        order: 0,
+      },
+      {
+        input: [[1, -2, 3]],
+        expected: false,
+        description: "allPositive([1, -2, 3]) should return false",
+        order: 1,
+      },
+      {
+        input: [[10, 20, 30]],
+        expected: true,
+        description: "allPositive([10, 20, 30]) should return true",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "string-trim-spaces",
+    title: "Trim Whitespace",
+    description: "Create a function that removes leading and trailing whitespace from a string.",
+    difficulty: "EASY",
+    type: "STRING",
+    estimatedTime: "5 minutes",
+    order: 29,
+    starter: `function trimString(str) {
+  // Remove leading and trailing whitespace
+  
+}`,
+    solution: `function trimString(str) {
+  return str.trim();
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use the trim() method - removes spaces from both ends!",
+      },
+      {
+        mood: "RUSH",
+        content: "Just use str.trim()!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn trim(), trimStart(), and trimEnd() methods.",
+      },
+    ],
+    tests: [
+      {
+        input: ["  hello  "],
+        expected: "hello",
+        description: "trimString('  hello  ') should return 'hello'",
+        order: 0,
+      },
+      {
+        input: ["\\t\\tspaced\\n"],
+        expected: "spaced",
+        description: "trimString('  spaced  ') should return 'spaced'",
+        order: 1,
+      },
+      {
+        input: ["nospace"],
+        expected: "nospace",
+        description: "trimString('nospace') should return 'nospace'",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "string-split-join",
+    title: "Split and Join String",
+    description: "Create a function that splits a string and joins it back with different separator.",
+    difficulty: "EASY",
+    type: "STRING",
+    estimatedTime: "7 minutes",
+    order: 30,
+    starter: `function convertSeparator(str, newSep) {
+  // Split by space, join with new separator
+  
+}`,
+    solution: `function convertSeparator(str, newSep) {
+  return str.split(' ').join(newSep);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Split the string into array, then join with new separator!",
+      },
+      {
+        mood: "RUSH",
+        content: "Chain split() and join() methods!",
+      },
+      {
+        mood: "GRIND",
+        content: "Master split() and join() - understand arrays and method chaining.",
+      },
+    ],
+    tests: [
+      {
+        input: ["hello world", "-"],
+        expected: "hello-world",
+        description: "convertSeparator('hello world', '-') should return 'hello-world'",
+        order: 0,
+      },
+      {
+        input: ["one two three", "_"],
+        expected: "one_two_three",
+        description: "convertSeparator('one two three', '_') should return 'one_two_three'",
+        order: 1,
+      },
+      {
+        input: ["a b c", "|"],
+        expected: "a|b|c",
+        description: "convertSeparator('a b c', '|') should return 'a|b|c'",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-sort-numbers",
+    title: "Sort Array of Numbers",
+    description: "Create a function that sorts an array of numbers in ascending order.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "10 minutes",
+    order: 31,
+    starter: `function sortNumbers(numbers) {
+  // Return sorted array in ascending order
+  
+}`,
+    solution: `function sortNumbers(numbers) {
+  return numbers.sort((a, b) => a - b);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use sort with a comparison function - (a, b) => a - b for ascending!",
+      },
+      {
+        mood: "RUSH",
+        content: "Sort with (a, b) => a - b comparator!",
+      },
+      {
+        mood: "GRIND",
+        content: "Understand sorting algorithms and comparison functions. Know stable vs unstable sorts.",
+      },
+    ],
+    tests: [
+      {
+        input: [[3, 1, 2]],
+        expected: [1, 2, 3],
+        description: "sortNumbers([3, 1, 2]) should return [1, 2, 3]",
+        order: 0,
+      },
+      {
+        input: [[5, 2, 8, 1]],
+        expected: [1, 2, 5, 8],
+        description: "sortNumbers([5, 2, 8, 1]) should return [1, 2, 5, 8]",
+        order: 1,
+      },
+      {
+        input: [[-1, 0, 5, -3]],
+        expected: [-3, -1, 0, 5],
+        description: "sortNumbers([-1, 0, 5, -3]) should return [-3, -1, 0, 5]",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-reverse",
+    title: "Reverse Array",
+    description: "Create a function that reverses an array without using the reverse() method.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "10 minutes",
+    order: 32,
+    starter: `function reverseArray(arr) {
+  // Return reversed array without using reverse()
+  
+}`,
+    solution: `function reverseArray(arr) {
+  const reversed = [];
+  for (let i = arr.length - 1; i >= 0; i--) {
+    reversed.push(arr[i]);
+  }
+  return reversed;
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Loop backwards through the array and build a new array!",
+      },
+      {
+        mood: "RUSH",
+        content: "Loop from end to start, push to new array!",
+      },
+      {
+        mood: "GRIND",
+        content: "Consider multiple approaches: loops, recursion, reduce(). Understand time/space complexity.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3]],
+        expected: [3, 2, 1],
+        description: "reverseArray([1, 2, 3]) should return [3, 2, 1]",
+        order: 0,
+      },
+      {
+        input: [["a", "b", "c"]],
+        expected: ["c", "b", "a"],
+        description: "reverseArray(['a', 'b', 'c']) should return ['c', 'b', 'a']",
+        order: 1,
+      },
+      {
+        input: [[1]],
+        expected: [1],
+        description: "reverseArray([1]) should return [1]",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "string-starts-with",
+    title: "Check String Start",
+    description: "Create a function that checks if a string starts with a given prefix.",
+    difficulty: "EASY",
+    type: "STRING",
+    estimatedTime: "6 minutes",
+    order: 33,
+    starter: `function startsWithPrefix(str, prefix) {
+  // Return true if str starts with prefix
+  
+}`,
+    solution: `function startsWithPrefix(str, prefix) {
+  return str.startsWith(prefix);
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use startsWith() method - super simple!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick check with str.startsWith()!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn startsWith(), endsWith(), and indexOf() for string searching.",
+      },
+    ],
+    tests: [
+      {
+        input: ["JavaScript", "Java"],
+        expected: true,
+        description: "startsWithPrefix('JavaScript', 'Java') should return true",
+        order: 0,
+      },
+      {
+        input: ["JavaScript", "Script"],
+        expected: false,
+        description: "startsWithPrefix('JavaScript', 'Script') should return false",
+        order: 1,
+      },
+      {
+        input: ["hello", "hello"],
+        expected: true,
+        description: "startsWithPrefix('hello', 'hello') should return true",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "greatest-common-divisor",
+    title: "Find GCD (Euclidean Algorithm)",
+    description: "Create a function that finds the greatest common divisor of two numbers.",
+    difficulty: "MEDIUM",
+    type: "MATH",
+    estimatedTime: "12 minutes",
+    order: 34,
+    starter: `function gcd(a, b) {
+  // Find greatest common divisor using Euclidean algorithm
+  
+}`,
+    solution: `function gcd(a, b) {
+  while (b !== 0) {
+    const temp = b;
+    b = a % b;
+    a = temp;
+  }
+  return a;
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use Euclidean algorithm - keep replacing with remainder until b is 0!",
+      },
+      {
+        mood: "RUSH",
+        content: "Euclidean algorithm with loop - swap and take remainder!",
+      },
+      {
+        mood: "GRIND",
+        content: "Master Euclidean algorithm. Also learn recursive implementation and complexity analysis.",
+      },
+    ],
+    tests: [
+      {
+        input: [12, 8],
+        expected: 4,
+        description: "gcd(12, 8) should return 4",
+        order: 0,
+      },
+      {
+        input: [48, 18],
+        expected: 6,
+        description: "gcd(48, 18) should return 6",
+        order: 1,
+      },
+      {
+        input: [17, 19],
+        expected: 1,
+        description: "gcd(17, 19) should return 1 (coprime)",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "object-merge",
+    title: "Merge Two Objects",
+    description: "Create a function that merges two objects into one.",
+    difficulty: "MEDIUM",
+    type: "OBJECT",
+    estimatedTime: "8 minutes",
+    order: 35,
+    starter: `function mergeObjects(obj1, obj2) {
+  // Merge obj1 and obj2 into new object
+  
+}`,
+    solution: `function mergeObjects(obj1, obj2) {
+  return { ...obj1, ...obj2 };
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Use spread operator to combine both objects!",
+      },
+      {
+        mood: "RUSH",
+        content: "Quick spread: { ...obj1, ...obj2 }!",
+      },
+      {
+        mood: "GRIND",
+        content: "Learn spread operator and Object.assign(). Understand shallow vs deep merging.",
+      },
+    ],
+    tests: [
+      {
+        input: [{ a: 1 }, { b: 2 }],
+        expected: { a: 1, b: 2 },
+        description: "mergeObjects({a: 1}, {b: 2}) should return {a: 1, b: 2}",
+        order: 0,
+      },
+      {
+        input: [{ name: "John" }, { age: 30 }],
+        expected: { name: "John", age: 30 },
+        description: "mergeObjects({name: 'John'}, {age: 30}) should return {name: 'John', age: 30}",
+        order: 1,
+      },
+      {
+        input: [{ a: 1, b: 2 }, { b: 3, c: 4 }],
+        expected: { a: 1, b: 3, c: 4 },
+        description: "mergeObjects({a: 1, b: 2}, {b: 3, c: 4}) should return {a: 1, b: 3, c: 4}",
+        order: 2,
+      },
+    ],
+  },
+  {
+    slug: "array-chunk",
+    title: "Split Array into Chunks",
+    description: "Create a function that splits an array into smaller arrays of given size.",
+    difficulty: "MEDIUM",
+    type: "ARRAY",
+    estimatedTime: "12 minutes",
+    order: 36,
+    starter: `function chunkArray(arr, size) {
+  // Split array into chunks of given size
+  
+}`,
+    solution: `function chunkArray(arr, size) {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+}`,
+    moodAdaptations: [
+      {
+        mood: "CHILL",
+        content: "Loop through array, slice chunks of given size, and collect them!",
+      },
+      {
+        mood: "RUSH",
+        content: "Loop with step size, use slice() to get each chunk!",
+      },
+      {
+        mood: "GRIND",
+        content: "Master array slicing and chunking. Consider edge cases and optimization.",
+      },
+    ],
+    tests: [
+      {
+        input: [[1, 2, 3, 4, 5], 2],
+        expected: [[1, 2], [3, 4], [5]],
+        description: "chunkArray([1, 2, 3, 4, 5], 2) should return [[1, 2], [3, 4], [5]]",
+        order: 0,
+      },
+      {
+        input: [["a", "b", "c", "d"], 2],
+        expected: [["a", "b"], ["c", "d"]],
+        description: "chunkArray(['a', 'b', 'c', 'd'], 2) should return [['a', 'b'], ['c', 'd']]",
+        order: 1,
+      },
+      {
+        input: [[1, 2, 3], 3],
+        expected: [[1, 2, 3]],
+        description: "chunkArray([1, 2, 3], 3) should return [[1, 2, 3]]",
+        order: 2,
+      },
+    ],
+  },
 ];
 
 export async function seedChallenges() {
