@@ -7,7 +7,7 @@ import {
   ProjectReviewAssignment,
   User,
   Prisma,
-} from "../../generated/prisma/client";
+} from "../../prisma/generated/prisma/client";
 
 // Prisma types for projects with relationships
 export type ProjectWithCount = Project & {

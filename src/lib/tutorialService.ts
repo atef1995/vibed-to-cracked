@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Category, Prisma } from "../../generated/prisma/client";
+import { Category, Prisma } from "../../prisma/generated/prisma/client";
 import type { TutorialWithAll } from "@/types/tutorial";
 
 // Legacy interface for backward compatibility only
