@@ -62,10 +62,10 @@ export async function GET(request: NextRequest) {
         OR: [
           {
             senderId: currentUserId.id,
-            receiverId: { in: users.map(u => u.id) },
+            receiverId: { in: users.map((u: { id: string }) => u.id) },
           },
           {
-            senderId: { in: users.map(u => u.id) },
+            senderId: { in: users.map((u: { id: string }) => u.id) },
             receiverId: currentUserId.id,
           },
         ],
@@ -82,10 +82,10 @@ export async function GET(request: NextRequest) {
         OR: [
           {
             user1Id: currentUserId.id,
-            user2Id: { in: users.map(u => u.id) },
+            user2Id: { in: users.map((u: { id: string }) => u.id) },
           },
           {
-            user1Id: { in: users.map(u => u.id) },
+            user1Id: { in: users.map((u: { id: string }) => u.id) },
             user2Id: currentUserId.id,
           },
         ],
@@ -98,21 +98,21 @@ export async function GET(request: NextRequest) {
 
     // Create sets of user IDs to exclude
     const requestUserIds = new Set(
-      existingRelationships.map(rel => 
+      existingRelationships.map((rel: { senderId: string; receiverId: string }) => 
         rel.senderId === currentUserId.id ? rel.receiverId : rel.senderId
       )
     );
 
     const friendUserIds = new Set(
-      friendships.map(friendship => 
+      friendships.map((friendship: { user1Id: string; user2Id: string }) => 
         friendship.user1Id === currentUserId.id ? friendship.user2Id : friendship.user1Id
       )
     );
 
     // Filter out users with existing relationships
-    const availableUsers = users.filter(user => 
+    const availableUsers = users.filter((user: { id: string; name: string | null; username: string | null; image: string | null; updatedAt: Date }) => 
       !requestUserIds.has(user.id) && !friendUserIds.has(user.id)
-    ).map(user => ({
+    ).map((user: { id: string; name: string | null; username: string | null; image: string | null; updatedAt: Date }) => ({
       ...user,
       lastActive: user.updatedAt,
       isOnline: new Date().getTime() - new Date(user.updatedAt).getTime() < 5 * 60 * 1000, // Online if active within 5 minutes

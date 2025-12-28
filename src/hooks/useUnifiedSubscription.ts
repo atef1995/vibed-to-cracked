@@ -1,15 +1,7 @@
 import { useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSubscription } from "./useSubscription";
-
-// Core subscription interface
-export interface SubscriptionInfo {
-  plan: "FREE" | "VIBED" | "CRACKED";
-  status: string;
-  subscriptionEndsAt: Date | null;
-  isActive: boolean;
-  canAccessPremium: boolean;
-}
+import { SubscriptionInfo } from "@/types/subscription";
 
 // Premium content interface
 interface PremiumContent {

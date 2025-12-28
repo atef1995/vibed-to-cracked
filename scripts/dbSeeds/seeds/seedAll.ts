@@ -1,12 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { seedCategories } from "./seedCategories";
-import { seedTutorials } from "./seedTutorials";
-import seedHtmlTutorials from "./seedHtmlTutorials";
-import seedCssTutorials from "./seedCssTutorials";
-import { seedSkills } from "./seeds/skillSeeds";
-import { seedTypescriptOOP } from "./seeds/typescriptOOPSeeds";
-import { seedExercises } from "./seedExercises";
-import seedDsaTutorials from "./seedDsaTutorials";
+import { seedCategories } from "../seedCategories";
+import { seedTutorials } from "../seedTutorials";
+import seedHtmlTutorials from "../seedHtmlTutorials";
+import seedCssTutorials from "../seedCssTutorials";
+import { seedSkills } from "./skillSeeds";
+import { seedTypescriptOOP } from "./typescriptOOPSeeds";
+import { seedExercises } from "../seedExercises";
+import seedDsaTutorials from "../seedDsaTutorials";
 
 const prisma = new PrismaClient();
 

@@ -11,7 +11,7 @@ import {
   ResourceType,
   SubscriptionPlan 
 } from './common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '../../generated/prisma/client';
 
 export interface ProjectRequirement {
   id: string;

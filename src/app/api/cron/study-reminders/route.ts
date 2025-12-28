@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { emailService } from '@/lib/services/emailService';
 
+type ActivityRecord = {
+  updatedAt: Date;
+};
+
 // This endpoint will be called by the cron job
 export async function POST(req: NextRequest) {
   try {
@@ -214,7 +218,7 @@ export async function POST(req: NextRequest) {
 
         // Count unique days of activity
         const uniqueDays = new Set(
-          recentActivities.map(activity => 
+          recentActivities.map((activity: ActivityRecord) => 
             activity.updatedAt.toISOString().split('T')[0]
           )
         );

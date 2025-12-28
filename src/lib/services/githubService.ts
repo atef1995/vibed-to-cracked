@@ -315,6 +315,7 @@ export class GitHubService {
         baseRepo === expectedRepo.toLowerCase()
       );
     } catch (error) {
+      console.error(error);
       return false;
     }
   }
@@ -366,6 +367,7 @@ export class GitHubService {
       // Compare head repo with base repo
       return pr.head.repo?.id !== pr.base.repo.id;
     } catch (error) {
+      console.error(error);
       return false;
     }
   }

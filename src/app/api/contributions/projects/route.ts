@@ -15,6 +15,29 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseProjectFeatures } from "@/lib/types/contribution";
 
+interface ProjectSubmission {
+  projectId: string;
+  featureId: string;
+  prStatus: string | null;
+}
+
+interface ProjectData {
+  id: string;
+  createdAt: Date;
+  slug: string;
+  title: string;
+  description: string;
+  difficulty: number;
+  isPremium: boolean;
+  requiredPlan: string;
+  category: string;
+  estimatedHours: number;
+  githubRepoUrl: string;
+  features: string;
+  xpReward: number;
+  _count: { submissions: number };
+}
+
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -100,7 +123,7 @@ export async function GET(request: Request) {
         where: {
           userId: session.user.id,
           projectId: {
-            in: projects.map((p) => p.id),
+            in: (projects as ProjectData[]).map((p: ProjectData) => p.id),
           },
         },
         select: {
@@ -112,23 +135,26 @@ export async function GET(request: Request) {
 
       // Create a map of project submissions
       const submissionMap = new Map(
-        userSubmissions.map((sub) => [
+        (userSubmissions as ProjectSubmission[]).map((sub: ProjectSubmission) => [
           `${sub.projectId}-${sub.featureId}`,
           sub.prStatus,
         ])
       );
 
-      projectsWithStatus = projects.map((project) => {
+      projectsWithStatus = (projects as ProjectData[]).map((project: ProjectData) => {
         const features = parseProjectFeatures(project.features);
-        const featuresWithStatus = features.map((feature) => ({
-          ...feature,
-          userStatus: submissionMap.get(`${project.id}-${feature.id}`) || null,
-        }));
+        const featuresWithStatus = (features as unknown[]).map((feature: unknown) => {
+          const f = feature as { id: string };
+          return {
+            ...(feature as Record<string, unknown>),
+            userStatus: submissionMap.get(`${project.id}-${f.id}`) || null,
+          };
+        });
 
         return {
           ...project,
           features: featuresWithStatus,
-          totalSubmissions: project._count.submissions,
+          totalSubmissions: project._count.submissions || 0,
         };
       });
     }

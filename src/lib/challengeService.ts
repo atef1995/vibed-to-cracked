@@ -3,13 +3,52 @@ import {
   Challenge,
   ChallengeTest,
   ChallengeMoodAdaptation,
-} from "@prisma/client";
+} from "../../generated/prisma/client";
+import type {
+  ChallengeWithTests as FrontendChallengeWithTests,
+} from "@/types/challenge";
 
-// Prisma types for challenges with relationships
-export type ChallengeWithTests = Challenge & {
+// Prisma types for internal use
+export type PrismaChallengeWithTests = Challenge & {
   tests: ChallengeTest[];
   moodAdaptations: ChallengeMoodAdaptation[];
 };
+
+// Re-export frontend types for API consumers
+export type ChallengeWithTests = FrontendChallengeWithTests;
+
+// Transformation function: Prisma to Frontend
+function transformToFrontendChallenge(
+  challenge: PrismaChallengeWithTests
+): ChallengeWithTests {
+  return {
+    id: challenge.id,
+    slug: challenge.slug,
+    title: challenge.title,
+    description: challenge.description,
+    type: challenge.type,
+    difficulty: challenge.difficulty,
+    isPremium: challenge.isPremium,
+    requiredPlan: challenge.requiredPlan,
+    estimatedTime: challenge.estimatedTime,
+    starter: challenge.starter,
+    solution: challenge.solution,
+    order: challenge.order,
+    published: challenge.published,
+    createdAt: challenge.createdAt,
+    updatedAt: challenge.updatedAt,
+    tests: challenge.tests.map((test: ChallengeTest) => ({
+      id: test.id,
+      input: JSON.stringify(test.input),
+      expected: JSON.stringify(test.expected),
+      description: test.description,
+    })),
+    moodAdaptations: challenge.moodAdaptations.map((adaptation) => ({
+      mood: adaptation.mood,
+      content: adaptation.content,
+    })),
+  };
+}
 
 export async function getAllChallenges(): Promise<ChallengeWithTests[]> {
   try {
@@ -28,7 +67,7 @@ export async function getAllChallenges(): Promise<ChallengeWithTests[]> {
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     });
 
-    return challenges;
+    return challenges.map(transformToFrontendChallenge);
   } catch (error) {
     console.error("Error fetching challenges:", error);
     throw new Error("Failed to fetch challenges");
@@ -54,7 +93,7 @@ export async function getChallengeById(
       },
     });
 
-    return challenge;
+    return challenge ? transformToFrontendChallenge(challenge) : null;
   } catch (error) {
     console.error("Error fetching challenge by ID:", error);
     return null;
@@ -80,7 +119,7 @@ export async function getChallengeBySlug(
       },
     });
 
-    return challenge;
+    return challenge ? transformToFrontendChallenge(challenge) : null;
   } catch (error) {
     console.error("Error fetching challenge by slug:", error);
     return null;
@@ -121,7 +160,7 @@ export async function getFilteredChallenges(filters: {
       orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     });
 
-    return challenges;
+    return challenges.map(transformToFrontendChallenge);
   } catch (error) {
     console.error("Error fetching filtered challenges:", error);
     throw new Error("Failed to fetch filtered challenges");

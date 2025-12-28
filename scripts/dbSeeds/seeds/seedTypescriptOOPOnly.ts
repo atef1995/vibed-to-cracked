@@ -5,7 +5,7 @@
  * Run with: npm run seed:typescript-oop or tsx prisma/seedTypescriptOOPOnly.ts
  */
 
-import { seedTypescriptOOP } from "./seeds/typescriptOOPSeeds";
+import { seedTypescriptOOP } from "./typescriptOOPSeeds";
 
 // Run the TypeScript OOP seeding
 seedTypescriptOOP().catch((e) => {

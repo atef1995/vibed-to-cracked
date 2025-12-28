@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { ChallengeMoodAdaptation } from "@prisma/client";
+import { ChallengeMoodAdaptation } from "../../generated/prisma/client";
 import { AchievementService } from "./achievementService";
 import { CertificateService } from "./certificateService";
 import { StudyPlanService } from "./services/studyPlanService";

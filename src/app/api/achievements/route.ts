@@ -3,6 +3,25 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+interface Achievement {
+  id: string;
+  key: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: string;
+  rarity: string;
+  points: number;
+  requirementType: string;
+  requirementValue: number;
+  isHidden: boolean;
+  userAchievements: Array<{
+    id: string;
+    unlockedAt: Date | null;
+    notified: boolean;
+  }>;
+}
+
 // GET /api/achievements - Get all achievements with user unlock status
 export async function GET() {
   try {
@@ -48,7 +67,7 @@ export async function GET() {
       });
 
       // Transform data for frontend
-      const achievementsWithStatus = achievements.map((achievement) => ({
+      const achievementsWithStatus = (achievements as Achievement[]).map((achievement) => ({
         id: achievement.id,
         key: achievement.key,
         title: achievement.title,

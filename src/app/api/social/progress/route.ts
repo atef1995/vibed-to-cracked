@@ -3,6 +3,20 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+type ProgressShareWithRelations = {
+  id: string;
+  type: string;
+  title: string;
+  description: string | null;
+  data: unknown;
+  visibility: string;
+  userId: string;
+  createdAt: Date;
+  user: { id: string; name: string | null; image: string | null; mood: string | null };
+  reactions: Array<{ user: { id: string; name: string | null } }>;
+  _count: { reactions: number };
+};
+
 // GET /api/social/progress - Get progress updates from friends
 export async function GET() {
   try {
@@ -43,7 +57,7 @@ export async function GET() {
       });
 
       // Extract friend IDs
-      const friendIds = friendships.map(friendship => 
+      const friendIds = friendships.map((friendship: { user1Id: string; user2Id: string }) => 
         friendship.user1Id === user.id ? friendship.user2Id : friendship.user1Id
       );
 
@@ -93,7 +107,7 @@ export async function GET() {
 
       return NextResponse.json({
         success: true,
-        feed: progressShares.map(share => ({
+        feed: progressShares.map((share: ProgressShareWithRelations) => ({
           id: share.id,
           type: share.type,
           title: share.title,

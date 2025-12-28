@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { quizzes, Quiz } from "./seeds/data/quizzes";
-import { slugify, generateUniqueSlug } from "../src/lib/slugify";
+import { quizzes, Quiz } from "./data/quizzes";
+import { slugify, generateUniqueSlug } from "../../src/lib/slugify";
 
 const prisma = new PrismaClient();
 

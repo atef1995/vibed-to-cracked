@@ -1,4 +1,4 @@
-import { populatePhaseWithContent } from "../seedPhases";
+import { populatePhaseWithContent } from "../seeds/seedPhases";
 
 const seedOOPPhases = async () => {
   await populatePhaseWithContent(

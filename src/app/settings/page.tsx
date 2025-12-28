@@ -30,6 +30,7 @@ import Link from "next/link";
 import { SubscriptionManager } from "@/components/subscription/SubscriptionManager";
 import { UsageStatistics } from "@/components/subscription/UsageStatistics";
 import { getMoodIcon } from "@/lib/getMoodIcon";
+import getMoodColors from "@/lib/getMoodColors";
 
 interface UserSettings {
   name: string;
@@ -365,7 +366,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-300 text-lg">
@@ -380,7 +381,7 @@ export default function SettingsPage() {
     <>
       <ToastContainer toasts={toasts} onRemove={removeToast} />
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
@@ -522,10 +523,10 @@ export default function SettingsPage() {
                                 preferredMood: mood.id,
                               })
                             }
-                            className={`p-4 rounded-lg border-2 transition-all text-left relative overflow-hidden ${
+                            className={`p-4 rounded-lg border-2 border-transparent transition-all text-left relative overflow-hidden ${
                               settings.preferredMood === mood.id
-                                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/30 ring-2 ring-blue-200 dark:ring-blue-800"
-                                : "border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md"
+                                ? `${getMoodColors(mood.id).border} ${getMoodColors(mood.id).bg}`
+                                : `${getMoodColors(mood.id).bg} ${getMoodColors(mood.id).hover} hover:shadow-md`
                             }`}
                           >
                             {settings.preferredMood === mood.id && (
@@ -547,8 +548,11 @@ export default function SettingsPage() {
                             )}
 
                             <div className="text-center mb-4">
-                              <div className="text-3xl mb-2">
-                                <Icon className="w-5 h-5" />;
+                              <div className="absolute top-1/12 ">
+                                {(() => {
+                                  const MoodIcon = getMoodIcon(mood.icon);
+                                  return <MoodIcon className="w-5 h-5"/>;
+                                })()}
                               </div>
                               <div className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                                 {mood.name}
@@ -628,10 +632,10 @@ export default function SettingsPage() {
 
                       {/* Current Mood Impact Summary */}
                       {settings.preferredMood && (
-                        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                        <div className={`mt-6 p-4 bg-linear-to-r rounded-lg ${getMoodColors(MOODS[settings.preferredMood].id).gradient} ${getMoodColors(MOODS[settings.preferredMood].id)}`}>
                           <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
                             <span className="text-xl">
-                              <Icon className="w-5 h-5" />;
+                              <Icon className="w-5 h-5" />
                             </span>
                             Your {MOODS[settings.preferredMood].name} Experience
                           </h4>
@@ -777,7 +781,7 @@ export default function SettingsPage() {
                               }
                               className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                       ))}
@@ -1003,7 +1007,7 @@ export default function SettingsPage() {
                               }
                               className="sr-only peer"
                             />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
                           </label>
                         </div>
                       ))}

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2025-06-30.basil" as unknown as "2025-08-27.basil",
 });
 
 interface PriceData {
@@ -13,6 +13,14 @@ interface PriceData {
   currency: string;
   productName: string;
 }
+
+type StripePrice = {
+  id: string;
+  product: unknown;
+  unit_amount: number | null;
+  currency: string;
+  recurring?: { interval: string } | null;
+};
 
 export async function GET() {
   try {
@@ -25,7 +33,7 @@ export async function GET() {
     // Map price IDs to their data for easy lookup
     const priceMap: Record<string, PriceData> = {};
 
-    prices.data.forEach((price) => {
+    (prices.data as StripePrice[]).forEach((price: StripePrice) => {
       const product = price.product as Stripe.Product;
       const planType: "VIBED" | "CRACKED" = product.name?.includes("Vibed")
         ? "VIBED"

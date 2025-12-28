@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { exerciseAchievements } from "./seedExerciseAchievements";
+import { exerciseAchievements } from "../seedExerciseAchievements";
 
 const prisma = new PrismaClient();
 

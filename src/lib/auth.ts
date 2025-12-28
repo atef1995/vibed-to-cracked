@@ -6,7 +6,7 @@ import { generateUniqueUsername } from "@/lib/username";
 import { emailService } from "@/lib/services/emailService";
 import type { NextAuthOptions } from "next-auth";
 import { devMode } from "./services/envService";
-import { SubscriptionService, type SubscriptionInfo } from "@/lib/subscriptionService";
+import { SubscriptionService } from "@/lib/subscriptionService";
 
 const debugMode = devMode();
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { Crown, Zap, Settings, AlertTriangle, Clock } from "lucide-react";
-import { Plan, SubscriptionStatus } from "@/lib/subscriptionService";
+import { Plan, SubscriptionStatus } from "@/lib/subscriptionConstants";
 
 interface SubscriptionStatusBadgeProps {
-  plan: Plan;
-  status: SubscriptionStatus;
+  plan: typeof Plan[keyof typeof Plan];
+  status: typeof SubscriptionStatus[keyof typeof SubscriptionStatus];
   subscriptionEndsAt?: Date | null;
   showUpgradePrompt?: boolean;
   onUpgrade?: () => void;

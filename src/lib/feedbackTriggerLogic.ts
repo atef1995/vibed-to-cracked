@@ -10,7 +10,7 @@ import {
   FeedbackHistory,
   FeedbackTriggerConfig,
   FeedbackTriggerState,
-  FeedbackTriggerReason,
+  // FeedbackTriggerReason, #TODO: unused
   DEFAULT_FEEDBACK_CONFIG,
   FEEDBACK_STORAGE_PREFIX,
 } from "@/types/feedbackTrigger";

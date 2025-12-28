@@ -9,6 +9,28 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+interface Submission {
+  id: string;
+  prStatus: string | null;
+  project: { xpReward: number; slug: string; title: string };
+  prTitle: string | null;
+  featureTitle: string | null;
+  githubPrUrl: string | null;
+  submittedAt: Date;
+  peerReviewsReceived: number;
+  peerReviewsNeeded: number;
+  ciPassed: boolean | null;
+}
+
+interface ReviewAssignment {
+  id: string;
+  submissionId: string;
+  submittedAt: Date | null;
+  createdAt: Date;
+  status: string;
+  submission: { prTitle: string | null; featureTitle: string | null; project: { title: string } };
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -68,20 +90,20 @@ export async function GET() {
 
     // Calculate stats
     const totalSubmissions = submissions.length;
-    const mergedPRs = submissions.filter((s) => s.prStatus === "MERGED").length;
-    const reviewsGiven = reviewAssignments.filter((r) => r.submittedAt !== null).length;
+    const mergedPRs = (submissions as Submission[]).filter((s) => s.prStatus === "MERGED").length;
+    const reviewsGiven = (reviewAssignments as ReviewAssignment[]).filter((r) => r.submittedAt !== null).length;
 
     // Calculate XP earned from merged PRs
-    const xpEarned = submissions
+    const xpEarned = (submissions as Submission[])
       .filter((s) => s.prStatus === "MERGED")
-      .reduce((sum, s) => sum + s.project.xpReward, 0);
+      .reduce((sum: number, s: Submission) => sum + s.project.xpReward, 0);
 
     // Calculate streak (consecutive days with activity)
     // For simplicity, counting as 0 - implement proper streak logic later
     const currentStreak = 0;
 
     // Format submissions for frontend
-    const submissionSummaries = submissions.map((s) => ({
+    const submissionSummaries = (submissions as Submission[]).map((s) => ({
       id: s.id,
       prTitle: s.prTitle,
       prStatus: s.prStatus,
@@ -95,7 +117,7 @@ export async function GET() {
     }));
 
     // Format review assignments for frontend
-    const reviewAssignmentSummaries = reviewAssignments.map((r) => ({
+    const reviewAssignmentSummaries = (reviewAssignments as ReviewAssignment[]).map((r) => ({
       id: r.id,
       submissionId: r.submissionId,
       prTitle: r.submission.prTitle,

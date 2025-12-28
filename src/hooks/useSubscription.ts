@@ -2,10 +2,8 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import type { SubscriptionInfo } from "@/lib/subscriptionService";
+import type { SubscriptionInfo } from "@/types/subscription";
 
-// Re-export for convenience
-export type { SubscriptionInfo };
 
 interface SubscriptionResponse {
   success: boolean;

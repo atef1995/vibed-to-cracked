@@ -2,18 +2,18 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { Certificate, CertificateType } from "@prisma/client";
 import { Award, Trophy, Filter } from "lucide-react";
 import CertificateCard from "@/components/ui/CertificateCard";
 import { useMood } from "@/components/providers/MoodProvider";
 import getMoodColors from "@/lib/getMoodColors";
+import { Certificate } from "@/types/certificate";
 
 export default function CertificatesPage() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
   const [certificates, setCertificates] = useState<Certificate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<CertificateType | "ALL">("ALL");
+  const [filter, setFilter] = useState<string | "ALL">("ALL");
 
   const fetchCertificates = useCallback(async () => {
     try {
@@ -42,10 +42,10 @@ export default function CertificatesPage() {
   const moodColors = getMoodColors(currentMood.id);
 
   const tutorialCertificates = certificates.filter(
-    (cert) => cert.type === CertificateType.TUTORIAL
+    (cert) => cert.type === "TUTORIAL"
   );
   const categoryCertificates = certificates.filter(
-    (cert) => cert.type === CertificateType.CATEGORY
+    (cert) => cert.type === "CATEGORY"
   );
 
   if (!session) {
@@ -62,7 +62,7 @@ export default function CertificatesPage() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} p-4`}
+      className={`min-h-screen bg-linear-to-br ${moodColors.gradient} p-4`}
     >
       <div className="container mx-auto max-w-6xl">
         {/* Header */}
@@ -92,19 +92,19 @@ export default function CertificatesPage() {
             {[
               { value: "ALL", label: "All", icon: Award },
               {
-                value: CertificateType.TUTORIAL,
+                value: "TUTORIAL",
                 label: "Tutorials",
                 icon: Award,
               },
               {
-                value: CertificateType.CATEGORY,
+                value: "CATEGORY",
                 label: "Categories",
                 icon: Trophy,
               },
             ].map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
-                onClick={() => setFilter(value as CertificateType | "ALL")}
+                onClick={() => setFilter(value as string | "ALL")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
                   filter === value
                     ? `${moodColors.accent} text-white shadow-lg`
@@ -146,7 +146,7 @@ export default function CertificatesPage() {
         {/* Category Certificates */}
         {!loading &&
           categoryCertificates.length > 0 &&
-          (filter === "ALL" || filter === CertificateType.CATEGORY) && (
+          (filter === "ALL" || filter === "CATEGORY") && (
             <div className="mb-12">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
                 <Trophy className="h-6 w-6" />
@@ -169,7 +169,7 @@ export default function CertificatesPage() {
         {/* Tutorial Certificates */}
         {!loading &&
           tutorialCertificates.length > 0 &&
-          (filter === "ALL" || filter === CertificateType.TUTORIAL) && (
+          (filter === "ALL" || filter === "TUTORIAL") && (
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
                 <Award className="h-6 w-6" />

@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/auth-utils';
 
+type CodeExecution = {
+  id: string;
+  userId: string | null;
+  code: string;
+  result: string | null;
+  error: string | null;
+  success: boolean;
+  timeSpent: number | null;
+  mood: string | null;
+  tutorialId: string | null;
+  createdAt: Date;
+};
+
 export async function GET(_req: NextRequest) {
   try {
     // Check if user is admin
@@ -29,16 +42,16 @@ export async function GET(_req: NextRequest) {
 
     // Calculate statistics
     const totalJobs = cronHistory.length;
-    const successfulJobs = cronHistory.filter(job => job.success).length;
+    const successfulJobs = cronHistory.filter((job: CodeExecution) => job.success).length;
     const failedJobs = totalJobs - successfulJobs;
     const successRate = totalJobs > 0 ? Math.round((successfulJobs / totalJobs) * 100) : 0;
 
     // Get last execution details
     const lastExecution = cronHistory[0];
-    const lastSuccessfulExecution = cronHistory.find(job => job.success);
+    const lastSuccessfulExecution = cronHistory.find((job: CodeExecution) => job.success);
 
     // Group by date for chart data
-    const executionsByDate = cronHistory.reduce((acc, job) => {
+    const executionsByDate = cronHistory.reduce((acc: Record<string, { date: string; successful: number; failed: number; total: number }>, job: CodeExecution) => {
       const date = job.createdAt.toISOString().split('T')[0];
       if (!acc[date]) {
         acc[date] = { date, successful: 0, failed: 0, total: 0 };
@@ -56,10 +69,10 @@ export async function GET(_req: NextRequest) {
 
     // Parse results from recent successful executions to get email stats
     const recentSuccessfulJobs = cronHistory
-      .filter(job => job.success && job.result)
+      .filter((job: CodeExecution) => job.success && job.result)
       .slice(0, 10);
 
-    const emailStats = recentSuccessfulJobs.reduce((acc, job) => {
+    const emailStats = recentSuccessfulJobs.reduce((acc: { totalEmailsSent: number; executionCount: number }, job: CodeExecution) => {
       const match = job.result?.match(/Sent (\d+) reminders/);
       if (match) {
         acc.totalEmailsSent += parseInt(match[1]);
@@ -95,7 +108,7 @@ export async function GET(_req: NextRequest) {
         timeSpent: lastSuccessfulExecution.timeSpent,
       } : null,
       chartData,
-      recentExecutions: cronHistory.slice(0, 10).map(job => ({
+      recentExecutions: cronHistory.slice(0, 10).map((job: CodeExecution) => ({
         timestamp: job.createdAt,
         success: job.success,
         result: job.result,

@@ -30,10 +30,10 @@ const nextConfig: NextConfig = {
       ...config.resolve.alias,
     };
 
-    // Exclude scripts and prisma seed files
+    // Exclude scripts, seed files, and database-related files
     config.module.rules.push({
       test: /\.(ts|tsx)$/,
-      exclude: [/scripts\//, /prisma\/seed/, /prisma\/migrations/],
+      exclude: [/scripts\//, /prisma\/seed/, /prisma\/migrations/, /dbSeeds\//],
     });
 
     return config;

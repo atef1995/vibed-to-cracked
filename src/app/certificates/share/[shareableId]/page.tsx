@@ -1,22 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Certificate } from "@prisma/client";
 import { Award, ExternalLink, Share } from "lucide-react";
 import CertificateCard from "@/components/ui/CertificateCard";
 import { useMood } from "@/components/providers/MoodProvider";
 import getMoodColors from "@/lib/getMoodColors";
-
-interface CertificateWithUser extends Certificate {
-  user: {
-    id: string;
-    name: string | null;
-    email: string;
-    username: string | null;
-  };
-}
+import type { CertificateWithUser } from "@/types/certificate";
 
 export default function ShareableCertificatePage() {
   const params = useParams();
@@ -29,13 +20,7 @@ export default function ShareableCertificatePage() {
 
   const shareableId = params.shareableId as string;
 
-  useEffect(() => {
-    if (shareableId) {
-      fetchCertificate();
-    }
-  }, [shareableId]);
-
-  const fetchCertificate = async () => {
+  const fetchCertificate = useCallback(async () => {
     try {
       const response = await fetch(`/api/certificates/share/${shareableId}`);
       const data = await response.json();
@@ -51,7 +36,13 @@ export default function ShareableCertificatePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [shareableId]);
+
+  useEffect(() => {
+    if (shareableId) {
+      fetchCertificate();
+    }
+  }, [shareableId, fetchCertificate]);
 
   const moodColors = getMoodColors(currentMood.id);
 
@@ -88,7 +79,7 @@ export default function ShareableCertificatePage() {
   if (loading) {
     return (
       <div
-        className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} flex items-center justify-center`}
+        className={`min-h-screen bg-linear-to-br ${moodColors.gradient} flex items-center justify-center`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
@@ -103,7 +94,7 @@ export default function ShareableCertificatePage() {
   if (error || !certificate) {
     return (
       <div
-        className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} flex items-center justify-center`}
+        className={`min-h-screen bg-linear-to-br ${moodColors.gradient} flex items-center justify-center`}
       >
         <div className="text-center max-w-md mx-auto p-6">
           <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -120,7 +111,7 @@ export default function ShareableCertificatePage() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} p-4`}
+      className={`min-h-screen bg-linear-to-br ${moodColors.gradient} p-4`}
     >
       <div className="container mx-auto max-w-4xl">
         {/* Header */}

@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+type UserAchievement = { achievement: { points: number } };
+type TutorialProgress = { updatedAt: Date };
+
 // Helper function to calculate user statistics
 async function calculateUserStats(userId: string) {
   try {
@@ -12,8 +15,8 @@ async function calculateUserStats(userId: string) {
       include: { achievement: true },
     });
 
-    const totalPoints = userAchievements.reduce(
-      (sum, ua) => sum + ua.achievement.points,
+    const totalPoints = (userAchievements as UserAchievement[]).reduce(
+      (sum: number, ua: UserAchievement) => sum + ua.achievement.points,
       0
     );
 
@@ -36,7 +39,7 @@ async function calculateUserStats(userId: string) {
       let hasActivityToday = false;
 
       // Check if there's activity today first
-      const todayProgress = recentProgress.some((p) => {
+      const todayProgress = (recentProgress as TutorialProgress[]).some((p: TutorialProgress) => {
         const progressDate = new Date(p.updatedAt);
         return progressDate.toDateString() === today.toDateString();
       });
@@ -48,7 +51,7 @@ async function calculateUserStats(userId: string) {
 
       // Count consecutive days working backwards
       const activityDates = new Set(
-        recentProgress.map((p) => new Date(p.updatedAt).toDateString())
+        recentProgress.map((p: {updatedAt: Date}) => new Date(p.updatedAt).toDateString())
       );
 
       if (hasActivityToday) {
@@ -134,11 +137,17 @@ export async function GET() {
 
       // Transform friendships to get friend info with calculated stats
       const friends = await Promise.all(
-        friendships.map(async (friendship) => {
+        (friendships as unknown[]).map(async (friendship: unknown) => {
+          const f = friendship as {
+            user1Id: string;
+            user1: { id: string; name: string | null; username: string | null; image: string | null; mood: string | null };
+            user2: { id: string; name: string | null; username: string | null; image: string | null; mood: string | null };
+            createdAt: Date;
+          };
           const friend =
-            friendship.user1Id === user.id
-              ? friendship.user2
-              : friendship.user1;
+            f.user1Id === user.id
+              ? f.user2
+              : f.user1;
 
           // Calculate friend's stats
           const friendStats = await calculateUserStats(friend.id);
@@ -151,7 +160,7 @@ export async function GET() {
             mood: friend.mood,
             totalPoints: friendStats.totalPoints,
             currentStreak: friendStats.currentStreak,
-            friendsSince: friendship.createdAt,
+            friendsSince: f.createdAt,
           };
         })
       );
@@ -194,13 +203,13 @@ export async function GET() {
       return NextResponse.json({
         success: true,
         friends,
-        sentRequests: sentRequests.map((req) => ({
+        sentRequests: sentRequests.map((req: {id: string; receiver: unknown; message: string | null; createdAt: Date}) => ({
           id: req.id,
           user: req.receiver,
           message: req.message,
           createdAt: req.createdAt,
         })),
-        receivedRequests: receivedRequests.map((req) => ({
+        receivedRequests: receivedRequests.map((req: {id: string; sender: unknown; message: string | null; createdAt: Date}) => ({
           id: req.id,
           sender: req.sender,
           message: req.message,

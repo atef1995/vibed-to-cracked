@@ -4,7 +4,7 @@ import {
   seedQuizzes,
   TutorialSeedData,
   QuizSeedData,
-} from "./utils/seedTutorialHelpers";
+} from "../utils/seedTutorialHelpers";
 
 const prisma = new PrismaClient();
 

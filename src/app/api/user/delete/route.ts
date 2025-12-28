@@ -29,50 +29,51 @@ export async function DELETE() {
     }
 
     // Delete all user-related data in the correct order (due to foreign key constraints)
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: unknown) => {
+      const txClient = tx as typeof prisma;
       // Delete progress records first
-      await tx.tutorialProgress.deleteMany({
+      await txClient.tutorialProgress.deleteMany({
         where: { userId: user.id },
       });
 
-      await tx.challengeProgress.deleteMany({
+      await txClient.challengeProgress.deleteMany({
         where: { userId: user.id },
       });
 
-      await tx.progress.deleteMany({
+      await txClient.progress.deleteMany({
         where: { userId: user.id },
       });
 
       // Delete attempts
-      await tx.challengeAttempt.deleteMany({
+      await txClient.challengeAttempt.deleteMany({
         where: { userId: user.id },
       });
 
-      await tx.quizAttempt.deleteMany({
+      await txClient.quizAttempt.deleteMany({
         where: { userId: user.id },
       });
 
       // Delete payments and subscriptions
-      await tx.payment.deleteMany({
+      await txClient.payment.deleteMany({
         where: { userId: user.id },
       });
 
-      await tx.subscription.deleteMany({
+      await txClient.subscription.deleteMany({
         where: { userId: user.id },
       });
 
       // Delete user sessions
-      await tx.session.deleteMany({
+      await txClient.session.deleteMany({
         where: { userId: user.id },
       });
 
       // Delete accounts
-      await tx.account.deleteMany({
+      await txClient.account.deleteMany({
         where: { userId: user.id },
       });
 
       // Finally delete the user
-      await tx.user.delete({
+      await txClient.user.delete({
         where: { id: user.id },
       });
     });

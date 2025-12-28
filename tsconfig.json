@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES2023",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
@@ -29,8 +29,8 @@
     "scripts/**/*",
     "prisma/seed*.ts",
     "prisma/migrations/**/*",
-    "prisma/checkTutorial.ts",
+    "prisma/seeds/checkTutorial.ts",
     "prisma/phases/*",
-    "prisma/utils/*"
+    "scripts/utils/*"
   ]
 }

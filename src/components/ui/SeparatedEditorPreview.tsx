@@ -97,7 +97,7 @@ ${css}
       className={` dark:border-gray-700 rounded-lg overflow-hidden mb-6 h-full`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-700 px-4 py-3">
+      <div className="bg-linear-to-r from-blue-500 to-blue-700 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="text-white font-semibold flex items-center gap-2">
             <Code2 className="w-5 h-5" />

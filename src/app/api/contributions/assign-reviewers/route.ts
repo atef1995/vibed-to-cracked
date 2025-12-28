@@ -21,6 +21,20 @@ interface AssignReviewersRequest {
   numberOfReviewers?: number;
 }
 
+interface EligibleReviewer {
+  id: string;
+  username: string | null;
+  email: string;
+  contributionReviews: Array<{
+    id: string;
+    status: string;
+  }>;
+  contributionSubmissions: Array<{
+    id: string;
+    prStatus: string | null;
+  }>;
+}
+
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
@@ -78,7 +92,7 @@ export async function POST(request: Request) {
     }
 
     // Get IDs of users who already reviewed this submission
-    const existingReviewerIds = submission.reviews.map((r) => r.reviewerId);
+    const existingReviewerIds = submission.reviews.map((r: { reviewerId: string }) => r.reviewerId);
 
     // Find eligible reviewers
     // Criteria:
@@ -130,7 +144,7 @@ export async function POST(request: Request) {
     // 1. Experience (completed submissions)
     // 2. Review load (pending reviews)
     // 3. Review quality (completed reviews)
-    const scoredReviewers = eligibleReviewers.map((user) => {
+    const scoredReviewers = (eligibleReviewers as EligibleReviewer[]).map((user) => {
       const completedSubmissions = user.contributionSubmissions.filter(
         (s) => s.prStatus === "MERGED"
       ).length;
@@ -218,7 +232,7 @@ export async function POST(request: Request) {
 
     // Send notifications to assigned reviewers
     await Promise.all(
-      createdReviews.map((review) =>
+      createdReviews.map((review: typeof createdReviews[0]) =>
         prisma.notification.create({
           data: {
             userId: review.reviewerId,
@@ -239,7 +253,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       reviewsCreated: createdReviews.length,
-      reviewers: createdReviews.map((r) => ({
+      reviewers: createdReviews.map((r: typeof createdReviews[0]) => ({
         reviewId: r.id,
         reviewerUsername: r.reviewer.username,
       })),

@@ -103,14 +103,14 @@ export async function GET(
     // Calculate project statistics
     const stats = {
       totalSubmissions: project.submissions.length,
-      mergedSubmissions: project.submissions.filter((s) => s.prStatus === "MERGED")
+      mergedSubmissions: (project.submissions as Array<{prStatus: string | null}>).filter((s: {prStatus: string | null}) => s.prStatus === "MERGED")
         .length,
       avgGrade:
-        project.submissions.filter((s) => s.grade !== null).length > 0
-          ? project.submissions
-              .filter((s) => s.grade !== null)
-              .reduce((sum, s) => sum + (s.grade || 0), 0) /
-            project.submissions.filter((s) => s.grade !== null).length
+        (project.submissions as Array<{grade: number | null}>).filter((s: {grade: number | null}) => s.grade !== null).length > 0
+          ? (project.submissions as Array<{grade: number | null}>)
+              .filter((s: {grade: number | null}) => s.grade !== null)
+              .reduce((sum: number, s: {grade: number | null}) => sum + (s.grade || 0), 0) /
+              (project.submissions as Array<{grade: number | null}>).filter((s: {grade: number | null}) => s.grade !== null).length
           : null,
     };
 

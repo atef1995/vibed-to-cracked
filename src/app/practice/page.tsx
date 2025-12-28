@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useMood } from "@/components/providers/MoodProvider";
 import { useState } from "react";
-import { ChallengeWithTests } from "@/lib/challengeService";
 import Card, { CardAction } from "@/components/ui/Card";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { MoodInfoCard } from "@/components/ui/MoodInfoCard";
@@ -24,7 +23,27 @@ import {
   CheckCircle,
   Clock,
 } from "lucide-react";
-import { challengeTypes, difficultyLevels } from "@/lib/challengeData";
+import type {
+  ChallengeWithTests,
+  MoodAdaptation,
+} from "@/types/challenge";
+
+// Static filter options for UI
+const challengeTypes = [
+  { value: "all", label: "All Types" },
+  { value: "function", label: "Functions" },
+  { value: "array", label: "Arrays" },
+  { value: "object", label: "Objects" },
+  { value: "algorithm", label: "Algorithms" },
+  { value: "logic", label: "Logic" },
+];
+
+const difficultyLevels = [
+  { value: "all", label: "All Levels" },
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
+];
 
 export default function PracticePage() {
   const { data: session } = useSession();
@@ -67,9 +86,9 @@ export default function PracticePage() {
     handlePremiumContent(
       {
         title: challenge.title,
-        isPremium: challenge.isPremium,
+        isPremium: challenge.isPremium || false,
         requiredPlan:
-          challenge.requiredPlan === "FREE" ? "VIBED" : challenge.requiredPlan,
+          (challenge.requiredPlan === "FREE" ? "VIBED" : challenge.requiredPlan) || "VIBED",
         type: "challenge" as const,
       },
       () => {
@@ -267,7 +286,7 @@ export default function PracticePage() {
                 className="h-full"
                 actions={
                   <div className="flex items-center justify-between w-full">
-                    <CardAction.TimeInfo time={challenge.estimatedTime} />
+                    <CardAction.TimeInfo time={challenge.estimatedTime as string} />
                     <CardAction.Primary
                       onClick={() => handleChallengeClick(challenge)}
                     >
@@ -315,8 +334,8 @@ export default function PracticePage() {
                 {/* Mood-adapted description */}
                 <div className={`${moodColors.bg} rounded-lg p-3`}>
                   <p className={`${moodColors.text} text-xs leading-relaxed`}>
-                    {challenge.moodAdaptations.find(
-                      (adaptation) =>
+                    {(challenge.moodAdaptations as MoodAdaptation[] | undefined)?.find(
+                      (adaptation: MoodAdaptation) =>
                         adaptation.mood.toLowerCase() ===
                         currentMood.id.toLowerCase()
                     )?.content || "Get ready to tackle this challenge!"}
