@@ -2,31 +2,27 @@
 .git
 .gitignore
 
-# Development
+# Documentation (not needed for build)
+docs/
+
+# Development only
 .env.local
 .env.development.local
 .env.test.local
 
-# Documentation
-docs/
-README.md
-
-# Development scripts
-scripts/
-
 # Node modules (handled by Vercel)
 node_modules/
 
-# Build outputs
+# Build outputs (regenerated during build)
 .next/
 dist/
 build/
 out/
 
-# Testing
+# Testing (not needed for production)
 __tests__/
-.test.ts
-.spec.ts
+*.test.ts
+*.spec.ts
 jest.config.js
 jest.setup.js
 
@@ -38,7 +34,7 @@ jest.setup.js
 *~
 .DS_Store
 
-# Database
+# Database files (local development)
 *.db
 *.sqlite
 *.sqlite3
@@ -49,18 +45,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Prisma
-prisma/migrations/
-prisma/seed*.ts
-
-# Docker
+# Docker (not needed in Vercel)
 Dockerfile
 docker-compose.yml
 nginx/
-
-# Config files for development
-next.config.production.js
-tsconfig.json
-tailwind.config.js
-postcss.config.mjs
-eslint.config.mjs
