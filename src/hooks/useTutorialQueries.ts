@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { TutorialWithAll } from "@/types/tutorial";
-import { Category } from "../../prisma/generated/prisma/client";
+import { Category } from "@prisma/client";
 
 // Types
 interface TutorialProgress {

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useProgressSync } from "@/hooks/useProgressSync";
-import { Achievement, Progress } from "../../prisma/generated/prisma/client";
+import { Achievement, Progress } from "@prisma/client";
 
 interface UseTutorialCompletionParams {
   tutorialId?: string;
