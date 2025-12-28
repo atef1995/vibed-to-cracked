@@ -1,20 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { Tutorial, Category, Quiz, Prisma } from "@prisma/client";
-
-// Prisma types for tutorials with relationships
-export type TutorialWithCategory = Tutorial & {
-  category: Category;
-};
-
-export type TutorialWithQuiz = Tutorial & {
-  category: Category;
-  quizzes: Quiz[];
-};
-
-export type TutorialWithAll = Tutorial & {
-  category: Category;
-  quizzes: Quiz[];
-};
+import { Category, Prisma } from "../../generated/prisma/client";
+import type { TutorialWithAll } from "@/types/tutorial";
 
 // Legacy interface for backward compatibility only
 export interface QuizQuestion {

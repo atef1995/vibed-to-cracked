@@ -9,12 +9,12 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { notFound } from "next/navigation";
 import CodeEditor from "@/components/CodeEditor";
-import { ChallengeWithTests } from "@/lib/challengeService";
 import { getChallengeBySlug } from "@/lib/challengeData";
 import PremiumModal from "@/components/ui/PremiumModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCodeProgress } from "@/hooks/useCodeProgress";
 import { SaveIndicator } from "@/components/ui/SaveIndicator";
+import type { ChallengeWithTests, TestResult } from "@/types/challenge";
 
 // Define achievement type
 interface UnlockedAchievement {
@@ -62,13 +62,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
 
   const currentCode = challenge ? progressCode : userCode;
   const setCurrentCode = challenge ? setProgressCode : setUserCode;
-  const [testResults, setTestResults] = useState<Array<{
-    passed: boolean;
-    description: string;
-    expected: unknown;
-    actual: unknown;
-    error?: string;
-  }> | null>(null);
+  const [testResults, setTestResults] = useState<TestResult[] | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
@@ -385,7 +379,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
   // Loading state
   if (!resolvedParams || !challenge) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 dark:border-purple-400 mx-auto mb-4"></div>
           <p className="text-gray-600 dark:text-gray-300">
@@ -429,7 +423,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
@@ -516,7 +510,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                 {currentMood.name} Energy 🎯
               </h2>
               <p className="text-purple-700 dark:text-purple-300">
-                {challenge.moodAdaptations.find(
+                {challenge?.moodAdaptations?.find(
                   (adaptation) =>
                     adaptation.mood.toLowerCase() ===
                     currentMood.id.toLowerCase()

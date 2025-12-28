@@ -6,10 +6,11 @@ import {
   SubscriptionStatus,
   Plan,
 } from "@/lib/subscriptionService";
+import { toSubscriptionEndDateISO } from "@/lib/subscriptionUtils";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-06-30.basil",
+  apiVersion: "2025-06-30.basil" as unknown as "2025-08-27.basil",
 });
 
 export async function GET() {
@@ -158,7 +159,7 @@ export async function DELETE(request: NextRequest) {
         data: updatedSubscription,
         cancellation: {
           reason,
-          effectiveDate: currentSubscription.subscriptionEndsAt?.toISOString(),
+          effectiveDate: toSubscriptionEndDateISO(currentSubscription.subscriptionEndsAt),
         },
       });
     }
@@ -217,7 +218,7 @@ export async function DELETE(request: NextRequest) {
         data: updatedSubscription,
         cancellation: {
           reason,
-          effectiveDate: currentSubscription.subscriptionEndsAt?.toISOString(),
+          effectiveDate: toSubscriptionEndDateISO(currentSubscription.subscriptionEndsAt),
         },
       });
     } catch (stripeError: unknown) {
@@ -252,8 +253,7 @@ export async function DELETE(request: NextRequest) {
           data: updatedSubscription,
           cancellation: {
             reason,
-            effectiveDate:
-              currentSubscription.subscriptionEndsAt?.toISOString(),
+            effectiveDate: toSubscriptionEndDateISO(currentSubscription.subscriptionEndsAt),
           },
         });
       }

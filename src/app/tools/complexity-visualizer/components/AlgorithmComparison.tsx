@@ -243,7 +243,7 @@ export function AlgorithmComparison({
             "Export comparison data for interview prep",
           ]}
           currentPlan={plan}
-          className="min-h-[600px]"
+          className="min-h-150"
         />
       )}
 
@@ -299,10 +299,14 @@ export function AlgorithmComparison({
 
             {/* Input Size Slider */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              <label 
+                htmlFor="input-size-slider"
+                className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Input Size: {inputSize.toLocaleString()}
               </label>
               <input
+                id="input-size-slider"
                 type="range"
                 min="10"
                 max="100000"
@@ -310,6 +314,7 @@ export function AlgorithmComparison({
                 value={inputSize}
                 onChange={(e) => setInputSize(Number(e.target.value))}
                 className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                aria-label="Select input size for algorithm comparison"
               />
               <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
                 <span>10</span>
@@ -360,7 +365,7 @@ export function AlgorithmComparison({
             <Clock className="w-5 h-5" />
             Runtime Performance (Input Size: {inputSize.toLocaleString()})
           </h4>
-          <div className="w-full h-[300px]">
+          <div className="w-full h-75">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={comparisonData}>
                 <CartesianGrid
@@ -391,7 +396,8 @@ export function AlgorithmComparison({
                     borderRadius: "8px",
                     color: "#f9fafb",
                   }}
-                  formatter={(value: number) => {
+                  formatter={(value: number | undefined) => {
+                    if (value === undefined) return ["N/A", "Runtime"];
                     const ratio = minRuntime > 0 ? (value / minRuntime).toFixed(1) : "1.0";
                     return [
                       `${value.toFixed(3)}ms (${ratio}x ${ratio === "1.0" ? "fastest" : "slower"})`,
@@ -416,7 +422,7 @@ export function AlgorithmComparison({
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+              <tr className="bg-linear-to-r from-indigo-500 to-purple-600 text-white">
                 <th className="px-4 py-3 text-left text-sm font-semibold rounded-tl-lg">
                   Algorithm
                 </th>
@@ -446,7 +452,7 @@ export function AlgorithmComparison({
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className="inline-block px-2 py-1 rounded text-xs font-mono font-semibold text-white"
+                      className={`inline-block px-2 py-1 rounded text-xs font-mono font-semibold text-white`}
                       style={{ backgroundColor: getComplexityColor(algo.timeComplexity) }}
                     >
                       {algo.timeComplexity}

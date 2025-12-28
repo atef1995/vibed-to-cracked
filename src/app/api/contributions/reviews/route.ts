@@ -9,6 +9,26 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+type ReviewAssignment = {
+  id: string;
+  status: string;
+  submittedAt: Date | null;
+  createdAt: Date;
+  overallScore: number | null;
+  submissionId: string;
+  type: string;
+  submission: {
+    prTitle: string | null;
+    featureTitle: string | null;
+    githubPrUrl: string | null;
+    ciPassed: boolean | null;
+    testsPassed: boolean | null;
+    lintPassed: boolean | null;
+    project: { title: string };
+    user: { username: string | null; image: string | null };
+  };
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -59,33 +79,33 @@ export async function GET() {
     });
 
     // Calculate statistics
-    const pending = assignments.filter((a) => a.status === "PENDING").length;
-    const totalCompleted = assignments.filter(
-      (a) => a.status !== "PENDING" && a.submittedAt !== null
+    const pending = (assignments as ReviewAssignment[]).filter((a: ReviewAssignment) => a.status === "PENDING").length;
+    const totalCompleted = (assignments as ReviewAssignment[]).filter(
+      (a: ReviewAssignment) => a.status !== "PENDING" && a.submittedAt !== null
     ).length;
 
     // Completed this week (last 7 days)
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    const completedThisWeek = assignments.filter(
-      (a) =>
+    const completedThisWeek = (assignments as ReviewAssignment[]).filter(
+      (a: ReviewAssignment) =>
         a.status !== "PENDING" &&
         a.submittedAt !== null &&
         new Date(a.submittedAt) >= oneWeekAgo
     ).length;
 
     // Calculate average score from completed reviews
-    const completedWithScores = assignments.filter(
-      (a) => a.overallScore !== null && a.submittedAt !== null
+    const completedWithScores = (assignments as ReviewAssignment[]).filter(
+      (a: ReviewAssignment) => a.overallScore !== null && a.submittedAt !== null
     );
     const averageScore =
       completedWithScores.length > 0
-        ? completedWithScores.reduce((sum, a) => sum + (a.overallScore || 0), 0) /
+        ? completedWithScores.reduce((sum: number, a: ReviewAssignment) => sum + (a.overallScore || 0), 0) /
           completedWithScores.length
         : 0;
 
     // Format assignments for frontend
-    const formattedAssignments = assignments.map((a) => ({
+    const formattedAssignments = (assignments as ReviewAssignment[]).map((a: ReviewAssignment) => ({
       id: a.id,
       submissionId: a.submissionId,
       status: a.status,

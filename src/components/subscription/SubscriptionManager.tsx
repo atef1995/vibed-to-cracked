@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, RefreshCw } from "lucide-react";
-import { Plan } from "@/lib/subscriptionService";
+import { Plan } from "@/lib/subscriptionConstants";
 import {
   useSubscriptionWithAccess,
   useSubscriptionCancellation,
@@ -16,7 +16,6 @@ import { UsageLimitsWarning } from "./UsageLimitsWarning";
 import { UpgradeRecommendations } from "./UpgradeRecommendations";
 import { ConfirmationModal } from "@/components/ui/ConfirmationModal";
 import {
-  formatDate,
   formatPrice,
   getPlanIcon,
   getPlanColor,
@@ -193,7 +192,7 @@ export function SubscriptionManager({ onUpgrade }: SubscriptionManagerProps) {
                 </h2>
                 {currentPlan !== "FREE" && isActive && (
                   <div
-                    className={`px-3 py-1 rounded-full bg-gradient-to-r ${getPlanColor(
+                    className={`px-3 py-1 rounded-full bg-linear-to-r ${getPlanColor(
                       currentPlan
                     )} text-white text-xs font-semibold uppercase tracking-wider shadow-sm`}
                   >
@@ -205,7 +204,6 @@ export function SubscriptionManager({ onUpgrade }: SubscriptionManagerProps) {
                 subscription={subscription}
                 access={access}
                 currentPlan={currentPlan}
-                formatDate={formatDate}
               />
             </div>
           </div>

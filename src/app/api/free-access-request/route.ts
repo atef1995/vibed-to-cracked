@@ -71,11 +71,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body: Record<string, unknown> = await request.json();
 
     // Validate required fields
     const requiredFields = ["name", "email", "country", "reason", "goals"];
-    const missingFields = requiredFields.filter((field) => !body[field]);
+    const missingFields = requiredFields.filter((field: string) => typeof body[field] === "undefined");
 
     if (missingFields.length > 0) {
       return NextResponse.json(
@@ -86,14 +86,14 @@ export async function POST(request: NextRequest) {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
+    if (!emailRegex.test((body.email as string) || "")) {
       return NextResponse.json(
         { error: "Please provide a valid email address" },
         { status: 400 }
       );
     }
 
-    if (mailchecker.isValid(body.email)) {
+    if (mailchecker.isValid((body.email as string) || "")) {
       return NextResponse.json({ error: "error email" }, { status: 400 });
     }
 
@@ -120,19 +120,19 @@ export async function POST(request: NextRequest) {
 
     // Prepare free access request data
     const freeAccessData = {
-      name: body.name.trim(),
-      email: body.email.trim().toLowerCase(),
-      country: body.country.trim(),
-      age: body.age ? parseInt(body.age) : null,
-      occupation: body.occupation?.trim() || "Not specified",
-      experience: body.experience || "Not specified",
-      reason: body.reason.trim(),
-      goals: body.goals.trim(),
-      timeCommitment: body.timeCommitment || "Not specified",
+      name: (body.name as string).trim(),
+      email: (body.email as string).trim().toLowerCase(),
+      country: (body.country as string).trim(),
+      age: body.age ? parseInt(body.age as string) : null,
+      occupation: (body.occupation as string | undefined)?.trim() || "Not specified",
+      experience: (body.experience as string | undefined) || "Not specified",
+      reason: (body.reason as string).trim(),
+      goals: (body.goals as string).trim(),
+      timeCommitment: (body.timeCommitment as string | undefined) || "Not specified",
       hasTriedOtherPlatforms:
-        body.hasTriedOtherPlatforms?.trim() || "Not specified",
-      financialSituation: body.financialSituation?.trim() || "Not specified",
-      howFoundUs: body.howFoundUs?.trim() || "Not specified",
+        (body.hasTriedOtherPlatforms as string | undefined)?.trim() || "Not specified",
+      financialSituation: (body.financialSituation as string | undefined)?.trim() || "Not specified",
+      howFoundUs: (body.howFoundUs as string | undefined)?.trim() || "Not specified",
       securityInfo: securityData,
     };
 

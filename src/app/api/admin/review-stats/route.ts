@@ -65,7 +65,7 @@ export async function GET() {
 
     let averageCompletionTime = 0;
     if (completedAssignmentsWithTimes.length > 0) {
-      const totalTime = completedAssignmentsWithTimes.reduce((sum, assignment) => {
+      const totalTime = completedAssignmentsWithTimes.reduce((sum: number, assignment: { acceptedAt: Date | null; completedAt: Date | null }) => {
         if (assignment.acceptedAt && assignment.completedAt) {
           return sum + (assignment.completedAt.getTime() - assignment.acceptedAt.getTime());
         }

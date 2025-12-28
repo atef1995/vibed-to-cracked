@@ -44,18 +44,19 @@ const DANGEROUS_PATTERNS = [
 /**
  * Patterns that are generally safe and shouldn't trigger warnings
  * These are common in legitimate code
+ * TODO: Integrate SAFE_PATTERNS into code analysis for whitelisting safe patterns
  */
-const SAFE_PATTERNS = [
-  // querySelector and similar safe DOM methods
-  /querySelector/gi,
-  /getElementById/gi,
-  /getElementsByClassName/gi,
-  /addEventListener/gi,
-  /textContent/gi,
-  /innerText/gi,
-  /style\./gi,
-  /classList/gi,
-];
+// const SAFE_PATTERNS = [
+//   // querySelector and similar safe DOM methods
+//   /querySelector/gi,
+//   /getElementById/gi,
+//   /getElementsByClassName/gi,
+//   /addEventListener/gi,
+//   /textContent/gi,
+//   /innerText/gi,
+//   /style\./gi,
+//   /classList/gi,
+// ];
 
 /**
  * Validate HTML code for XSS vulnerabilities

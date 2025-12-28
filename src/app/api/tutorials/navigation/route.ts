@@ -2,6 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { TutorialService } from "@/lib/tutorialService";
 import { prisma } from "@/lib/prisma";
 
+type Tutorial = {
+  id: string;
+  slug: string;
+  title: string;
+  order: number;
+  category?: {
+    slug?: string;
+  } | null;
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -70,7 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Find current tutorial index
-    const currentIndex = allTutorials.findIndex(t => 
+    const currentIndex = allTutorials.findIndex((t: Tutorial) => 
       slug ? t.slug === slug : t.id === tutorialId
     );
     

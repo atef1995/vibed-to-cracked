@@ -13,7 +13,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createGitHubService } from "@/lib/services/githubService";
 
-export async function GET(
+type Review = {
+  reviewerId: string;
+  type: string;
+  status: string;
+  overallScore: number | null;
+};export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -68,7 +73,7 @@ export async function GET(
     // Check if user has permission to view
     const isOwner = session?.user?.id === submission.userId;
     const isReviewer = submission.reviews.some(
-      (r) => r.reviewerId === session?.user?.id
+      (r: Review) => r.reviewerId === session?.user?.id
     );
     const isAdmin = session?.user?.role === "ADMIN";
 
@@ -121,17 +126,17 @@ export async function GET(
 
     // Calculate review progress
     const reviewStats = {
-      peerReviewsCompleted: submission.reviews.filter(
-        (r) => r.type === "PEER" && r.status === "COMPLETED"
+      peerReviewsCompleted: (submission.reviews as Review[]).filter(
+        (r: Review) => r.type === "PEER" && r.status === "COMPLETED"
       ).length,
       peerReviewsNeeded: submission.peerReviewsNeeded,
       mentorReviewStatus: submission.mentorReviewStatus,
       averageScore:
-        submission.reviews.filter((r) => r.overallScore !== null).length > 0
-          ? submission.reviews
-              .filter((r) => r.overallScore !== null)
-              .reduce((sum, r) => sum + (r.overallScore || 0), 0) /
-            submission.reviews.filter((r) => r.overallScore !== null).length
+        (submission.reviews as Review[]).filter((r: Review) => r.overallScore !== null).length > 0
+          ? (submission.reviews as Review[])
+              .filter((r: Review) => r.overallScore !== null)
+              .reduce((sum: number, r: Review) => sum + (r.overallScore || 0), 0) /
+            (submission.reviews as Review[]).filter((r: Review) => r.overallScore !== null).length
           : null,
     };
 

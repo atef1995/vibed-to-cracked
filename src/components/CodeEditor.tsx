@@ -230,9 +230,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const lang = language.replace(firstLetter, firstLetter.toUpperCase());
 
   return (
-    <div className="rounded-lg overflow-hidden bg-white dark:bg-gray-800">
+    <div className="rounded-lg overflow-hidden bg-white border border-blue-200 dark:border-transparent dark:bg-gray-800">
       {/* Header */}
-      <div className="flex items-center justify-between p-2 sm:p-3 bg-gray-50 dark:bg-gray-700">
+      <div className="flex items-center justify-between p-2 sm:p-3 bg-blue-200 dark:bg-gray-700">
         <div className="flex items-center space-x-1.5 sm:space-x-2">
           <div className="hidden sm:flex space-x-1.5">
             <div className="w-3 h-3 rounded-full bg-red-400"></div>
@@ -247,8 +247,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         
           <div className="flex items-center space-x-1.5 sm:space-x-2">
             <Button
-              className="absolute w-16"
-              color={BUTTON_COLOR.BLUE}
+              className="absolute w-16 h-8"
+              color={BUTTON_COLOR.TRANSPARENT}
               title="Copy"
               onClick={async () => {
                 await navigator.clipboard.writeText(initialCode);
@@ -260,8 +260,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             </Button>
             <Button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="w-fit"
-              color={BUTTON_COLOR.BLUE}
+              className="w-fit h-8"
+              color={BUTTON_COLOR.TRANSPARENT}
               title={
                 isExpanded
                   ? "Exit fullscreen (ESC)"
@@ -276,10 +276,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             </Button>
             { !readOnly && canRun && (
               <Button
-                color={BUTTON_COLOR.BLUE}
+                color={BUTTON_COLOR.TRANSPARENT}
                 onClick={handleRunCode}
                 disabled={isRunning || !code.trim()}
-                className=""
+                className="h-8"
                 title="Run"
                 loading={isRunning}
               >
@@ -301,7 +301,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             </span>
             <button
               onClick={() => setIsExpanded(false)}
-              className="px-3 py-1 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-xs sm:text-sm rounded border border-gray-300 dark:border-gray-500 transition-colors flex items-center justify-center gap-1 cursor-pointer touch-manipulation flex-shrink-0"
+              className="px-3 py-1 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-xs sm:text-sm rounded border border-gray-300 dark:border-gray-500 transition-colors flex items-center justify-center gap-1 cursor-pointer touch-manipulation flex-shrink-0"
               title="Exit fullscreen (ESC)"
             >
               <span>✕</span>
@@ -311,6 +311,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         )}
 
         <Editor
+          loading
           height={isExpanded ? "100%" : height}
           defaultLanguage={
             language === "nodejs" || language === "node"

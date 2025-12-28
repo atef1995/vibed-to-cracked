@@ -1,6 +1,5 @@
 "use client";
 
-import { Certificate, CertificateType } from "@prisma/client";
 import { useState } from "react";
 import {
   Award,
@@ -14,6 +13,7 @@ import {
 import { useMood } from "@/components/providers/MoodProvider";
 import { format } from "date-fns";
 import getMoodColors from "@/lib/getMoodColors";
+import { Certificate } from "@/types/certificate";
 
 interface CertificateCardProps {
   certificate: Certificate;
@@ -47,7 +47,7 @@ export default function CertificateCard({
   const moodColors = getMoodColors(currentMood.id);
 
   const getCertificateIcon = () => {
-    return certificate.type === CertificateType.TUTORIAL ? "🎯" : "🏆";
+    return certificate.type === "TUTORIAL" ? "🎯" : "🏆";
   };
 
   const formatTimeSpent = (timeInSeconds: number) => {
@@ -95,7 +95,7 @@ export default function CertificateCard({
   if (compact) {
     return (
       <div
-        className={`bg-gradient-to-r ${moodColors.bg} border ${moodColors.border} rounded-lg p-4`}
+        className={`bg-linear-to-r ${moodColors.bg} border ${moodColors.border} rounded-lg p-4`}
       >
         <div className="flex items-center gap-3">
           <div className={`${moodColors.accent} p-2 rounded-full`}>
@@ -131,7 +131,7 @@ export default function CertificateCard({
 
   return (
     <div
-      className={`bg-gradient-to-br ${moodColors.bg} border ${moodColors.border} rounded-xl p-6 shadow-lg`}
+      className={`bg-linear-to-br ${moodColors.bg} border ${moodColors.border} rounded-xl p-6 shadow-lg`}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
@@ -148,7 +148,7 @@ export default function CertificateCard({
             </div>
             <p className={`text-sm ${moodColors.text} font-medium`}>
               Certificate of Completion •{" "}
-              {certificate.type === CertificateType.TUTORIAL
+              {certificate.type === "TUTORIAL"
                 ? "Tutorial"
                 : "Category"}
             </p>
@@ -198,7 +198,7 @@ export default function CertificateCard({
       {/* Metadata */}
       {metadata && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-          {certificate.type === CertificateType.TUTORIAL && (
+          {certificate.type === "TUTORIAL" && (
             <>
               {metadata.score !== undefined && (
                 <div className="text-center">
@@ -233,7 +233,7 @@ export default function CertificateCard({
             </>
           )}
 
-          {certificate.type === CertificateType.CATEGORY && (
+          {certificate.type === "CATEGORY" && (
             <>
               {metadata.tutorialsCompleted !== undefined &&
                 metadata.totalTutorials !== undefined && (

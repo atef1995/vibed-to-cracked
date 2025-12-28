@@ -1,10 +1,12 @@
 import React from "react";
 import { Crown, Zap, Settings, type LucideIcon } from "lucide-react";
-import { Plan } from "@/lib/subscriptionService";
+import { Plan } from "@/lib/subscriptionConstants";
 
-export const formatDate = (date: Date | null) => {
+export const formatDate = (date: Date | string | null | undefined) => {
   if (!date) return "Never";
-  return new Date(date).toLocaleDateString();
+  // Convert string to Date if needed
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return dateObj.toLocaleDateString();
 };
 
 export const formatPrice = (cents: number) => {
@@ -44,4 +46,18 @@ export const getPlanColor = (plan: Plan) => {
     default:
       return "from-gray-400 to-gray-600";
   }
+};
+
+/**
+ * Converts a subscription end date to ISO string format
+ * Handles Date objects, ISO strings, and null/undefined values
+ * @param date - The date to convert (Date | string | undefined | null)
+ * @returns ISO string or undefined
+ */
+export const toSubscriptionEndDateISO = (
+  date: Date | string | undefined | null
+): string | undefined => {
+  if (!date) return undefined;
+  if (date instanceof Date) return date.toISOString();
+  return date; // Already a string
 };

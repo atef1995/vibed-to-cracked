@@ -119,7 +119,7 @@ export function MoodCard({
   // Selector variant styling (for MoodSelector component)
   const cardClasses = `
     relative overflow-hidden rounded-xl p-6 transition-all duration-300 transform
-    border-2 hover:scale-105 hover:shadow-lg w-full
+    border-4 hover:scale-105 hover:shadow-lg w-full
     ${isSelected ? currentClasses.border : "border-transparent"}
     group ${currentClasses.bg} ${currentClasses.text} ${currentClasses.hover}
     ${className}

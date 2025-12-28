@@ -1,7 +1,12 @@
 "use client";
 
 import { Crown, Check } from "lucide-react";
-import { Plan, SubscriptionInfo } from "@/lib/subscriptionService";
+import { Plan } from "@/lib/subscriptionConstants";
+
+interface SubscriptionInfo {
+  plan: string;
+  status: string;
+}
 
 interface UpgradeRecommendationsProps {
   access: {

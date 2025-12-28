@@ -7,7 +7,7 @@ import {
   Challenge,
   Project,
   Category,
-} from "@prisma/client";
+} from "../../../generated/prisma/client";
 
 // Extended types for phases with their content
 export type PhaseWithSteps = Phase & {

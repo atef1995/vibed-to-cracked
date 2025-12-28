@@ -1,3 +1,5 @@
+"use server";
+
 import {
   getAllChallenges as dbGetAllChallenges,
   getChallengeById as dbGetChallengeById,

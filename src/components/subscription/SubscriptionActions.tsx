@@ -9,19 +9,7 @@ import {
   RefreshCw,
   ExternalLink,
 } from "lucide-react";
-import { Plan, SubscriptionInfo } from "@/lib/subscriptionService";
-
-interface SubscriptionActionsProps {
-  subscription: SubscriptionInfo;
-  currentPlan: Plan;
-  isActive: boolean;
-  cancelling: boolean;
-  reactivating: boolean;
-  onCancel: (reason?: string) => void;
-  onReactivate: () => void;
-  onUpgrade: (plan: Plan) => void;
-  onViewAllPlans: () => void;
-}
+import type { SubscriptionActionsProps } from "@/types/subscription";
 
 export function SubscriptionActions({
   subscription,
@@ -63,7 +51,7 @@ export function SubscriptionActions({
             onClick={() =>
               onUpgrade(currentPlan === "FREE" ? "VIBED" : "CRACKED")
             }
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+            className="flex items-center gap-2 bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
           >
             <Crown className="w-5 h-5" />
             {currentPlan === "FREE" ? "Upgrade to Vibed" : "Upgrade to Cracked"}
@@ -75,7 +63,7 @@ export function SubscriptionActions({
           <button
             onClick={onReactivate}
             disabled={reactivating}
-            className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-green-400 disabled:to-green-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:cursor-not-allowed cursor-pointer"
+            className="flex items-center gap-2 bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-green-400 disabled:to-green-500 text-white px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all duration-200 disabled:cursor-not-allowed cursor-pointer"
           >
             {reactivating ? (
               <RefreshCw className="w-5 h-5 animate-spin" />

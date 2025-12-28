@@ -1,9 +1,11 @@
 "use client";
 
 import { Calendar, TrendingUp, CreditCard } from "lucide-react";
-import { Plan, PLAN_CONFIGS, SubscriptionInfo } from "@/lib/subscriptionService";
+import { Plan, PLAN_CONFIGS } from "@/lib/subscriptionConstants";
 import { getSubscriptionStatusInfo } from "@/hooks/useSubscription";
 import { Check, X } from "lucide-react";
+import { formatDate } from "@/lib/subscriptionUtils";
+import type { SubscriptionInfo } from "@/types/subscription";
 
 interface SubscriptionStatusProps {
   subscription: SubscriptionInfo;
@@ -11,22 +13,21 @@ interface SubscriptionStatusProps {
     tutorialLimits: { current: number; max: number | null };
     challengeLimits: { current: number; max: number | null };
   };
-  currentPlan: Plan;
-  formatDate: (date: Date | null) => string;
+  currentPlan: (typeof Plan)[keyof typeof Plan];
 }
 
-export function SubscriptionStatus({ 
-  subscription, 
-  access, 
-  currentPlan, 
-  formatDate 
+export function SubscriptionStatus({
+  subscription,
+  access,
+  currentPlan,
 }: SubscriptionStatusProps) {
   const statusInfo = getSubscriptionStatusInfo(subscription);
 
   const colorClasses = {
     green: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
     blue: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-    orange: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+    orange:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
     red: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
     gray: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
   };
@@ -59,8 +60,8 @@ export function SubscriptionStatus({
           </div>
           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {subscription.isTrialActive
-              ? formatDate(subscription.trialEndsAt)
-              : formatDate(subscription.subscriptionEndsAt)}
+              ? formatDate(subscription.trialEndsAt ?? null)
+              : formatDate(subscription.subscriptionEndsAt ?? null)}
           </p>
         </div>
 
@@ -73,7 +74,9 @@ export function SubscriptionStatus({
           </div>
           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {access.tutorialLimits.current} /{" "}
-            {access.tutorialLimits.max === null ? "Unlimited" : access.tutorialLimits.max}
+            {access.tutorialLimits.max === null
+              ? "Unlimited"
+              : access.tutorialLimits.max}
           </p>
         </div>
 
@@ -86,51 +89,66 @@ export function SubscriptionStatus({
           </div>
           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {access.challengeLimits.current} /{" "}
-            {access.challengeLimits.max === null ? "Unlimited" : access.challengeLimits.max}
+            {access.challengeLimits.max === null
+              ? "Unlimited"
+              : access.challengeLimits.max}
           </p>
         </div>
       </div>
 
       {/* Current Plan Features */}
-      <div>
-        <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
-          Your Plan Includes:
-        </h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {Object.entries(PLAN_CONFIGS[currentPlan as Plan]).map(([key, value]) => {
-            const featureLabels = {
-              maxTutorials: value === Infinity ? "Unlimited Tutorials" : `${value} Tutorials`,
-              maxChallenges: value === Infinity ? "Unlimited Challenges" : `${value} Challenges`,
-              hasQuizzes: "Quiz System",
-              hasMoodAdaptation: "Mood Adaptation",
-              hasProgressTracking: "Progress Tracking",
-              hasAdvancedFeatures: "Advanced Features",
-            };
+      {currentPlan !== "FREE" && (
+        <div>
+          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-3">
+            Your Plan Includes:
+          </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {Object.entries(PLAN_CONFIGS[currentPlan as Plan]).map(
+              ([key, value]) => {
+                const featureLabels = {
+                  maxTutorials:
+                    value === Infinity
+                      ? "Unlimited Tutorials"
+                      : `${value} Tutorials`,
+                  maxChallenges:
+                    value === Infinity
+                      ? "Unlimited Challenges"
+                      : `${value} Challenges`,
+                  hasQuizzes: "Quiz System",
+                  hasMoodAdaptation: "Mood Adaptation",
+                  hasProgressTracking: "Progress Tracking",
+                  hasAdvancedFeatures: "Advanced Features",
+                };
 
-            const label = featureLabels[key as keyof typeof featureLabels];
-            const included = typeof value === "boolean" ? value : true;
+                const label = featureLabels[key as keyof typeof featureLabels];
+                const included = typeof value === "boolean" ? value : true;
 
-            return (
-              <div key={key} className="flex items-center gap-2">
-                {included ? (
-                  <Check className="w-4 h-4 text-green-500" />
-                ) : (
-                  <X className="w-4 h-4 text-red-500" />
-                )}
-                <span
-                  className={`text-sm ${
-                    included
-                      ? "text-gray-900 dark:text-gray-100"
-                      : "text-gray-500"
-                  }`}
-                >
-                  {label}
-                </span>
-              </div>
-            );
-          })}
+                return (
+                  <div
+                    key={key}
+                    className="flex items-center gap-2 text-gray-600"
+                  >
+                    {included ? (
+                      <Check className="w-4 h-4 text-green-500" />
+                    ) : (
+                      <X className="w-4 h-4 text-red-500" />
+                    )}
+                    <span
+                      className={`text-sm ${
+                        included
+                          ? "text-gray-900 dark:text-gray-100"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </div>
+                );
+              }
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

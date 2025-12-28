@@ -38,6 +38,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
         const display = win.document.getElementById("display") as HTMLInputElement;
         return display && parseFloat(display.value) === 8;
       } catch (e) {
+        console.error(e)
         return false;
       }
     },
@@ -62,6 +63,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
         const display = win.document.getElementById("display") as HTMLInputElement;
         return display && parseFloat(display.value) === 6;
       } catch (e) {
+        console.error(e)
         return false;
       }
     },
@@ -85,6 +87,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
         const display = win.document.getElementById("display") as HTMLInputElement;
         return display && parseFloat(display.value) === 42;
       } catch (e) {
+        console.error(e)
         return false;
       }
     },
@@ -109,6 +112,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
         const display = win.document.getElementById("display") as HTMLInputElement;
         return display && parseFloat(display.value) === 5;
       } catch (e) {
+        console.error(e)
         return false;
       }
     },
@@ -137,6 +141,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
           !displayAfter?.includes("Infinity")
         );
       } catch (e) {
+        console.error(e)
         return false;
       }
     },
@@ -153,6 +158,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
         const display = win.document.getElementById("display") as HTMLInputElement;
         return display && display.value.includes(".");
       } catch (e) {
+        console.error(e)
         return false;
       }
     },
@@ -167,6 +173,7 @@ export const exerciseValidators: Record<string, Record<string, ValidateFn>> = {
         const display = win.document.getElementById("display") as HTMLInputElement;
         return display && display.value === "";
       } catch (e) {
+        console.error(e)
         return false;
       }
     },

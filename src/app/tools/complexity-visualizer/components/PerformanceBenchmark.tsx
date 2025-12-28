@@ -189,7 +189,7 @@ export function PerformanceBenchmark({
             "Export results for documentation and interviews",
           ]}
           currentPlan={plan}
-          className="min-h-[600px]"
+          className="min-h-150"
         />
       )}
 
@@ -215,10 +215,13 @@ export function PerformanceBenchmark({
         {/* Controls */}
         {!isCracked ? (
           <div className="mb-6">
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <label
+            htmlFor="example-selection"
+            className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Example Benchmark:
             </label>
             <select
+              id="example-selection"
               value={selectedExample}
               onChange={(e) => setSelectedExample(e.target.value)}
               className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100"
@@ -310,11 +313,11 @@ export function PerformanceBenchmark({
         {displayData && !isRunning && (
           <>
             {/* Performance Grade */}
-            <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
+            <div className="mb-6 p-4 bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
               <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-1">
                 Performance Grade:
               </h4>
-              <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-blue-600">
+              <div className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-green-600 to-blue-600">
                 {getPerformanceGrade(displayData)}
               </div>
             </div>
@@ -325,7 +328,7 @@ export function PerformanceBenchmark({
                 <Clock className="w-5 h-5" />
                 Runtime vs Input Size
               </h4>
-              <div className="w-full h-[300px]">
+              <div className="w-full h-75">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={displayData}>
                     <CartesianGrid
@@ -356,7 +359,10 @@ export function PerformanceBenchmark({
                         borderRadius: "8px",
                         color: "#f9fafb",
                       }}
-                      formatter={(value: number) => [`${value}ms`, "Runtime"]}
+                      formatter={(value: number | undefined) => {
+                        if (value === undefined) return ["N/A", "Runtime"];
+                        return [`${value}ms`, "Runtime"];
+                      }}
                     />
                     <Legend />
                     <Line
@@ -380,7 +386,7 @@ export function PerformanceBenchmark({
               </h4>
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+                  <tr className="bg-linear-to-r from-indigo-500 to-purple-600 text-white">
                     <th className="px-4 py-3 text-left text-sm font-semibold rounded-tl-lg">
                       Input Size
                     </th>

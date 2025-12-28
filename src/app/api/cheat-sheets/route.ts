@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@prisma/client";
+
+interface StringSearchFilter {
+  contains: string;
+  mode: "insensitive";
+}
+
+interface CheatSheetFilter {
+  published?: boolean;
+  title?: StringSearchFilter;
+  description?: StringSearchFilter;
+  category?: string;
+  difficulty?: string;
+  isPremium?: boolean;
+  tags?: { hasSome: string[] };
+  OR?: Array<Record<string, unknown>>;
+  [key: string]: unknown;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,7 +29,7 @@ export async function GET(request: NextRequest) {
     const isPremium = searchParams.get("isPremium");
 
     // Build filter object
-    const where: Prisma.CheatSheetWhereInput = {
+    const where: CheatSheetFilter = {
       published: true,
     };
 

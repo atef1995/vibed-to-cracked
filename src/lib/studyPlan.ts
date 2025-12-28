@@ -1,4 +1,5 @@
-import { Tutorial, Challenge } from "@prisma/client";
+// Prisma imports kept for potential future use - comment out import for now to satisfy ESLint
+// import { Tutorial, Challenge } from "@prisma/client";
 
 export interface StudyPlanStep {
   id: string;

@@ -3,11 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Clock, ArrowRight, BookOpen } from "lucide-react";
-import { Tutorial, Category } from "@prisma/client";
-
-type TutorialWithCategory = Tutorial & {
-  category: Category;
-};
+import type { TutorialWithCategory } from "@/types/tutorial";
 
 interface TutorialRecommendationsProps {
   currentTutorialSlug: string;
@@ -126,7 +122,7 @@ export function TutorialRecommendations({
               </h3>
 
               {/* Description */}
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 flex-grow">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2 grow">
                 {tutorial.description}
               </p>
 
@@ -134,7 +130,7 @@ export function TutorialRecommendations({
               <div className="flex items-center justify-between pt-4 border-t border-gray-100 dark:border-gray-700">
                 <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                   <Clock className="h-4 w-4" />
-                  <span>{tutorial.estimatedTime}</span>
+                  <span>{tutorial.estimatedTime} min</span>
                 </div>
 
                 <div className="flex items-center gap-1 text-sm font-medium text-blue-600 dark:text-blue-400 group-hover:gap-2 transition-all">

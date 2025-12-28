@@ -28,19 +28,19 @@ export async function GET() {
       },
     });
 
-    const completedTutorials = tutorialProgress.filter(p => p.completedAt);
-    const tutorialThisWeek = completedTutorials.filter(p => 
+    const completedTutorials = tutorialProgress.filter((p: { completedAt: Date | null; timeSpent: number | null }) => p.completedAt);
+    const tutorialThisWeek = completedTutorials.filter((p: { completedAt: Date | null; timeSpent: number | null }) => 
       p.completedAt && p.completedAt >= oneWeekAgo
     ).length;
-    const tutorialThisMonth = completedTutorials.filter(p => 
+    const tutorialThisMonth = completedTutorials.filter((p: { completedAt: Date | null; timeSpent: number | null }) => 
       p.completedAt && p.completedAt >= oneMonthAgo
     ).length;
 
     // Calculate tutorial streak
     let tutorialStreak = 0;
     const sortedCompletedTutorials = completedTutorials
-      .filter(p => p.completedAt)
-      .sort((a, b) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime());
+      .filter((p: { completedAt: Date | null; timeSpent: number | null }) => p.completedAt)
+      .sort((a: { completedAt: Date | null; timeSpent: number | null }, b: { completedAt: Date | null; timeSpent: number | null }) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime());
     
     let currentDate = new Date(now);
     currentDate.setHours(0, 0, 0, 0);
@@ -70,11 +70,11 @@ export async function GET() {
     });
 
     const uniqueChallengesSolved = new Set(
-      challengeAttempts.filter(a => a.passed).map(a => a.challengeId)
+      challengeAttempts.filter((a: { passed: boolean; createdAt: Date; challengeId: string }) => a.passed).map((a: { passed: boolean; createdAt: Date; challengeId: string }) => a.challengeId)
     ).size;
 
     const challengeSuccessRate = challengeAttempts.length > 0 
-      ? (challengeAttempts.filter(a => a.passed).length / challengeAttempts.length) * 100 
+      ? (challengeAttempts.filter((a: { passed: boolean; createdAt: Date; challengeId: string }) => a.passed).length / challengeAttempts.length) * 100 
       : 0;
 
     // Fetch quiz statistics  
@@ -94,13 +94,13 @@ export async function GET() {
 
     const completedQuizzes = quizAttempts.length;
     const averageQuizScore = quizAttempts.length > 0 
-      ? (quizAttempts.reduce((sum, attempt) => {
+      ? (quizAttempts.reduce((sum: number, attempt: { score: number; answers: unknown; createdAt: Date; quiz: { questions: unknown } }) => {
           const totalQuestions = Array.isArray(attempt.quiz.questions) ? attempt.quiz.questions.length : 0;
           return sum + (totalQuestions > 0 ? (attempt.score / totalQuestions) * 100 : 0);
         }, 0) / quizAttempts.length) 
       : 0;
 
-    const perfectQuizScores = quizAttempts.filter(attempt => {
+    const perfectQuizScores = quizAttempts.filter((attempt: { score: number; answers: unknown; createdAt: Date; quiz: { questions: unknown } }) => {
       const totalQuestions = Array.isArray(attempt.quiz.questions) ? attempt.quiz.questions.length : 0;
       return attempt.score === totalQuestions;
     }).length;

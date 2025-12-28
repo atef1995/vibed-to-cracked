@@ -1,3 +1,4 @@
+import { SubscriptionInfo } from "@/types/subscription";
 import { prisma } from "./prisma";
 import { devMode } from "./services/envService";
 
@@ -31,18 +32,7 @@ export type SubscriptionStatus =
   (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 
-export interface SubscriptionInfo {
-  plan: Plan;
-  status: SubscriptionStatus;
-  subscriptionEndsAt: Date | null;
-  isActive: boolean;
-  canAccessPremium: boolean;
-  stripeSubscriptionId?: string | null;
-  isTrialActive: boolean;
-  trialEndsAt: Date | null;
-  daysLeftInTrial: number | null;
-  cancelAtPeriodEnd: boolean;
-}
+
 
 export interface PlanLimits {
   maxTutorials: number;
@@ -256,14 +246,14 @@ export class SubscriptionService {
     userId: string,
     plan: Plan,
     status: SubscriptionStatus,
-    subscriptionEndsAt?: Date
+    subscriptionEndsAt?: Date | string | null
   ): Promise<void> {
     await prisma.user.update({
       where: { id: userId },
       data: {
         subscription: plan,
         subscriptionStatus: status,
-        subscriptionEndsAt,
+        subscriptionEndsAt: subscriptionEndsAt ? (typeof subscriptionEndsAt === "string" ? new Date(subscriptionEndsAt) : subscriptionEndsAt) : null,
       },
     });
   }

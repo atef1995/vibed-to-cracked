@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { CertificateService } from "@/lib/certificateService";
-import { CertificateType } from "@prisma/client";
+
+// Type definition (avoiding Prisma import in this route)
+type CertificateType = "TUTORIAL" | "CATEGORY";
 
 export async function GET(request: NextRequest) {
   try {

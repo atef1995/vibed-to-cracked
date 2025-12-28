@@ -40,6 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+/generated
 /src/generated/prisma
 CLAUDE.md
 public/sitemap-0.xml
@@ -92,3 +93,6 @@ docs/EXERCISES_ROUTE_IMPLEMENTATION.md
 docs/EXERCISES_ROUTE_INDEX.md
 docs/EXERCISES_ROUTE_QUICK_START.md
 docs/EXERCISES_VS_QUIZ_ARCHITECTURE.md
+generated/
+build_final.log
+build.log

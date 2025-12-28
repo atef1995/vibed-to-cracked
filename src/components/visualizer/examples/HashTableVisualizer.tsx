@@ -348,7 +348,7 @@ export function HashTableVisualizer({
               }`}
             >
               {/* Index */}
-              <div className="w-12 flex-shrink-0 font-mono text-sm font-semibold text-gray-600 dark:text-gray-400">
+              <div className="w-12 shrink-0 font-mono text-sm font-semibold text-gray-600 dark:text-gray-400">
                 [{index}]
               </div>
 

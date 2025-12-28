@@ -3,7 +3,7 @@ import { CompletionStatus } from "@/lib/progressService";
 import { PhaseService, PhaseWithSteps } from "@/lib/services/phaseService";
 import { SkillService } from "@/lib/services/skillService";
 import { IdService } from "@/lib/services/idService";
-import { Skill, PhaseStep } from "@prisma/client";
+import { Skill, PhaseStep } from "../../../generated/prisma/client";
 
 // Updated types to work with Phase schema
 
