@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Skill } from "../../../prisma/generated/prisma/client";
+import { Skill } from "@prisma/client";
 
 /**
  * Service for managing skills in the database
