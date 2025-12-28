@@ -1,4 +1,4 @@
-import type { Tutorial, Category, Quiz } from "../../generated/prisma/client";
+import type { Tutorial, Category, Quiz } from "../../prisma/generated/prisma/client";
 
 export interface TutorialNavigationData {
   current: {

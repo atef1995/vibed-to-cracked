@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '../../../generated/prisma/client';
+import { Prisma } from '../../../prisma/generated/prisma/client';
 
 interface TutorialView {
   tutorialId: string;
