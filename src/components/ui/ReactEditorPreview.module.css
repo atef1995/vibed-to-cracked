@@ -1,0 +1,40 @@
+.react-editor-preview {
+  border: 1px solid rgb(209, 213, 219);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background-color: white;
+}
+
+.dark .react-editor-preview {
+  border-color: rgb(75, 85, 99);
+  background-color: rgb(31, 41, 55);
+}
+
+.react-editor-header {
+  background-color: rgb(249, 250, 251);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid rgb(229, 231, 235);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dark .react-editor-header {
+  background-color: rgb(55, 65, 81);
+  border-bottom-color: rgb(75, 85, 99);
+}
+
+.react-editor-container {
+  position: relative;
+  background-color: white;
+  overflow: auto;
+}
+
+.react-editor-preview-content {
+  padding: 1.5rem;
+  height: 100%;
+}
+
+.react-editor-preview-content > div {
+  min-height: var(--preview-height, 500px);
+}
