@@ -11,7 +11,10 @@ import { SubscriptionService } from "@/lib/subscriptionService";
 const debugMode = devMode();
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  // Cast to any because our custom Prisma client output location has different
+  // types than what @next-auth/prisma-adapter expects from @prisma/client
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  adapter: PrismaAdapter(prisma as any),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
