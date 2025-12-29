@@ -69,25 +69,55 @@ React lets you think differently. Instead of saying "go find this element and up
 
 Here's the same thing in React:
 
-```javascript
-function Tweet({ tweet, onLike }) {
-  const [isLiked, setIsLiked] = useState(false);
+<ReactEditorPreview
+  initialCode={`function Tweet({ tweet }) {
+  const [likes, setLikes] = React.useState(tweet.likes);
+  const [isLiked, setIsLiked] = React.useState(false);
   
   const handleLike = () => {
+    if (isLiked) {
+      setLikes(likes - 1);
+    } else {
+      setLikes(likes + 1);
+    }
     setIsLiked(!isLiked);
-    onLike(tweet.id);
   };
   
   return (
-    <div className="tweet">
-      <p>{tweet.text}</p>
-      <button onClick={handleLike}>
-        {isLiked ? '❤️' : '🤍'} {tweet.likes}
+    <div style={{ padding: '16px', border: '1px solid #e5e7eb', borderRadius: '12px', fontFamily: 'system-ui' }}>
+      <p style={{ marginBottom: '12px' }}>{tweet.text}</p>
+      <button 
+        onClick={handleLike} 
+        style={{ 
+          padding: '8px 16px', 
+          cursor: 'pointer',
+          border: 'none',
+          borderRadius: '20px',
+          backgroundColor: isLiked ? '#fee2e2' : '#f3f4f6',
+          color: isLiked ? '#ef4444' : '#6b7280',
+          fontSize: '14px'
+        }}
+      >
+        {isLiked ? '❤️' : '🤍'} {likes}
       </button>
     </div>
   );
 }
-```
+
+function App() {
+  const sampleTweet = { id: 1, text: "React makes UI development so much easier! Click the heart to like.", likes: 42 };
+  return (
+    <div style={{ padding: '20px' }}>
+      <Tweet tweet={sampleTweet} />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="React Tweet Component - Click to Like!"
+  height={400}
+  editable={true}
+/>
 
 **Much cleaner, right?** You're describing *what* the UI should look like, not *how* to build it.
 
@@ -148,12 +178,7 @@ Think of React like a smart assistant that:
 
 A **component** is just a JavaScript function that returns some JSX (which looks like HTML).
 
-```javascript
-// This is a React component - literally just a function!
-function Welcome() {
-  return <h1>Welcome to React!</h1>;
-}
-```
+The simplest React component looks like this: `function Welcome() { return <h1>Welcome to React!</h1>; }` — that's it! A function that returns what looks like HTML.
 
 Wait... what's that `<h1>` doing in JavaScript? That's **JSX**, and it's about to blow your mind.
 
@@ -161,14 +186,7 @@ Wait... what's that `<h1>` doing in JavaScript? That's **JSX**, and it's about t
 
 JSX looks like HTML, but it's actually JavaScript in disguise!
 
-```javascript
-// This looks like HTML...
-const element = <h1 className="title">Hello, World!</h1>;
-
-// But it's actually JavaScript that creates an object
-// It's equivalent to:
-const element = React.createElement('h1', { className: 'title' }, 'Hello, World!');
-```
+When you write `<h1 className="title">Hello!</h1>`, it gets transformed into `React.createElement('h1', { className: 'title' }, 'Hello!')`. The JSX is just syntactic sugar that makes React code way more readable.
 
 JSX lets you write UI logic and markup in the same place, which is *way* more intuitive than separating them.
 
@@ -192,7 +210,7 @@ function App() {
 
 export default App;`}
   title="See JSX in Action"
-  height={350}
+  height={450}
   editable={true}
 />
 
@@ -204,29 +222,7 @@ See how you can:
 
 ## Reusable Components
 
-Here's where React really shines:
-
-```javascript
-// Create a reusable button component
-function Button({ label, onClick }) {
-  return (
-    <button onClick={onClick} style={{ padding: '10px 20px' }}>
-      {label}
-    </button>
-  );
-}
-
-// Use it multiple times!
-function App() {
-  return (
-    <div>
-      <Button label="Click me!" onClick={() => alert('First button')} />
-      <Button label="No, click me!" onClick={() => alert('Second button')} />
-      <Button label="Actually, click me!" onClick={() => alert('Third button')} />
-    </div>
-  );
-}
-```
+Here's where React really shines. You create a component once, then use it everywhere with different props. No more copy-pasting code!
 
 Once you build a component, you can use it anywhere. This saves **massive** amounts of code.
 
@@ -268,7 +264,7 @@ function App() {
 
 render(<App />);`}
   title="Reusable Components Demo"
-  height={380}
+  height={480}
   editable={true}
 />
 
@@ -278,25 +274,9 @@ render(<App />);`}
 
 State is data that can change. When state changes, React automatically updates your UI.
 
-```javascript
-import { useState } from 'react';
+The pattern is simple: `const [value, setValue] = React.useState(initialValue)`. You get the current value and a function to update it. When you call `setValue(newValue)`, React re-renders your component with the new data.
 
-function Counter() {
-  // This is state! count is the value, setCount is the function to update it
-  const [count, setCount] = useState(0);
-  
-  return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Increment
-      </button>
-    </div>
-  );
-}
-```
-
-**Here's the magic:** When you call `setCount(count + 1)`, React:
+**Here's the magic** When you call `setCount(count + 1)`, React:
 1. Updates the state
 2. Re-renders the component
 3. Updates only the parts of the DOM that changed
@@ -519,9 +499,10 @@ You don't need to code this yet - just think about it! This mental model is cruc
 Here's a mini interactive example - can you identify the components?
 
 <ReactEditorPreview
-  initialCode={`// This is a simplified social media post
-// Can you spot the reusable components?
-
+  files={[
+    {
+      name: "Avatar.jsx",
+      code: `// Reusable Avatar component
 function Avatar({ name }) {
   return (
     <div style={{
@@ -538,10 +519,13 @@ function Avatar({ name }) {
       {name[0]}
     </div>
   );
-}
-
-function LikeButton() {
-  const [likes, setLikes] = React.useState(42);
+}`
+    },
+    {
+      name: "LikeButton.jsx",
+      code: `// Stateful LikeButton with increase/decrease
+function LikeButton({ initialLikes = 0 }) {
+  const [likes, setLikes] = React.useState(initialLikes);
   const [liked, setLiked] = React.useState(false);
   
   const handleLike = () => {
@@ -558,15 +542,19 @@ function LikeButton() {
         borderRadius: '20px',
         cursor: 'pointer',
         backgroundColor: liked ? '#fee2e2' : '#f3f4f6',
-        color: liked ? '#ef4444' : '#6b7280'
+        color: liked ? '#ef4444' : '#6b7280',
+        transition: 'all 0.2s'
       }}
     >
       {liked ? '❤️' : '🤍'} {likes}
     </button>
   );
-}
-
-function Post({ author, content }) {
+}`
+    },
+    {
+      name: "Post.jsx",
+      code: `// Post composes Avatar + LikeButton
+function Post({ author, content, likes }) {
   return (
     <div style={{
       padding: '16px',
@@ -579,24 +567,30 @@ function Post({ author, content }) {
         <span style={{ fontWeight: 'bold' }}>{author}</span>
       </div>
       <p style={{ marginBottom: '12px' }}>{content}</p>
-      <LikeButton />
+      <LikeButton initialLikes={likes} />
     </div>
   );
-}
-
+}`
+    },
+    {
+      name: "App.jsx",
+      code: `// Main App - renders multiple Posts
 function App() {
   return (
-    <div style={{ padding: '20px', maxWidth: '400px' }}>
+    <div style={{ padding: '20px', maxWidth: '400px', fontFamily: 'system-ui' }}>
       <h3>📱 Social Feed</h3>
-      <Post author="Sarah" content="Just learned React state! Mind = blown 🤯" />
-      <Post author="Mike" content="Building my first React app today 🚀" />
+      <Post author="Sarah" content="Just learned React state! Mind = blown 🤯" likes={42} />
+      <Post author="Mike" content="Building my first React app today 🚀" likes={18} />
+      <Post author="Alex" content="Components are so reusable!" likes={7} />
     </div>
   );
 }
 
-render(<App />);`}
-  title="Component Breakdown Challenge"
-  height={550}
+render(<App />);`
+    }
+  ]}
+  title="📁 Multi-File Social Feed - Click tabs to explore!"
+  height={580}
   editable={true}
 />
 

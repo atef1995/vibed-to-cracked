@@ -1,61 +1,195 @@
 "use client";
 
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
-import { useState } from "react";
-import { AppWindowIcon, CodeIcon } from "lucide-react";
-import getMoodColors from "@/lib/getMoodColors";
+import { useState, useMemo } from "react";
+import { AppWindowIcon, CodeIcon, FileIcon, PlusIcon, XIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
 import { useMoodColors } from "@/hooks/useMoodColors";
 
+// Single file interface
+interface CodeFile {
+  name: string;
+  code: string;
+  isUserCreated?: boolean;
+}
+
 interface ReactEditorPreviewProps {
-  initialCode: string;
+  // Single file mode (backward compatible)
+  initialCode?: string;
+  // Multi-file mode
+  files?: CodeFile[];
   title?: string;
   height?: number;
   editable?: boolean;
   showConsole?: boolean;
+  allowAddFiles?: boolean;
 }
 
 export function ReactEditorPreview({
   initialCode,
+  files,
   title = "React Editor & Preview",
-  height = 500,
+  height = 700,
   editable = true,
+  allowAddFiles = true,
 }: ReactEditorPreviewProps) {
   const [activeTab, setActiveTab] = useState<"code" | "preview">("preview");
-  const currentMood = useMoodColors()
+  const [isExpanded, setIsExpanded] = useState(false);
+  const currentMood = useMoodColors();
+  
+  // Calculate current height based on expanded state
+  const currentHeight = isExpanded ? Math.max(height, 600) : height;
+  const expandedHeight = Math.max(height * 1.5, 800);
 
-  // Clean up the code - remove imports and exports for react-live
-  // and add render() call for noInline mode
-  const cleanCode = (() => {
-    let code = initialCode
-      // Remove import statements
-      .replace(/import\s+.*?from\s+['"].*?['"];?\s*\n?/g, "")
-      // Remove export default
-      .replace(/export\s+default\s+/g, "")
-      // Remove export keyword
-      .replace(/export\s+/g, "")
-      .trim();
+  // User-created files
+  const [userFiles, setUserFiles] = useState<CodeFile[]>([]);
+  const [isAddingFile, setIsAddingFile] = useState(false);
+  const [newFileName, setNewFileName] = useState("");
+
+  // Convert single file to files array for unified handling
+  const baseFiles = useMemo(() => {
+    if (files && files.length > 0) {
+      return files;
+    }
+    if (initialCode) {
+      return [{ name: "App.jsx", code: initialCode }];
+    }
+    return [{ name: "App.jsx", code: "// No code provided" }];
+  }, [files, initialCode]);
+
+  // Combine base files with user-created files
+  const codeFiles = useMemo(() => {
+    return [...baseFiles, ...userFiles];
+  }, [baseFiles, userFiles]);
+
+  const [activeFileIndex, setActiveFileIndex] = useState(0);
+  const [editedFiles, setEditedFiles] = useState<Record<number, string>>({});
+
+  // Add new file
+  const handleAddFile = () => {
+    if (!newFileName.trim()) return;
     
-    // For noInline mode, we need to call render() at the end
-    // Check if there's a function App or similar component
-    const componentMatch = code.match(/function\s+(\w+)\s*\(/);
-    if (componentMatch) {
-      const componentName = componentMatch[1];
-      // Add render call if not already present
-      if (!code.includes("render(")) {
-        code = code + `\n\nrender(<${componentName} />);`;
-      }
+    let fileName = newFileName.trim();
+    if (!fileName.endsWith('.jsx') && !fileName.endsWith('.js')) {
+      fileName += '.jsx';
     }
     
-    return code;
-  })();
+    // Check for duplicate names
+    if (codeFiles.some(f => f.name.toLowerCase() === fileName.toLowerCase())) {
+      alert('A file with this name already exists!');
+      return;
+    }
+
+    const newFile: CodeFile = {
+      name: fileName,
+      code: `// ${fileName}\nfunction ${fileName.replace(/\.(jsx|js)$/, '')}() {\n  return (\n    <div>\n      {/* Your code here */}\n    </div>\n  );\n}`,
+      isUserCreated: true,
+    };
+
+    setUserFiles(prev => [...prev, newFile]);
+    setActiveFileIndex(codeFiles.length); // Switch to new file
+    setNewFileName("");
+    setIsAddingFile(false);
+  };
+
+  // Delete user-created file
+  const handleDeleteFile = (index: number) => {
+    const file = codeFiles[index];
+    if (!file.isUserCreated) return; // Can't delete original files
+    
+    const userFileIndex = index - baseFiles.length;
+    setUserFiles(prev => prev.filter((_, i) => i !== userFileIndex));
+    
+    // Clean up edited content for this file
+    setEditedFiles(prev => {
+      const newEdited = { ...prev };
+      delete newEdited[index];
+      // Reindex files after deleted one
+      const reindexed: Record<number, string> = {};
+      Object.entries(newEdited).forEach(([key, value]) => {
+        const keyNum = parseInt(key);
+        if (keyNum > index) {
+          reindexed[keyNum - 1] = value;
+        } else {
+          reindexed[keyNum] = value;
+        }
+      });
+      return reindexed;
+    });
+    
+    // Adjust active index if needed
+    if (activeFileIndex >= index) {
+      setActiveFileIndex(Math.max(0, activeFileIndex - 1));
+    }
+  };
+
+  // Clean up code - remove imports/exports for react-live
+  // isMainFile determines if we should add render() call
+  const cleanCode = (code: string, isMainFile: boolean = false) => {
+    let cleaned = code
+      .replace(/import\s+.*?from\s+['"].*?['"];?\s*\n?/g, "")
+      .replace(/export\s+default\s+/g, "")
+      .replace(/export\s+/g, "")
+      .trim();
+
+    // Only add render() to the main file (App.jsx or file with existing render)
+    if (isMainFile && !cleaned.includes("render(")) {
+      const componentMatch = cleaned.match(/function\s+(\w+)\s*\(/);
+      if (componentMatch) {
+        const componentName = componentMatch[1];
+        cleaned = cleaned + `\n\nrender(<${componentName} />);`;
+      }
+    }
+
+    return cleaned;
+  };
+
+  // Find the main entry file (App.jsx or file containing render())
+  const findMainFileIndex = () => {
+    // First, check if any file already has render()
+    for (let i = 0; i < codeFiles.length; i++) {
+      const code = editedFiles[i] ?? codeFiles[i].code;
+      if (code.includes("render(")) return i;
+    }
+    // Otherwise, look for App.jsx
+    const appIndex = codeFiles.findIndex(f => 
+      f.name.toLowerCase() === "app.jsx" || f.name.toLowerCase() === "app.js"
+    );
+    return appIndex >= 0 ? appIndex : codeFiles.length - 1; // fallback to last file
+  };
+
+  // Combine all files for execution (multi-file mode)
+  const combinedCode = useMemo(() => {
+    const getFileCode = (index: number) => editedFiles[index] ?? codeFiles[index].code;
+
+    if (codeFiles.length === 1) {
+      return cleanCode(getFileCode(0), true);
+    }
+
+    const mainFileIndex = findMainFileIndex();
+
+    // Combine all files: helper components first, main file last
+    // This ensures components are defined before they're used in App
+    const helperFiles = codeFiles
+      .map((_, index) => ({ index, code: getFileCode(index) }))
+      .filter(({ index }) => index !== mainFileIndex)
+      .map(({ code }) => cleanCode(code, false));
+
+    const mainFile = cleanCode(getFileCode(mainFileIndex), true);
+
+    return [...helperFiles, mainFile].join("\n\n");
+  }, [codeFiles, editedFiles]);
+
+  const isMultiFile = codeFiles.length > 1;
 
   return (
     <div
-      className={`border  dark:border-gray-600 rounded-lg overflow-hidden `}
-      style={{ height: `${height}px` }}
+      className="border dark:border-gray-600 rounded-lg overflow-hidden transition-all duration-300 ease-in-out"
+      style={{ height: `${isExpanded ? expandedHeight : height}px` }}
     >
       {/* Header */}
-      <div className={`${currentMood.bg} px-4 py-2 dark:border-gray-600 flex items-center justify-between`}>
+      <div
+        className={`${currentMood.bg} px-4 py-2 dark:border-gray-600 flex items-center justify-between`}
+      >
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
@@ -66,10 +200,19 @@ export function ReactEditorPreview({
             {title}
           </span>
         </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="p-1.5 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+          title={isExpanded ? "Collapse editor" : "Expand editor"}
+        >
+          {isExpanded ? <Minimize2Icon size={16} /> : <Maximize2Icon size={16} />}
+        </button>
       </div>
 
-      {/* Tabs */}
-      <div className={`${currentMood.bg} dark:bg-gray-750 px-2 py-1 border-b border-gray-200 dark:border-gray-600 flex gap-1`}>
+      {/* Main Tabs (Code/Preview) */}
+      <div
+        className={`${currentMood.bg} dark:bg-gray-750 px-2 py-1 border-b border-gray-200 dark:border-gray-600 flex gap-1`}
+      >
         <button
           onClick={() => setActiveTab("code")}
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
@@ -94,29 +237,134 @@ export function ReactEditorPreview({
         </button>
       </div>
 
+      {/* File Tabs (only in code view with multiple files or when adding is allowed) */}
+      {activeTab === "code" && (isMultiFile || allowAddFiles) && (
+        <div className="bg-gray-800 px-2 py-1 flex gap-0.5 overflow-x-auto border-b border-gray-700 items-center">
+          {codeFiles.map((file, index) => (
+            <button
+              key={`${file.name}-${index}`}
+              onClick={() => setActiveFileIndex(index)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-all rounded-t-md group ${
+                activeFileIndex === index
+                  ? "bg-gray-900 text-white border-t border-x border-gray-600"
+                  : "text-gray-400 hover:text-gray-200 hover:bg-gray-700/50"
+              }`}
+            >
+              <FileIcon size={12} />
+              {file.name}
+              {editedFiles[index] !== undefined && (
+                <span className="w-2 h-2 rounded-full bg-yellow-500" title="Modified" />
+              )}
+              {file.isUserCreated && (
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteFile(index);
+                  }}
+                  className="ml-1 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-opacity"
+                  title="Delete file"
+                >
+                  <XIcon size={12} />
+                </span>
+              )}
+            </button>
+          ))}
+          
+          {/* Add File Button / Input */}
+          {allowAddFiles && editable && (
+            <>
+              {isAddingFile ? (
+                <div className="flex items-center gap-1 ml-1">
+                  <input
+                    type="text"
+                    value={newFileName}
+                    onChange={(e) => setNewFileName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleAddFile();
+                      if (e.key === 'Escape') {
+                        setIsAddingFile(false);
+                        setNewFileName("");
+                      }
+                    }}
+                    placeholder="filename.jsx"
+                    className="px-2 py-1 text-xs bg-gray-900 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-28"
+                    autoFocus
+                  />
+                  <button
+                    onClick={handleAddFile}
+                    className="p-1 text-green-400 hover:text-green-300"
+                    title="Create file"
+                  >
+                    <PlusIcon size={14} />
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsAddingFile(false);
+                      setNewFileName("");
+                    }}
+                    className="p-1 text-gray-400 hover:text-gray-300"
+                    title="Cancel"
+                  >
+                    <XIcon size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsAddingFile(true)}
+                  className="inline-flex items-center gap-1 px-2 py-1.5 text-xs text-gray-400 hover:text-white hover:bg-gray-700/50 rounded-md transition-all ml-1"
+                  title="Add new file"
+                >
+                  <PlusIcon size={14} />
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {/* Content */}
-      <div style={{ height: `${height - 90}px` }} className="overflow-hidden">
-        <LiveProvider code={cleanCode} noInline={true}>
-          {activeTab === "code" ? (
-            <div className="h-full overflow-auto">
+      <div
+        style={{ height: `${(isExpanded ? expandedHeight : height) - ((isMultiFile || allowAddFiles) && activeTab === "code" ? 122 : 90)}px` }}
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+      >
+        {activeTab === "code" ? (
+          <div className="h-full overflow-auto bg-gray-900">
+            {/* Show current file's code for editing */}
+            <LiveProvider 
+              key={`editor-${activeFileIndex}`}
+              code={editedFiles[activeFileIndex] ?? codeFiles[activeFileIndex].code} 
+              noInline={true}
+            >
               <LiveEditor
                 disabled={!editable}
                 className="!font-mono !text-sm !bg-gray-900 !min-h-full"
                 style={{
-                  fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
+                  fontFamily:
+                    'ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
                   fontSize: "14px",
                   backgroundColor: "#1e1e1e",
                   minHeight: "100%",
                 }}
+                onChange={(newCode) => {
+                  if (editable) {
+                    setEditedFiles((prev) => ({
+                      ...prev,
+                      [activeFileIndex]: newCode,
+                    }));
+                  }
+                }}
               />
-            </div>
-          ) : (
-            <div className="h-full overflow-auto bg-white dark:bg-gray-900 p-4">
+            </LiveProvider>
+          </div>
+        ) : (
+          <div className="h-full overflow-auto bg-white dark:bg-gray-900 p-4">
+            {/* Use combined code for preview execution */}
+            <LiveProvider code={combinedCode} noInline={true}>
               <LiveError className="text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md mb-4 text-sm font-mono" />
               <LivePreview className="react-live-preview" />
-            </div>
-          )}
-        </LiveProvider>
+            </LiveProvider>
+          </div>
+        )}
       </div>
     </div>
   );

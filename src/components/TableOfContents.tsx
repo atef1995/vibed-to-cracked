@@ -107,31 +107,94 @@ const TableOfContents: React.FC<TableOfContentsProps> = ({ content }) => {
     }
   }, [currentMood.id]);
 
+  // Handle initial hash on page load - scroll to section if hash exists
+  useEffect(() => {
+    const hash = window.location.hash.slice(1); // Remove the #
+    if (hash && tocItems.length > 0) {
+      // Set active section from hash
+      setActiveSection(hash);
+      
+      // Wait for DOM to be ready, then scroll to the section
+      const scrollToHash = () => {
+        const element = document.getElementById(hash);
+        if (element) {
+          const elementPosition = element.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - SCROLL_OFFSET;
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      };
+      
+      // Small delay to ensure headings are rendered
+      const timer = setTimeout(scrollToHash, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [tocItems]);
+
   // Track active section based on scroll position
   useEffect(() => {
+    // Skip initial run if there's a hash - let the hash handler take care of it
+    let isInitialLoad = !!window.location.hash;
+    
     const handleScroll = () => {
       if (tocItems.length === 0) return;
       
+      // After first user scroll, we're no longer on initial load
+      if (isInitialLoad) {
+        isInitialLoad = false;
+        return; // Skip first scroll event to preserve hash navigation
+      }
+      
       const scrollPosition = window.scrollY + SCROLL_OFFSET;
-      let currentSection = "";
+      let currentSection = tocItems[0]?.id || "";
 
-      // Find the current section by checking which heading is visible
-      for (let i = tocItems.length - 1; i >= 0; i--) {
-        const element = document.getElementById(tocItems[i].id);
-        if (element && element.offsetTop <= scrollPosition) {
-          currentSection = tocItems[i].id;
-          break;
+      // Find the current section by checking which heading we've scrolled past
+      for (const item of tocItems) {
+        const element = document.getElementById(item.id);
+        if (element) {
+          const elementTop = element.getBoundingClientRect().top + window.scrollY;
+          if (elementTop <= scrollPosition) {
+            currentSection = item.id;
+          } else {
+            break; // Stop once we hit a heading below current scroll
+          }
         }
       }
 
-      setActiveSection(currentSection);
+      // Only update if section changed
+      if (currentSection !== activeSection) {
+        setActiveSection(currentSection);
+        
+        // Update URL hash without triggering scroll
+        if (currentSection) {
+          window.history.replaceState(null, '', `#${currentSection}`);
+        }
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Call once to set initial state
+    // Use throttled scroll handler for better performance
+    let ticking = false;
+    const throttledScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', throttledScroll, { passive: true });
     
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [tocItems]);
+    // Only call handleScroll initially if there's no hash
+    if (!window.location.hash) {
+      handleScroll();
+    }
+    
+    return () => window.removeEventListener('scroll', throttledScroll);
+  }, [tocItems, activeSection]);
 
   // Improved scroll to section with error handling
   const scrollToSection = useCallback((id: string) => {

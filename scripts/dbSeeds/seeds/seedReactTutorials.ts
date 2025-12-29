@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from "../../../prisma/generated/client";
+import { PrismaClient } from "../../../src/generated/client";
 
 let prisma: InstanceType<typeof PrismaClient> | null = null;
 
@@ -62,11 +62,11 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "react-setup-first-component",
-        title: "Getting Started: Setting Up React and Building Your First Component",
+        slug: "jsx-and-components",
+        title: "JSX Deep Dive: Writing Your First React Components",
         description:
-          "Learn how to set up React locally and create your first component from scratch",
-        mdxFile: "react/02-react-setup-first-component",
+          "Master JSX syntax, build functional components, and understand how to pass data with props",
+        mdxFile: "react/02-jsx-and-components",
         category: "react",
         estimatedTime: 30.0,
         difficulty: 1,
@@ -241,7 +241,6 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
 }
 
 // Allow running as standalone script
-if (import.meta.url === `file://${process.argv[1]}`) {
   seedReactTutorials()
     .then(() => {
       console.log("🎉 React tutorial seeding completed!");
@@ -254,4 +253,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     .finally(async () => {
       if (prisma) await prisma.$disconnect();
     });
-}
+
