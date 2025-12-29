@@ -96,3 +96,6 @@ docs/EXERCISES_VS_QUIZ_ARCHITECTURE.md
 generated/
 build_final.log
 build.log
+docs/TUTORIAL_CREATION_BIBLE.md
+.claude/
+.github/

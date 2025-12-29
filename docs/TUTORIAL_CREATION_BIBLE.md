@@ -122,6 +122,99 @@ import DualPaneEditor from '@/components/DualPaneEditor';
 - `showPreview` - Show preview pane (default: true)
 - `previewType` - Preview type: "html" | "api" | "full"
 
+#### `<ReactEditorPreview>`
+Live React code editor with instant preview for React tutorials.
+
+**Location:** `@/components/ui/ReactEditorPreview`
+
+**Features:**
+- Live React component editing with react-live
+- Instant preview without page reload
+- Tabbed interface (Code / Preview)
+- Mood-based theming integration
+- Auto-cleans imports/exports for sandboxed execution
+- Error display for syntax/runtime errors
+- macOS-style window chrome
+
+**Usage:**
+```mdx
+<ReactEditorPreview
+  initialCode={`function Counter() {
+  const [count, setCount] = React.useState(0);
+  
+  return (
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+      <h2>Count: {count}</h2>
+      <button onClick={() => setCount(count + 1)}>
+        Increment
+      </button>
+    </div>
+  );
+}
+
+render(<Counter />);`}
+  title="Interactive Counter"
+  height={400}
+  editable={true}
+/>
+```
+
+**Props:**
+- `initialCode` (required) - React component code as string
+- `title` - Editor window title (default: "React Editor & Preview")
+- `height` - Total component height in pixels (default: 500)
+- `editable` - Allow code editing (default: true)
+
+**Important Notes:**
+1. **No imports needed** - The component auto-strips `import` and `export` statements
+2. **Use `React.useState`** - Hooks must be accessed via `React.` prefix (no destructuring)
+3. **Call `render()`** - End your code with `render(<YourComponent />)` for it to display
+4. **Inline styles** - Use style objects since CSS classes won't be available
+
+**Example - Reusable Component Demo:**
+```mdx
+<ReactEditorPreview
+  initialCode={`function Button({ label, color, onClick }) {
+  return (
+    <button 
+      onClick={onClick}
+      style={{
+        padding: '12px 24px',
+        backgroundColor: color,
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer'
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <div style={{ display: 'flex', gap: '8px', padding: '20px' }}>
+      <Button label="Primary" color="#3b82f6" onClick={() => alert('Clicked!')} />
+      <Button label="Success" color="#22c55e" onClick={() => alert('Success!')} />
+      <Button label="Danger" color="#ef4444" onClick={() => alert('Danger!')} />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Reusable Button Component"
+  height={300}
+  editable={true}
+/>
+```
+
+**When to Use:**
+- React tutorials demonstrating components, props, state
+- Interactive examples where users can modify and experiment
+- Showcasing component composition patterns
+- Teaching JSX syntax and React concepts
+
 ### Algorithm Visualization Components
 
 #### `<AlgorithmVisualizer>`
@@ -515,9 +608,9 @@ Premium Content Offers:
 
 ### Value Demonstration
 Show what subscribers get at the end:
-- "🎁 **Subscribers get**: Full source code, video walkthrough, deployment guide, and project templates"
-- "💎 **Premium members**: Join our community of 1,000+ developers"
-- "🚀 **Exclusive access**: New tutorials every week, live Q&A sessions"
+- "**Subscribers get**: Full source code, video walkthrough, deployment guide, and project templates"
+- "**Premium members**: Join our community of 1,000+ developers"
+- "**Exclusive access**: New tutorials every week, live Q&A sessions"
 
 ---
 
@@ -593,11 +686,11 @@ Before publishing ANY tutorial:
 7. **Accessibility**: Works for different learning styles and abilities
 
 ### Unique Value Propositions
-- ⚡ **Speed**: Get productive in minutes, not days
-- 🎯 **Practical**: Build real projects, not contrived examples
-- 🔬 **Deep**: Understand the "why," not just the "how"
-- 🏆 **Quality**: Production-ready code, not quick hacks
-- 🤝 **Support**: Active community and expert guidance
+- **Speed**: Get productive in minutes, not days
+- **Practical**: Build real projects, not contrived examples
+- **Deep**: Understand the "why," not just the "how"
+- **Quality**: Production-ready code, not quick hacks
+- **Support**: Active community and expert guidance
 
 ---
 
