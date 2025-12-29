@@ -3,7 +3,7 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-const clientPath = join(process.cwd(), 'prisma/generated/client.ts');
+const clientPath = join(process.cwd(), 'src/generated/client.ts');
 
 try {
   let content = readFileSync(clientPath, 'utf-8');
