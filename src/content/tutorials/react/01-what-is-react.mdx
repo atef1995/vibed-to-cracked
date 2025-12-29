@@ -8,6 +8,9 @@ quizQuestions: 12
 order: 1
 ---
 
+import { ComparisonTable } from '@/components/tutorial/ComparisonTable';
+import { StepFlow } from '@/components/tutorial/StepFlow';
+
 # React Fundamentals: What is React and Why Should You Care?
 
 Alright, so you've been learning JavaScript and DOM manipulation, and you're probably thinking: *"Why would I need React if I can already manipulate the DOM with vanilla JavaScript?"* 
@@ -87,6 +90,44 @@ function Tweet({ tweet, onLike }) {
 ```
 
 **Much cleaner, right?** You're describing *what* the UI should look like, not *how* to build it.
+
+### React vs Vanilla JS: The Showdown
+
+<ComparisonTable
+  headers={['Aspect', 'Vanilla JavaScript', 'React']}
+  rows={[
+    {
+      label: 'DOM Updates',
+      values: ['Manual querySelector + innerHTML', 'Automatic when state changes'],
+    },
+    {
+      label: 'Code Organization',
+      values: ['Scattered across files', 'Self-contained components'],
+    },
+    {
+      label: 'Reusability',
+      values: ['Copy-paste nightmare', 'Import and use anywhere'],
+      highlighted: true
+    },
+    {
+      label: 'State Management',
+      values: ['Global variables chaos', 'Predictable state flow'],
+    },
+    {
+      label: 'Learning Curve',
+      values: ['Low initially, painful later', 'Steeper start, smooth scaling'],
+    },
+    {
+      label: 'Performance',
+      values: ['You optimize manually', 'Virtual DOM handles it'],
+      highlighted: true
+    }
+  ]}
+  highlightColumn={2}
+  caption="Why developers choose React over vanilla JS for complex apps"
+/>
+
+> 💡 **Pro Tip:** Vanilla JS is still great for simple sites! React shines when you have lots of interactive UI and state to manage.
 
 ## What Exactly is React?
 
@@ -189,6 +230,50 @@ function App() {
 
 Once you build a component, you can use it anywhere. This saves **massive** amounts of code.
 
+### 🎮 Try It: Build Reusable Components
+
+Play with this example - try adding a fourth button or changing the styles:
+
+<ReactEditorPreview
+  initialCode={`function Button({ label, color, onClick }) {
+  return (
+    <button 
+      onClick={onClick} 
+      style={{ 
+        padding: '12px 24px',
+        margin: '5px',
+        backgroundColor: color,
+        color: 'white',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '16px'
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <div style={{ padding: '20px', textAlign: 'center' }}>
+      <h2>🎨 Reusable Button Component</h2>
+      <Button label="Primary" color="#3b82f6" onClick={() => alert('Primary clicked!')} />
+      <Button label="Success" color="#22c55e" onClick={() => alert('Success clicked!')} />
+      <Button label="Danger" color="#ef4444" onClick={() => alert('Danger clicked!')} />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Reusable Components Demo"
+  height={380}
+  editable={true}
+/>
+
+> **Notice** One `Button` component, used 3 times with different props. That's the power of reusability!
+
 ## State: The Magic That Makes React... React
 
 State is data that can change. When state changes, React automatically updates your UI.
@@ -219,6 +304,89 @@ function Counter() {
 
 No manual DOM manipulation needed!
 
+### 🎮 Try It: Interactive Counter
+
+This is the "Hello World" of React state. Click the buttons and watch the magic:
+
+<ReactEditorPreview
+  initialCode={`function Counter() {
+  const [count, setCount] = React.useState(0);
+  
+  return (
+    <div style={{ 
+      padding: '30px', 
+      textAlign: 'center',
+      fontFamily: 'system-ui'
+    }}>
+      <h2>⚡ React State in Action</h2>
+      <div style={{ 
+        fontSize: '72px', 
+        margin: '20px 0',
+        color: count > 0 ? '#22c55e' : count < 0 ? '#ef4444' : '#6b7280'
+      }}>
+        {count}
+      </div>
+      <div>
+        <button 
+          onClick={() => setCount(count - 1)}
+          style={{ 
+            padding: '12px 24px', 
+            margin: '5px',
+            fontSize: '18px',
+            cursor: 'pointer',
+            borderRadius: '8px',
+            border: 'none',
+            backgroundColor: '#ef4444',
+            color: 'white'
+          }}
+        >
+          ➖ Decrease
+        </button>
+        <button 
+          onClick={() => setCount(0)}
+          style={{ 
+            padding: '12px 24px', 
+            margin: '5px',
+            fontSize: '18px',
+            cursor: 'pointer',
+            borderRadius: '8px',
+            border: '2px solid #6b7280',
+            backgroundColor: 'transparent'
+          }}
+        >
+          🔄 Reset
+        </button>
+        <button 
+          onClick={() => setCount(count + 1)}
+          style={{ 
+            padding: '12px 24px', 
+            margin: '5px',
+            fontSize: '18px',
+            cursor: 'pointer',
+            borderRadius: '8px',
+            border: 'none',
+            backgroundColor: '#22c55e',
+            color: 'white'
+          }}
+        >
+          ➕ Increase
+        </button>
+      </div>
+      <p style={{ marginTop: '20px', color: '#6b7280' }}>
+        Try editing the code to add a "Double" button!
+      </p>
+    </div>
+  );
+}
+
+render(<Counter />);`}
+  title="Interactive Counter with State"
+  height={480}
+  editable={true}
+/>
+
+> 🧠 **What's happening?** Every time you click a button, `setCount` updates the state, React re-renders the component, and the number changes. No `document.querySelector` needed!
+
 ## The Virtual DOM (The Real Magic)
 
 React doesn't directly update the real DOM (which is slow). Instead:
@@ -236,14 +404,74 @@ Your Code → State Change → New Virtual DOM → Diff → Update Real DOM
 
 It's like React is saying: *"You only changed the button label? Cool, I'll only update that part of the page. I'm not reloading the entire thing like vanilla JS would."*
 
+### Virtual DOM: How It Works
+
+<StepFlow
+  steps={[
+    {
+      emoji: "🎯",
+      title: "You Update State",
+      description: "Call setState to change data",
+      code: "setCount(5)"
+    },
+    {
+      emoji: "📝",
+      title: "New Virtual DOM",
+      description: "React creates a JS object representing the new UI",
+      code: "{ type: 'h1', text: 'Count: 5' }"
+    },
+    {
+      emoji: "🔍",
+      title: "Diff Algorithm",
+      description: "React compares old vs new Virtual DOM",
+      code: "// Only text changed!"
+    },
+    {
+      emoji: "⚡",
+      title: "Minimal Update",
+      description: "Only changed parts update in real DOM",
+      code: "el.textContent = '5'"
+    }
+  ]}
+/>
+
+> **Why this matters?** Direct DOM manipulation is slow. React's Virtual DOM minimizes these expensive operations.
+
 ## Why React is Worth Learning
 
-✅ **Write less code** - Components are reusable, so you type less  
-✅ **Maintain more easily** - All related code lives together  
-✅ **Scale better** - Manage complex UIs without losing your mind  
-✅ **Performance** - React handles optimization for you  
-✅ **Jobs everywhere** - React developers are in HUGE demand  
-✅ **Makes hard things easy** - Real-time updates, form handling, etc.
+<ComparisonTable
+  headers={['Benefit', 'What It Means', 'Real Impact']}
+  rows={[
+    {
+      label: ' Write Less Code',
+      values: ['Components are reusable', 'Build faster, ship sooner'],
+      highlighted: true
+    },
+    {
+      label: 'Easier Maintenance',
+      values: ['All related code lives together', 'Bugs are easier to find'],
+    },
+    {
+      label: 'Scales Well',
+      values: ['Manage complex UIs systematically', 'Apps can grow without chaos'],
+    },
+    {
+      label: 'Performance',
+      values: ['Virtual DOM optimizes updates', 'Fast apps without effort'],
+    },
+    {
+      label: 'Job Market',
+      values: ['Most wanted frontend skill', '70%+ of frontend jobs use React'],
+      highlighted: true
+    },
+    {
+      label: 'Ecosystem',
+      values: ['Huge community & libraries', 'Solution for every problem'],
+    }
+  ]}
+  variant="bordered"
+  caption="Why smart developers bet on React"
+/>
 
 ## What's Next?
 
@@ -285,3 +513,97 @@ Take 5 minutes and think about:
 - What data would need to be "state" that changes?
 
 You don't need to code this yet - just think about it! This mental model is crucial for thinking like a React developer.
+
+### 🎮 Mini Challenge: Component Breakdown
+
+Here's a mini interactive example - can you identify the components?
+
+<ReactEditorPreview
+  initialCode={`// This is a simplified social media post
+// Can you spot the reusable components?
+
+function Avatar({ name }) {
+  return (
+    <div style={{
+      width: '40px',
+      height: '40px',
+      borderRadius: '50%',
+      backgroundColor: '#3b82f6',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: 'white',
+      fontWeight: 'bold'
+    }}>
+      {name[0]}
+    </div>
+  );
+}
+
+function LikeButton() {
+  const [likes, setLikes] = React.useState(42);
+  const [liked, setLiked] = React.useState(false);
+  
+  const handleLike = () => {
+    setLikes(liked ? likes - 1 : likes + 1);
+    setLiked(!liked);
+  };
+  
+  return (
+    <button 
+      onClick={handleLike}
+      style={{
+        padding: '8px 16px',
+        border: 'none',
+        borderRadius: '20px',
+        cursor: 'pointer',
+        backgroundColor: liked ? '#fee2e2' : '#f3f4f6',
+        color: liked ? '#ef4444' : '#6b7280'
+      }}
+    >
+      {liked ? '❤️' : '🤍'} {likes}
+    </button>
+  );
+}
+
+function Post({ author, content }) {
+  return (
+    <div style={{
+      padding: '16px',
+      border: '1px solid #e5e7eb',
+      borderRadius: '12px',
+      marginBottom: '12px'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+        <Avatar name={author} />
+        <span style={{ fontWeight: 'bold' }}>{author}</span>
+      </div>
+      <p style={{ marginBottom: '12px' }}>{content}</p>
+      <LikeButton />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div style={{ padding: '20px', maxWidth: '400px' }}>
+      <h3>📱 Social Feed</h3>
+      <Post author="Sarah" content="Just learned React state! Mind = blown 🤯" />
+      <Post author="Mike" content="Building my first React app today 🚀" />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Component Breakdown Challenge"
+  height={550}
+  editable={true}
+/>
+
+**Components identified:**
+- `Avatar` - Reusable profile picture
+- `LikeButton` - Stateful like interaction  
+- `Post` - Composition of Avatar + content + LikeButton
+- `App` - Container that renders multiple Posts
+
+> 🎯 **Challenge:** Try adding a `CommentButton` component and include it in the Post!

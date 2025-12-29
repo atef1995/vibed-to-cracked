@@ -12,6 +12,7 @@ import TableOfContents from "@/components/TableOfContents";
 import { type TutorialData } from "@/hooks/useTutorial";
 import DualPaneEditor from "../DualPaneEditor";
 import { ComparisonTable } from "./ComparisonTable";
+import { StepFlow } from "./StepFlow";
 import { UpgradeCTA } from "./UpgradeCTA";
 import { BubbleSortVisualizer } from "../visualizer/examples/BubbleSortVisualizer";
 import { SelectionSortVisualizer } from "../visualizer/examples/SelectionSortVisualizer";
@@ -128,6 +129,7 @@ const mdxComponents = {
   TwoPointerVisualizer,
   DualPaneEditor,
   ComparisonTable,
+  StepFlow,
   UpgradeCTA,
   BubbleSortVisualizer,
   SelectionSortVisualizer,
