@@ -37,7 +37,7 @@ const SECURITY_PACKAGES: PackageRecord = {
 
 // Database packages
 const DATABASE_PACKAGES: PackageRecord = {
-  "../generated/client": "^5.7.1",
+  "@prisma/client": "^5.7.1",
   prisma: "^5.7.1",
   mongodb: "^6.3.0",
   mongoose: "^8.0.3"

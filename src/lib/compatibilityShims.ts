@@ -23,7 +23,7 @@ const bcrypt = {
   }
 
   // Check if Prisma Client is being used
-  const hasPrisma = detectedPackages.some(pkg => pkg.name === '../generated/client');
+  const hasPrisma = detectedPackages.some(pkg => pkg.name === '@prisma/client');
   if (hasPrisma) {
     shims.push(`
 // Prisma Client mock for WebContainer compatibility
@@ -230,7 +230,7 @@ Module.prototype.require = function(id) {
   if (id === 'bcrypt' && typeof bcrypt !== 'undefined') {
     return bcrypt;
   }
-  if (id === '../generated/client' && typeof PrismaClient !== 'undefined') {
+  if (id === '@prisma/client' && typeof PrismaClient !== 'undefined') {
     return { PrismaClient };
   }
   return originalRequire.apply(this, arguments);
