@@ -19,6 +19,7 @@ import { SortingComparisonVisualizer } from "../visualizer/examples/SortingCompa
 import { TutorialRecommendations } from "./TutorialRecommendations";
 import { SlidingWindowVisualizer } from "../visualizer/examples/SlidingWindowVisualizer";
 import { HashTableVisualizer } from "../visualizer/examples/HashTableVisualizer";
+import { ReactEditorPreview } from "../ui/ReactEditorPreview";
 
 interface TutorialContentProps {
   tutorial: TutorialData;
@@ -134,6 +135,7 @@ const mdxComponents = {
   TutorialRecommendations,
   SlidingWindowVisualizer,
   HashTableVisualizer,
+  ReactEditorPreview,
   // Use custom heading components with anchor IDs
   h1: createHeadingComponent(1),
   h2: createHeadingComponent(2),
