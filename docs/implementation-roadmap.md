@@ -39,7 +39,7 @@
 # ✅ COMPLETED - Development setup commands
 npx create-next-app@latest vibed-to-cracked --typescript --tailwind --eslint
 cd vibed-to-cracked
-npm install @prisma/client prisma next-auth stripe @codemirror/basic-setup @webcontainer/api
+npm install ../generated/client prisma next-auth stripe @codemirror/basic-setup @webcontainer/api
 
 # ✅ COMPLETED - Initialize Prisma
 npx prisma init

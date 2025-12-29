@@ -3,7 +3,7 @@ import {
   Challenge,
   ChallengeTest,
   ChallengeMoodAdaptation,
-} from "@prisma/client";
+} from "../generated/client";
 import type {
   ChallengeWithTests as FrontendChallengeWithTests,
 } from "@/types/challenge";

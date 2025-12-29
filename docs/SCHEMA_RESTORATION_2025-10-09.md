@@ -321,7 +321,7 @@ npm install
 npm run dev
 ```
 
-### Issue: "Cannot find module '@prisma/client'"
+### Issue: "Cannot find module '../generated/client'"
 **Solution**:
 ```bash
 npx prisma generate

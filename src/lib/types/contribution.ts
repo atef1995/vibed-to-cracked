@@ -5,7 +5,7 @@
  * features, submissions, and reviews.
  */
 
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "../../generated/client";
 
 /**
  * Contribution project information

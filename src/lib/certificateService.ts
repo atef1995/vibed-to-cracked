@@ -3,7 +3,7 @@ import {
   Certificate,
   CertificateType,
   User,
-} from "@prisma/client";
+} from "../generated/client";
 import { nanoid } from "nanoid";
 
 // Certificate with user information for display

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { MoodId } from "@/types/mood";
 import { AchievementAction, AchievementMetadata } from "@/types/common";
-import { Achievement, UserAchievement } from "@prisma/client";
+import { Achievement, UserAchievement } from "../generated/client";
 
 interface AchievementCheck {
   userId: string;

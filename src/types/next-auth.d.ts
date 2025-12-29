@@ -1,5 +1,5 @@
 import "next-auth";
-import { Mood, Plan } from "@prisma/client";
+import { Mood, Plan } from "../generated/client";
 import type { SubscriptionInfo } from "@/lib/subscriptionService";
 
 declare module "next-auth" {
