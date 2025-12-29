@@ -151,8 +151,6 @@ const mdxComponents = {
   ),
   code: (props: React.HTMLAttributes<HTMLElement>) => {
     // Check if this is an inline code or a code block
-    // console.log({ className: props.className });
-
     const isInline = !props.className;
 
     if (isInline) {
@@ -227,6 +225,45 @@ const mdxComponents = {
   ),
   hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
     <hr className="border-gray-300 dark:border-gray-600 my-8" {...props} />
+  ),
+  // Table components for markdown tables
+  table: (props: React.HTMLAttributes<HTMLTableElement>) => (
+    <div className="overflow-x-auto my-6">
+      <table
+        className="min-w-full border-collapse border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+        {...props}
+      />
+    </div>
+  ),
+  thead: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
+    <thead className="bg-gray-50 dark:bg-gray-700/50" {...props} />
+  ),
+  tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
+    <tbody className="divide-y divide-gray-200 dark:divide-gray-700" {...props} />
+  ),
+  tr: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors" {...props} />
+  ),
+  th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
+    <th
+      className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-100 border-b border-gray-200 dark:border-gray-700"
+      {...props}
+    />
+  ),
+  td: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
+    <td
+      className="px-4 py-3 text-sm text-gray-600 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700"
+      {...props}
+    />
+  ),
+  // Image component with better styling
+  img: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      className="rounded-lg shadow-md my-4 max-w-full h-auto"
+      alt={props.alt || "Tutorial image"}
+      {...props}
+    />
   ),
 };
 

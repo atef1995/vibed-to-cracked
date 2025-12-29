@@ -1,0 +1,623 @@
+---
+title: "Conditional Rendering: Showing and Hiding Content"
+description: "Learn how to conditionally render content in React based on state and props"
+level: "beginner"
+estimatedTime: "25 minutes"
+topics: ["React", "Conditional Rendering", "Ternary", "Logical Operators"]
+quizQuestions: 10
+order: 5
+---
+
+import { ComparisonTable } from '@/components/tutorial/ComparisonTable';
+import { StepFlow } from '@/components/tutorial/StepFlow';
+
+# Conditional Rendering: Showing and Hiding Content
+
+Real apps show different things based on conditions - logged in vs logged out, loading vs loaded, empty vs has data. React makes this super easy! Let's learn all the ways to conditionally render content. 🚀
+
+## What You'll Learn
+
+- The ternary operator for either/or rendering
+- Logical AND (&&) for show/hide patterns
+- Early returns for component-level conditions
+- Conditional CSS classes and styles
+- Best practices for clean conditional code
+
+## Why Conditional Rendering?
+
+Think about a typical app:
+- Show "Welcome, Sarah" if logged in, "Please sign in" if not
+- Show a spinner while loading, then the actual content
+- Show "No results" when a search returns empty
+- Show/hide a modal based on user action
+
+All of these need **conditional rendering**!
+
+## Method 1: Ternary Operator
+
+The ternary operator is perfect for **either/or** situations:
+
+```jsx
+{condition ? <ShowThis /> : <ShowThat />}
+```
+
+### Try It: Ternary Basics
+
+<ReactEditorPreview
+  initialCode={`function LoginStatus() {
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
+      {/* Ternary: show one thing OR the other */}
+      <h2 style={{ color: '#111827', marginTop: 0 }}>
+        {isLoggedIn ? 'Welcome back! 👋' : 'Please sign in'}
+      </h2>
+      
+      {/* Ternary for different elements */}
+      {isLoggedIn ? (
+        <div style={{
+          padding: '16px',
+          backgroundColor: '#dcfce7',
+          borderRadius: '8px',
+          color: '#166534'
+        }}>
+          <p style={{ margin: '0 0 12px 0' }}>You have access to premium content!</p>
+          <button 
+            onClick={() => setIsLoggedIn(false)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Log Out
+          </button>
+        </div>
+      ) : (
+        <div style={{
+          padding: '16px',
+          backgroundColor: '#fef3c7',
+          borderRadius: '8px',
+          color: '#92400e'
+        }}>
+          <p style={{ margin: '0 0 12px 0' }}>Sign in to access all features</p>
+          <button 
+            onClick={() => setIsLoggedIn(true)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Sign In
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+render(<LoginStatus />);`}
+  title="Ternary Operator - Either/Or Rendering"
+  height={350}
+  editable={true}
+/>
+
+## Method 2: Logical AND (&&)
+
+Use `&&` when you want to show something OR nothing:
+
+```jsx
+{condition && <ShowThis />}
+// If condition is true: renders <ShowThis />
+// If condition is false: renders nothing
+```
+
+### Try It: Logical AND
+
+<ReactEditorPreview
+  initialCode={`function NotificationBell() {
+  const [notifications, setNotifications] = React.useState(3);
+  
+  const addNotification = () => setNotifications(n => n + 1);
+  const clearOne = () => setNotifications(n => Math.max(0, n - 1));
+  const clearAll = () => setNotifications(0);
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Logical AND (&&) Pattern</h3>
+      
+      {/* Button with conditional badge */}
+      <div style={{ marginBottom: '20px' }}>
+        <button style={{
+          padding: '12px 20px',
+          fontSize: '16px',
+          backgroundColor: '#f3f4f6',
+          border: '1px solid #d1d5db',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          position: 'relative'
+        }}>
+          🔔 Notifications
+          
+          {/* Only show badge if notifications > 0 */}
+          {notifications > 0 && (
+            <span style={{
+              position: 'absolute',
+              top: '-8px',
+              right: '-8px',
+              backgroundColor: '#ef4444',
+              color: 'white',
+              borderRadius: '50%',
+              width: '24px',
+              height: '24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '12px',
+              fontWeight: 'bold'
+            }}>
+              {notifications}
+            </span>
+          )}
+        </button>
+      </div>
+      
+      {/* Conditional message */}
+      {notifications === 0 && (
+        <p style={{ color: '#6b7280', fontStyle: 'italic' }}>
+          All caught up! No new notifications.
+        </p>
+      )}
+      
+      {notifications > 0 && (
+        <p style={{ color: '#111827' }}>
+          You have {notifications} unread notification{notifications !== 1 && 's'}!
+        </p>
+      )}
+      
+      {/* Controls */}
+      <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+        <button onClick={addNotification} style={{
+          padding: '8px 16px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}>
+          Add
+        </button>
+        <button onClick={clearOne} style={{
+          padding: '8px 16px',
+          backgroundColor: '#f59e0b',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}>
+          Clear One
+        </button>
+        <button onClick={clearAll} style={{
+          padding: '8px 16px',
+          backgroundColor: '#6b7280',
+          color: 'white',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}>
+          Clear All
+        </button>
+      </div>
+    </div>
+  );
+}
+
+render(<NotificationBell />);`}
+  title="Logical AND - Show or Nothing"
+  height={400}
+  editable={true}
+/>
+
+### ⚠️ Watch Out: The Zero Trap
+
+Be careful with numbers and `&&`:
+
+```jsx
+// ❌ Bug! If count is 0, it renders "0" on screen
+{count && <span>{count} items</span>}
+
+// ✅ Fix: Convert to boolean first
+{count > 0 && <span>{count} items</span>}
+```
+
+## Method 3: Early Return
+
+Use early returns to prevent entire components from rendering:
+
+```jsx
+function AdminPanel({ user }) {
+  // Early return - component won't render at all
+  if (!user.isAdmin) {
+    return null;
+  }
+  
+  return <div>Secret admin stuff...</div>;
+}
+```
+
+### Try It: Early Return Pattern
+
+<ReactEditorPreview
+  initialCode={`// Component that conditionally renders entirely
+function PremiumBanner({ user }) {
+  // Early return if user already has premium
+  if (user.isPremium) {
+    return null;
+  }
+  
+  return (
+    <div style={{
+      padding: '16px',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      borderRadius: '12px',
+      color: 'white',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between'
+    }}>
+      <div>
+        <h4 style={{ margin: '0 0 4px 0' }}>Upgrade to Premium! ⭐</h4>
+        <p style={{ margin: 0, fontSize: '14px', opacity: 0.9 }}>
+          Get access to exclusive features
+        </p>
+      </div>
+      <button style={{
+        padding: '8px 16px',
+        backgroundColor: 'white',
+        color: '#6366f1',
+        border: 'none',
+        borderRadius: '6px',
+        fontWeight: '600',
+        cursor: 'pointer'
+      }}>
+        Upgrade
+      </button>
+    </div>
+  );
+}
+
+function App() {
+  const [isPremium, setIsPremium] = React.useState(false);
+  
+  const user = { name: 'Sarah', isPremium };
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui', maxWidth: '400px' }}>
+      <h2 style={{ marginTop: 0, color: '#111827' }}>Dashboard</h2>
+      
+      {/* Banner only shows for non-premium users */}
+      <PremiumBanner user={user} />
+      
+      <div style={{
+        marginTop: '16px',
+        padding: '16px',
+        backgroundColor: '#f9fafb',
+        borderRadius: '8px'
+      }}>
+        <p style={{ margin: '0 0 8px 0', color: '#374151' }}>
+          <strong>Status:</strong> {isPremium ? '⭐ Premium' : 'Free'}
+        </p>
+        <button 
+          onClick={() => setIsPremium(!isPremium)}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: isPremium ? '#ef4444' : '#22c55e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          {isPremium ? 'Downgrade' : 'Upgrade'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Early Return - Hide Entire Components"
+  height={400}
+  editable={true}
+/>
+
+## Comparison: When to Use What
+
+<ComparisonTable
+  headers={['Pattern', 'Best For', 'Example']}
+  rows={[
+    {
+      label: 'Ternary (? :)',
+      values: ['Either/or situations', 'isOpen ? <Modal /> : <Button />'],
+      highlighted: true
+    },
+    {
+      label: 'Logical AND (&&)',
+      values: ['Show or hide one thing', 'hasError && <Error />'],
+      highlighted: true
+    },
+    {
+      label: 'Early return',
+      values: ['Preventing entire component', 'if (!user) return null'],
+    },
+    {
+      label: 'if/else in render',
+      values: ['Complex multi-way logic', 'Multiple conditions'],
+    }
+  ]}
+  caption="Choose the right pattern for each situation"
+/>
+
+## Conditional Styling
+
+You can also conditionally apply styles and classes:
+
+<ReactEditorPreview
+  initialCode={`function StatusButton({ status }) {
+  // Conditional styles based on status
+  const getStyles = () => {
+    const base = {
+      padding: '10px 20px',
+      border: 'none',
+      borderRadius: '8px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      transition: 'all 0.2s'
+    };
+    
+    switch (status) {
+      case 'success':
+        return { ...base, backgroundColor: '#22c55e', color: 'white' };
+      case 'warning':
+        return { ...base, backgroundColor: '#f59e0b', color: 'white' };
+      case 'error':
+        return { ...base, backgroundColor: '#ef4444', color: 'white' };
+      default:
+        return { ...base, backgroundColor: '#e5e7eb', color: '#374151' };
+    }
+  };
+  
+  return <button style={getStyles()}>{status}</button>;
+}
+
+function App() {
+  const [currentStatus, setCurrentStatus] = React.useState('default');
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Conditional Styling</h3>
+      
+      {/* Display current status */}
+      <div style={{ marginBottom: '20px' }}>
+        <StatusButton status={currentStatus} />
+      </div>
+      
+      {/* Status selector */}
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        {['default', 'success', 'warning', 'error'].map(status => (
+          <button
+            key={status}
+            onClick={() => setCurrentStatus(status)}
+            style={{
+              padding: '6px 12px',
+              backgroundColor: currentStatus === status ? '#3b82f6' : '#f3f4f6',
+              color: currentStatus === status ? 'white' : '#374151',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Conditional Styling Based on Props"
+  height={300}
+  editable={true}
+/>
+
+## Real-World Example: Loading States
+
+Here's a common pattern you'll use constantly:
+
+<ReactEditorPreview
+  initialCode={`function DataFetcher() {
+  const [status, setStatus] = React.useState('idle'); // idle, loading, success, error
+  const [data, setData] = React.useState(null);
+  
+  const fetchData = () => {
+    setStatus('loading');
+    setData(null);
+    
+    // Simulate API call
+    setTimeout(() => {
+      // Randomly succeed or fail
+      if (Math.random() > 0.3) {
+        setData({ 
+          users: ['Sarah', 'Mike', 'Emma'],
+          total: 3
+        });
+        setStatus('success');
+      } else {
+        setStatus('error');
+      }
+    }, 1500);
+  };
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui', minHeight: '200px' }}>
+      <button
+        onClick={fetchData}
+        disabled={status === 'loading'}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: status === 'loading' ? 'wait' : 'pointer',
+          marginBottom: '20px',
+          opacity: status === 'loading' ? 0.7 : 1
+        }}
+      >
+        {status === 'loading' ? 'Loading...' : 'Fetch Data'}
+      </button>
+      
+      {/* Loading state */}
+      {status === 'loading' && (
+        <div style={{
+          padding: '20px',
+          textAlign: 'center',
+          color: '#6b7280'
+        }}>
+          <div style={{ fontSize: '24px', marginBottom: '8px' }}>⏳</div>
+          <p>Fetching data...</p>
+        </div>
+      )}
+      
+      {/* Error state */}
+      {status === 'error' && (
+        <div style={{
+          padding: '16px',
+          backgroundColor: '#fee2e2',
+          borderRadius: '8px',
+          color: '#991b1b'
+        }}>
+          <strong>Error!</strong> Failed to fetch data. Try again.
+        </div>
+      )}
+      
+      {/* Success state */}
+      {status === 'success' && data && (
+        <div style={{
+          padding: '16px',
+          backgroundColor: '#dcfce7',
+          borderRadius: '8px',
+          color: '#166534'
+        }}>
+          <strong>Success!</strong> Found {data.total} users:
+          <ul style={{ margin: '8px 0 0 0', paddingLeft: '20px' }}>
+            {data.users.map(user => (
+              <li key={user}>{user}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      
+      {/* Idle state */}
+      {status === 'idle' && (
+        <p style={{ color: '#6b7280' }}>
+          Click the button to fetch data
+        </p>
+      )}
+    </div>
+  );
+}
+
+render(<DataFetcher />);`}
+  title="Real-World Loading States"
+  height={400}
+  editable={true}
+/>
+
+## Best Practices
+
+<StepFlow
+  steps={[
+    {
+      emoji: "✅",
+      title: "Use Ternary for Two Options",
+      description: "Clean and readable for either/or",
+      code: "{isOpen ? <Modal /> : <Button />}"
+    },
+    {
+      emoji: "✅",
+      title: "Use && for Show/Hide",
+      description: "Perfect for optional elements",
+      code: "{hasError && <ErrorMessage />}"
+    },
+    {
+      emoji: "⚠️",
+      title: "Avoid && with Numbers",
+      description: "Convert to boolean first",
+      code: "{count > 0 && <Badge />}"
+    },
+    {
+      emoji: "✅",
+      title: "Keep Conditions Simple",
+      description: "Extract complex logic to variables",
+      code: "const showBanner = !user.premium && !dismissed;"
+    }
+  ]}
+/>
+
+## Quick Recap
+
+You're now a conditional rendering pro! 🎉
+
+- ✅ Ternary operator for either/or: `{a ? <B /> : <C />}`
+- ✅ Logical AND for show/hide: `{a && <B />}`
+- ✅ Early returns for component-level conditions
+- ✅ Conditional styling with inline styles
+- ✅ Loading state patterns
+
+## What's Next?
+
+Next up: **Lists and Keys** - learn how to render arrays of data efficiently. It's one of React's most common patterns!
+
+---
+
+## Practice Challenges
+
+### Challenge 1: Theme Toggle
+
+Build a component that:
+- Toggles between light and dark themes
+- Uses ternary for different backgrounds/colors
+- Smoothly transitions between themes
+
+### Challenge 2: Multi-Step Form
+
+Create a form wizard that:
+- Shows different steps based on current step number
+- Has next/prev buttons that conditionally enable/disable
+- Shows a completion message on the final step
+
+### Challenge 3: Permission System
+
+Build a dashboard that:
+- Shows different content for 'admin', 'user', and 'guest' roles
+- Uses early returns for unauthorized access
+- Conditionally renders action buttons based on permissions
+
+---
+
+## Discussion Questions
+
+1. When would you use `&&` vs ternary?
+2. Why is the "zero trap" with `&&` a problem?
+3. When should you use early returns vs inline conditions?
+4. How do loading states improve UX?

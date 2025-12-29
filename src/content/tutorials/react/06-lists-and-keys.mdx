@@ -1,0 +1,739 @@
+---
+title: "Lists and Keys: Rendering Dynamic Data"
+description: "Learn how to efficiently render lists and arrays in React with proper keys"
+level: "beginner"
+estimatedTime: "25 minutes"
+topics: ["React", "Lists", "Keys", "Arrays", "map"]
+quizQuestions: 10
+order: 6
+---
+
+import { ComparisonTable } from '@/components/tutorial/ComparisonTable';
+import { StepFlow } from '@/components/tutorial/StepFlow';
+
+# Lists and Keys: Rendering Dynamic Data
+
+Almost every app needs to display lists - products, users, messages, todos. React makes this easy with the `map()` method, but there's one crucial concept to master: **keys**. Let's dive in! 🚀
+
+## What You'll Learn
+
+- Rendering arrays with `map()`
+- Why keys are essential (and what happens without them)
+- Choosing the right key for your data
+- Common list patterns and transformations
+- Handling empty states
+
+## Rendering Lists with map()
+
+The `map()` array method transforms each item in an array into JSX:
+
+```jsx
+const names = ['Sarah', 'Mike', 'Emma'];
+
+// Transform each name into a <li>
+{names.map(name => (
+  <li key={name}>{name}</li>
+))}
+```
+
+### Your First List
+
+<ReactEditorPreview
+  initialCode={`function FruitList() {
+  const fruits = ['🍎 Apple', '🍌 Banana', '🍊 Orange', '🍇 Grape', '🍓 Strawberry'];
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Shopping List</h3>
+      
+      <ul style={{ 
+        listStyle: 'none', 
+        padding: 0,
+        margin: 0
+      }}>
+        {fruits.map(fruit => (
+          <li 
+            key={fruit}
+            style={{
+              padding: '12px 16px',
+              marginBottom: '8px',
+              backgroundColor: '#f9fafb',
+              borderRadius: '8px',
+              color: '#374151'
+            }}
+          >
+            {fruit}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+render(<FruitList />);`}
+  title="Basic List Rendering"
+  height={350}
+  editable={true}
+/>
+
+## The Key Prop: Why It Matters
+
+Every item in a list needs a unique `key` prop. React uses keys to:
+
+- **Track which items changed** - efficiently update only what's needed
+- **Maintain component state** - keep form inputs and animations working
+- **Optimize performance** - avoid unnecessary re-renders
+
+### What Happens Without Keys?
+
+<ReactEditorPreview
+  initialCode={`function KeyDemo() {
+  const [items, setItems] = React.useState([
+    { id: 1, text: 'First item', color: '#3b82f6' },
+    { id: 2, text: 'Second item', color: '#22c55e' },
+    { id: 3, text: 'Third item', color: '#f59e0b' }
+  ]);
+  
+  const addToFront = () => {
+    const newId = Date.now();
+    setItems([
+      { id: newId, text: 'New item (added to front)', color: '#ef4444' },
+      ...items
+    ]);
+  };
+  
+  const removeFirst = () => {
+    setItems(items.slice(1));
+  };
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Keys Demo</h3>
+      
+      <div style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>
+        <button 
+          onClick={addToFront}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Add to Front
+        </button>
+        <button 
+          onClick={removeFirst}
+          style={{
+            padding: '8px 16px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          Remove First
+        </button>
+      </div>
+      
+      {/* Each item has input to show state preservation */}
+      <div>
+        {items.map(item => (
+          <div 
+            key={item.id}  // Using unique ID as key!
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px',
+              marginBottom: '8px',
+              backgroundColor: item.color + '15',
+              borderLeft: '4px solid ' + item.color,
+              borderRadius: '4px'
+            }}
+          >
+            <span style={{ flex: 1, color: '#374151' }}>{item.text}</span>
+            <input 
+              placeholder="Type here..."
+              style={{
+                padding: '4px 8px',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px'
+              }}
+            />
+          </div>
+        ))}
+      </div>
+      
+      <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '16px' }}>
+        💡 Try typing in the inputs, then add/remove items. <br/>
+        With proper keys, your input text stays with the right item!
+      </p>
+    </div>
+  );
+}
+
+render(<KeyDemo />);`}
+  title="Why Keys Matter - Type in the inputs then add/remove!"
+  height={450}
+  editable={true}
+/>
+
+## Choosing the Right Key
+
+<ComparisonTable
+  headers={['Key Type', 'When to Use', 'Example']}
+  rows={[
+    {
+      label: 'Database ID',
+      values: ['Data from API/database', 'key={user.id}'],
+      highlighted: true
+    },
+    {
+      label: 'Unique field',
+      values: ['Data with unique property', 'key={product.sku}'],
+    },
+    {
+      label: 'Generated ID',
+      values: ['Creating items on client', 'key={crypto.randomUUID()}'],
+      highlighted: true
+    },
+    {
+      label: 'Index',
+      values: ['Static lists only!', 'key={index} ⚠️'],
+    }
+  ]}
+  caption="Always prefer unique, stable IDs over array indices"
+/>
+
+### ⚠️ When NOT to Use Index as Key
+
+```jsx
+// ❌ Bad - index changes when items are added/removed
+{items.map((item, index) => (
+  <Item key={index} data={item} />
+))}
+
+// ✅ Good - ID stays with the item
+{items.map(item => (
+  <Item key={item.id} data={item} />
+))}
+```
+
+Index as key is only safe for:
+- Static lists that never change
+- No reordering, filtering, or additions/removals
+- No item-level state (like form inputs)
+
+## Rendering Objects
+
+Most real data comes as arrays of objects:
+
+<ReactEditorPreview
+  initialCode={`function UserList() {
+  const [users, setUsers] = React.useState([
+    { id: 1, name: 'Sarah Chen', role: 'Developer', status: 'online' },
+    { id: 2, name: 'Mike Johnson', role: 'Designer', status: 'offline' },
+    { id: 3, name: 'Emma Wilson', role: 'Manager', status: 'online' },
+    { id: 4, name: 'Alex Lee', role: 'Developer', status: 'away' }
+  ]);
+  
+  const statusColors = {
+    online: '#22c55e',
+    offline: '#9ca3af',
+    away: '#f59e0b'
+  };
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Team Members</h3>
+      
+      <div>
+        {users.map(user => (
+          <div 
+            key={user.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '16px',
+              marginBottom: '8px',
+              backgroundColor: 'white',
+              borderRadius: '10px',
+              border: '1px solid #e5e7eb'
+            }}
+          >
+            {/* Status indicator */}
+            <div style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              backgroundColor: statusColors[user.status]
+            }} />
+            
+            {/* User info */}
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: '600', color: '#111827' }}>
+                {user.name}
+              </div>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                {user.role}
+              </div>
+            </div>
+            
+            {/* Status badge */}
+            <span style={{
+              padding: '4px 10px',
+              borderRadius: '12px',
+              fontSize: '12px',
+              backgroundColor: statusColors[user.status] + '20',
+              color: statusColors[user.status],
+              textTransform: 'capitalize'
+            }}>
+              {user.status}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+render(<UserList />);`}
+  title="Rendering a List of Objects"
+  height={400}
+  editable={true}
+/>
+
+## Interactive Lists
+
+Most lists need interactivity - clicking, filtering, or modifying items:
+
+<ReactEditorPreview
+  initialCode={`function TodoList() {
+  const [todos, setTodos] = React.useState([
+    { id: 1, text: 'Learn React', completed: true },
+    { id: 2, text: 'Build a project', completed: false },
+    { id: 3, text: 'Deploy to production', completed: false }
+  ]);
+  const [newTodo, setNewTodo] = React.useState('');
+  
+  const addTodo = () => {
+    if (!newTodo.trim()) return;
+    setTodos([
+      ...todos,
+      { id: Date.now(), text: newTodo, completed: false }
+    ]);
+    setNewTodo('');
+  };
+  
+  const toggleTodo = (id) => {
+    setTodos(todos.map(todo =>
+      todo.id === id 
+        ? { ...todo, completed: !todo.completed }
+        : todo
+    ));
+  };
+  
+  const deleteTodo = (id) => {
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui', maxWidth: '400px' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Todo List</h3>
+      
+      {/* Add todo form */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <input
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && addTodo()}
+          placeholder="Add a new todo..."
+          style={{
+            flex: 1,
+            padding: '10px 12px',
+            border: '1px solid #d1d5db',
+            borderRadius: '8px',
+            fontSize: '14px'
+          }}
+        />
+        <button 
+          onClick={addTodo}
+          style={{
+            padding: '10px 16px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Add
+        </button>
+      </div>
+      
+      {/* Todo list */}
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {todos.map(todo => (
+          <li 
+            key={todo.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px',
+              marginBottom: '8px',
+              backgroundColor: '#f9fafb',
+              borderRadius: '8px'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => toggleTodo(todo.id)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <span style={{
+              flex: 1,
+              textDecoration: todo.completed ? 'line-through' : 'none',
+              color: todo.completed ? '#9ca3af' : '#374151'
+            }}>
+              {todo.text}
+            </span>
+            <button
+              onClick={() => deleteTodo(todo.id)}
+              style={{
+                padding: '4px 8px',
+                backgroundColor: 'transparent',
+                color: '#ef4444',
+                border: '1px solid #ef4444',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+      
+      {/* Stats */}
+      <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '12px' }}>
+        {todos.filter(t => t.completed).length} of {todos.length} completed
+      </p>
+    </div>
+  );
+}
+
+render(<TodoList />);`}
+  title="Interactive Todo List with CRUD Operations"
+  height={480}
+  editable={true}
+/>
+
+## Filtering and Sorting
+
+Transform your data before rendering:
+
+<ReactEditorPreview
+  initialCode={`function ProductList() {
+  const [filter, setFilter] = React.useState('all');
+  const [sortBy, setSortBy] = React.useState('name');
+  
+  const products = [
+    { id: 1, name: 'Laptop', price: 999, category: 'electronics', inStock: true },
+    { id: 2, name: 'Headphones', price: 199, category: 'electronics', inStock: true },
+    { id: 3, name: 'T-Shirt', price: 29, category: 'clothing', inStock: false },
+    { id: 4, name: 'Sneakers', price: 149, category: 'clothing', inStock: true },
+    { id: 5, name: 'Watch', price: 299, category: 'electronics', inStock: false }
+  ];
+  
+  // Filter products
+  const filteredProducts = products.filter(product => {
+    if (filter === 'all') return true;
+    if (filter === 'inStock') return product.inStock;
+    return product.category === filter;
+  });
+  
+  // Sort products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    if (sortBy === 'name') return a.name.localeCompare(b.name);
+    if (sortBy === 'price-low') return a.price - b.price;
+    if (sortBy === 'price-high') return b.price - a.price;
+    return 0;
+  });
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Products</h3>
+      
+      {/* Filters */}
+      <div style={{ 
+        display: 'flex', 
+        gap: '16px', 
+        marginBottom: '16px',
+        flexWrap: 'wrap'
+      }}>
+        <div>
+          <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+            Filter:
+          </label>
+          <select 
+            value={filter} 
+            onChange={(e) => setFilter(e.target.value)}
+            style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          >
+            <option value="all">All</option>
+            <option value="electronics">Electronics</option>
+            <option value="clothing">Clothing</option>
+            <option value="inStock">In Stock</option>
+          </select>
+        </div>
+        
+        <div>
+          <label style={{ display: 'block', fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>
+            Sort by:
+          </label>
+          <select 
+            value={sortBy} 
+            onChange={(e) => setSortBy(e.target.value)}
+            style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          >
+            <option value="name">Name</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+      
+      {/* Product list */}
+      <div>
+        {sortedProducts.map(product => (
+          <div 
+            key={product.id}
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '12px 16px',
+              marginBottom: '8px',
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb'
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: '500', color: '#111827' }}>{product.name}</div>
+              <div style={{ fontSize: '12px', color: '#6b7280' }}>{product.category}</div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontWeight: '600', color: '#111827' }}>${product.price}</div>
+              <div style={{ 
+                fontSize: '12px', 
+                color: product.inStock ? '#22c55e' : '#ef4444' 
+              }}>
+                {product.inStock ? 'In Stock' : 'Out of Stock'}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      <p style={{ fontSize: '14px', color: '#6b7280' }}>
+        Showing {sortedProducts.length} of {products.length} products
+      </p>
+    </div>
+  );
+}
+
+render(<ProductList />);`}
+  title="Filtering and Sorting Lists"
+  height={480}
+  editable={true}
+/>
+
+## Handling Empty States
+
+Always handle the case when there's no data:
+
+<ReactEditorPreview
+  initialCode={`function SearchResults() {
+  const [query, setQuery] = React.useState('');
+  
+  const allItems = [
+    { id: 1, name: 'React Tutorial', type: 'tutorial' },
+    { id: 2, name: 'JavaScript Basics', type: 'tutorial' },
+    { id: 3, name: 'CSS Tricks', type: 'article' },
+    { id: 4, name: 'Node.js Guide', type: 'tutorial' },
+    { id: 5, name: 'TypeScript Tips', type: 'article' }
+  ];
+  
+  const results = allItems.filter(item =>
+    item.name.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui', maxWidth: '400px' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Search</h3>
+      
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search items..."
+        style={{
+          width: '100%',
+          padding: '12px',
+          borderRadius: '8px',
+          border: '1px solid #d1d5db',
+          fontSize: '14px',
+          marginBottom: '16px',
+          boxSizing: 'border-box'
+        }}
+      />
+      
+      {/* Conditional rendering based on results */}
+      {results.length > 0 ? (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {results.map(item => (
+            <li 
+              key={item.id}
+              style={{
+                padding: '12px',
+                marginBottom: '8px',
+                backgroundColor: '#f9fafb',
+                borderRadius: '8px',
+                display: 'flex',
+                justifyContent: 'space-between'
+              }}
+            >
+              <span style={{ color: '#374151' }}>{item.name}</span>
+              <span style={{ 
+                fontSize: '12px', 
+                color: '#6b7280',
+                textTransform: 'capitalize'
+              }}>
+                {item.type}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        /* Empty state */
+        <div style={{
+          textAlign: 'center',
+          padding: '40px 20px',
+          backgroundColor: '#f9fafb',
+          borderRadius: '8px'
+        }}>
+          <div style={{ fontSize: '32px', marginBottom: '12px' }}>🔍</div>
+          <p style={{ margin: '0 0 4px 0', color: '#374151', fontWeight: '500' }}>
+            No results found
+          </p>
+          <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>
+            Try a different search term
+          </p>
+        </div>
+      )}
+      
+      {query && (
+        <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '12px' }}>
+          {results.length} result{results.length !== 1 && 's'} for "{query}"
+        </p>
+      )}
+    </div>
+  );
+}
+
+render(<SearchResults />);`}
+  title="Handling Empty States Gracefully"
+  height={450}
+  editable={true}
+/>
+
+## Key Rules Summary
+
+<StepFlow
+  steps={[
+    {
+      emoji: "1️⃣",
+      title: "Always Add Keys",
+      description: "Every mapped element needs a key",
+      code: "{items.map(item => <Li key={item.id} />)}"
+    },
+    {
+      emoji: "2️⃣",
+      title: "Use Unique IDs",
+      description: "Prefer database IDs or UUIDs",
+      code: "key={user.id} // Not key={index}"
+    },
+    {
+      emoji: "3️⃣",
+      title: "Keys Among Siblings",
+      description: "Keys only need to be unique within the list",
+      code: "Different lists can reuse same keys"
+    },
+    {
+      emoji: "4️⃣",
+      title: "Stable Keys",
+      description: "Keys shouldn't change between renders",
+      code: "// Don't use Math.random() as key!"
+    }
+  ]}
+/>
+
+## Quick Recap
+
+You're now a list-rendering pro! 🎉
+
+- ✅ Use `map()` to transform arrays into JSX
+- ✅ Always provide unique, stable `key` props
+- ✅ Prefer database IDs over array indices
+- ✅ Filter and sort before mapping
+- ✅ Always handle empty states
+
+## What's Next?
+
+Next up: **Forms and User Input** - learn how to handle forms, controlled inputs, and form validation in React!
+
+---
+
+## Practice Challenges
+
+### Challenge 1: Contact List
+
+Build a contact list that:
+- Displays contacts with name, email, phone
+- Has a search filter
+- Can sort by name or email
+- Shows empty state when no matches
+
+### Challenge 2: Shopping Cart
+
+Create a shopping cart that:
+- Lists items with quantity and price
+- Allows incrementing/decrementing quantities
+- Removes items when quantity is 0
+- Shows cart total
+- Handles empty cart state
+
+### Challenge 3: Kanban Board
+
+Build a simple task board with:
+- Three columns: Todo, In Progress, Done
+- Tasks that can move between columns
+- Add/delete tasks
+- Proper key handling
+
+---
+
+## Discussion Questions
+
+1. Why can't React just use array index automatically?
+2. When is it safe to use index as a key?
+3. What happens to component state when keys change?
+4. How do keys improve React's performance?

@@ -1,0 +1,1118 @@
+---
+title: "State with useState: Making Components Interactive"
+description: "Learn how to manage component state with the useState hook and create truly interactive UIs"
+level: "beginner"
+estimatedTime: "40 minutes"
+topics: ["React", "State", "useState", "Hooks", "Interactivity"]
+quizQuestions: 12
+order: 4
+---
+
+import { ComparisonTable } from '@/components/tutorial/ComparisonTable';
+import { StepFlow } from '@/components/tutorial/StepFlow';
+
+# State with useState: Making Components Interactive
+
+So far, our components have been static - they display data but can't change. That's about to change! **State** is what makes React apps come alive, letting your UI respond to user actions, API responses, and time-based events. Let's unlock the true power of React!
+
+## What You'll Learn
+
+- What state is and why it's essential
+- How to use the useState hook
+- Updating state correctly (the rules that matter)
+- State with different data types
+- Managing multiple pieces of state
+- Common mistakes and how to avoid them
+
+## The Problem: Variables Don't Trigger Re-renders
+
+First, let's see why regular JavaScript variables don't work for interactive UIs:
+
+<ReactEditorPreview
+  initialCode={`function BrokenCounter() {
+  // Regular variable - this WON'T work!
+  let count = 0;
+  
+  const handleClick = () => {
+    count = count + 1;
+    console.log('Count is now:', count); // Check the console!
+  };
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui', textAlign: 'center' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>Broken Counter</h2>
+      <p style={{ fontSize: '48px', margin: '20px 0', color: '#3b82f6' }}>{count}</p>
+      <button 
+        onClick={handleClick}
+        style={{
+          padding: '12px 24px',
+          fontSize: '16px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer'
+        }}
+      >
+        Increment
+      </button>
+      <p style={{ color: '#6b7280', marginTop: '16px', fontSize: '14px' }}>
+        Click the button and watch the console - the variable changes but the UI doesn't!
+      </p>
+    </div>
+  );
+}
+
+render(<BrokenCounter />);`}
+  title="Why Regular Variables Don't Work"
+  height={380}
+  editable={true}
+/>
+
+Open your browser console and click the button. You'll see the variable IS changing - but the UI never updates! That's because React doesn't know the variable changed. React only re-renders when **state** changes.
+
+## Enter useState: React's Memory
+
+The `useState` hook gives your components memory that React actually tracks. When state changes, React automatically re-renders your component with the new values.
+
+<StepFlow
+  steps={[
+    {
+      emoji: "1",
+      title: "Import useState",
+      description: "From the 'react' package",
+      code: "import { useState } from 'react';"
+    },
+    {
+      emoji: "2",
+      title: "Call useState",
+      description: "Pass the initial value",
+      code: "const [count, setCount] = useState(0);"
+    },
+    {
+      emoji: "3",
+      title: "Read the Value",
+      description: "Use the first item (count)",
+      code: "<p>{count}</p>"
+    },
+    {
+      emoji: "4",
+      title: "Update the Value",
+      description: "Call the setter function",
+      code: "setCount(count + 1)"
+    }
+  ]}
+/>
+
+### The useState Syntax
+
+```jsx
+const [currentValue, setterFunction] = useState(initialValue);
+```
+
+- **currentValue**: The current state value
+- **setterFunction**: A function to update the state (by convention, prefix with "set")
+- **initialValue**: What the state starts as (only used on first render)
+
+### Try It: A Working Counter
+
+<ReactEditorPreview
+  initialCode={`function Counter() {
+  // useState returns [value, setter]
+  const [count, setCount] = React.useState(0);
+  
+  const increment = () => {
+    setCount(count + 1); // This triggers a re-render!
+  };
+  
+  const decrement = () => {
+    setCount(count - 1);
+  };
+  
+  const reset = () => {
+    setCount(0);
+  };
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui', textAlign: 'center' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>Working Counter</h2>
+      <p style={{ 
+        fontSize: '64px', 
+        margin: '20px 0', 
+        color: count >= 0 ? '#3b82f6' : '#ef4444',
+        fontWeight: 'bold'
+      }}>
+        {count}
+      </p>
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+        <button 
+          onClick={decrement}
+          style={{
+            padding: '12px 24px',
+            fontSize: '18px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          -
+        </button>
+        <button 
+          onClick={reset}
+          style={{
+            padding: '12px 24px',
+            fontSize: '16px',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Reset
+        </button>
+        <button 
+          onClick={increment}
+          style={{
+            padding: '12px 24px',
+            fontSize: '18px',
+            backgroundColor: '#22c55e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+render(<Counter />);`}
+  title="useState Counter - Click and Watch the Magic!"
+  height={380}
+  editable={true}
+/>
+
+Now clicking actually updates the UI! When you call `setCount`, React:
+1. Updates the state value
+2. Re-renders the component with the new value
+3. Updates the DOM to match
+
+## State with Different Data Types
+
+State can hold ANY JavaScript value - numbers, strings, booleans, arrays, objects, or even `null`.
+
+### Boolean State: Toggles
+
+<ReactEditorPreview
+  initialCode={`function DarkModeToggle() {
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  
+  const toggleMode = () => {
+    setIsDarkMode(!isDarkMode); // Flip true to false, false to true
+  };
+  
+  return (
+    <div style={{
+      padding: '32px',
+      fontFamily: 'system-ui',
+      backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+      color: isDarkMode ? '#f9fafb' : '#111827',
+      borderRadius: '12px',
+      transition: 'all 0.3s ease',
+      minHeight: '200px'
+    }}>
+      <h2 style={{ marginTop: 0 }}>
+        {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+      </h2>
+      <p>Click the button to toggle the theme!</p>
+      
+      <button 
+        onClick={toggleMode}
+        style={{
+          padding: '12px 24px',
+          fontSize: '16px',
+          backgroundColor: isDarkMode ? '#3b82f6' : '#1f2937',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          marginTop: '16px'
+        }}
+      >
+        Switch to {isDarkMode ? 'Light' : 'Dark'} Mode
+      </button>
+    </div>
+  );
+}
+
+render(<DarkModeToggle />);`}
+  title="Boolean State - Toggle Pattern"
+  height={350}
+  editable={true}
+/>
+
+### String State: Text Input
+
+<ReactEditorPreview
+  initialCode={`function NameGreeting() {
+  const [name, setName] = React.useState('');
+  
+  const handleChange = (event) => {
+    setName(event.target.value);
+  };
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>What's your name?</h2>
+      
+      <input
+        type="text"
+        value={name}
+        onChange={handleChange}
+        placeholder="Type your name..."
+        style={{
+          padding: '12px 16px',
+          fontSize: '16px',
+          border: '2px solid #d1d5db',
+          borderRadius: '8px',
+          width: '100%',
+          maxWidth: '300px',
+          outline: 'none'
+        }}
+      />
+      
+      <div style={{
+        marginTop: '20px',
+        padding: '16px',
+        backgroundColor: name ? '#dbeafe' : '#f3f4f6',
+        borderRadius: '8px',
+        color: name ? '#1e40af' : '#6b7280'
+      }}>
+        {name ? (
+          <p style={{ margin: 0, fontSize: '18px' }}>
+            Hello, <strong>{name}</strong>! Nice to meet you!
+          </p>
+        ) : (
+          <p style={{ margin: 0 }}>Enter your name above to see the greeting</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+render(<NameGreeting />);`}
+  title="String State - Controlled Input"
+  height={320}
+  editable={true}
+/>
+
+Notice how the input's `value` is tied to state, and `onChange` updates that state. This is called a **controlled component** - React controls the input's value.
+
+## The Golden Rule: Never Mutate State Directly
+
+This is crucial - you must **never modify state directly**. Always use the setter function!
+
+<ComparisonTable
+  caption="State Updates: Right vs Wrong"
+  headers={['Wrong (Mutation)', 'Right (Setter Function)']}
+  rows={[
+    {
+      label: 'Numbers',
+      values: ['count++', 'setCount(count + 1)']
+    },
+    {
+      label: 'Arrays',
+      values: ['items.push(newItem)', 'setItems([...items, newItem])']
+    },
+    {
+      label: 'Objects',
+      values: ['user.name = "new"', 'setUser({...user, name: "new"})']
+    },
+    {
+      label: 'Booleans',
+      values: ['isOpen = true', 'setIsOpen(true)']
+    }
+  ]}
+/>
+
+Why? Because React uses reference comparison to detect changes. If you mutate the existing object/array, React won't know anything changed!
+
+## Updating State Based on Previous State
+
+When your new state depends on the old state, use the **functional update** form:
+
+```jsx
+// Could be buggy with rapid clicks:
+setCount(count + 1);
+
+// Always correct - uses latest value:
+setCount(prevCount => prevCount + 1);
+```
+
+<ReactEditorPreview
+  initialCode={`function RapidCounter() {
+  const [count, setCount] = React.useState(0);
+  
+  // This version might miss clicks during rapid updates
+  const incrementBuggy = () => {
+    setCount(count + 1);
+    setCount(count + 1);
+    setCount(count + 1);
+    // You might expect +3, but you'll get +1!
+  };
+  
+  // This version always works correctly
+  const incrementCorrect = () => {
+    setCount(prev => prev + 1);
+    setCount(prev => prev + 1);
+    setCount(prev => prev + 1);
+    // Always +3!
+  };
+  
+  const reset = () => setCount(0);
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui', textAlign: 'center' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>Count: {count}</h2>
+      
+      <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <button 
+          onClick={incrementBuggy}
+          style={{
+            padding: '12px 20px',
+            fontSize: '14px',
+            backgroundColor: '#ef4444',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Add 3 (Buggy Way)
+        </button>
+        <button 
+          onClick={incrementCorrect}
+          style={{
+            padding: '12px 20px',
+            fontSize: '14px',
+            backgroundColor: '#22c55e',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Add 3 (Correct Way)
+        </button>
+        <button 
+          onClick={reset}
+          style={{
+            padding: '12px 20px',
+            fontSize: '14px',
+            backgroundColor: '#6b7280',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Reset
+        </button>
+      </div>
+      
+      <p style={{ color: '#6b7280', marginTop: '16px', fontSize: '14px' }}>
+        The buggy button calls setCount 3 times but only adds 1. The correct version uses functional updates!
+      </p>
+    </div>
+  );
+}
+
+render(<RapidCounter />);`}
+  title="Functional Updates - Why They Matter"
+  height={320}
+  editable={true}
+/>
+
+**Rule of thumb**: If your new state depends on the previous state, use the functional form `setState(prev => ...)`.
+
+## State with Arrays
+
+Arrays in state require immutable updates - you create new arrays instead of modifying the existing one.
+
+<ReactEditorPreview
+  initialCode={`function TodoList() {
+  const [todos, setTodos] = React.useState([
+    { id: 1, text: 'Learn useState', done: true },
+    { id: 2, text: 'Build a project', done: false },
+    { id: 3, text: 'Get hired', done: false }
+  ]);
+  const [newTodo, setNewTodo] = React.useState('');
+  
+  const addTodo = () => {
+    if (!newTodo.trim()) return;
+    
+    // Create NEW array with spread operator
+    setTodos([...todos, {
+      id: Date.now(),
+      text: newTodo,
+      done: false
+    }]);
+    setNewTodo('');
+  };
+  
+  const toggleTodo = (id) => {
+    // Map creates a NEW array
+    setTodos(todos.map(todo =>
+      todo.id === id ? { ...todo, done: !todo.done } : todo
+    ));
+  };
+  
+  const deleteTodo = (id) => {
+    // Filter creates a NEW array
+    setTodos(todos.filter(todo => todo.id !== id));
+  };
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui', maxWidth: '400px' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>My Todo List</h2>
+      
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <input
+          type="text"
+          value={newTodo}
+          onChange={(e) => setNewTodo(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && addTodo()}
+          placeholder="Add a new task..."
+          style={{
+            flex: 1,
+            padding: '10px 14px',
+            border: '2px solid #d1d5db',
+            borderRadius: '8px',
+            fontSize: '14px'
+          }}
+        />
+        <button 
+          onClick={addTodo}
+          style={{
+            padding: '10px 16px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px'
+          }}
+        >
+          Add
+        </button>
+      </div>
+      
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {todos.map(todo => (
+          <li 
+            key={todo.id}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              padding: '12px',
+              backgroundColor: todo.done ? '#f0fdf4' : '#f9fafb',
+              borderRadius: '8px',
+              marginBottom: '8px'
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => toggleTodo(todo.id)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+            />
+            <span style={{
+              flex: 1,
+              textDecoration: todo.done ? 'line-through' : 'none',
+              color: todo.done ? '#9ca3af' : '#111827'
+            }}>
+              {todo.text}
+            </span>
+            <button
+              onClick={() => deleteTodo(todo.id)}
+              style={{
+                padding: '4px 8px',
+                backgroundColor: '#fee2e2',
+                color: '#dc2626',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
+      
+      {todos.length === 0 && (
+        <p style={{ color: '#6b7280', textAlign: 'center' }}>
+          No tasks yet. Add one above!
+        </p>
+      )}
+    </div>
+  );
+}
+
+render(<TodoList />);`}
+  title="Array State - Todo List"
+  height={520}
+  editable={true}
+/>
+
+### Array Update Patterns
+
+<ComparisonTable
+  caption="Immutable Array Operations"
+  headers={['Operation', 'Pattern', 'Example']}
+  rows={[
+    {
+      label: 'Add item',
+      values: ['Spread + new item', '[...items, newItem]']
+    },
+    {
+      label: 'Remove item',
+      values: ['Filter', 'items.filter(i => i.id !== id)']
+    },
+    {
+      label: 'Update item',
+      values: ['Map', 'items.map(i => i.id === id ? {...i, done: true} : i)']
+    },
+    {
+      label: 'Add at start',
+      values: ['Spread', '[newItem, ...items]']
+    },
+    {
+      label: 'Insert at index',
+      values: ['Slice + Spread', '[...items.slice(0, i), newItem, ...items.slice(i)]']
+    }
+  ]}
+/>
+
+## State with Objects
+
+Objects follow the same rule - create new objects, don't mutate!
+
+<ReactEditorPreview
+  initialCode={`function UserProfile() {
+  const [user, setUser] = React.useState({
+    name: 'Alex Chen',
+    email: 'alex@example.com',
+    role: 'Developer',
+    notifications: true
+  });
+  
+  const updateField = (field, value) => {
+    // Spread the old object, then override one field
+    setUser({ ...user, [field]: value });
+  };
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui', maxWidth: '400px' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>Edit Profile</h2>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', color: '#374151', fontWeight: 500 }}>
+            Name
+          </label>
+          <input
+            type="text"
+            value={user.name}
+            onChange={(e) => updateField('name', e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: '2px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+          />
+        </div>
+        
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', color: '#374151', fontWeight: 500 }}>
+            Email
+          </label>
+          <input
+            type="email"
+            value={user.email}
+            onChange={(e) => updateField('email', e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: '2px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              boxSizing: 'border-box'
+            }}
+          />
+        </div>
+        
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', color: '#374151', fontWeight: 500 }}>
+            Role
+          </label>
+          <select
+            value={user.role}
+            onChange={(e) => updateField('role', e.target.value)}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              border: '2px solid #d1d5db',
+              borderRadius: '8px',
+              fontSize: '14px',
+              backgroundColor: 'white',
+              boxSizing: 'border-box'
+            }}
+          >
+            <option>Developer</option>
+            <option>Designer</option>
+            <option>Manager</option>
+            <option>Student</option>
+          </select>
+        </div>
+        
+        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+          <input
+            type="checkbox"
+            checked={user.notifications}
+            onChange={(e) => updateField('notifications', e.target.checked)}
+            style={{ width: '18px', height: '18px' }}
+          />
+          <span style={{ color: '#374151' }}>Email notifications</span>
+        </label>
+      </div>
+      
+      <div style={{
+        marginTop: '24px',
+        padding: '16px',
+        backgroundColor: '#f3f4f6',
+        borderRadius: '8px'
+      }}>
+        <h4 style={{ margin: '0 0 8px 0', color: '#374151' }}>Current State:</h4>
+        <pre style={{ 
+          margin: 0, 
+          fontSize: '12px', 
+          color: '#1f2937',
+          whiteSpace: 'pre-wrap'
+        }}>
+          {JSON.stringify(user, null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+}
+
+render(<UserProfile />);`}
+  title="Object State - User Profile Form"
+  height={600}
+  editable={true}
+/>
+
+## Multiple State Variables
+
+Don't try to cram everything into one state object! Use multiple `useState` calls for independent pieces of state:
+
+<ReactEditorPreview
+  initialCode={`function MultipleState() {
+  // Separate concerns into separate state variables
+  const [count, setCount] = React.useState(0);
+  const [name, setName] = React.useState('');
+  const [isHappy, setIsHappy] = React.useState(true);
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>Multiple State Variables</h2>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Counter state */}
+        <div style={{ padding: '16px', backgroundColor: '#dbeafe', borderRadius: '8px' }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#1e40af' }}>
+            Count: {count}
+          </p>
+          <button 
+            onClick={() => setCount(c => c + 1)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Increment
+          </button>
+        </div>
+        
+        {/* Name state */}
+        <div style={{ padding: '16px', backgroundColor: '#dcfce7', borderRadius: '8px' }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#166534' }}>
+            Name: {name || '(empty)'}
+          </p>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter name"
+            style={{
+              padding: '8px 12px',
+              border: '2px solid #86efac',
+              borderRadius: '6px',
+              fontSize: '14px'
+            }}
+          />
+        </div>
+        
+        {/* Boolean state */}
+        <div style={{ padding: '16px', backgroundColor: '#fef3c7', borderRadius: '8px' }}>
+          <p style={{ margin: '0 0 8px 0', fontWeight: 'bold', color: '#92400e' }}>
+            Mood: {isHappy ? 'Happy 😊' : 'Sad 😢'}
+          </p>
+          <button 
+            onClick={() => setIsHappy(!isHappy)}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer'
+            }}
+          >
+            Toggle Mood
+          </button>
+        </div>
+      </div>
+      
+      <p style={{ marginTop: '20px', color: '#6b7280', fontSize: '14px' }}>
+        Each piece of state is independent - updating one doesn't affect the others!
+      </p>
+    </div>
+  );
+}
+
+render(<MultipleState />);`}
+  title="Multiple Independent State Variables"
+  height={480}
+  editable={true}
+/>
+
+### When to Use One vs Multiple State Variables
+
+<ComparisonTable
+  caption="State Organization Guidelines"
+  headers={['Use Multiple useState', 'Use Single Object State']}
+  rows={[
+    {
+      label: 'Independence',
+      values: ['Values change independently', 'Values change together']
+    },
+    {
+      label: 'Example',
+      values: ['count, name, isOpen', 'formData with many fields']
+    },
+    {
+      label: 'Updates',
+      values: ['setCount(5), setName("Alex")', 'setForm({...form, name: "Alex"})']
+    },
+    {
+      label: 'Best for',
+      values: ['Unrelated UI concerns', 'Related data like form fields']
+    }
+  ]}
+/>
+
+## Practical Example: Interactive Quiz
+
+Let's combine everything we've learned into a real-world example:
+
+<ReactEditorPreview
+  initialCode={`function QuizApp() {
+  const [currentQuestion, setCurrentQuestion] = React.useState(0);
+  const [score, setScore] = React.useState(0);
+  const [showResult, setShowResult] = React.useState(false);
+  const [selectedAnswer, setSelectedAnswer] = React.useState(null);
+  
+  const questions = [
+    {
+      question: 'What hook is used for state in React?',
+      options: ['useEffect', 'useState', 'useContext', 'useReducer'],
+      correct: 1
+    },
+    {
+      question: 'How do you update state?',
+      options: ['state = newValue', 'this.state = newValue', 'setState(newValue)', 'updateState(newValue)'],
+      correct: 2
+    },
+    {
+      question: 'What triggers a re-render?',
+      options: ['Variable change', 'State change', 'Function call', 'Console.log'],
+      correct: 1
+    }
+  ];
+  
+  const handleAnswer = (index) => {
+    setSelectedAnswer(index);
+    
+    setTimeout(() => {
+      if (index === questions[currentQuestion].correct) {
+        setScore(s => s + 1);
+      }
+      
+      if (currentQuestion < questions.length - 1) {
+        setCurrentQuestion(q => q + 1);
+        setSelectedAnswer(null);
+      } else {
+        setShowResult(true);
+      }
+    }, 1000);
+  };
+  
+  const restart = () => {
+    setCurrentQuestion(0);
+    setScore(0);
+    setShowResult(false);
+    setSelectedAnswer(null);
+  };
+  
+  if (showResult) {
+    return (
+      <div style={{ 
+        padding: '32px', 
+        fontFamily: 'system-ui', 
+        textAlign: 'center',
+        backgroundColor: score === questions.length ? '#dcfce7' : '#fef3c7',
+        borderRadius: '12px'
+      }}>
+        <h2 style={{ color: '#111827', marginTop: 0 }}>Quiz Complete!</h2>
+        <p style={{ fontSize: '48px', margin: '20px 0' }}>
+          {score === questions.length ? '🎉' : '📚'}
+        </p>
+        <p style={{ fontSize: '24px', color: '#374151' }}>
+          You scored <strong>{score}</strong> out of <strong>{questions.length}</strong>
+        </p>
+        <button
+          onClick={restart}
+          style={{
+            marginTop: '20px',
+            padding: '12px 32px',
+            fontSize: '16px',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+  
+  const q = questions[currentQuestion];
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui' }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        marginBottom: '20px',
+        color: '#6b7280'
+      }}>
+        <span>Question {currentQuestion + 1}/{questions.length}</span>
+        <span>Score: {score}</span>
+      </div>
+      
+      <h2 style={{ color: '#111827', marginTop: 0 }}>{q.question}</h2>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {q.options.map((option, index) => {
+          let bg = '#f3f4f6';
+          let color = '#111827';
+          
+          if (selectedAnswer !== null) {
+            if (index === q.correct) {
+              bg = '#dcfce7';
+              color = '#166534';
+            } else if (index === selectedAnswer) {
+              bg = '#fee2e2';
+              color = '#dc2626';
+            }
+          }
+          
+          return (
+            <button
+              key={index}
+              onClick={() => selectedAnswer === null && handleAnswer(index)}
+              disabled={selectedAnswer !== null}
+              style={{
+                padding: '14px 18px',
+                fontSize: '15px',
+                backgroundColor: bg,
+                color: color,
+                border: '2px solid transparent',
+                borderRadius: '8px',
+                cursor: selectedAnswer === null ? 'pointer' : 'default',
+                textAlign: 'left',
+                transition: 'all 0.2s'
+              }}
+            >
+              {option}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+render(<QuizApp />);`}
+  title="Interactive Quiz App - Multiple State Variables Working Together"
+  height={480}
+  editable={true}
+/>
+
+## Common useState Mistakes
+
+### Mistake 1: Forgetting That State Updates Are Async
+
+<ReactEditorPreview
+  initialCode={`function AsyncDemo() {
+  const [count, setCount] = React.useState(0);
+  
+  const handleClick = () => {
+    setCount(count + 1);
+    // This logs the OLD value, not the new one!
+    console.log('Count after setCount:', count);
+    // The new value is available in the NEXT render
+  };
+  
+  // This shows the CURRENT value (updated after re-render)
+  console.log('Count during render:', count);
+  
+  return (
+    <div style={{ padding: '24px', fontFamily: 'system-ui', textAlign: 'center' }}>
+      <h2 style={{ color: '#111827', marginTop: 0 }}>State Updates Are Async</h2>
+      <p style={{ fontSize: '48px', color: '#3b82f6', margin: '16px 0' }}>{count}</p>
+      <button 
+        onClick={handleClick}
+        style={{
+          padding: '12px 24px',
+          fontSize: '16px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer'
+        }}
+      >
+        Increment (check console)
+      </button>
+      <p style={{ color: '#6b7280', marginTop: '16px', fontSize: '14px' }}>
+        Open the console to see when values are actually available
+      </p>
+    </div>
+  );
+}
+
+render(<AsyncDemo />);`}
+  title="State Updates Are Asynchronous"
+  height={320}
+  editable={true}
+/>
+
+### Mistake 2: Mutating State Directly
+
+```jsx
+// WRONG - mutating the array directly
+const addItem = (item) => {
+  items.push(item);      // Mutates the existing array
+  setItems(items);       // Same reference - React won't detect change!
+};
+
+// RIGHT - creating a new array
+const addItem = (item) => {
+  setItems([...items, item]);  // New array - React will re-render!
+};
+```
+
+### Mistake 3: Using State When You Don't Need It
+
+Not everything needs to be state! Use state only for values that:
+1. Change over time
+2. Should trigger a re-render when changed
+3. Can't be computed from other state/props
+
+```jsx
+// BAD - computed value doesn't need to be state
+const [fullName, setFullName] = useState('');
+useEffect(() => {
+  setFullName(firstName + ' ' + lastName);
+}, [firstName, lastName]);
+
+// GOOD - just compute it during render
+const fullName = firstName + ' ' + lastName;
+```
+
+## Summary
+
+<StepFlow
+  steps={[
+    {
+      emoji: "1",
+      title: "useState Returns a Pair",
+      description: "[value, setter] - current value and function to update it",
+      code: "const [count, setCount] = useState(0);"
+    },
+    {
+      emoji: "2",
+      title: "Never Mutate Directly",
+      description: "Always use the setter function, never modify state directly",
+      code: "setCount(count + 1); // not count++"
+    },
+    {
+      emoji: "3",
+      title: "Use Functional Updates",
+      description: "When new state depends on old state",
+      code: "setCount(prev => prev + 1);"
+    },
+    {
+      emoji: "4",
+      title: "Immutable Updates",
+      description: "Create new arrays/objects, don't modify existing ones",
+      code: "setItems([...items, newItem]);"
+    }
+  ]}
+/>
+
+## Key Takeaways
+
+1. **State is React's memory** - it persists across re-renders and triggers UI updates when changed
+2. **Always use the setter** - never modify state variables directly
+3. **State updates are async** - the new value isn't available immediately after calling the setter
+4. **Use functional updates** when the new state depends on the previous state
+5. **Keep state immutable** - create new objects/arrays instead of modifying existing ones
+6. **Split independent state** - use multiple useState calls for unrelated values
+
+## What's Next?
+
+Now that your components can remember and update data, you're ready to learn how to **conditionally render** different UI based on that state. In the next tutorial, we'll explore all the ways to show and hide content dynamically!
+
+<TutorialRecommendations />

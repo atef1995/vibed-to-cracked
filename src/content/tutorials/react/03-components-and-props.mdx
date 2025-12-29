@@ -1,0 +1,685 @@
+---
+title: "Components and Props: Building Reusable UI Blocks"
+description: "Learn to create React components and pass data with props to build reusable UI elements"
+level: "beginner"
+estimatedTime: "30 minutes"
+topics: ["React", "Components", "Props", "Composition"]
+quizQuestions: 12
+order: 3
+---
+
+import { ComparisonTable } from '@/components/tutorial/ComparisonTable';
+import { StepFlow } from '@/components/tutorial/StepFlow';
+
+# Components and Props: Building Reusable UI Blocks
+
+Components are React's secret sauce - they let you build reusable pieces of UI that you can use anywhere. Combined with props, you can create flexible building blocks that power entire applications. Let's learn how! 🚀
+
+## What You'll Learn
+
+- How to create functional components
+- Passing data with props
+- Default props and destructuring
+- Component composition with children
+- Building reusable UI patterns
+
+## What Are Components?
+
+Think of components as **custom HTML elements** you create yourself. Instead of being limited to `<div>`, `<button>`, and `<input>`, you can create `<UserCard>`, `<ProductList>`, or anything you need!
+
+```jsx
+// Your custom component
+function WelcomeMessage() {
+  return <h1>Welcome to React!</h1>;
+}
+
+// Use it like any HTML element
+<WelcomeMessage />
+```
+
+### Component Rules
+
+<StepFlow
+  steps={[
+    {
+      emoji: "1️⃣",
+      title: "PascalCase Names",
+      description: "Components start with uppercase",
+      code: "function UserCard() // Not userCard"
+    },
+    {
+      emoji: "2️⃣",
+      title: "Return JSX",
+      description: "Must return valid JSX or null",
+      code: "return <div>Hello</div>;"
+    },
+    {
+      emoji: "3️⃣",
+      title: "Single Root",
+      description: "Return one parent element",
+      code: "return (<div>...</div>);"
+    },
+    {
+      emoji: "4️⃣",
+      title: "Pure-ish",
+      description: "Same input → Same output",
+      code: "Props determine what renders"
+    }
+  ]}
+/>
+
+### Your First Component
+
+<ReactEditorPreview
+  initialCode={`// Define a component
+function Greeting() {
+  const name = 'Developer';
+  const currentHour = new Date().getHours();
+  
+  // Determine greeting based on time
+  let timeGreeting = 'Hello';
+  if (currentHour < 12) timeGreeting = 'Good morning';
+  else if (currentHour < 18) timeGreeting = 'Good afternoon';
+  else timeGreeting = 'Good evening';
+  
+  return (
+    <div style={{
+      padding: '24px',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      borderRadius: '12px',
+      color: 'white',
+      fontFamily: 'system-ui'
+    }}>
+      <h2 style={{ margin: '0 0 8px 0' }}>{timeGreeting}, {name}!</h2>
+      <p style={{ margin: 0, opacity: 0.9 }}>Ready to build something awesome?</p>
+    </div>
+  );
+}
+
+// Use the component
+render(<Greeting />);`}
+  title="Creating Your First Component"
+  height={280}
+  editable={true}
+/>
+
+## Props: Passing Data to Components
+
+Props (short for "properties") let you pass data to components - like function arguments!
+
+```jsx
+// Define component with props parameter
+function Greeting({ name }) {
+  return <h1>Hello, {name}!</h1>;
+}
+
+// Pass data when using the component
+<Greeting name="Sarah" />
+```
+
+### Try It: Using Props
+
+<ReactEditorPreview
+  initialCode={`// Component that accepts props
+function UserBadge({ name, role, isOnline }) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '16px',
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      border: '1px solid #e5e7eb',
+      fontFamily: 'system-ui'
+    }}>
+      {/* Status indicator */}
+      <div style={{
+        width: '12px',
+        height: '12px',
+        borderRadius: '50%',
+        backgroundColor: isOnline ? '#22c55e' : '#9ca3af'
+      }} />
+      
+      {/* User info */}
+      <div>
+        <h4 style={{ margin: '0 0 4px 0', color: '#111827' }}>{name}</h4>
+        <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>{role}</p>
+      </div>
+    </div>
+  );
+}
+
+// Using the component with different props
+function App() {
+  return (
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <UserBadge name="Sarah Chen" role="Lead Developer" isOnline={true} />
+      <UserBadge name="Mike Johnson" role="Designer" isOnline={false} />
+      <UserBadge name="Emma Wilson" role="Product Manager" isOnline={true} />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Passing Different Props to Components"
+  height={350}
+  editable={true}
+/>
+
+### Props Types
+
+You can pass any JavaScript value as props:
+
+<ComparisonTable
+  headers={['Type', 'Example', 'In Component']}
+  rows={[
+    {
+      label: 'String',
+      values: ['name="Sarah"', '{name}'],
+      highlighted: true
+    },
+    {
+      label: 'Number',
+      values: ['count={42}', '{count}'],
+    },
+    {
+      label: 'Boolean',
+      values: ['isActive={true}', '{isActive}'],
+    },
+    {
+      label: 'Array',
+      values: ['items={[1, 2, 3]}', '{items.map(...)}'],
+      highlighted: true
+    },
+    {
+      label: 'Object',
+      values: ['user={{name: "Sam"}}', '{user.name}'],
+    },
+    {
+      label: 'Function',
+      values: ['onClick={handleClick}', 'onClick()'],
+      highlighted: true
+    }
+  ]}
+  caption="Different types of values you can pass as props"
+/>
+
+## Destructuring Props (The Clean Way)
+
+Always destructure props in the function parameters for cleaner code:
+
+```jsx
+// ❌ Verbose - accessing props.* everywhere
+function Card(props) {
+  return <div className={props.className}>{props.title}</div>;
+}
+
+// ✅ Clean - destructure what you need
+function Card({ title, className }) {
+  return <div className={className}>{title}</div>;
+}
+```
+
+## Default Props
+
+Set sensible defaults so components work out of the box:
+
+<ReactEditorPreview
+  initialCode={`function Button({ 
+  label = 'Click me',    // Default text
+  variant = 'primary',   // Default style
+  size = 'medium',       // Default size
+  disabled = false       // Default state
+}) {
+  const variants = {
+    primary: { bg: '#3b82f6', color: 'white' },
+    secondary: { bg: '#e5e7eb', color: '#374151' },
+    danger: { bg: '#ef4444', color: 'white' }
+  };
+  
+  const sizes = {
+    small: { padding: '6px 12px', fontSize: '12px' },
+    medium: { padding: '10px 20px', fontSize: '14px' },
+    large: { padding: '14px 28px', fontSize: '16px' }
+  };
+  
+  return (
+    <button 
+      disabled={disabled}
+      style={{
+        ...variants[variant],
+        ...sizes[size],
+        border: 'none',
+        borderRadius: '8px',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.5 : 1,
+        fontWeight: '500'
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function App() {
+  return (
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      {/* Uses all defaults */}
+      <Button />
+      
+      {/* Override some props */}
+      <Button label="Save" variant="primary" size="large" />
+      <Button label="Cancel" variant="secondary" />
+      <Button label="Delete" variant="danger" />
+      <Button label="Disabled" disabled={true} />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Default Props Make Components Easy to Use"
+  height={380}
+  editable={true}
+/>
+
+## The Children Prop
+
+The `children` prop is special - it's whatever you put **between** opening and closing tags:
+
+```jsx
+<Card>
+  <h2>This is children!</h2>
+  <p>Everything here gets passed as props.children</p>
+</Card>
+
+// Inside Card:
+function Card({ children }) {
+  return <div className="card">{children}</div>;
+}
+```
+
+### Building Flexible Containers
+
+<ReactEditorPreview
+  initialCode={`// A flexible Card container using children
+function Card({ children, title, variant = 'default' }) {
+  const variants = {
+    default: { border: '1px solid #e5e7eb', bg: 'white' },
+    elevated: { boxShadow: '0 4px 6px rgba(0,0,0,0.1)', bg: 'white' },
+    filled: { bg: '#f3f4f6', border: 'none' }
+  };
+  
+  const style = variants[variant];
+  
+  return (
+    <div style={{
+      borderRadius: '12px',
+      overflow: 'hidden',
+      backgroundColor: style.bg,
+      border: style.border,
+      boxShadow: style.boxShadow,
+      marginBottom: '16px'
+    }}>
+      {title && (
+        <div style={{ 
+          padding: '16px', 
+          borderBottom: '1px solid #e5e7eb',
+          fontWeight: '600',
+          color: '#111827'
+        }}>
+          {title}
+        </div>
+      )}
+      <div style={{ padding: '16px', color: '#374151' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <div style={{ padding: '20px', maxWidth: '400px', fontFamily: 'system-ui' }}>
+      {/* Simple card */}
+      <Card>
+        <p>Just some content in a card!</p>
+      </Card>
+      
+      {/* Card with title */}
+      <Card title="User Profile" variant="elevated">
+        <p style={{ margin: '0 0 8px 0' }}>Sarah Chen</p>
+        <p style={{ margin: 0, color: '#6b7280' }}>Full Stack Developer</p>
+      </Card>
+      
+      {/* Card with different variant */}
+      <Card title="Quick Stats" variant="filled">
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>127</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Projects</div>
+          </div>
+          <div>
+            <div style={{ fontSize: '24px', fontWeight: 'bold' }}>4.9</div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>Rating</div>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Flexible Card Component with Children"
+  height={520}
+  editable={true}
+/>
+
+## Component Composition
+
+The real power of React is **composition** - building complex UIs from simple components.
+
+<ReactEditorPreview
+  initialCode={`// Small, focused components
+function Avatar({ initials, size = 40 }) {
+  return (
+    <div style={{
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      backgroundColor: '#e0e7ff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: size * 0.4,
+      fontWeight: '600',
+      color: '#4f46e5'
+    }}>
+      {initials}
+    </div>
+  );
+}
+
+function Badge({ children, variant = 'default' }) {
+  const colors = {
+    default: { bg: '#f3f4f6', text: '#374151' },
+    success: { bg: '#dcfce7', text: '#166534' },
+    warning: { bg: '#fef3c7', text: '#92400e' }
+  };
+  
+  return (
+    <span style={{
+      padding: '4px 10px',
+      borderRadius: '12px',
+      fontSize: '12px',
+      fontWeight: '500',
+      backgroundColor: colors[variant].bg,
+      color: colors[variant].text
+    }}>
+      {children}
+    </span>
+  );
+}
+
+// Composed component using smaller ones
+function TeamMember({ name, role, status, initials }) {
+  const statusVariant = {
+    'Active': 'success',
+    'Away': 'warning'
+  }[status] || 'default';
+  
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '12px',
+      padding: '16px',
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      border: '1px solid #e5e7eb',
+      marginBottom: '12px'
+    }}>
+      <Avatar initials={initials} />
+      <div style={{ flex: 1 }}>
+        <h4 style={{ margin: '0 0 4px 0', color: '#111827' }}>{name}</h4>
+        <p style={{ margin: 0, fontSize: '14px', color: '#6b7280' }}>{role}</p>
+      </div>
+      <Badge variant={statusVariant}>{status}</Badge>
+    </div>
+  );
+}
+
+// App using everything together
+function App() {
+  const team = [
+    { id: 1, name: 'Sarah Chen', role: 'Lead Dev', status: 'Active', initials: 'SC' },
+    { id: 2, name: 'Mike Johnson', role: 'Designer', status: 'Away', initials: 'MJ' },
+    { id: 3, name: 'Emma Wilson', role: 'PM', status: 'Active', initials: 'EW' },
+  ];
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui', maxWidth: '400px' }}>
+      <h2 style={{ color: '#111827', marginBottom: '16px' }}>Team Members</h2>
+      {team.map(member => (
+        <TeamMember key={member.id} {...member} />
+      ))}
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Component Composition - Building Complex from Simple"
+  height={500}
+  editable={true}
+/>
+
+## The Spread Operator for Props
+
+Pass all properties of an object as props with the spread operator:
+
+```jsx
+const user = { name: 'Sarah', age: 28, role: 'Developer' };
+
+// These are equivalent:
+<UserCard {...user} />
+<UserCard name={user.name} age={user.age} role={user.role} />
+```
+
+This is super handy when passing data from arrays!
+
+## Rest Props Pattern
+
+Capture extra props to pass to child elements:
+
+<ReactEditorPreview
+  initialCode={`// The ...rest pattern captures all other props
+function Input({ label, error, ...rest }) {
+  return (
+    <div style={{ marginBottom: '16px' }}>
+      {label && (
+        <label style={{ 
+          display: 'block', 
+          marginBottom: '4px',
+          fontWeight: '500',
+          color: '#374151'
+        }}>
+          {label}
+        </label>
+      )}
+      <input
+        {...rest}  // Spreads type, placeholder, value, onChange, etc.
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          borderRadius: '8px',
+          border: error ? '2px solid #ef4444' : '1px solid #d1d5db',
+          fontSize: '14px',
+          outline: 'none',
+          boxSizing: 'border-box'
+        }}
+      />
+      {error && (
+        <span style={{ color: '#ef4444', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+          {error}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function App() {
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  
+  return (
+    <div style={{ padding: '20px', maxWidth: '300px', fontFamily: 'system-ui' }}>
+      <h3 style={{ marginTop: 0, color: '#111827' }}>Login Form</h3>
+      
+      {/* All standard input props work! */}
+      <Input
+        label="Email"
+        type="email"
+        placeholder="you@example.com"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      
+      <Input
+        label="Password"
+        type="password"
+        placeholder="••••••••"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        error={password.length > 0 && password.length < 8 ? 'Min 8 characters' : ''}
+      />
+    </div>
+  );
+}
+
+render(<App />);`}
+  title="Rest Props Pattern - Pass Through Native Attributes"
+  height={420}
+  editable={true}
+/>
+
+## Props vs State
+
+It's important to understand the difference:
+
+<ComparisonTable
+  headers={['Props', 'State']}
+  rows={[
+    {
+      label: 'Passed from parent',
+      values: ['Internal to component'],
+      highlighted: true
+    },
+    {
+      label: 'Read-only in component',
+      values: ['Can be changed'],
+    },
+    {
+      label: 'Like function arguments',
+      values: ['Like local variables'],
+      highlighted: true
+    },
+    {
+      label: "Controlled by parent",
+      values: ['Controlled by component itself'],
+    }
+  ]}
+  caption="Props come from outside, state lives inside"
+/>
+
+Don't worry about state yet - that's coming in the next tutorial!
+
+## Best Practices
+
+<StepFlow
+  steps={[
+    {
+      emoji: "1️⃣",
+      title: "Keep Components Small",
+      description: "One component, one job",
+      code: "// 50-150 lines is a good target"
+    },
+    {
+      emoji: "2️⃣",
+      title: "Use Meaningful Names",
+      description: "Names should describe what they render",
+      code: "UserCard, not Card1"
+    },
+    {
+      emoji: "3️⃣",
+      title: "Destructure Props",
+      description: "Makes code cleaner and self-documenting",
+      code: "function Card({ title, children })"
+    },
+    {
+      emoji: "4️⃣",
+      title: "Set Default Props",
+      description: "Components should work with minimal config",
+      code: "{ variant = 'primary' }"
+    },
+    {
+      emoji: "5️⃣",
+      title: "Compose Components",
+      description: "Build complex from simple",
+      code: "<Card><Avatar /><Text /></Card>"
+    }
+  ]}
+/>
+
+## Quick Recap
+
+You've learned the fundamentals! Here's what you now know:
+
+- ✅ Creating functional components with PascalCase names
+- ✅ Passing data with props (any JavaScript value!)
+- ✅ Destructuring props for cleaner code
+- ✅ Setting default prop values
+- ✅ Using children for flexible containers
+- ✅ Composing small components into bigger ones
+- ✅ Spread and rest props patterns
+
+## What's Next?
+
+In the next tutorial, you'll learn about **state** - how to make your components interactive and dynamic. That's where React really comes alive! 🎉
+
+---
+
+## Practice Challenges
+
+### Challenge 1: Build a Product Card
+
+Create a `ProductCard` component that accepts:
+- `name` (string)
+- `price` (number)
+- `image` (string URL)
+- `inStock` (boolean)
+
+Show different styles based on `inStock` status.
+
+### Challenge 2: Notification Component
+
+Create a `Notification` component with:
+- `message` prop for the text
+- `type` prop: 'info', 'success', 'warning', 'error'
+- Different colors for each type
+- An optional `onClose` callback prop
+
+### Challenge 3: Team Grid
+
+Create a team display with:
+- `TeamMember` component showing avatar, name, role
+- `TeamGrid` component that accepts an array of team members
+- Use composition and the spread operator
+
+---
+
+## Discussion Questions
+
+1. Why should components start with uppercase letters?
+2. What's the difference between props and children?
+3. When would you use default props?
+4. How does composition help build maintainable UIs?

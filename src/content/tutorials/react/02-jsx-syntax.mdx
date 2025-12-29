@@ -1,0 +1,534 @@
+---
+title: "JSX Syntax: Writing HTML in JavaScript"
+description: "Master JSX syntax rules and learn how to write dynamic, expressive UI code in React"
+level: "beginner"
+estimatedTime: "20 minutes"
+topics: ["React", "JSX", "Syntax", "Expressions"]
+quizQuestions: 10
+order: 2
+---
+
+import { ComparisonTable } from '@/components/tutorial/ComparisonTable';
+import { StepFlow } from '@/components/tutorial/StepFlow';
+
+# JSX Syntax: Writing HTML in JavaScript
+
+JSX is React's superpower - it lets you write HTML-like code right inside JavaScript. But it's not exactly HTML, and learning the differences will save you hours of debugging. Let's master it! 🚀
+
+## What You'll Learn
+
+- The core JSX syntax rules (and why they exist)
+- How to embed JavaScript expressions in JSX
+- Dynamic styling and attributes
+- Fragments and when to use them
+
+## JSX Rules: The Non-Negotiables
+
+JSX looks like HTML, but it's actually JavaScript. This means a few rules are different:
+
+<ComparisonTable
+  headers={['HTML', 'JSX', 'Why?']}
+  rows={[
+    {
+      label: 'class="btn"',
+      values: ['className="btn"', 'class is a reserved word in JS'],
+      highlighted: true
+    },
+    {
+      label: 'for="email"',
+      values: ['htmlFor="email"', 'for is a reserved word in JS'],
+    },
+    {
+      label: 'onclick="..."',
+      values: ['onClick={...}', 'camelCase for all events'],
+      highlighted: true
+    },
+    {
+      label: 'style="color: red"',
+      values: ['style={{ color: "red" }}', 'Object, not string'],
+    },
+    {
+      label: '<br>',
+      values: ['<br />',  'All tags must close'],
+      highlighted: true
+    }
+  ]}
+  caption="Key differences between HTML and JSX"
+/>
+
+### Rule 1: Use className, Not class
+
+```jsx
+// ❌ Won't work - class is a reserved JavaScript keyword
+<div class="container">
+
+// ✅ Use className instead
+<div className="container">
+```
+
+### Rule 2: camelCase for Attributes
+
+All multi-word attributes use camelCase:
+
+<ComparisonTable
+  headers={['HTML Attribute', 'JSX Attribute']}
+  rows={[
+    { label: 'onclick', values: ['onClick'], highlighted: true },
+    { label: 'onchange', values: ['onChange'] },
+    { label: 'tabindex', values: ['tabIndex'] },
+    { label: 'maxlength', values: ['maxLength'] },
+    { label: 'readonly', values: ['readOnly'] },
+    { label: 'autocomplete', values: ['autoComplete'] },
+    { label: 'contenteditable', values: ['contentEditable'], highlighted: true }
+  ]}
+  caption="HTML attributes become camelCase in JSX"
+/>
+
+### Rule 3: Self-Closing Tags
+
+Every tag without children MUST self-close:
+
+```jsx
+// ❌ This will cause an error
+<img src="photo.jpg">
+<input type="text">
+<br>
+
+// ✅ Self-close all void elements
+<img src="photo.jpg" />
+<input type="text" />
+<br />
+```
+
+### Rule 4: One Root Element
+
+JSX expressions must have a single parent element:
+
+```jsx
+// ❌ Multiple root elements - won't work
+return (
+  <h1>Title</h1>
+  <p>Paragraph</p>
+);
+
+// ✅ Wrap in a single parent
+return (
+  <div>
+    <h1>Title</h1>
+    <p>Paragraph</p>
+  </div>
+);
+
+// ✅ Or use a Fragment (no extra div!)
+return (
+  <>
+    <h1>Title</h1>
+    <p>Paragraph</p>
+  </>
+);
+```
+
+### Try It: JSX Rules in Action
+
+See how the rules work in practice:
+
+<ReactEditorPreview
+  initialCode={`function JSXRulesDemo() {
+  const handleClick = () => alert('Button clicked!');
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      {/* className instead of class */}
+      <h2 style={{ color: '#3b82f6' }}>JSX Rules Demo</h2>
+      
+      {/* camelCase event handlers */}
+      <button 
+        onClick={handleClick}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#3b82f6',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          marginBottom: '16px'
+        }}
+      >
+        Click Me (onClick)
+      </button>
+      
+      {/* Self-closing tags */}
+      <br />
+      
+      {/* camelCase attributes */}
+      <input 
+        type="text"
+        placeholder="Type here..."
+        maxLength={50}
+        autoComplete="off"
+        style={{
+          padding: '10px',
+          borderRadius: '6px',
+          border: '1px solid #d1d5db',
+          width: '200px',
+          marginBottom: '16px'
+        }}
+      />
+      
+      <br />
+      
+      {/* htmlFor instead of for */}
+      <label htmlFor="checkbox" style={{ cursor: 'pointer' }}>
+        <input type="checkbox" id="checkbox" />
+        {' '}Check me (htmlFor)
+      </label>
+    </div>
+  );
+}
+
+render(<JSXRulesDemo />);`}
+  title="JSX Rules Demo"
+  height={380}
+  editable={true}
+/>
+
+## Fragments: The Invisible Wrapper
+
+When you need to return multiple elements but don't want an extra `<div>`, use a Fragment:
+
+```jsx
+// Fragment syntax - no extra DOM node
+<>
+  <Header />
+  <Main />
+  <Footer />
+</>
+
+// Or with explicit Fragment (when you need a key)
+<React.Fragment key={id}>
+  <Header />
+  <Main />
+</React.Fragment>
+```
+
+Fragments are perfect for:
+- Lists where you can't add a wrapper
+- Component returns that shouldn't add DOM nodes
+- Keeping your HTML structure clean
+
+## JavaScript Expressions in JSX
+
+The magic of JSX is embedding JavaScript using curly braces `{ }`.
+
+<StepFlow
+  steps={[
+    {
+      emoji: "1️⃣",
+      title: "Variables",
+      description: "Display any JavaScript value",
+      code: "<h1>{userName}</h1>"
+    },
+    {
+      emoji: "2️⃣",
+      title: "Expressions",
+      description: "Any code that produces a value",
+      code: "<p>{count + 1}</p>"
+    },
+    {
+      emoji: "3️⃣",
+      title: "Function Calls",
+      description: "Call functions and display results",
+      code: "<span>{formatDate(today)}</span>"
+    },
+    {
+      emoji: "4️⃣",
+      title: "Ternaries",
+      description: "Conditional rendering inline",
+      code: "<div>{isLoggedIn ? 'Welcome!' : 'Sign in'}</div>"
+    }
+  ]}
+/>
+
+### Try It: JavaScript Expressions
+
+Experiment with different expressions:
+
+<ReactEditorPreview
+  initialCode={`function ExpressionsDemo() {
+  const user = {
+    name: 'Sarah Chen',
+    title: 'Full Stack Developer',
+    experience: 5,
+    skills: ['React', 'Node.js', 'TypeScript']
+  };
+  
+  const formatYears = (years) => 
+    years === 1 ? '1 year' : years + ' years';
+    
+  const today = new Date();
+  
+  return (
+    <div style={{ 
+      padding: '24px', 
+      fontFamily: 'system-ui',
+      maxWidth: '400px',
+      backgroundColor: '#f8fafc',
+      borderRadius: '12px'
+    }}>
+      {/* Variable */}
+      <h2 style={{ color: '#1e293b', marginTop: 0 }}>{user.name}</h2>
+      
+      {/* Property access */}
+      <p style={{ color: '#64748b', marginTop: '4px' }}>{user.title}</p>
+      
+      {/* Function call */}
+      <p style={{ fontSize: '14px', color: '#475569' }}>
+        {formatYears(user.experience)} of experience
+      </p>
+      
+      {/* Expression */}
+      <p style={{ fontSize: '14px', color: '#475569' }}>
+        Joined: {today.toLocaleDateString()}
+      </p>
+      
+      {/* Template literal */}
+      <p style={{ 
+        padding: '8px 12px',
+        backgroundColor: '#e0f2fe',
+        borderRadius: '6px',
+        fontSize: '14px',
+        color: '#0369a1'
+      }}>
+        {'🚀 ' + user.skills.length + ' skills mastered!'}
+      </p>
+      
+      {/* Ternary expression */}
+      <div style={{
+        padding: '8px 12px',
+        backgroundColor: user.experience >= 5 ? '#dcfce7' : '#fef3c7',
+        borderRadius: '6px',
+        marginTop: '8px',
+        fontSize: '14px',
+        color: user.experience >= 5 ? '#166534' : '#92400e'
+      }}>
+        {user.experience >= 5 ? '⭐ Senior Developer' : '📚 Learning & Growing'}
+      </div>
+      
+      {/* Array join */}
+      <p style={{ fontSize: '13px', color: '#64748b', marginTop: '12px' }}>
+        Skills: {user.skills.join(' • ')}
+      </p>
+    </div>
+  );
+}
+
+render(<ExpressionsDemo />);`}
+  title="JavaScript Expressions in JSX"
+  height={450}
+  editable={true}
+/>
+
+## Dynamic Styles
+
+JSX uses JavaScript objects for inline styles. Property names are camelCase:
+
+```jsx
+// CSS property → JavaScript object property
+// background-color → backgroundColor
+// font-size → fontSize
+// padding-top → paddingTop
+
+<div style={{
+  backgroundColor: '#3b82f6',
+  fontSize: '16px',
+  paddingTop: '20px'
+}}>
+```
+
+### Try It: Dynamic Styling
+
+Watch how styles can change based on data:
+
+<ReactEditorPreview
+  initialCode={`function DynamicStylesDemo() {
+  const [theme, setTheme] = React.useState('light');
+  const [size, setSize] = React.useState('medium');
+  
+  const themes = {
+    light: { bg: '#ffffff', text: '#1e293b', border: '#e2e8f0' },
+    dark: { bg: '#1e293b', text: '#f1f5f9', border: '#475569' },
+    colorful: { bg: '#fef3c7', text: '#92400e', border: '#f59e0b' }
+  };
+  
+  const sizes = {
+    small: { padding: '12px', fontSize: '14px', borderRadius: '6px' },
+    medium: { padding: '20px', fontSize: '16px', borderRadius: '10px' },
+    large: { padding: '28px', fontSize: '18px', borderRadius: '14px' }
+  };
+  
+  const currentTheme = themes[theme];
+  const currentSize = sizes[size];
+  
+  return (
+    <div style={{ padding: '20px', fontFamily: 'system-ui' }}>
+      {/* Controls */}
+      <div style={{ marginBottom: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
+            Theme:
+          </label>
+          <select 
+            value={theme} 
+            onChange={(e) => setTheme(e.target.value)}
+            style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          >
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+            <option value="colorful">Colorful</option>
+          </select>
+        </div>
+        
+        <div>
+          <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px' }}>
+            Size:
+          </label>
+          <select 
+            value={size} 
+            onChange={(e) => setSize(e.target.value)}
+            style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #d1d5db' }}
+          >
+            <option value="small">Small</option>
+            <option value="medium">Medium</option>
+            <option value="large">Large</option>
+          </select>
+        </div>
+      </div>
+      
+      {/* Dynamically styled card */}
+      <div style={{
+        backgroundColor: currentTheme.bg,
+        color: currentTheme.text,
+        border: '2px solid ' + currentTheme.border,
+        padding: currentSize.padding,
+        fontSize: currentSize.fontSize,
+        borderRadius: currentSize.borderRadius,
+        transition: 'all 0.3s ease'
+      }}>
+        <h3 style={{ margin: '0 0 8px 0' }}>Dynamic Styling!</h3>
+        <p style={{ margin: 0 }}>
+          Theme: {theme} | Size: {size}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+render(<DynamicStylesDemo />);`}
+  title="Dynamic Styles with JavaScript Objects"
+  height={400}
+  editable={true}
+/>
+
+## Comments in JSX
+
+Comments inside JSX need curly braces:
+
+```jsx
+return (
+  <div>
+    {/* This is a JSX comment */}
+    <h1>Hello</h1>
+    
+    {/* 
+      Multi-line comments
+      work the same way
+    */}
+    <p>World</p>
+  </div>
+);
+```
+
+## Common JSX Gotchas
+
+Watch out for these common mistakes:
+
+<ComparisonTable
+  headers={['❌ Mistake', '✅ Correct', 'Why']}
+  rows={[
+    {
+      label: '{if (x) return <A />}',
+      values: ['{x ? <A /> : null}', "Statements don't work, use expressions"],
+      highlighted: true
+    },
+    {
+      label: 'style="color: red"',
+      values: ['style={{ color: "red" }}', 'Must be an object'],
+    },
+    {
+      label: 'class="btn"',
+      values: ['className="btn"', 'class is reserved in JS'],
+    },
+    {
+      label: '<input type="text">',
+      values: ['<input type="text" />',  'Must self-close'],
+      highlighted: true
+    },
+    {
+      label: '{/* comment */}',
+      values: ['{/* comment */}', 'Comments need braces inside JSX ✓'],
+    }
+  ]}
+  caption="Common JSX mistakes and how to fix them"
+/>
+
+> **Key Insight:** Inside curly braces, you can use any JavaScript **expression** (something that produces a value), but not **statements** (if, for, while). Use ternaries and array methods instead!
+
+## Quick Recap
+
+You've mastered JSX syntax! Here's what you now know:
+
+- ✅ className instead of class, camelCase attributes
+- ✅ All tags must close (self-closing for void elements)
+- ✅ One root element (use Fragments when needed)
+- ✅ Curly braces for JavaScript expressions
+- ✅ Style objects with camelCase properties
+- ✅ Comments inside JSX need `{/* */}`
+
+## What's Next?
+
+Now that you know JSX syntax, it's time to learn about **components and props** - how to build reusable UI pieces and pass data between them. That's where React really starts to shine!
+
+---
+
+## Practice Challenges
+
+### Challenge 1: Profile Card
+
+Create a profile card that displays:
+- A user's name from a variable
+- Their job title
+- Years of experience (formatted nicely)
+- A dynamic background color based on experience level
+
+### Challenge 2: Style Switcher
+
+Build a component with:
+- Three theme buttons (light, dark, ocean)
+- A content box that changes styles based on selected theme
+- Smooth transitions between themes
+
+### Challenge 3: Expression Playground
+
+Create a dashboard card that shows:
+- Current date and time (formatted)
+- A greeting that changes based on time of day
+- A random motivational quote from an array
+
+---
+
+## Discussion Questions
+
+1. Why does JSX use className instead of class?
+2. When would you use a Fragment instead of a `<div>`?
+3. What's the difference between an expression and a statement in JavaScript?
+4. Why are inline styles objects instead of strings?

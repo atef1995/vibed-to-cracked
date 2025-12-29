@@ -45,7 +45,13 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
       console.log("✅ Created React category");
     }
 
-    // React Tutorials
+    // Delete existing React tutorials to start fresh
+    const deleted = await client.tutorial.deleteMany({
+      where: { categoryId: reactCategory.id },
+    });
+    console.log(`🗑️ Deleted ${deleted.count} existing React tutorials`);
+
+    // React Tutorials - Improved progression
     const reactTutorials = [
       {
         slug: "what-is-react",
@@ -62,11 +68,11 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "jsx-and-components",
-        title: "JSX Deep Dive: Writing Your First React Components",
+        slug: "jsx-syntax",
+        title: "JSX Syntax: Writing HTML in JavaScript",
         description:
-          "Master JSX syntax, build functional components, and understand how to pass data with props",
-        mdxFile: "react/02-jsx-and-components",
+          "Master JSX syntax, expressions, and how React transforms JSX into real DOM elements",
+        mdxFile: "react/02-jsx-syntax",
         category: "react",
         estimatedTime: 30.0,
         difficulty: 1,
@@ -79,11 +85,11 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         slug: "components-and-props",
         title: "Components and Props: Building Reusable UI Blocks",
         description:
-          "Master React components and props to create reusable, composable UI elements",
+          "Learn to create functional components, pass data with props, and build your first reusable UI elements",
         mdxFile: "react/03-components-and-props",
         category: "react",
         estimatedTime: 40.0,
-        difficulty: 2,
+        difficulty: 1,
         order: 3,
         published: true,
         isPremium: false,
@@ -91,7 +97,7 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
       },
       {
         slug: "state-and-usestate",
-        title: "State Management with useState: Making Components Interactive",
+        title: "State with useState: Making Components Interactive",
         description:
           "Learn how to manage component state with the useState hook and create truly interactive UIs",
         mdxFile: "react/04-state-and-usestate",
@@ -104,27 +110,27 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "react-hooks-deep-dive",
-        title: "React Hooks Deep Dive: useEffect, useRef, and Custom Hooks",
+        slug: "conditional-rendering",
+        title: "Conditional Rendering: Showing and Hiding UI Based on State",
         description:
-          "Explore advanced React hooks and learn how to build custom hooks for reusable logic",
-        mdxFile: "react/05-react-hooks-deep-dive",
+          "Learn different patterns for conditional rendering in React - ternaries, && operator, and early returns",
+        mdxFile: "react/05-conditional-rendering",
         category: "react",
-        estimatedTime: 50.0,
-        difficulty: 3,
+        estimatedTime: 30.0,
+        difficulty: 2,
         order: 5,
         published: true,
         isPremium: false,
         requiredPlan: "FREE",
       },
       {
-        slug: "forms-and-controlled-components",
-        title: "Forms in React: Building Controlled Components and Handling Input",
+        slug: "lists-and-keys",
+        title: "Rendering Lists: Keys, Mapping, and Dynamic Content",
         description:
-          "Master React forms, controlled components, validation, and user input handling",
-        mdxFile: "react/06-forms-and-controlled-components",
+          "Master rendering lists efficiently with proper key usage and understand React's reconciliation",
+        mdxFile: "react/06-lists-and-keys",
         category: "react",
-        estimatedTime: 45.0,
+        estimatedTime: 35.0,
         difficulty: 2,
         order: 6,
         published: true,
@@ -132,13 +138,13 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "conditional-rendering",
-        title: "Conditional Rendering: Showing and Hiding Components Based on State",
+        slug: "forms-and-inputs",
+        title: "Forms in React: Controlled Components and User Input",
         description:
-          "Learn different patterns for conditional rendering in React and when to use each one",
-        mdxFile: "react/07-conditional-rendering",
+          "Master React forms, controlled vs uncontrolled inputs, validation, and handling submissions",
+        mdxFile: "react/07-forms-and-inputs",
         category: "react",
-        estimatedTime: 35.0,
+        estimatedTime: 45.0,
         difficulty: 2,
         order: 7,
         published: true,
@@ -146,13 +152,13 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "lists-and-keys",
-        title: "Rendering Lists in React: Keys, Performance, and Best Practices",
+        slug: "useeffect-and-side-effects",
+        title: "useEffect: Side Effects, Data Fetching, and Cleanup",
         description:
-          "Master rendering lists efficiently with proper key usage and learn React's reconciliation algorithm",
-        mdxFile: "react/08-lists-and-keys",
+          "Learn to handle side effects like API calls, subscriptions, and DOM manipulation with useEffect",
+        mdxFile: "react/08-useeffect-and-side-effects",
         category: "react",
-        estimatedTime: 40.0,
+        estimatedTime: 45.0,
         difficulty: 2,
         order: 8,
         published: true,
@@ -161,12 +167,12 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
       },
       {
         slug: "styling-react-components",
-        title: "Styling React Components: CSS, Tailwind, and CSS-in-JS",
+        title: "Styling React: CSS, Tailwind, and CSS-in-JS",
         description:
-          "Learn different approaches to styling React components, from CSS files to Tailwind to styled-components",
+          "Explore different approaches to styling React components - from CSS modules to Tailwind to styled-components",
         mdxFile: "react/09-styling-react-components",
         category: "react",
-        estimatedTime: 45.0,
+        estimatedTime: 40.0,
         difficulty: 2,
         order: 9,
         published: true,
@@ -174,27 +180,27 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "component-composition",
-        title: "Component Composition Patterns: Building Complex UIs from Simple Parts",
+        slug: "custom-hooks-and-useref",
+        title: "Custom Hooks and useRef: Reusable Logic and DOM Access",
         description:
-          "Learn composition patterns like compound components, render props, and higher-order components",
-        mdxFile: "react/10-component-composition",
+          "Build custom hooks to share logic between components and use useRef for DOM manipulation",
+        mdxFile: "react/10-custom-hooks-and-useref",
         category: "react",
         estimatedTime: 50.0,
         difficulty: 3,
         order: 10,
         published: true,
-        isPremium: false,
-        requiredPlan: "FREE",
+        isPremium: true,
+        requiredPlan: "VIBED",
       },
       {
-        slug: "performance-optimization",
-        title: "React Performance: Optimization Techniques and Profiling",
+        slug: "context-api",
+        title: "Context API: Global State Without Prop Drilling",
         description:
-          "Learn memo, useMemo, useCallback, and code splitting to optimize React application performance",
-        mdxFile: "react/11-performance-optimization",
+          "Learn to use React Context for sharing state across your app and when to use it vs other solutions",
+        mdxFile: "react/11-context-api",
         category: "react",
-        estimatedTime: 55.0,
+        estimatedTime: 45.0,
         difficulty: 3,
         order: 11,
         published: true,
@@ -202,18 +208,18 @@ export async function seedReactTutorials(customPrisma?: InstanceType<typeof Pris
         requiredPlan: "FREE",
       },
       {
-        slug: "context-api",
-        title: "Global State with Context API: Avoiding Prop Drilling",
+        slug: "performance-optimization",
+        title: "React Performance: Memoization, Profiling, and Optimization",
         description:
-          "Learn to use React Context for global state management and when to use it instead of Redux",
-        mdxFile: "react/12-context-api",
+          "Master React.memo, useMemo, useCallback, and learn to identify and fix performance bottlenecks",
+        mdxFile: "react/12-performance-optimization",
         category: "react",
-        estimatedTime: 45.0,
+        estimatedTime: 55.0,
         difficulty: 3,
         order: 12,
         published: true,
-        isPremium: false,
-        requiredPlan: "FREE",
+        isPremium: true,
+        requiredPlan: "CRACKED",
       },
     ];
 
