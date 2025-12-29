@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import { User } from "@prisma/client";
+import { User } from "../../generated/client";
 import { devMode } from "./envService";
 
 interface EmailConfig {

@@ -280,7 +280,7 @@ graph TB
 ```bash
 # Core dependencies
 npm install next react react-dom typescript
-npm install @prisma/client prisma
+npm install ../generated/client prisma
 npm install next-auth
 npm install stripe
 npm install @codemirror/basic-setup @codemirror/lang-javascript

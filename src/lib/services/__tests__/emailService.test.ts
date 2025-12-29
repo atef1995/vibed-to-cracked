@@ -1,6 +1,6 @@
 import { emailService } from '../emailService';
 import nodemailer from 'nodemailer';
-import { User } from '@prisma/client';
+import { User } from '../generated/client';
 
 // Mock nodemailer
 jest.mock('nodemailer');
