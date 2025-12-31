@@ -189,7 +189,7 @@ function SignInContent() {
           </div>
         )}
 
-        <div className="space-y-4 relative">
+        <div className="space-y-4 flex flex-col items-center w-full">
           {!providers && <Circle className="animate-pulse"></Circle>}
           {providers &&
             Object.values(providers).map((provider, index) => (
@@ -200,6 +200,7 @@ function SignInContent() {
                 onClick={() => handleSignIn(provider)}
                 color={BUTTON_COLOR.BLUE}
                 loading={loading}
+                className="w-full"
               >
                 {provider.name === "GitHub" && <Github />}
                 {provider.name === "Google" && (
