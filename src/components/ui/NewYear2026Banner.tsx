@@ -86,7 +86,7 @@ const FireworkBurst = ({
 );
 
 export const NewYear2026Banner: React.FC<NewYear2026BannerProps> = ({
-  onClose,
+    onClose,
   variant = "banner",
 }) => {
   const [isVisible, setIsVisible] = useState(true);

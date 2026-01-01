@@ -349,7 +349,6 @@ export const config = {
   matcher: [
     // Quizzes and practice are now public (SEO friendly)
     "/settings/:path*",
-    "/cheat-sheets/:path*", // Protected - requires authentication
     "/tutorials/category/:path*", // Keep for anonymous limit checking
     "/auth/signin",
     "/auth/signin/:path*",
