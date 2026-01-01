@@ -1,8 +1,8 @@
 "use client";
 
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
-import { useState, useMemo } from "react";
-import { AppWindowIcon, CodeIcon, FileIcon, PlusIcon, XIcon, Maximize2Icon, Minimize2Icon } from "lucide-react";
+import { useState, useMemo, useId } from "react";
+import { AppWindowIcon, CodeIcon, FileIcon, PlusIcon, XIcon, Maximize2Icon, Minimize2Icon, PaletteIcon } from "lucide-react";
 import { useMoodColors } from "@/hooks/useMoodColors";
 
 // Single file interface
@@ -10,7 +10,20 @@ interface CodeFile {
   name: string;
   code: string;
   isUserCreated?: boolean;
+  language?: "jsx" | "css"; // Auto-detected from extension if not provided
 }
+
+// Helper to detect file type from extension
+const getFileLanguage = (fileName: string): "jsx" | "css" => {
+  if (fileName.endsWith(".css")) return "css";
+  return "jsx";
+};
+
+// Helper to get file icon based on type
+const getFileIcon = (fileName: string) => {
+  if (fileName.endsWith(".css")) return PaletteIcon;
+  return FileIcon;
+};
 
 interface ReactEditorPreviewProps {
   // Single file mode (backward compatible)
@@ -35,6 +48,7 @@ export function ReactEditorPreview({
   const [activeTab, setActiveTab] = useState<"code" | "preview">("preview");
   const [isExpanded, setIsExpanded] = useState(false);
   const currentMood = useMoodColors();
+  const styleId = useId();
   
   // Calculate current height based on expanded state
   const currentHeight = isExpanded ? Math.max(height, 600) : height;
@@ -69,7 +83,8 @@ export function ReactEditorPreview({
     if (!newFileName.trim()) return;
     
     let fileName = newFileName.trim();
-    if (!fileName.endsWith('.jsx') && !fileName.endsWith('.js')) {
+    // Only add extension if none is present
+    if (!fileName.includes('.')) {
       fileName += '.jsx';
     }
     
@@ -79,10 +94,14 @@ export function ReactEditorPreview({
       return;
     }
 
+    const isCssFile = fileName.endsWith('.css');
     const newFile: CodeFile = {
       name: fileName,
-      code: `// ${fileName}\nfunction ${fileName.replace(/\.(jsx|js)$/, '')}() {\n  return (\n    <div>\n      {/* Your code here */}\n    </div>\n  );\n}`,
+      code: isCssFile 
+        ? `/* ${fileName} */\n\n.container {\n  padding: 20px;\n}\n`
+        : `// ${fileName}\nfunction ${fileName.replace(/\.(jsx|js)$/, '')}() {\n  return (\n    <div>\n      {/* Your code here */}\n    </div>\n  );\n}`,
       isUserCreated: true,
+      language: isCssFile ? "css" : "jsx",
     };
 
     setUserFiles(prev => [...prev, newFile]);
@@ -148,7 +167,7 @@ export function ReactEditorPreview({
     // First, check if any file already has render()
     for (let i = 0; i < codeFiles.length; i++) {
       const code = editedFiles[i] ?? codeFiles[i].code;
-      if (code.includes("render(")) return i;
+      if (code.includes("render(") && getFileLanguage(codeFiles[i].name) === "jsx") return i;
     }
     // Otherwise, look for App.jsx
     const appIndex = codeFiles.findIndex(f => 
@@ -157,24 +176,44 @@ export function ReactEditorPreview({
     return appIndex >= 0 ? appIndex : codeFiles.length - 1; // fallback to last file
   };
 
-  // Combine all files for execution (multi-file mode)
+  // Extract combined CSS from all CSS files
+  const combinedCss = useMemo(() => {
+    const getFileCode = (index: number) => editedFiles[index] ?? codeFiles[index].code;
+    
+    return codeFiles
+      .map((file, index) => ({ file, code: getFileCode(index) }))
+      .filter(({ file }) => getFileLanguage(file.name) === "css")
+      .map(({ code }) => code)
+      .join("\n\n");
+  }, [codeFiles, editedFiles]);
+
+  // Combine all JSX files for execution (multi-file mode)
   const combinedCode = useMemo(() => {
     const getFileCode = (index: number) => editedFiles[index] ?? codeFiles[index].code;
+    
+    // Filter to only JSX files
+    const jsxFiles = codeFiles
+      .map((file, index) => ({ file, index, code: getFileCode(index) }))
+      .filter(({ file }) => getFileLanguage(file.name) === "jsx");
 
-    if (codeFiles.length === 1) {
-      return cleanCode(getFileCode(0), true);
+    if (jsxFiles.length === 0) {
+      return "// No JSX files";
+    }
+
+    if (jsxFiles.length === 1) {
+      return cleanCode(jsxFiles[0].code, true);
     }
 
     const mainFileIndex = findMainFileIndex();
 
     // Combine all files: helper components first, main file last
     // This ensures components are defined before they're used in App
-    const helperFiles = codeFiles
-      .map((_, index) => ({ index, code: getFileCode(index) }))
+    const helperFiles = jsxFiles
       .filter(({ index }) => index !== mainFileIndex)
       .map(({ code }) => cleanCode(code, false));
 
-    const mainFile = cleanCode(getFileCode(mainFileIndex), true);
+    const mainFileEntry = jsxFiles.find(({ index }) => index === mainFileIndex);
+    const mainFile = mainFileEntry ? cleanCode(mainFileEntry.code, true) : "";
 
     return [...helperFiles, mainFile].join("\n\n");
   }, [codeFiles, editedFiles]);
@@ -240,7 +279,9 @@ export function ReactEditorPreview({
       {/* File Tabs (only in code view with multiple files or when adding is allowed) */}
       {activeTab === "code" && (isMultiFile || allowAddFiles) && (
         <div className="bg-gray-800 px-2 py-1 flex gap-0.5 overflow-x-auto border-b border-gray-700 items-center">
-          {codeFiles.map((file, index) => (
+          {codeFiles.map((file, index) => {
+            const IconComponent = getFileIcon(file.name);
+            return (
             <button
               key={`${file.name}-${index}`}
               onClick={() => setActiveFileIndex(index)}
@@ -250,7 +291,7 @@ export function ReactEditorPreview({
                   : "text-gray-400 hover:text-gray-200 hover:bg-gray-700/50"
               }`}
             >
-              <FileIcon size={12} />
+              <IconComponent size={12} />
               {file.name}
               {editedFiles[index] !== undefined && (
                 <span className="w-2 h-2 rounded-full bg-yellow-500" title="Modified" />
@@ -268,7 +309,7 @@ export function ReactEditorPreview({
                 </span>
               )}
             </button>
-          ))}
+          )})}
           
           {/* Add File Button / Input */}
           {allowAddFiles && editable && (
@@ -286,8 +327,8 @@ export function ReactEditorPreview({
                         setNewFileName("");
                       }
                     }}
-                    placeholder="filename.jsx"
-                    className="px-2 py-1 text-xs bg-gray-900 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-28"
+                    placeholder="filename.jsx or .css"
+                    className="px-2 py-1 text-xs bg-gray-900 border border-gray-600 rounded text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-36"
                     autoFocus
                   />
                   <button
@@ -358,10 +399,28 @@ export function ReactEditorPreview({
           </div>
         ) : (
           <div className="h-full overflow-auto bg-white dark:bg-gray-900 p-4">
+            {/* Inject CSS styles with scoped ID */}
+            {combinedCss && (
+              <style dangerouslySetInnerHTML={{ 
+                __html: combinedCss.replace(
+                  /([.#]?[\w-]+)\s*\{/g, 
+                  (match, selector) => {
+                    // Scope all selectors to this preview instance
+                    if (selector.startsWith('.') || selector.startsWith('#')) {
+                      return `[data-preview-id="${styleId}"] ${selector} {`;
+                    }
+                    // Handle element selectors
+                    return `[data-preview-id="${styleId}"] ${match}`;
+                  }
+                )
+              }} />
+            )}
             {/* Use combined code for preview execution */}
             <LiveProvider code={combinedCode} noInline={true}>
               <LiveError className="text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md mb-4 text-sm font-mono" />
-              <LivePreview className="react-live-preview" />
+              <div data-preview-id={styleId}>
+                <LivePreview className="react-live-preview" />
+              </div>
             </LiveProvider>
           </div>
         )}

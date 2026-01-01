@@ -8,7 +8,7 @@ Our tutorials are not just content—they are transformative learning experience
 
 ## Core Principles
 
-ABSOLUTELY Strictly No To AI Slop content and no emojis
+ABSOLUTELY Strictly No To AI Slop content and NO EMOJIS
 
 ### 1. **Transformation Over Information**
 - Don't just teach concepts—transform beginners into confident practitioners
