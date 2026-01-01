@@ -27,6 +27,7 @@ import { MOODS } from "@/lib/moods";
 import { getMoodIcon } from "@/lib/getMoodIcon";
 import { MoodCard } from "@/components/MoodCard";
 import CrackedGlitch from "@/components/ui/CrackedGlitch";
+import { NewYear2026Banner } from "@/components/ui/NewYear2026Banner";
 
 export default function HomePage() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -98,6 +99,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+      {/* 2026 New Year Banner */}
+      <NewYear2026Banner variant="banner" />
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {backgroundElements.map((element, i) => (
@@ -126,6 +130,9 @@ export default function HomePage() {
       </div>
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
+        {/* 2026 New Year Hero Celebration */}
+        <NewYear2026Banner variant="hero" />
+
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
