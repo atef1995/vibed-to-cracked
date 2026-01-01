@@ -52,7 +52,7 @@ async function verifyData() {
     console.log(`   Sample Tutorial: ${sampleTutorial?.title || "Not found"} (Category: ${sampleTutorial?.category?.title || "Unknown"})`);
 
     if (skillCount > 0 && categoryCount > 0 && tutorialCount > 0 && challengeCount > 0) {
-      console.log("\n✅ Database restoration completed successfully!");
+      console.log("\n Database restoration completed successfully!");
       console.log("🎉 All essential data has been restored.");
     } else {
       console.log("\n⚠️ Some data may be missing. Please check the seeding process.");

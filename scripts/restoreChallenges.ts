@@ -82,7 +82,7 @@ async function main() {
       }
 
       console.log(
-        `✅ Created challenge: ${challenge.title} (${challenge.slug})`
+        ` Created challenge: ${challenge.title} (${challenge.slug})`
       );
     } catch (error) {
       console.error(

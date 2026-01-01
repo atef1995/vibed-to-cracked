@@ -240,7 +240,7 @@ Your pull request has been submitted to **Vibed to Cracked** for review!
 
 ## What's Next?
 
-1. ✅ **Automated Checks:** CI/CD is ${ciStatus.ciPassed ? "passing ✓" : "running..."}
+1.  **Automated Checks:** CI/CD is ${ciStatus.ciPassed ? "passing ✓" : "running..."}
 2. 👥 **Peer Review:** 2 peer reviewers will be assigned within 24 hours
 3. 👨‍🏫 **Mentor Review:** Final approval after peer reviews
 4. 🎊 **Merge & Reward:** Earn ${project.xpReward} XP when your PR is merged!

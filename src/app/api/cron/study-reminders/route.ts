@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
         
         if (result.success) {
           emailsSent++;
-          console.log(`✅ Reminder sent to ${user.email}`);
+          console.log(` Reminder sent to ${user.email}`);
         } else {
           errors++;
           console.error(`❌ Failed to send reminder to ${user.email}:`, result.error);

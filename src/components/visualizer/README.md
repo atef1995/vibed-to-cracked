@@ -250,7 +250,7 @@ The system includes automatic layout calculations for:
 ### 1. Keep Steps Meaningful
 Each step should represent a meaningful algorithm state change:
 ```typescript
-// ✅ Good: Clear, meaningful step
+//  Good: Clear, meaningful step
 steps.push({
   description: 'Comparing 5 and 3',
   comparisons: [0, 1],

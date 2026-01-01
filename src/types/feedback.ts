@@ -31,7 +31,7 @@ export const POSITIVE_ASPECTS: FeedbackTag[] = [
   { id: "clear-explanations", label: "Clear explanations", emoji: "✨" },
   { id: "interactive-examples", label: "Interactive examples", emoji: "🎮" },
   { id: "good-pacing", label: "Good pacing", emoji: "👌" },
-  { id: "helpful-visualizations", label: "Helpful visualizations", emoji: "📈" },
+  { id: "helpful-visualizations", label: "Helpful visualizations", emoji: "" },
   { id: "practical-examples", label: "Practical examples", emoji: "🔧" },
   { id: "engaging-content", label: "Engaging content", emoji: "🎯" },
 ];

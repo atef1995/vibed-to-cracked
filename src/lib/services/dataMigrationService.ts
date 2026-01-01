@@ -52,7 +52,7 @@ export class DataMigrationService {
         }
       }
 
-      console.log(`✅ Migration completed! Updated ${updatedCount} phase steps.`);
+      console.log(` Migration completed! Updated ${updatedCount} phase steps.`);
     } catch (error) {
       console.error("❌ Migration failed:", error);
       throw error;
@@ -90,7 +90,7 @@ export class DataMigrationService {
         }
       }
 
-      console.log(`✅ Cleaned ${updatedCount} user progress records.`);
+      console.log(` Cleaned ${updatedCount} user progress records.`);
     } catch (error) {
       console.error("❌ Progress cleanup failed:", error);
       throw error;
@@ -147,7 +147,7 @@ export class DataMigrationService {
       const isValid = issues.length === 0;
       
       if (isValid) {
-        console.log("✅ Data integrity validation passed!");
+        console.log(" Data integrity validation passed!");
       } else {
         console.log(`❌ Data integrity validation found ${issues.length} issues:`);
         issues.forEach(issue => console.log(`  - ${issue}`));

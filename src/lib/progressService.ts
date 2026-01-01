@@ -972,7 +972,7 @@ export class ProgressService {
       } else if (score >= 85) {
         description = `💪 Crushed ${tutorial.title} quiz with ${score}%`;
       } else if (score >= 75) {
-        description = `✅ Passed ${tutorial.title} quiz with ${score}%`;
+        description = ` Passed ${tutorial.title} quiz with ${score}%`;
       } else {
         description = `📚 Completed ${tutorial.title} quiz (${score}%)`;
       }

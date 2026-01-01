@@ -91,7 +91,7 @@ export async function seedTutorial(
     },
   });
 
-  console.log(`✅ Tutorial: ${tutorial.title}`);
+  console.log(` Tutorial: ${tutorial.title}`);
   return tutorial;
 }
 
@@ -180,7 +180,7 @@ export async function seedQuiz(quizData: QuizSeedData, prisma: PrismaClient) {
     },
   });
 
-  console.log(`✅ Quiz: ${quiz.title}`);
+  console.log(` Quiz: ${quiz.title}`);
   return quiz;
 }
 

@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
         console.error("Failed to send Day 1 email:", result.error);
         // Continue anyway - cron job will retry
       } else {
-        console.log(`✅ Day 1 email sent to ${email}`);
+        console.log(` Day 1 email sent to ${email}`);
       }
     } catch (emailError) {
       console.error("Error sending course email:", emailError);

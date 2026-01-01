@@ -183,7 +183,7 @@ export default function EmailStatsDashboard() {
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="text-3xl">📈</div>
+              <div className="text-3xl"></div>
             </div>
             <div className="ml-4">
               <div className="text-2xl font-bold text-purple-600">
@@ -349,7 +349,7 @@ export default function EmailStatsDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
             <div className="text-2xl mb-2">
-              {connectionStatus?.isConnected ? "✅" : "❌"}
+              {connectionStatus?.isConnected ? "" : "❌"}
             </div>
             <div className="font-medium text-gray-900">Zoho Mail SMTP</div>
             <div

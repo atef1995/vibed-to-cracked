@@ -116,7 +116,7 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(upgradeUrl);
       } else {
         if (debugMode) {
-          console.log("✅ Tutorial access granted");
+          console.log(" Tutorial access granted");
         }
       }
     }
@@ -155,7 +155,7 @@ async function handleAnonymousTutorialAccess(
 
     if (debugMode) {
       console.log(
-        "✅ First-time anonymous visitor, setting cookie and allowing tutorial access"
+        " First-time anonymous visitor, setting cookie and allowing tutorial access"
       );
     }
 
@@ -208,7 +208,7 @@ async function handleAnonymousTutorialAccess(
     // Within limit - allow access
     if (debugMode) {
       console.log(
-        `✅ Anonymous access granted (${data.viewedCount}/${ANONYMOUS_TUTORIAL_LIMIT})`
+        ` Anonymous access granted (${data.viewedCount}/${ANONYMOUS_TUTORIAL_LIMIT})`
       );
     }
     return null;

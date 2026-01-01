@@ -311,7 +311,7 @@ export class StudyPlanService {
       }
     });
 
-    console.log(`✅ Step validation passed for: ${step.id} (${step.title})`);
+    console.log(` Step validation passed for: ${step.id} (${step.title})`);
   }
 
   /**

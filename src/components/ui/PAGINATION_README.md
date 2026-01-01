@@ -249,14 +249,14 @@ function MobileProductGrid({ products }) {
 
 ## Features
 
-- ✅ **Responsive Design**: Works on mobile and desktop
-- ✅ **Accessibility**: ARIA labels and keyboard navigation
-- ✅ **URL Synchronization**: Bookmarkable paginated pages
-- ✅ **Dark Mode Support**: Automatic theme adaptation
-- ✅ **TypeScript**: Full type safety
-- ✅ **Customizable**: Multiple variants and options
-- ✅ **Performance**: Efficient re-renders and memoization
-- ✅ **User Experience**: Loading states and smooth transitions
+-  **Responsive Design**: Works on mobile and desktop
+-  **Accessibility**: ARIA labels and keyboard navigation
+-  **URL Synchronization**: Bookmarkable paginated pages
+-  **Dark Mode Support**: Automatic theme adaptation
+-  **TypeScript**: Full type safety
+-  **Customizable**: Multiple variants and options
+-  **Performance**: Efficient re-renders and memoization
+-  **User Experience**: Loading states and smooth transitions
 
 ## Styling
 

@@ -114,7 +114,7 @@ async function checkDatabaseContent() {
     }
   }
 
-  console.log("\n✅ Database content check completed!");
+  console.log("\n Database content check completed!");
 }
 
 // Run if called directly

@@ -126,7 +126,7 @@ async function seedUsers() {
             createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000), // Random date within last 30 days
           }
         });
-        console.log(`✅ Created user: ${userData.name}`);
+        console.log(` Created user: ${userData.name}`);
       } else {
         console.log(`⏭️  User already exists: ${userData.name}`);
       }

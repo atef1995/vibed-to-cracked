@@ -152,7 +152,7 @@ const DualPaneEditor: React.FC<DualPaneEditorProps> = ({
             disabled={isRunning || !backend.trim()}
             className="px-3 py-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white text-sm rounded font-medium transition-colors"
           >
-            {isRunning ? "⏳" : "▶"} Run Backend
+            {isRunning ? "" : "▶"} Run Backend
           </button>
         </div>
       </div>

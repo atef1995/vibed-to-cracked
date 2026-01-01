@@ -193,7 +193,7 @@ ALTER TABLE phase_steps ENABLE TRIGGER validate_prerequisites_trigger;
 - Validate prerequisite logic
 - Ensure proper error handling
 
-## 📈 Performance Considerations
+##  Performance Considerations
 
 ### Optimizations Implemented
 - GIN indexes on array fields

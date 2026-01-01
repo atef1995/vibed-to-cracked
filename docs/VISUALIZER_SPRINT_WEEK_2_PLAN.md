@@ -10,7 +10,7 @@
 
 **Goal**: Build specialized visualizers for Linked Lists, Trees, and Stacks/Queues
 **Duration**: Week 2 (Days 6-10)
-**Current Status**: Week 1 Complete ✅, Playback controls fixed ✅
+**Current Status**: Week 1 Complete , Playback controls fixed 
 
 ---
 
@@ -646,7 +646,7 @@ describe('LinkedListSteps', () => {
 
 ## Success Criteria
 
-### LinkedListVisualizer ✅
+### LinkedListVisualizer 
 - [ ] Renders singly linked list correctly
 - [ ] Renders doubly linked list correctly
 - [ ] Insertion animations work smoothly
@@ -656,7 +656,7 @@ describe('LinkedListSteps', () => {
 - [ ] All pointers (head/tail/current) update correctly
 - [ ] Works in all 3 moods (CHILL/RUSH/GRIND)
 
-### TreeVisualizer ✅
+### TreeVisualizer 
 - [ ] Renders binary trees without overlapping nodes
 - [ ] BST insert/delete/search operations visualized correctly
 - [ ] All 4 traversals (in/pre/post/level-order) animate properly
@@ -665,7 +665,7 @@ describe('LinkedListSteps', () => {
 - [ ] Balance factors display for AVL trees (bonus)
 - [ ] Rotations animate smoothly (bonus)
 
-### StackQueueVisualizer ✅
+### StackQueueVisualizer 
 - [ ] Stack push/pop animations work
 - [ ] Queue enqueue/dequeue animations work
 - [ ] Pointers (top/front/rear) update visually
@@ -680,26 +680,26 @@ describe('LinkedListSteps', () => {
 ### By End of Week 2
 
 **Components:**
-1. ✅ LinkedListVisualizer.tsx (fully functional)
-2. ✅ TreeVisualizer.tsx (fully functional)
-3. ✅ StackQueueVisualizer.tsx (fully functional)
+1.  LinkedListVisualizer.tsx (fully functional)
+2.  TreeVisualizer.tsx (fully functional)
+3.  StackQueueVisualizer.tsx (fully functional)
 
 **Step Generators:**
-4. ✅ linkedListSteps.ts (10+ functions)
-5. ✅ treeSteps.ts (10+ functions)
-6. ✅ stackQueueSteps.ts (6+ functions)
+4.  linkedListSteps.ts (10+ functions)
+5.  treeSteps.ts (10+ functions)
+6.  stackQueueSteps.ts (6+ functions)
 
 **Examples (MDX-Ready):**
-7. ✅ LinkedListDemo.tsx
-8. ✅ BSTVisualizer.tsx
-9. ✅ TreeTraversalVisualizer.tsx
-10. ✅ StackDemo.tsx
-11. ✅ QueueDemo.tsx
+7.  LinkedListDemo.tsx
+8.  BSTVisualizer.tsx
+9.  TreeTraversalVisualizer.tsx
+10.  StackDemo.tsx
+11.  QueueDemo.tsx
 
 **Documentation:**
-12. ✅ Updated README.md with new visualizers
-13. ✅ Updated type definitions
-14. ✅ Integration guide for new visualizers
+12.  Updated README.md with new visualizers
+13.  Updated type definitions
+14.  Integration guide for new visualizers
 
 ### Updated Metrics
 
@@ -709,12 +709,12 @@ describe('LinkedListSteps', () => {
 - **Total: 23 files (~4,767 lines)**
 
 **Visualizer Coverage:**
-- Arrays ✅
-- Linked Lists ✅ (NEW)
-- Trees ✅ (NEW)
-- Stacks ✅ (NEW)
-- Queues ✅ (NEW)
-- Graphs ⏳ (Week 3)
+- Arrays 
+- Linked Lists  (NEW)
+- Trees  (NEW)
+- Stacks  (NEW)
+- Queues  (NEW)
+- Graphs  (Week 3)
 
 ---
 

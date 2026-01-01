@@ -62,7 +62,7 @@ export default function UnsubscribeForm() {
         <div className="text-center">
           <div className="mb-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-3xl">✅</span>
+              <span className="text-3xl"></span>
             </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -143,7 +143,7 @@ export default function UnsubscribeForm() {
             >
               {status === "loading" ? (
                 <span className="flex items-center justify-center">
-                  <span className="animate-spin mr-2">⏳</span>
+                  <span className="animate-spin mr-2"></span>
                   Processing...
                 </span>
               ) : (

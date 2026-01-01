@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
 
           stats.emailsSent++;
           console.log(
-            `✅ Successfully sent day ${nextDay} to ${subscriber.email}`
+            ` Successfully sent day ${nextDay} to ${subscriber.email}`
           );
 
           if (nextDay === 5) {
@@ -119,7 +119,7 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    console.log(`✅ Course email cron completed:`, stats);
+    console.log(` Course email cron completed:`, stats);
 
     return NextResponse.json({
       success: true,

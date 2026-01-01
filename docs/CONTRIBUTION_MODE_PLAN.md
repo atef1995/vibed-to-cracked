@@ -382,10 +382,10 @@ interface PRDiff {
 2. Opens PR on GitHub
 3. **Pastes PR URL into platform**
 4. Platform **auto-validates**:
-   - ✅ PR is open
-   - ✅ Points to correct branch
-   - ✅ CI/CD passing
-   - ✅ Follows PR template
+   -  PR is open
+   -  Points to correct branch
+   -  CI/CD passing
+   -  Follows PR template
 
 ### Phase 5: Peer Review
 
@@ -450,7 +450,7 @@ Introducing: Contribution Mode 🔥
 Most bootcamps: "Build a to-do app"
 Us: "Implement authentication for a production app used by 10K users"
 
-Your homework = Your portfolio 📈
+Your homework = Your portfolio 
 
 [Screenshot of merged PR with 10K+ app usage stats]
 ```
@@ -458,7 +458,7 @@ Your homework = Your portfolio 📈
 **Post 3** (Day 5):
 ```
 ❌ OLD WAY: Submit a zip file to your instructor
-✅ NEW WAY: Open a PR, get peer-reviewed, merge to production
+ NEW WAY: Open a PR, get peer-reviewed, merge to production
 
 Learn like you're already hired.
 
@@ -551,9 +551,9 @@ Text: "One of these is how REAL developers work..."
 Shows: Pasting PR URL into platform
 
 [Scene 3: Automated checks]
-✅ CI Passing
-✅ Tests Passing
-✅ Lint Passing
+ CI Passing
+ Tests Passing
+ Lint Passing
 *Chef's kiss*
 
 [Scene 4: Peer reviews]
@@ -873,9 +873,9 @@ export async function POST(req: Request) {
 
 ---
 
-## ✅ Implementation Checklist
+##  Implementation Checklist
 
-### Phase 1: Database & Backend (Week 1) ✅ COMPLETE
+### Phase 1: Database & Backend (Week 1)  COMPLETE
 - [x] Update Prisma schema with new models
   - Added ContributionProject model
   - Added ContributionSubmission model
@@ -893,7 +893,7 @@ export async function POST(req: Request) {
 - [x] Create API routes for PR submission
 - [x] Create webhook endpoint for GitHub events
 
-### Phase 2: UI Components (Week 1-2) ✅ COMPLETE
+### Phase 2: UI Components (Week 1-2)  COMPLETE
 - [x] Build ContributionProjectCard component
   - Implemented with category badge, difficulty indicator, XP reward display
   - Added dark mode support and hover effects
@@ -943,7 +943,7 @@ export async function POST(req: Request) {
   - Filter by status
   - Review statistics
 
-### Phase 2.5: Backend Integration ✅ COMPLETE
+### Phase 2.5: Backend Integration  COMPLETE
 - [x] Create XP Service (`src/lib/services/xpService.ts`)
   - Award XP for PR merges
   - Award XP for reviews

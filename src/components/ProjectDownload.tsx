@@ -144,7 +144,7 @@ server.listen(PORT, () => {
                 const response = await fetch(\`\${API_BASE}/test-connection\`);
                 const data = await response.json();
                 document.getElementById('response').innerHTML = 
-                    \`<h3>✅ Connection Success!</h3><pre>\${JSON.stringify(data, null, 2)}</pre>\`;
+                    \`<h3> Connection Success!</h3><pre>\${JSON.stringify(data, null, 2)}</pre>\`;
             } catch (error) {
                 document.getElementById('response').innerHTML = 
                     \`<h3>❌ Connection Failed</h3><p>\${error.message}</p>\`;
@@ -225,11 +225,11 @@ tutorial-project/
 
 ## 🎯 What You'll Learn
 
-- ✅ **HTTP Server**: Create a real Node.js HTTP server
-- ✅ **API Endpoints**: Build REST API endpoints (/test-connection, /todos)
-- ✅ **CORS Handling**: Enable cross-origin requests for frontend
-- ✅ **Frontend Integration**: Connect HTML/JS frontend to Node.js backend
-- ✅ **Real Communication**: See actual HTTP requests and responses
+-  **HTTP Server**: Create a real Node.js HTTP server
+-  **API Endpoints**: Build REST API endpoints (/test-connection, /todos)
+-  **CORS Handling**: Enable cross-origin requests for frontend
+-  **Frontend Integration**: Connect HTML/JS frontend to Node.js backend
+-  **Real Communication**: See actual HTTP requests and responses
 
 ## 🔧 Available Endpoints
 
@@ -302,14 +302,14 @@ Happy coding! 🚀
         disabled={isDownloading}
         className="px-3 py-1 bg-green-500 hover:bg-green-600 disabled:bg-green-400 text-white text-sm rounded font-medium transition-colors"
       >
-        {isDownloading ? "⏳" : "📦"} Download ZIP
+        {isDownloading ? "" : "📦"} Download ZIP
       </button>
 
       {showSuccess && (
         <div className="absolute top-full left-0 mt-2 bg-green-100 dark:bg-green-900 border border-green-400 p-2 rounded shadow-lg z-10">
           <div className="flex items-center space-x-2">
             <span className="text-green-600 dark:text-green-400 text-xs">
-              ✅ Complete project ZIP downloaded!
+               Complete project ZIP downloaded!
             </span>
           </div>
           <p className="text-xs text-green-600 dark:text-green-400 mt-1">

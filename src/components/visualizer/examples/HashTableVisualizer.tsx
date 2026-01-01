@@ -106,7 +106,7 @@ export function HashTableVisualizer({
       bucket.push({ key: inputKey, value: inputValue });
       const isCollision = bucket.length > 1;
       setLastOperation(
-        `✅ Inserted "${inputKey}" → "${inputValue}" at index ${index} (hash: ${hash(
+        ` Inserted "${inputKey}" → "${inputValue}" at index ${index} (hash: ${hash(
           inputKey
         )})${isCollision ? " ⚠️ COLLISION - Added to chain!" : ""}`
       );

@@ -58,11 +58,11 @@ module.exports = IsolatedCodeRunner;
 
 ### Pros
 
-- ✅ True V8 isolation
-- ✅ Active maintenance
-- ✅ Best security model
-- ✅ Memory isolation
-- ✅ Transfer objects between isolates
+-  True V8 isolation
+-  Active maintenance
+-  Best security model
+-  Memory isolation
+-  Transfer objects between isolates
 
 ### Cons
 
@@ -125,11 +125,11 @@ class WebContainerRunner {
 
 ### Pros
 
-- ✅ Zero server security risk
-- ✅ Full Node.js environment
-- ✅ No backend infrastructure
-- ✅ Modern, actively developed
-- ✅ Perfect for education platforms
+-  Zero server security risk
+-  Full Node.js environment
+-  No backend infrastructure
+-  Modern, actively developed
+-  Perfect for education platforms
 
 ### Cons
 
@@ -203,10 +203,10 @@ class DockerCodeRunner {
 
 ### Pros
 
-- ✅ Maximum security
-- ✅ Resource limits
-- ✅ Scalable
-- ✅ Language agnostic
+-  Maximum security
+-  Resource limits
+-  Scalable
+-  Language agnostic
 
 ### Cons
 
@@ -289,10 +289,10 @@ class WorkerCodeRunner {
 
 ### Pros
 
-- ✅ No server infrastructure
-- ✅ Fast execution
-- ✅ Good browser support
-- ✅ Simple implementation
+-  No server infrastructure
+-  Fast execution
+-  Good browser support
+-  Simple implementation
 
 ### Cons
 
@@ -352,10 +352,10 @@ export default async function handler(req: Request) {
 
 ### Pros
 
-- ✅ Serverless scaling
-- ✅ Built-in V8 isolation
-- ✅ Fast execution
-- ✅ No infrastructure management
+-  Serverless scaling
+-  Built-in V8 isolation
+-  Fast execution
+-  No infrastructure management
 
 ### Cons
 

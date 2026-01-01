@@ -9,7 +9,7 @@ export default function UnsubscribePage() {
           fallback={
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <div className="animate-spin text-3xl">⏳</div>
+                <div className="animate-spin text-3xl"></div>
               </div>
               <p className="text-gray-600">Loading...</p>
             </div>

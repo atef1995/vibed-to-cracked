@@ -20,7 +20,7 @@ async function main() {
     );
 
     if (!hasIssues) {
-      console.log('✅ No migration needed - prerequisites are already in correct format');
+      console.log(' No migration needed - prerequisites are already in correct format');
     } else {
       console.log('🔧 Migration needed - fixing prerequisite formats...');
     }
@@ -93,7 +93,7 @@ async function main() {
     // Execute all updates
     if (updatePromises.length > 0) {
       await Promise.all(updatePromises);
-      console.log(`✅ Updated ${updatedCount} phase steps`);
+      console.log(` Updated ${updatedCount} phase steps`);
     }
 
     // Clean user study progress
@@ -131,7 +131,7 @@ async function main() {
 
     if (progressUpdatePromises.length > 0) {
       await Promise.all(progressUpdatePromises);
-      console.log(`✅ Cleaned ${cleanedProgressCount} user progress records`);
+      console.log(` Cleaned ${cleanedProgressCount} user progress records`);
     }
 
     console.log('🎉 Migration completed successfully!');

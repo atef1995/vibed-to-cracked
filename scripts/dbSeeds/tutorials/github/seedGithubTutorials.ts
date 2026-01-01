@@ -1029,7 +1029,7 @@ async function seedGithubTutorials() {
       });
 
       console.log(
-        `✅ Tutorial created/updated: ${createdTutorial.title} (Category: ${categoryRecord.title})`
+        ` Tutorial created/updated: ${createdTutorial.title} (Category: ${categoryRecord.title})`
       );
 
       if (quiz) {
@@ -1055,7 +1055,7 @@ async function seedGithubTutorials() {
         });
 
         console.log(
-          `✅ Quiz created/updated: ${createdQuiz.title} with ${quiz.questions.length} questions`
+          ` Quiz created/updated: ${createdQuiz.title} with ${quiz.questions.length} questions`
         );
       }
     }

@@ -48,7 +48,7 @@ if errorlevel 1 (
 )
 
 echo.
-echo ✅ Scheduled task created successfully!
+echo  Scheduled task created successfully!
 echo.
 echo Task Details:
 echo - Name: Vibed-to-Cracked-Study-Reminders

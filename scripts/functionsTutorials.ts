@@ -278,7 +278,7 @@ async function updateTutorialStructure() {
       data: { order: 4 },
     });
 
-    console.log("✅ Tutorial structure update completed successfully!");
+    console.log(" Tutorial structure update completed successfully!");
     
     // 8. Display current tutorial structure
     console.log("\n📋 Current tutorial structure:");

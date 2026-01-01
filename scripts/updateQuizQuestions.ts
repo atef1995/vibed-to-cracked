@@ -187,9 +187,9 @@ async function updateQuizQuestions() {
       },
     });
 
-    console.log("✅ Quiz questions updated successfully!");
+    console.log(" Quiz questions updated successfully!");
     console.log(`📊 Total questions: ${enhancedQuestions.length}`);
-    console.log(`📈 Difficulty breakdown:`);
+    console.log(` Difficulty breakdown:`);
 
     const easyCount = enhancedQuestions.filter(
       (q) => q.difficulty === "easy"

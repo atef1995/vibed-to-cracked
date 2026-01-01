@@ -41,7 +41,7 @@ async function testZohoMailConnection() {
     // Test connection
     console.log('🔗 Testing SMTP connection...');
     await transporter.verify();
-    console.log('✅ SMTP connection successful!\n');
+    console.log(' SMTP connection successful!\n');
 
     // Ask if user wants to send test email
     const readline = require('readline');
@@ -70,13 +70,13 @@ async function testZohoMailConnection() {
                   <li>Port: ${process.env.SMTP_PORT || '587'}</li>
                   <li>Timestamp: ${new Date().toISOString()}</li>
                 </ul>
-                <p>✅ Your email system is working correctly!</p>
+                <p> Your email system is working correctly!</p>
                 <hr>
                 <small>Sent from Vibed to Cracked test script</small>
               `
             });
 
-            console.log('✅ Test email sent successfully!');
+            console.log(' Test email sent successfully!');
             console.log(`   Message ID: ${info.messageId}`);
             console.log(`   Response: ${info.response || 'N/A'}\n`);
             console.log('🎉 Zoho Mail configuration is working perfectly!');
@@ -95,7 +95,7 @@ async function testZohoMailConnection() {
           rl.close();
         });
       } else {
-        console.log('✅ Connection test completed successfully!');
+        console.log(' Connection test completed successfully!');
         console.log('🎉 Your Zoho Mail SMTP is configured correctly.');
         rl.close();
       }

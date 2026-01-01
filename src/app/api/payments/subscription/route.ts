@@ -125,7 +125,7 @@ export async function DELETE(request: NextRequest) {
           }
         );
 
-        console.log("✅ Stripe trial subscription set to cancel at period end");
+        console.log(" Stripe trial subscription set to cancel at period end");
 
         // Update our local database to reflect cancellation status
         await SubscriptionService.updateUserSubscription(
@@ -196,7 +196,7 @@ export async function DELETE(request: NextRequest) {
         }
       );
 
-      console.log("✅ Stripe subscription set to cancel at period end");
+      console.log(" Stripe subscription set to cancel at period end");
 
       // Update our database to mark as cancelled (but keep access until period end)
       await SubscriptionService.updateUserSubscription(
@@ -401,7 +401,7 @@ async function handleReactivation(userId: string) {
         }
       );
 
-      console.log("✅ Stripe subscription reactivated:", subscription.id);
+      console.log(" Stripe subscription reactivated:", subscription.id);
 
       // Update our database
       await SubscriptionService.updateUserSubscription(

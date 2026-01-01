@@ -101,13 +101,13 @@ EOF
     # Update nginx configuration with domain
     sed -i "s/yourdomain.com/${DOMAIN}/g" nginx/sites-available/vibed-to-cracked
     
-    echo -e "${GREEN}✅ Configuration files updated!${NC}"
+    echo -e "${GREEN} Configuration files updated!${NC}"
 fi
 
 # Enable nginx site
 if [ ! -L "nginx/sites-enabled/vibed-to-cracked" ]; then
     ln -sf ../sites-available/vibed-to-cracked nginx/sites-enabled/vibed-to-cracked
-    echo -e "${GREEN}✅ Nginx site enabled${NC}"
+    echo -e "${GREEN} Nginx site enabled${NC}"
 fi
 
 # Function to check if SSL certificates exist
@@ -124,7 +124,7 @@ echo -e "${BLUE}🔨 Building and starting services...${NC}"
 docker-compose up -d --build
 
 # Wait for services to be ready
-echo -e "${BLUE}⏳ Waiting for services to start...${NC}"
+echo -e "${BLUE} Waiting for services to start...${NC}"
 sleep 10
 
 # Run database migrations
@@ -140,9 +140,9 @@ if ! check_ssl_certs; then
     
     # Reload nginx after getting certificates
     docker-compose exec nginx nginx -s reload
-    echo -e "${GREEN}✅ SSL certificates obtained and nginx reloaded${NC}"
+    echo -e "${GREEN} SSL certificates obtained and nginx reloaded${NC}"
 else
-    echo -e "${GREEN}✅ SSL certificates already exist${NC}"
+    echo -e "${GREEN} SSL certificates already exist${NC}"
 fi
 
 # Setup automatic certificate renewal

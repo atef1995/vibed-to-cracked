@@ -12,7 +12,7 @@ This cheat sheet provides a complete quick reference for Big O notation, time co
 |-----------|------|--------|-------------|---------|
 | **O(1)** | Constant | Flat | ⚡ Lightning fast | Array access, Set lookup |
 | **O(log n)** | Logarithmic | Minimal | 🚀 Very fast | Binary search |
-| **O(n)** | Linear | 1:1 ratio | ✅ Good | Loop through array |
+| **O(n)** | Linear | 1:1 ratio |  Good | Loop through array |
 | **O(n log n)** | Linearithmic | Linear + a bit | 👍 Great | Merge sort, Quick sort |
 | **O(n²)** | Quadratic | Exponential² | 🐌 Slow | Nested loops, Bubble sort |
 | **O(n³)** | Cubic | Exponential³ | 💥 Very slow | Triple nested loops |
@@ -51,14 +51,14 @@ When input size grows 10x:
 
 | Algorithm | Best | Average | Worst | Space | Stable |
 |-----------|------|---------|-------|-------|--------|
-| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) | ✅ Yes |
+| Bubble Sort | O(n) | O(n²) | O(n²) | O(1) |  Yes |
 | Selection Sort | O(n²) | O(n²) | O(n²) | O(1) | ❌ No |
-| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) | ✅ Yes |
-| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) | ✅ Yes |
+| Insertion Sort | O(n) | O(n²) | O(n²) | O(1) |  Yes |
+| Merge Sort | O(n log n) | O(n log n) | O(n log n) | O(n) |  Yes |
 | Quick Sort | O(n log n) | O(n log n) | O(n²) | O(log n) | ❌ No |
 | Heap Sort | O(n log n) | O(n log n) | O(n log n) | O(1) | ❌ No |
-| Counting Sort | O(n+k) | O(n+k) | O(n+k) | O(k) | ✅ Yes |
-| Radix Sort | O(nk) | O(nk) | O(nk) | O(n+k) | ✅ Yes |
+| Counting Sort | O(n+k) | O(n+k) | O(n+k) | O(k) |  Yes |
+| Radix Sort | O(nk) | O(nk) | O(nk) | O(n+k) |  Yes |
 
 ## How to Analyze Code
 
@@ -238,20 +238,20 @@ function fib(n) {
 
 ## Interview Questions Checklist
 
-✅ **Always discuss**:
+ **Always discuss**:
 - [ ] Time complexity (worst case)
 - [ ] Space complexity
 - [ ] Best/average/worst cases
 - [ ] Trade-offs (time vs space)
 - [ ] Can it be optimized?
 
-✅ **Mention optimization if applicable**:
+ **Mention optimization if applicable**:
 - [ ] Use better data structure
 - [ ] Add memoization/caching
 - [ ] Early termination
 - [ ] Preprocessing/sorting first
 
-✅ **Be ready to answer**:
+ **Be ready to answer**:
 - "Can you optimize this?"
 - "What's the space complexity?"
 - "How does it scale?"
@@ -273,7 +273,7 @@ for (let i = 0; i < arr.length; i++) {
   if (arr.includes(arr[i])) { }  // includes() is O(n)!
 }
 
-// ✅ This is O(n)
+//  This is O(n)
 const seen = new Set()
 for (let item of arr) {
   if (seen.has(item)) { }  // has() is O(1)
@@ -312,7 +312,7 @@ Is the array sorted?
 |-----------|------|-------------|
 | O(1) | < 1 ms | ⚡ Instant |
 | O(log n) | ~20 ms | 🚀 Fast |
-| O(n) | ~10 ms | ✅ Good |
+| O(n) | ~10 ms |  Good |
 | O(n log n) | ~200 ms | 👍 Great |
 | O(n²) | 1,000+ seconds | 🐌 Too slow |
 | O(2ⁿ) | Forever | 💀 Impossible |
@@ -349,7 +349,7 @@ Is the array sorted?
 arr.forEach(item => console.log(item))
 arr.forEach(item => console.log(item))
 
-// ✅ CORRECT - This is O(n²)
+//  CORRECT - This is O(n²)
 arr.forEach(item => {
   arr.forEach(item2 => console.log(item, item2))
 })
@@ -360,7 +360,7 @@ arr.forEach(item => {
 // ❌ This is O(n²)
 arr.forEach(item => arr.includes(item))
 
-// ✅ This is O(n)
+//  This is O(n)
 const set = new Set(arr)
 arr.forEach(item => set.has(item))
 ```

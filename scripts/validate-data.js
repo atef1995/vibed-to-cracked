@@ -111,7 +111,7 @@ async function main() {
     console.log('\\n' + '='.repeat(60));
     
     if (issues.length === 0) {
-      console.log('✅ Data integrity validation PASSED!');
+      console.log(' Data integrity validation PASSED!');
       console.log('No issues found in the study plan data.');
     } else {
       console.log(`❌ Data integrity validation FAILED!`);

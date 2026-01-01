@@ -116,7 +116,7 @@ async function seedPremiumContent() {
     },
   });
 
-  console.log("✅ Premium content seeded successfully!");
+  console.log(" Premium content seeded successfully!");
   console.log(`📚 Created premium tutorial: ${premiumTutorial.title}`);
   console.log(`🏢 Created enterprise tutorial: ${enterpriseTutorial.title}`);
 }

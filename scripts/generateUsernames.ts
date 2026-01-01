@@ -31,7 +31,7 @@ async function generateUsernamesForExistingUsers() {
           data: { username: newUsername },
         });
 
-        console.log(`✅ Generated username "${newUsername}" for ${user.name || user.email}`);
+        console.log(` Generated username "${newUsername}" for ${user.name || user.email}`);
       } catch (error) {
         console.error(`❌ Failed to generate username for user ${user.id}:`, error);
       }

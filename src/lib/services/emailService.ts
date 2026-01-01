@@ -42,11 +42,11 @@ class EmailService {
     try {
       await this.transporter.verify();
       if (debugMode) {
-        console.log("✅ Zoho Mail SMTP connection verified successfully");
+        console.log("Zoho Mail SMTP connection verified successfully");
       }
       return { success: true };
     } catch (error) {
-      console.error("❌ Zoho Mail SMTP connection failed:", error);
+      console.error("Zoho Mail SMTP connection failed:", error);
       return {
         success: false,
         error:
@@ -207,7 +207,7 @@ class EmailService {
       trialEndsAt?: Date;
     }
   ) {
-    const subject = `Payment Confirmed - Welcome to ${paymentData.plan}! 🎉`;
+    const subject = `Payment Confirmed - Welcome to ${paymentData.plan}! `;
     const html = this.generatePaymentConfirmationTemplate(user, paymentData);
 
     return await this.sendEmail(user.email, subject, html);
@@ -279,10 +279,10 @@ class EmailService {
             
             <h3>What's Next?</h3>
             <ul>
-              <li>🎯 Complete your first tutorial</li>
-              <li>💪 Take on some coding challenges</li>
-              <li>🏆 Unlock your first achievement</li>
-              <li>👥 Connect with other learners</li>
+              <li>Complete your first tutorial</li>
+              <li>Take on some coding challenges</li>
+              <li>Unlock your first achievement</li>
+              <li>Connect with other learners</li>
             </ul>
             
             <p>Remember, you can always switch your mood to match how you're feeling - whether you want to CHILL, RUSH, or GRIND!</p>
@@ -331,7 +331,7 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>${promotion.title} 🎉</h1>
+            <h1>${promotion.title} </h1>
             <p>Limited time offer just for you!</p>
           </div>
           
@@ -341,7 +341,7 @@ class EmailService {
             <p>${promotion.description}</p>
             
             <div class="highlight">
-              <strong>🎯 This offer is personalized for your ${
+              <strong>This offer is personalized for your ${
                 user.mood
               } learning style!</strong>
             </div>
@@ -422,7 +422,7 @@ class EmailService {
             ${
               reminderData.nextLesson
                 ? `
-              <p><strong>📚 Up Next:</strong> ${reminderData.nextLesson}</p>
+              <p><strong>Up Next:</strong> ${reminderData.nextLesson}</p>
             `
                 : ""
             }
@@ -431,10 +431,10 @@ class EmailService {
             
             <h3>Quick Study Options:</h3>
             <ul>
-              <li>🎯 Complete a quick challenge (5-10 mins)</li>
-              <li>📖 Read through a tutorial (10-15 mins)</li>
-              <li>🧠 Take a quiz to test your knowledge (5 mins)</li>
-              <li>💪 Work on your current project (15+ mins)</li>
+              <li>Complete a quick challenge (5-10 mins)</li>
+              <li>Read through a tutorial (10-15 mins)</li>
+              <li>Take a quiz to test your knowledge (5 mins)</li>
+              <li>Work on your current project (15+ mins)</li>
             </ul>
             
             <a href="${
@@ -482,7 +482,7 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>📧 Contact Form Submission</h1>
+            <h1>Contact Form Submission</h1>
             <p>New message from Vibed to Cracked</p>
           </div>
           
@@ -603,22 +603,22 @@ class EmailService {
             </div>
             
             <div class="bug-section">
-              <span class="label">🐛 Description:</span>
+              <span class="label">Description:</span>
               <p style="white-space: pre-wrap;">${bugData.description}</p>
             </div>
             
             <div class="repro-section">
-              <span class="label">🔄 Steps to Reproduce:</span>
+              <span class="label">Steps to Reproduce:</span>
               <p style="white-space: pre-wrap;">${bugData.stepsToReproduce}</p>
             </div>
             
             <div class="behavior-section">
-              <span class="label">✅ Expected Behavior:</span>
+              <span class="label">Expected Behavior:</span>
               <p style="white-space: pre-wrap;">${bugData.expectedBehavior}</p>
             </div>
             
             <div class="bug-section">
-              <span class="label">❌ Actual Behavior:</span>
+              <span class="label">Actual Behavior:</span>
               <p style="white-space: pre-wrap;">${bugData.actualBehavior}</p>
             </div>
             
@@ -701,13 +701,13 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>Payment Confirmed! ${planEmojis[paymentData.plan] || "🎉"}</h1>
+            <h1>Payment Confirmed! ${planEmojis[paymentData.plan] || ""}</h1>
             <p>Welcome to ${paymentData.plan} Plan</p>
           </div>
           
           <div class="content">
             <div class="success-badge">
-              <h2>✅ Payment Successfully Processed</h2>
+              <h2>Payment Successfully Processed</h2>
               <p>Your subscription is now active and ready to use!</p>
             </div>
 
@@ -721,7 +721,7 @@ class EmailService {
               paymentData.isTrialActive && paymentData.trialEndsAt
                 ? `
               <div class="trial-notice">
-                <strong>🎯 Trial Period Active</strong>
+                <strong>Trial Period Active</strong>
                 <p>You're currently in a ${
                   paymentData.plan
                 } trial period until ${formatDate(
@@ -740,22 +740,22 @@ class EmailService {
                 paymentData.plan === "VIBED"
                   ? `
                 <ul>
-                  <li>✅ Unlimited tutorials and challenges</li>
-                  <li>✅ Interactive quiz system</li>
-                  <li>✅ Advanced progress tracking</li>
-                  <li>✅ Mood-adaptive learning experience</li>
-                  <li>✅ Priority support</li>
+                  <li>Unlimited tutorials and challenges</li>
+                  <li>Interactive quiz system</li>
+                  <li>Advanced progress tracking</li>
+                  <li>Mood-adaptive learning experience</li>
+                  <li>Priority support</li>
                 </ul>
               `
                   : paymentData.plan === "CRACKED"
                   ? `
                 <ul>
-                  <li>✅ Everything in Vibed plan</li>
-                  <li>✅ AI-powered code reviews</li>
-                  <li>✅ 1-on-1 mentorship sessions</li>
-                  <li>✅ Early access to new features</li>
-                  <li>✅ Premium community access</li>
-                  <li>✅ Advanced project templates</li>
+                  <li>Everything in Vibed plan</li>
+                  <li>AI-powered code reviews</li>
+                  <li>1-on-1 mentorship sessions</li>
+                  <li>Early access to new features</li>
+                  <li>Premium community access</li>
+                  <li>Advanced project templates</li>
                 </ul>
               `
                   : ""
@@ -763,7 +763,7 @@ class EmailService {
             </div>
 
             <div class="payment-details">
-              <h3>📄 Payment Details</h3>
+              <h3>Payment Details</h3>
               <p><span class="label">Plan:</span> ${paymentData.plan}</p>
               <p><span class="label">Amount:</span> ${formatCurrency(
                 paymentData.amount,
@@ -788,13 +788,13 @@ class EmailService {
             </div>
 
             <div class="feature-list">
-              <h3>🚀 What's Next?</h3>
+              <h3>What's Next?</h3>
               <ul>
-                <li>🎯 Access all premium tutorials and challenges</li>
-                <li>📊 Track your detailed learning progress</li>
-                <li>🧠 Take advanced quizzes to test your knowledge</li>
-                <li>👥 Join our premium community</li>
-                <li>💪 Start working on real-world projects</li>
+                <li>Access all premium tutorials and challenges</li>
+                <li>Track your detailed learning progress</li>
+                <li>Take advanced quizzes to test your knowledge</li>
+                <li>Join our premium community</li>
+                <li>Start working on real-world projects</li>
               </ul>
             </div>
             
@@ -810,7 +810,7 @@ class EmailService {
           </div>
           
           <div class="footer">
-            <p>🎉 Welcome to the premium experience!<br>The Vibed to Cracked Team</p>
+            <p> Welcome to the premium experience!<br>The Vibed to Cracked Team</p>
             <p>
               <a href="${
                 process.env.NEXTAUTH_URL
@@ -890,7 +890,7 @@ class EmailService {
         </head>
         <body>
           <div class="header">
-            <h1>💝 Free Access Request</h1>
+            <h1>Free Access Request</h1>
             <p>New request submitted to Vibed to Cracked</p>
             <span class="risk-badge risk-${riskLevel}">Risk Level: ${riskLevel}</span>
           </div>
@@ -916,7 +916,7 @@ class EmailService {
             </div>
 
             <div class="request-details">
-              <h2>📝 Request Details</h2>
+              <h2>Request Details</h2>
               
               <div style="margin-bottom: 20px;">
                 <span class="label">Why requesting free access:</span>
@@ -945,7 +945,7 @@ class EmailService {
             </div>
 
             <div class="risk-assessment">
-              <h2>⚠️ Risk Assessment</h2>
+              <h2>Risk Assessment</h2>
               <p><span class="label">Risk Level:</span> <span class="risk-badge risk-${riskLevel}">${riskLevel.toUpperCase()}</span></p>
               <p><span class="label">Assessment Notes:</span></p>
               <ul>
@@ -956,7 +956,7 @@ class EmailService {
             </div>
 
             <div class="security-info">
-              <h2>🔒 Security Information</h2>
+              <h2>Security Information</h2>
               <p><span class="label">IP Address:</span> ${
                 requestData.securityInfo.ip
               }</p>
@@ -984,7 +984,7 @@ class EmailService {
             </div>
 
             <div class="action-buttons">
-              <h2>🎯 Review Actions</h2>
+              <h2>Review Actions</h2>
               <p>Please review this request and take appropriate action:</p>
               
               <!-- You can create a simple admin panel or handle this manually -->
@@ -1000,7 +1000,7 @@ class EmailService {
             </div>
 
             <div class="info-section">
-              <h3>📊 Quick Stats</h3>
+              <h3>Quick Stats</h3>
               <ul>
                 <li><strong>Request Date:</strong> ${new Date().toLocaleString()}</li>
                 <li><strong>Email Domain:</strong> ${
@@ -1106,9 +1106,9 @@ class EmailService {
 
           <h3>What You'll Learn:</h3>
           <ul>
-            <li>📝 How to declare variables with let, const, and var</li>
-            <li>🔢 Different data types (strings, numbers, booleans)</li>
-            <li>✨ Best practices for naming variables</li>
+            <li>How to declare variables with let, const, and var</li>
+            <li>Different data types (strings, numbers, booleans)</li>
+            <li>Best practices for naming variables</li>
           </ul>
 
           <h3>Quick Example:</h3>
@@ -1126,15 +1126,15 @@ console.log(\`Hello, \${userName}!\`);
         tutorialSlug: "fundamentals/variables-and-data-types",
       },
       2: {
-        title: "Functions & Scope",
+        title: "Functions Fundamentals",
         content: `
           <p>Great job on Day 1! Today we're learning about <strong>functions</strong> - the power tools of JavaScript.</p>
 
           <h3>What You'll Learn:</h3>
           <ul>
-            <li>🎯 How to write and call functions</li>
-            <li>📦 Function parameters and return values</li>
-            <li>🔒 Understanding scope (global vs local)</li>
+            <li>How to write and call functions</li>
+            <li>Function parameters and return values</li>
+            <li>Understanding scope (global vs local)</li>
           </ul>
 
           <h3>Quick Example:</h3>
@@ -1150,7 +1150,7 @@ console.log(greeting); // "Hello, Alex! Welcome to JavaScript!"
         `,
         exercise:
           "Write a function called 'calculateAge' that takes a birth year and returns the person's age.",
-        tutorialSlug: "fundamentals/functions-and-scope",
+        tutorialSlug: "fundamentals/functions-fundamentals",
       },
       3: {
         title: "Arrays & Objects",
@@ -1159,9 +1159,9 @@ console.log(greeting); // "Hello, Alex! Welcome to JavaScript!"
 
           <h3>What You'll Learn:</h3>
           <ul>
-            <li>📚 Creating and manipulating arrays</li>
-            <li>🗂️ Working with objects and properties</li>
-            <li>🔄 Array methods like map, filter, forEach</li>
+            <li>Creating and manipulating arrays</li>
+            <li>Working with objects and properties</li>
+            <li>Array methods like map, filter, forEach</li>
           </ul>
 
           <h3>Quick Example:</h3>
@@ -1191,9 +1191,9 @@ console.log(developer.name); // "Jamie"
 
           <h3>What You'll Learn:</h3>
           <ul>
-            <li>🎨 Selecting HTML elements</li>
-            <li>✏️ Changing content and styles</li>
-            <li>👆 Handling click events</li>
+            <li>Selecting HTML elements</li>
+            <li>Changing content and styles</li>
+            <li>Handling click events</li>
           </ul>
 
           <h3>Quick Example:</h3>
@@ -1215,17 +1215,17 @@ button.addEventListener('click', () => {
       5: {
         title: "Build Your First Project",
         content: `
-          <p>🎉 Final Day! Let's put everything together and build something real.</p>
+          <p> Final Day! Let's put everything together and build something real.</p>
 
           <h3>Your First Project: Interactive Counter</h3>
           <p>Combine variables, functions, and DOM manipulation to create a working counter app!</p>
 
           <h3>Project Features:</h3>
           <ul>
-            <li>➕ Increment button</li>
-            <li>➖ Decrement button</li>
-            <li>🔄 Reset button</li>
-            <li>💾 Save count to localStorage</li>
+            <li>Increment button</li>
+            <li>Decrement button</li>
+            <li>Reset button</li>
+            <li>Save count to localStorage</li>
           </ul>
 
           <h3>Starter Code:</h3>
@@ -1286,7 +1286,7 @@ document.querySelector('#increment').addEventListener('click', () => {
             ${dayContent.content}
 
             <div class="exercise-box">
-              <h3>💪 Today's Exercise:</h3>
+              <h3>Today's Exercise:</h3>
               <p>${dayContent.exercise}</p>
             </div>
 
@@ -1302,7 +1302,7 @@ document.querySelector('#increment').addEventListener('click', () => {
               day === 5
                 ? `
               <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0;">
-                <h3>🎉 Congratulations on Completing the Course!</h3>
+                <h3> Congratulations on Completing the Course!</h3>
                 <p>Ready to take your skills to the next level?</p>
                 <a href="${baseUrl}/pricing" style="display: inline-block; background: white; color: #667eea; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 10px 0; font-weight: bold;">
                   View Premium Plans
@@ -1425,28 +1425,28 @@ document.querySelector('#increment').addEventListener('click', () => {
         emailDomain.includes(temp)
       )
     ) {
-      notes.push("⚠️ Temporary email domain detected");
+      notes.push("Temporary email domain detected");
     }
 
     if (requestData.reason.length < 50) {
-      notes.push("⚠️ Reason for request is quite short");
+      notes.push("Reason for request is quite short");
     }
 
     if (requestData.goals.length < 30) {
-      notes.push("⚠️ Learning goals are briefly described");
+      notes.push("Learning goals are briefly described");
     }
 
     if (!requestData.age) {
-      notes.push("ℹ️ Age not provided");
+      notes.push("Age not provided");
     }
 
     if (requestData.occupation === "Not specified") {
-      notes.push("ℹ️ Occupation not specified");
+      notes.push("Occupation not specified");
     }
 
     if (notes.length === 0) {
-      notes.push("✅ No immediate red flags detected");
-      notes.push("✅ Information appears complete and genuine");
+      notes.push("No immediate red flags detected");
+      notes.push("Information appears complete and genuine");
     }
 
     return notes;

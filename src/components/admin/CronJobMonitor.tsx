@@ -135,7 +135,7 @@ export default function CronJobMonitor() {
         <div className={`bg-${statusColor}-50 border border-${statusColor}-200 rounded-lg p-6`}>
           <div className="flex items-center">
             <div className="text-3xl mr-4">
-              {statusColor === 'green' ? '✅' : statusColor === 'yellow' ? '⚠️' : '❌'}
+              {statusColor === 'green' ? '' : statusColor === 'yellow' ? '⚠️' : '❌'}
             </div>
             <div>
               <div className={`text-2xl font-bold text-${statusColor}-600`}>
@@ -172,7 +172,7 @@ export default function CronJobMonitor() {
 
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
           <div className="flex items-center">
-            <div className="text-3xl mr-4">📈</div>
+            <div className="text-3xl mr-4"></div>
             <div>
               <div className="text-2xl font-bold text-orange-600">
                 {statistics.avgEmailsPerExecution}

@@ -137,7 +137,7 @@ export function QuizResults({
                     }`}
                   >
                     {quizState.submissionResult?.passed
-                      ? "✅ Passed"
+                      ? " Passed"
                       : "❌ Failed"}
                   </span>
                 </div>

@@ -10,13 +10,13 @@ A responsive, feature-rich comparison table component perfect for showing algori
 
 #### Features
 
-- ✅ **Responsive Design** - Card layout on mobile, table on desktop
-- ✅ **Dark Mode Support** - Automatically adapts to theme
-- ✅ **Auto-formatting** - Complexity notation (O(n), O(1)) gets color-coded badges
-- ✅ **Visual Hierarchy** - Zebra striping, gradient headers
-- ✅ **Highlight Support** - Highlight recommended rows or columns
-- ✅ **Interactive** - Hover effects on rows
-- ✅ **Accessible** - Semantic HTML, proper ARIA labels
+-  **Responsive Design** - Card layout on mobile, table on desktop
+-  **Dark Mode Support** - Automatically adapts to theme
+-  **Auto-formatting** - Complexity notation (O(n), O(1)) gets color-coded badges
+-  **Visual Hierarchy** - Zebra striping, gradient headers
+-  **Highlight Support** - Highlight recommended rows or columns
+-  **Interactive** - Hover effects on rows
+-  **Accessible** - Semantic HTML, proper ARIA labels
 
 #### Basic Usage
 
@@ -107,7 +107,7 @@ The component automatically color-codes Big-O notation:
 - `O(n)` - 🔵 Blue (Good)
 - `O(n log n)` - 🟡 Yellow (Fair)
 - `O(n²)` - 🟠 Orange (Slow)
-- `O(n³)`, `O(2ⁿ)` - 🔴 Red (Very Slow)
+- `O(n³)`, `O(2ⁿ)` - Red (Very Slow)
 
 #### Advanced Example
 

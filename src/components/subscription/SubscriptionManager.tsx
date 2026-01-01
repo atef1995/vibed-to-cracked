@@ -66,7 +66,7 @@ export function SubscriptionManager({ onUpgrade }: SubscriptionManagerProps) {
       {
         onSuccess: (result) => {
           if (process.env.NODE_ENV === "development") {
-            console.log("✅ Cancellation successful:", result);
+            console.log(" Cancellation successful:", result);
           }
           success(
             result.message ||
@@ -101,7 +101,7 @@ export function SubscriptionManager({ onUpgrade }: SubscriptionManagerProps) {
     reactivationMutation.mutate(undefined, {
       onSuccess: (result) => {
         if (process.env.NODE_ENV === "development") {
-          console.log("✅ Reactivation successful:", result);
+          console.log(" Reactivation successful:", result);
         }
         success(result.message || "Subscription reactivated successfully");
         setReactivateModal(false);

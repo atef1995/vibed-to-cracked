@@ -197,7 +197,7 @@ export async function seedMyTutorials() {
   await seedTutorials('category-slug', myTutorials, prisma);
   await seedQuizzes(myQuizzes, prisma);
 
-  console.log("✅ Done!");
+  console.log(" Done!");
 }
 ```
 

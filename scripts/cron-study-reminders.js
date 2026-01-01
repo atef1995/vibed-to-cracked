@@ -95,7 +95,7 @@ async function runStudyRemindersCron() {
       throw new Error(`Health check failed: ${healthResponse.status} - ${JSON.stringify(healthResponse.data)}`);
     }
     
-    console.log('✅ Health check passed');
+    console.log(' Health check passed');
     
     if (IS_TEST_MODE) {
       console.log('📊 Test Mode Results:');
@@ -117,7 +117,7 @@ async function runStudyRemindersCron() {
       throw new Error(`Cron job failed: ${cronResponse.status} - ${JSON.stringify(cronResponse.data)}`);
     }
 
-    console.log('✅ Study reminders cron job completed successfully!');
+    console.log(' Study reminders cron job completed successfully!');
     console.log('📊 Results:');
     console.log(`   • Total Processed: ${cronResponse.data.stats?.totalProcessed || 0}`);
     console.log(`   • Emails Sent: ${cronResponse.data.stats?.emailsSent || 0}`);

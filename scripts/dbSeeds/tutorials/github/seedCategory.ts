@@ -25,7 +25,7 @@ const seedGithubCategory = async () => {
     },
   });
 
-  console.log(`✅ Category created: ${categoryRecord.title}`);
+  console.log(` Category created: ${categoryRecord.title}`);
   return categoryRecord;
 };
 

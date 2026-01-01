@@ -80,23 +80,23 @@ class IsolatedCodeRunner {
 }
 ````
 
-### Security Advantages ✅
+### Security Advantages 
 
 **WebContainers:**
 
-- ✅ **Zero server risk** - runs entirely in browser
-- ✅ **True V8 isolation** - browser security model
-- ✅ **Full Node.js environment** - real JavaScript learning
-- ✅ **No infrastructure** - reduces attack surface
-- ✅ **Mobile compatible** - works on all devices
+-  **Zero server risk** - runs entirely in browser
+-  **True V8 isolation** - browser security model
+-  **Full Node.js environment** - real JavaScript learning
+-  **No infrastructure** - reduces attack surface
+-  **Mobile compatible** - works on all devices
 
 **isolated-vm (fallback):**
 
-- ✅ **True V8 isolation** - separate memory space
-- ✅ **Active maintenance** - security updates
-- ✅ **Memory isolation** - prevents memory attacks
-- ✅ **Timeout protection** - prevents infinite loops
-- ✅ **Transfer control** - safe object passing
+-  **True V8 isolation** - separate memory space
+-  **Active maintenance** - security updates
+-  **Memory isolation** - prevents memory attacks
+-  **Timeout protection** - prevents infinite loops
+-  **Transfer control** - safe object passing
 
 ### Implementation Strategy
 

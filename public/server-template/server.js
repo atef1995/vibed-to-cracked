@@ -106,7 +106,7 @@ const server = http.createServer((req, res) => {
       };
 
       todos.push(newTodo);
-      console.log(`✅ Created todo: ${newTodo.text}`);
+      console.log(` Created todo: ${newTodo.text}`);
 
       sendJSON(res, {
         ...newTodo,

@@ -39,7 +39,7 @@ async function updateQuizSlugs() {
       // Add the new slug to existing slugs to avoid future conflicts
       existingSlugs.push(uniqueSlug);
 
-      console.log(`✅ Updated quiz "${quiz.title}" with slug: ${uniqueSlug}`);
+      console.log(` Updated quiz "${quiz.title}" with slug: ${uniqueSlug}`);
     }
 
     console.log('✨ All quiz slugs updated successfully!');

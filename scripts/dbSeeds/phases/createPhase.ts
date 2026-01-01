@@ -8,5 +8,5 @@ export const createPhase = async (phase: Phase) => {
     update: phase,
     create: phase,
   });
-  console.log(`✅ Phase: ${phase.title}`);
+  console.log(` Phase: ${phase.title}`);
 };

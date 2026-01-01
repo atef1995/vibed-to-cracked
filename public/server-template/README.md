@@ -61,13 +61,13 @@ curl http://localhost:3001/stats
 
 ## Features
 
-- ✅ Pure Node.js (no external dependencies)
-- ✅ CORS enabled for frontend integration
-- ✅ RESTful API design
-- ✅ JSON request/response handling
-- ✅ In-memory data storage
-- ✅ Error handling and validation
-- ✅ Detailed console logging
+-  Pure Node.js (no external dependencies)
+-  CORS enabled for frontend integration
+-  RESTful API design
+-  JSON request/response handling
+-  In-memory data storage
+-  Error handling and validation
+-  Detailed console logging
 
 ## Integration with Tutorial Frontend
 

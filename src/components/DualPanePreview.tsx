@@ -66,7 +66,7 @@ const DualPanePreview: React.FC<DualPanePreviewProps> = ({
 
                 <div className="space-y-2">
                   <div className="bg-blue-100 dark:bg-blue-800 p-2 rounded text-xs">
-                    <strong>✅ Connection Test:</strong>
+                    <strong> Connection Test:</strong>
                     <pre className="mt-1 text-blue-800 dark:text-blue-200">
                       {JSON.stringify(
                         {

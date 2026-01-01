@@ -177,7 +177,7 @@ export async function executeJavaScriptStream(
       onOutput("📦 Installing dependencies...");
       const installProcess = await webcontainer.spawn("npm", ["install"]);
       await installProcess.exit;
-      onOutput("✅ Dependencies installed");
+      onOutput(" Dependencies installed");
     } else {
       onOutput("ℹ️ No additional dependencies to install, using defaults");
     }

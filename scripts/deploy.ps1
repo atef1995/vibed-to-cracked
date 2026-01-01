@@ -45,7 +45,7 @@ Write-Host "=========================================="
 # Check if Docker is installed
 try {
     $dockerVersion = docker --version
-    Write-ColorOutput $Green "✅ Docker found: $dockerVersion"
+    Write-ColorOutput $Green " Docker found: $dockerVersion"
 } catch {
     Write-ColorOutput $Red "❌ Docker is not installed or not in PATH."
     Write-Host "Please install Docker Desktop for Windows first:"
@@ -56,7 +56,7 @@ try {
 # Check if Docker Compose is available
 try {
     $composeVersion = docker-compose --version
-    Write-ColorOutput $Green "✅ Docker Compose found: $composeVersion"
+    Write-ColorOutput $Green " Docker Compose found: $composeVersion"
 } catch {
     Write-ColorOutput $Red "❌ Docker Compose is not available."
     Write-Host "Please ensure Docker Desktop is running."
@@ -142,7 +142,7 @@ EMAIL_FROM=noreply@$Domain
     # Update nginx configuration with domain
     (Get-Content "nginx\sites-available\vibed-to-cracked") -replace "yourdomain.com", $Domain | Set-Content "nginx\sites-available\vibed-to-cracked"
     
-    Write-ColorOutput $Green "✅ Configuration files updated!"
+    Write-ColorOutput $Green " Configuration files updated!"
 }
 
 # Enable nginx site (Windows equivalent)
@@ -152,7 +152,7 @@ $availablePath = "..\sites-available\vibed-to-cracked"
 if (-not (Test-Path $enabledPath)) {
     # Create symbolic link equivalent for Windows
     Copy-Item "nginx\sites-available\vibed-to-cracked" $enabledPath
-    Write-ColorOutput $Green "✅ Nginx site enabled"
+    Write-ColorOutput $Green " Nginx site enabled"
 }
 
 # Build and start services
@@ -165,7 +165,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Wait for services to be ready
-Write-ColorOutput $Blue "⏳ Waiting for services to start..."
+Write-ColorOutput $Blue " Waiting for services to start..."
 Start-Sleep -Seconds 15
 
 # Run database migrations
@@ -193,12 +193,12 @@ if ($LASTEXITCODE -ne 0) {
     if ($LASTEXITCODE -eq 0) {
         # Reload nginx after getting certificates
         docker-compose exec nginx nginx -s reload
-        Write-ColorOutput $Green "✅ SSL certificates obtained and nginx reloaded"
+        Write-ColorOutput $Green " SSL certificates obtained and nginx reloaded"
     } else {
         Write-ColorOutput $Yellow "⚠️  SSL certificate acquisition failed. You may need to configure them manually."
     }
 } else {
-    Write-ColorOutput $Green "✅ SSL certificates already exist"
+    Write-ColorOutput $Green " SSL certificates already exist"
 }
 
 Write-Host ""

@@ -564,7 +564,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                               : "text-red-600 dark:text-red-400"
                           }`}
                         >
-                          {result.passed ? "✅ PASS" : "❌ FAIL"}
+                          {result.passed ? " PASS" : "❌ FAIL"}
                         </span>
                         <span className="text-sm text-gray-600 dark:text-gray-300 ml-2">
                           {result.description}

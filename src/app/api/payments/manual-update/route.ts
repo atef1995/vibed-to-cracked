@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       subscriptionEndsAt
     );
 
-    console.log(`✅ Manual subscription update completed for user ${session.user.id}`);
+    console.log(` Manual subscription update completed for user ${session.user.id}`);
 
     return NextResponse.json({
       success: true,

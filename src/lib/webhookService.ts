@@ -104,7 +104,7 @@ export class WebhookService {
             isTrialActive: false,
           });
           if (debugMode) {
-            console.log("✅ Payment confirmation email sent successfully");
+            console.log(" Payment confirmation email sent successfully");
           }
         }
       } catch (emailError) {
@@ -115,7 +115,7 @@ export class WebhookService {
         // Don't throw - email failure shouldn't break webhook processing
       }
 
-      console.log(`✅ Checkout completed for user ${userId}, plan ${plan}`);
+      console.log(` Checkout completed for user ${userId}, plan ${plan}`);
     } catch (error) {
       console.error("❌ Error handling checkout session completed:", error);
       throw error;
@@ -294,7 +294,7 @@ export class WebhookService {
               ? new Date(subscription.trial_end * 1000)
               : undefined,
           });
-          console.log("✅ Subscription confirmation email sent successfully");
+          console.log(" Subscription confirmation email sent successfully");
         }
       } catch (emailError) {
         if (debugMode) {
@@ -306,7 +306,7 @@ export class WebhookService {
         // Don't throw - email failure shouldn't break webhook processing
       }
       if (debugMode) {
-        console.log(`✅ Subscription created for user ${userId}, plan ${plan}`);
+        console.log(` Subscription created for user ${userId}, plan ${plan}`);
       }
     } catch (error) {
       console.error("❌ Error handling subscription created:", error);
@@ -430,7 +430,7 @@ export class WebhookService {
 
       if (debugMode) {
         console.log(
-          `✅ Subscription updated for user ${userId}, status ${status}`
+          ` Subscription updated for user ${userId}, status ${status}`
         );
       }
     } catch (error) {
@@ -492,7 +492,7 @@ export class WebhookService {
       });
 
       if (debugMode) {
-        console.log(`✅ Subscription deleted for user ${userId}`);
+        console.log(` Subscription deleted for user ${userId}`);
       }
     } catch (error) {
       console.error("❌ Error handling subscription deleted:", error);
@@ -556,7 +556,7 @@ export class WebhookService {
 
       if (debugMode) {
         console.log(
-          `✅ Invoice payment succeeded for user ${userId}, amount ${invoice.amount_paid}`
+          ` Invoice payment succeeded for user ${userId}, amount ${invoice.amount_paid}`
         );
       }
     } catch (error) {
@@ -624,7 +624,7 @@ export class WebhookService {
 
       if (debugMode) {
         console.log(
-          `✅ Invoice payment failed for user ${userId}, amount ${invoice.amount_due}`
+          ` Invoice payment failed for user ${userId}, amount ${invoice.amount_due}`
         );
       }
     } catch (error) {
@@ -675,7 +675,7 @@ export class WebhookService {
 
       if (debugMode) {
         console.log(
-          `✅ Trial will end notification processed for user ${userId}`
+          ` Trial will end notification processed for user ${userId}`
         );
       }
     } catch (error) {

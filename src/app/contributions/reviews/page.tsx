@@ -253,7 +253,7 @@ export default function ReviewQueuePage() {
           {filteredAssignments.length === 0 ? (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center">
               <div className="text-6xl mb-4">
-                {filter === "pending" ? "🎉" : filter === "completed" ? "✅" : "👀"}
+                {filter === "pending" ? "🎉" : filter === "completed" ? "" : "👀"}
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 {filter === "pending"

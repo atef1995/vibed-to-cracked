@@ -73,11 +73,11 @@ Core idea: combine quizzes, coding practice, and short video explanations.
 
 | Plan                 | Free               | Paid                           |
 | -------------------- | ------------------ | ------------------------------ |
-| Tutorials            | ✅                 | ✅                             |
+| Tutorials            |                  |                              |
 | Number of quizzes    | Limited            | Unlimited / extra quizzes      |
 | Mood system          | Default moods only | Advanced moods & customization |
-| Advanced tutorials   | ❌                 | ✅                             |
-| Community / comments | ❌                 | ✅ (future)                    |
+| Advanced tutorials   | ❌                 |                              |
+| Community / comments | ❌                 |  (future)                    |
 
 - Stripe manages recurring billing.
 - Webhook updates user’s “plan” in DB.
@@ -97,18 +97,18 @@ A user setting affecting:
 
 ## ⚙ **MVP Scope**
 
-✅ Landing page
-✅ Sign up / login (NextAuth)
-✅ Stripe free/paid plans
-✅ Dashboard → show tutorials & progress
-✅ 5–10 JS tutorials in MDX
-✅ Quizzes (linked to each tutorial)
-✅ YouTube video embeds per quiz
-✅ Code editor (JS only)
-✅ Code runner backend (vm2)
-✅ Mood toggle (visuals + quiz difficulty)
-✅ Mobile app via Capacitor
-✅ SEO basics: sitemap, meta, OpenGraph
+ Landing page
+ Sign up / login (NextAuth)
+ Stripe free/paid plans
+ Dashboard → show tutorials & progress
+ 5–10 JS tutorials in MDX
+ Quizzes (linked to each tutorial)
+ YouTube video embeds per quiz
+ Code editor (JS only)
+ Code runner backend (vm2)
+ Mood toggle (visuals + quiz difficulty)
+ Mobile app via Capacitor
+ SEO basics: sitemap, meta, OpenGraph
 
 ---
 
@@ -146,7 +146,7 @@ A user setting affecting:
 
 ---
 
-## 📈 **Future roadmap**
+##  **Future roadmap**
 
 - Add HTML/CSS quizzes.
 - User‑generated quizzes.

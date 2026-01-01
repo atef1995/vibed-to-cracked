@@ -11,7 +11,7 @@ config({ path: ".env.local" });
 
 console.log(
   "Stripe Secret Key:",
-  process.env.STRIPE_SECRET_KEY ? "✅ Found" : "❌ Not found"
+  process.env.STRIPE_SECRET_KEY ? " Found" : "❌ Not found"
 );
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {

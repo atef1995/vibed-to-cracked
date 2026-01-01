@@ -17,7 +17,7 @@ async function updateChallengePremiumStatus() {
       },
     });
 
-    console.log("✅ Updated MEDIUM challenges to VIBED");
+    console.log(" Updated MEDIUM challenges to VIBED");
 
     // Update hard challenges to be pro (if any exist in the future)
     await prisma.challenge.updateMany({
@@ -30,7 +30,7 @@ async function updateChallengePremiumStatus() {
       },
     });
 
-    console.log("✅ Updated HARD challenges to CRACKED");
+    console.log(" Updated HARD challenges to CRACKED");
 
     // Verify the changes
     const challenges = await prisma.challenge.findMany({
@@ -59,7 +59,7 @@ async function updateChallengePremiumStatus() {
       where: { isPremium: true },
     });
 
-    console.log(`\n📈 Summary:`);
+    console.log(`\n Summary:`);
     console.log(`   - FREE challenges: ${freeCount}`);
     console.log(`   - VIBED/CRACKED challenges: ${premiumCount}`);
   } catch (error) {

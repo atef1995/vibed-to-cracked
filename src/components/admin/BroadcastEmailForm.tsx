@@ -97,7 +97,7 @@ export default function BroadcastEmailForm({ onSuccess }: BroadcastEmailFormProp
         >
           <div className="flex items-start">
             <span className="text-2xl mr-3">
-              {result.success ? '✅' : '❌'}
+              {result.success ? '' : '❌'}
             </span>
             <div>
               <p
@@ -305,7 +305,7 @@ export default function BroadcastEmailForm({ onSuccess }: BroadcastEmailFormProp
           >
             {isLoading ? (
               <>
-                <span className="inline-block animate-spin mr-2">⏳</span>
+                <span className="inline-block animate-spin mr-2"></span>
                 Sending...
               </>
             ) : (

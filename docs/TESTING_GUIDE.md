@@ -12,7 +12,7 @@ This guide will walk you through manually testing the complete GitHub PR-based c
 
 ---
 
-## ✅ Prerequisites
+##  Prerequisites
 
 ### 1. GitHub Account Setup
 - [ ] Have a GitHub account ready
@@ -60,7 +60,7 @@ This guide will walk you through manually testing the complete GitHub PR-based c
 - [ ] Click on project card navigates to detail page
 
 #### Expected Result:
-✅ You see the portfolio-site-template project with all details clearly displayed
+ You see the portfolio-site-template project with all details clearly displayed
 
 ---
 
@@ -90,7 +90,7 @@ This guide will walk you through manually testing the complete GitHub PR-based c
 - [ ] Review criteria section is present
 
 #### Expected Result:
-✅ All project information is clearly displayed and readable
+ All project information is clearly displayed and readable
 
 ---
 
@@ -118,7 +118,7 @@ WHERE email = 'your@email.com';
 ```
 
 #### Expected Result:
-✅ Successfully signed in, GitHub data saved to database
+ Successfully signed in, GitHub data saved to database
 
 ---
 
@@ -166,7 +166,7 @@ Using next-themes for implementation
 - [ ] Copy the PR URL (you'll need this next)
 
 #### Expected Result:
-✅ You have an open PR with a valid URL like:
+ You have an open PR with a valid URL like:
 `https://github.com/YOUR_USERNAME/portfolio-site-template/pull/1`
 
 ---
@@ -209,9 +209,9 @@ WHERE "submissionId" = 'YOUR_SUBMISSION_ID';
 ```
 
 #### Expected Result:
-✅ Success message appears
-✅ Redirected to submission detail page
-✅ Submission shows "PENDING_REVIEW" status
+ Success message appears
+ Redirected to submission detail page
+ Submission shows "PENDING_REVIEW" status
 
 ---
 
@@ -236,7 +236,7 @@ WHERE "submissionId" = 'YOUR_SUBMISSION_ID';
   - [ ] XP earned from contributions
 
 #### Expected Result:
-✅ Your submission is visible with correct status
+ Your submission is visible with correct status
 
 ---
 
@@ -264,7 +264,7 @@ WHERE "submissionId" = 'YOUR_SUBMISSION_ID';
   - [ ] Empty (no reviews yet)
 
 #### Expected Result:
-✅ All submission details are displayed accurately
+ All submission details are displayed accurately
 
 ---
 
@@ -334,10 +334,10 @@ VALUES (
 #### Submit Review
 
 #### Expected Result:
-✅ Review submits successfully
-✅ You earn 25 XP
-✅ Redirected back to review queue
-✅ Submission now shows "1/2 peer reviews"
+ Review submits successfully
+ You earn 25 XP
+ Redirected back to review queue
+ Submission now shows "1/2 peer reviews"
 
 ---
 
@@ -348,8 +348,8 @@ VALUES (
 2. Complete second peer review
 
 #### Expected Result:
-✅ Submission now shows "2/2 peer reviews"
-✅ Status may update to "READY_FOR_MERGE" (if mentor auto-approved)
+ Submission now shows "2/2 peer reviews"
+ Status may update to "READY_FOR_MERGE" (if mentor auto-approved)
 
 ---
 
@@ -397,9 +397,9 @@ SELECT * FROM "UserAchievement" WHERE "userId" = 'YOUR_USER_ID';
 ```
 
 #### Expected Result:
-✅ Celebration shows
-✅ XP added to your account
-✅ Achievement unlocked (if applicable)
+ Celebration shows
+ XP added to your account
+ Achievement unlocked (if applicable)
 
 ---
 
@@ -424,7 +424,7 @@ SELECT * FROM "UserAchievement" WHERE "userId" = 'YOUR_USER_ID';
   - [ ] XP earned (25 per review)
 
 #### Expected Result:
-✅ Review queue correctly separates pending/completed
+ Review queue correctly separates pending/completed
 
 ---
 
@@ -499,15 +499,15 @@ SELECT * FROM "Notification" WHERE "userId" = 'YOUR_USER_ID' ORDER BY "createdAt
 
 The system passes manual testing if:
 
-- ✅ You can browse and view all project details
-- ✅ You can submit a PR and see it in your dashboard
-- ✅ Reviews can be assigned (manually or automatically)
-- ✅ You can conduct a peer review with rubric scoring
-- ✅ XP is awarded after review completion
-- ✅ Celebration shows on PR merge (simulated or real)
-- ✅ All data persists correctly to database
-- ✅ No console errors during the entire workflow
-- ✅ UI is responsive and intuitive
+-  You can browse and view all project details
+-  You can submit a PR and see it in your dashboard
+-  Reviews can be assigned (manually or automatically)
+-  You can conduct a peer review with rubric scoring
+-  XP is awarded after review completion
+-  Celebration shows on PR merge (simulated or real)
+-  All data persists correctly to database
+-  No console errors during the entire workflow
+-  UI is responsive and intuitive
 
 ---
 

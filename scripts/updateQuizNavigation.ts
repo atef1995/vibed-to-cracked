@@ -48,7 +48,7 @@ async function updateQuizNavigationForSlugs() {
       console.log("");
     });
 
-    console.log("✅ Quiz navigation mapping completed!");
+    console.log(" Quiz navigation mapping completed!");
     console.log("\\n📝 To use this in your quiz pages:");
     console.log("1. Fetch tutorial by quiz ID");
     console.log("2. Use tutorial.slug for navigation");

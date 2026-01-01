@@ -18,7 +18,7 @@ if (missingVars.length > 0) {
   console.log("❌ Missing required environment variables:");
   missingVars.forEach((varName) => console.log(`   - ${varName}`));
 } else {
-  console.log("✅ All required environment variables are set");
+  console.log(" All required environment variables are set");
 }
 
 // Test 2: Stripe Connection
@@ -33,7 +33,7 @@ try {
     stripe.prices
       .list({ limit: 1 })
       .then(() => {
-        console.log("✅ Stripe API connection successful");
+        console.log(" Stripe API connection successful");
       })
       .catch((error: Error) => {
         console.log("❌ Stripe API connection failed:", error.message);
@@ -52,7 +52,7 @@ if (missingPriceIds.length > 0) {
   console.log("⚠️  Missing price IDs (you'll need to create these in Stripe):");
   missingPriceIds.forEach((varName) => console.log(`   - ${varName}`));
 } else {
-  console.log("✅ Price IDs are configured");
+  console.log(" Price IDs are configured");
 }
 
 // Test 4: Webhook Secret
@@ -63,7 +63,7 @@ if (!process.env.STRIPE_WEBHOOK_SECRET) {
     "   For local development, run: stripe listen --forward-to localhost:3000/api/payments/webhook"
   );
 } else {
-  console.log("✅ Webhook secret is configured");
+  console.log(" Webhook secret is configured");
 }
 
 console.log("\n📚 Next steps:");

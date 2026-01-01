@@ -39,7 +39,7 @@ async function testPaymentFlow() {
       const price = await stripe.prices.retrieve(priceId);
       const product = await stripe.products.retrieve(price.product as string);
 
-      console.log(`✅ ${priceId}`);
+      console.log(` ${priceId}`);
       console.log(`   Product: ${product.name}`);
       console.log(
         `   Amount: ${price.currency.toUpperCase()} ${(
@@ -89,7 +89,7 @@ async function testPaymentFlow() {
     );
   });
 
-  console.log("\n✅ Payment flow test completed!");
+  console.log("\n Payment flow test completed!");
 }
 
 testPaymentFlow().catch(console.error);
