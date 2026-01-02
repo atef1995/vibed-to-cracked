@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       }
 
       // Check user's subscription
-      const hasAccess = await SubscriptionService.canAccessContent(
+      const hasAccess = await SubscriptionService.canUserAccessContent(
         session.user.id,
         (tutorial.requiredPlan as Plan) || Plan.VIBED,
         tutorial.isPremium
