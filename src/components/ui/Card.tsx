@@ -76,7 +76,6 @@ export const CardAction = {
     <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
       <Clock className="h-4 w-4" />
       {time}
-      <span>min</span>
     </span>
   ),
 };

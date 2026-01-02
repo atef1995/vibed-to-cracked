@@ -31,7 +31,7 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
   if (language === "nodejs" || language === "node") {
     editorLanguage = "javascript"; // Monaco editor language
     // but keep original language for execution
-  } else if (language === "html" || language === "bash" || language === "css") {
+  } else if (language === "html" || language === "bash" || language === "css" || language === "jsx") {
     editable = false;
   }
   // Extract code from children if provided

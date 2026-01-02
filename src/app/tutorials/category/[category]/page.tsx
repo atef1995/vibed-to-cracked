@@ -68,7 +68,8 @@ export default function CategoryPage() {
     tutorialsData,
     session?.user?.id
   );
-
+  console.log({tutorialsData});
+  
   // Use server-side pagination data instead of client-side calculations
   const totalItems = pagination?.totalCount || 0;
   const totalPages = pagination?.totalPages || 1;
