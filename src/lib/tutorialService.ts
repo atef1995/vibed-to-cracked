@@ -95,6 +95,31 @@ export class TutorialService {
   }
 
   /**
+   * Get a tutorial by its MDX file path (used for security checks and content retrieval)
+   */
+  static async getTutorialByMdxFile(
+    mdxFile: string
+  ): Promise<{ isPremium: boolean; requiredPlan: string | null; content: string | null } | null> {
+    try {
+      const tutorial = await prisma.tutorial.findFirst({
+        where: {
+          mdxFile: mdxFile,
+        },
+        select: {
+          isPremium: true,
+          requiredPlan: true,
+          content: true,
+        },
+      });
+
+      return tutorial;
+    } catch (error) {
+      console.error("Error in getTutorialByMdxFile:", error);
+      return null;
+    }
+  }
+
+  /**
    * Get tutorials with user progress
    */
   static async getTutorialsWithProgress(userId: string) {

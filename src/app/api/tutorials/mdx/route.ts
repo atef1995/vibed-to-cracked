@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { TutorialService } from "@/lib/tutorialService";
+import { SubscriptionService, Plan } from "@/lib/subscriptionService";
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +25,68 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Construct the path to the MDX file
+    // Get tutorial from database (includes content if stored there)
+    const tutorial = await TutorialService.getTutorialByMdxFile(fileName);
+
+    // Security: Check if tutorial is premium and verify user access
+    if (tutorial?.isPremium || (tutorial?.requiredPlan && tutorial.requiredPlan !== "FREE")) {
+      const session = await getServerSession(authOptions);
+
+      if (!session?.user?.id) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "UNAUTHORIZED",
+              message: "Authentication required for premium content",
+            },
+          },
+          { status: 401 }
+        );
+      }
+
+      // Check user's subscription
+      const hasAccess = await SubscriptionService.canAccessContent(
+        session.user.id,
+        (tutorial.requiredPlan as Plan) || Plan.VIBED,
+        tutorial.isPremium
+      );
+
+      if (!hasAccess) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: {
+              code: "FORBIDDEN",
+              message: "Upgrade your plan to access this premium content",
+              requiredPlan: tutorial.requiredPlan,
+            },
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    // PRIORITY 1: Try to get content from database (secure for premium content)
+    if (tutorial?.content && tutorial.content.length > 100) {
+      const { data: frontmatter, content } = matter(tutorial.content);
+
+      const cleanContent = content
+        .trim()
+        .replace(/\r\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n");
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          frontmatter,
+          content: cleanContent,
+          source: "database",
+        },
+      });
+    }
+
+    // PRIORITY 2: Fall back to file system (for local development)
     const filePath = path.join(
       process.cwd(),
       "src",
@@ -30,45 +95,40 @@ export async function GET(request: NextRequest) {
       `${fileName}.mdx`
     );
 
-    // Check if file exists
     if (!fs.existsSync(filePath)) {
       return NextResponse.json(
         {
           success: false,
-          error: { code: "NOT_FOUND", message: "Tutorial file not found" },
+          error: { code: "NOT_FOUND", message: "Tutorial content not found" },
         },
         { status: 404 }
       );
     }
 
-    // Read the file content
     const fileContent = fs.readFileSync(filePath, "utf8");
-
-    // Parse frontmatter
     const { data: frontmatter, content } = matter(fileContent);
 
-    // Clean up the content - ensure proper line endings and spacing
     const cleanContent = content
       .trim()
-      .replace(/\r\n/g, "\n") // Normalize line endings
-      .replace(/\n{3,}/g, "\n\n"); // Remove excessive line breaks
+      .replace(/\r\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n");
 
     return NextResponse.json({
       success: true,
       data: {
         frontmatter,
         content: cleanContent,
-        rawContent: fileContent, // Also provide raw content for debugging
+        source: "file",
       },
     });
   } catch (error) {
-    console.error("Error reading MDX file:", error);
+    console.error("Error reading MDX content:", error);
     return NextResponse.json(
       {
         success: false,
         error: {
           code: "INTERNAL_ERROR",
-          message: "Failed to read tutorial file",
+          message: "Failed to read tutorial content",
         },
       },
       { status: 500 }
