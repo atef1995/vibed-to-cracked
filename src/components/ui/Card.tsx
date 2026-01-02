@@ -34,7 +34,7 @@ export const CardAction = {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer active:scale-95 `}
+      className={`bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer active:scale-95 `}
     >
       {children}
       <ArrowRight className="h-4 w-4" />
@@ -126,7 +126,7 @@ export default function Card({
       {/* Premium Badge */}
       {isPremium && (
         <div className="absolute top-4 left-4 z-10">
-          <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium shadow-lg">
+          <span className="bg-linear-to-r from-yellow-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 font-medium shadow-lg">
             {requiredPlan === "CRACKED" ? (
               <Sparkles className="w-3 h-3" />
             ) : (
@@ -140,7 +140,7 @@ export default function Card({
       {/* Premium Lock Overlay */}
       {isPremium && (
         <div
-          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/90 to-gray-50/90 dark:from-gray-900/90 dark:to-gray-800/90 flex items-center justify-center backdrop-blur-sm z-20 h-full min-h-max cursor-pointer"
+          className="absolute inset-0 rounded-2xl bg-linear-to-br from-white/90 to-gray-50/90 dark:from-gray-900/90 dark:to-gray-800/90 flex items-center justify-center backdrop-blur-sm z-20 h-full min-h-max cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             if (onPremiumClick) {
@@ -151,7 +151,7 @@ export default function Card({
           <div className="text-center p-6">
             {/* Lock Icon */}
             <div
-              className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r ${gradient} text-white shadow-lg mb-4`}
+              className={`inline-flex items-center justify-center w-16 h-16 rounded-full bg-linear-to-r ${gradient} text-white shadow-lg mb-4`}
             >
               <Lock className="w-8 h-8" />
             </div>

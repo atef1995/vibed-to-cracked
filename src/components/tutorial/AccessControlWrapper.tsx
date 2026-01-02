@@ -34,7 +34,7 @@ export default function AccessControlWrapper({
   // Full page access denied (usually for showing upgrade modal)
   if (accessCheck.needsUpgrade) {
     return (
-      <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+      <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg dark:shadow-xl text-center">
@@ -48,7 +48,7 @@ export default function AccessControlWrapper({
               <div className="flex gap-4 justify-center">
                 <Link
                   href="/pricing"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 inline-flex items-center gap-2 cursor-pointer"
+                  className="bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 inline-flex items-center gap-2 cursor-pointer"
                 >
                   <Zap className="w-5 h-5" />
                   Upgrade Now
@@ -69,7 +69,7 @@ export default function AccessControlWrapper({
 
   // Default access denied (shouldn't normally reach here)
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg dark:shadow-xl text-center">

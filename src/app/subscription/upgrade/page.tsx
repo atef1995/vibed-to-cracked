@@ -115,7 +115,7 @@ function SubscriptionUpgradeContent() {
   ];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* Back button */}
@@ -253,7 +253,7 @@ export default function SubscriptionUpgradePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-indigo-900/20 flex items-center justify-center">
+        <div className="min-h-screen bg-linear-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-900/20 dark:via-pink-900/20 dark:to-indigo-900/20 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-gray-300">Loading...</p>

@@ -13,7 +13,7 @@ import { Loader2, AlertCircle } from "lucide-react";
 const StudyPlanSkeleton = () => (
   <div className="space-y-6 animate-pulse">
     {/* Header skeleton */}
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8">
+    <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl p-8">
       <div className="flex items-center justify-between">
         <div>
           <div className="h-8 bg-blue-200 rounded w-64 mb-2"></div>

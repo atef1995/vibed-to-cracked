@@ -94,7 +94,7 @@ export function SortingComparisonVisualizer({
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header with comparison metrics */}
-      <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-lg p-6 border border-purple-500/30">
+      <div className="bg-linear-to-r from-purple-900/30 to-blue-900/30 rounded-lg p-6 border border-purple-500/30">
         <h3 className="text-2xl font-bold text-white mb-4">
           Algorithm Comparison: Bubble Sort vs Selection Sort
         </h3>
@@ -248,7 +248,7 @@ export function SortingComparisonVisualizer({
       </div>
 
       {/* Key Differences Section */}
-      <div className="bg-gradient-to-r from-purple-900/20 to-blue-900/20 rounded-lg p-6 border border-purple-500/30">
+      <div className="bg-linear-to-r from-purple-900/20 to-blue-900/20 rounded-lg p-6 border border-purple-500/30">
         <h4 className="text-xl font-bold text-white mb-4">Key Differences</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div className="space-y-2">

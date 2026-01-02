@@ -226,7 +226,7 @@ export default function PromotionalEmailForm() {
             </h3>
             <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
               <div className="bg-white rounded-md p-4 shadow-sm">
-                <div className="bg-gradient-to-r from-pink-400 to-red-400 text-white p-4 rounded-t-md">
+                <div className="bg-linear-to-r from-pink-400 to-red-400 text-white p-4 rounded-t-md">
                   <h2 className="text-xl font-bold">
                     {promotion.title || "Campaign Title"} 🎉
                   </h2>

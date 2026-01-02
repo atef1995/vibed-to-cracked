@@ -206,7 +206,7 @@ export default function PremiumModal({
       <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div
-          className={`p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r ${moodColors.gradient} text-white rounded-t-2xl`}
+          className={`p-6 border-b border-gray-200 dark:border-gray-700 bg-linear-to-r ${moodColors.gradient} text-white rounded-t-2xl`}
         >
           <div className="flex justify-between items-center">
             <div>
@@ -270,8 +270,8 @@ export default function PremiumModal({
             <div
               className={`mb-6 p-4 rounded-lg border ${
                 needsUpgrade
-                  ? "bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-700"
-                  : "bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-yellow-200 dark:border-yellow-700"
+                  ? "bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-700"
+                  : "bg-linear-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 border-yellow-200 dark:border-yellow-700"
               }`}
             >
               <div className="flex items-center gap-3">

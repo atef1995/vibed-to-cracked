@@ -137,7 +137,7 @@ export default function SharedAchievementClient({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-green-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-purple-900 via-blue-900 to-green-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
           <p className="text-white">Loading achievement...</p>
@@ -148,7 +148,7 @@ export default function SharedAchievementClient({
 
   if (error || !achievement) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-green-900 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-purple-900 via-blue-900 to-green-900 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
           <Trophy className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2">
@@ -170,7 +170,7 @@ export default function SharedAchievementClient({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-green-900">
+    <div className="min-h-screen bg-linear-to-br from-purple-900 via-blue-900 to-green-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -195,7 +195,7 @@ export default function SharedAchievementClient({
                     className="rounded-full border-2 border-white/20"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-linear-to-r from-blue-500 to-purple-500 flex items-center justify-center">
                     <Users className="w-5 h-5 text-white" />
                   </div>
                 )}
@@ -221,7 +221,7 @@ export default function SharedAchievementClient({
             {/* Achievement Icon and Title */}
             <div className="mb-6">
               <div
-                className={`inline-flex items-center justify-center w-24 h-24 rounded-full bg-gradient-to-r ${
+                className={`inline-flex items-center justify-center w-24 h-24 rounded-full bg-linear-to-r ${
                   rarityColors[achievement.rarity]
                 } mb-4`}
               >

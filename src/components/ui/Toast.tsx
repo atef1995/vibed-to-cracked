@@ -61,10 +61,10 @@ const ToastComponent = ({ toast, onRemove }: ToastProps) => {
   };
 
   const colors = {
-    success: "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 shadow-green-200/50 dark:shadow-green-900/50",
-    error: "bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/30 border-red-300 dark:border-red-700 text-red-900 dark:text-red-100 shadow-red-200/50 dark:shadow-red-900/50",
-    info: "bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-100 shadow-blue-200/50 dark:shadow-blue-900/50",
-    warning: "bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 shadow-yellow-200/50 dark:shadow-yellow-900/50",
+    success: "bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border-green-300 dark:border-green-700 text-green-900 dark:text-green-100 shadow-green-200/50 dark:shadow-green-900/50",
+    error: "bg-linear-to-r from-red-50 to-rose-50 dark:from-red-900/30 dark:to-rose-900/30 border-red-300 dark:border-red-700 text-red-900 dark:text-red-100 shadow-red-200/50 dark:shadow-red-900/50",
+    info: "bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border-blue-300 dark:border-blue-700 text-blue-900 dark:text-blue-100 shadow-blue-200/50 dark:shadow-blue-900/50",
+    warning: "bg-linear-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30 border-yellow-300 dark:border-yellow-700 text-yellow-900 dark:text-yellow-100 shadow-yellow-200/50 dark:shadow-yellow-900/50",
   };
 
   const Icon = icons[toast.type];
@@ -118,7 +118,7 @@ const ToastComponent = ({ toast, onRemove }: ToastProps) => {
     >
       {/* Enhanced animated progress bar */}
       <motion.div 
-        className="absolute bottom-0 left-0 h-1.5 bg-gradient-to-r from-current to-transparent opacity-40 rounded-full"
+        className="absolute bottom-0 left-0 h-1.5 bg-linear-to-r from-current to-transparent opacity-40 rounded-full"
         initial={{ width: "100%", scaleX: 1 }}
         animate={{ 
           width: `${Math.max(0, Math.min(100, progress))}%`,
@@ -132,7 +132,7 @@ const ToastComponent = ({ toast, onRemove }: ToastProps) => {
       />
       
       {/* Subtle glow effect */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 rounded-xl bg-linear-to-br from-white/20 to-transparent pointer-events-none" />
       
       <div className="flex items-start gap-3">
         <motion.div

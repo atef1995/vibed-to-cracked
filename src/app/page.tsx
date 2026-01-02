@@ -98,7 +98,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
       {/* 2026 New Year Banner */}
       <NewYear2026Banner variant="banner" />
 
@@ -107,7 +107,7 @@ export default function HomePage() {
         {backgroundElements.map((element, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-gradient-to-r from-blue-200/20 to-purple-200/20 dark:from-blue-800/20 dark:to-purple-800/20 blur-xl"
+            className="absolute rounded-full bg-linear-to-r from-blue-200/20 to-purple-200/20 dark:from-blue-800/20 dark:to-purple-800/20 blur-xl"
             style={{
               width: `${100 + i * 50}px`,
               height: `${100 + i * 50}px`,
@@ -283,7 +283,7 @@ export default function HomePage() {
                 >
                   {/* Animated Background */}
                   <motion.div
-                    className={`absolute  h-full w-full inset-0 rounded-full bg-gradient-to-r ${
+                    className={`absolute  h-full w-full inset-0 rounded-full bg-linear-to-r ${
                       getMoodAnimation(selectedMood).color
                     } opacity-20`}
                     initial={{ scale: 0 }}
@@ -439,7 +439,7 @@ export default function HomePage() {
                 <div className="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 px-3 py-1 rounded-full text-sm font-semibold">
                   Level 1: Beginner
                 </div>
-                <div className="h-px flex-1 bg-gradient-to-r from-green-300 to-transparent dark:from-green-700"></div>
+                <div className="h-px flex-1 bg-linear-to-r from-green-300 to-transparent dark:from-green-700"></div>
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 {[
@@ -497,7 +497,7 @@ export default function HomePage() {
                 <div className="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-3 py-1 rounded-full text-sm font-semibold">
                   Level 2: Intermediate
                 </div>
-                <div className="h-px flex-1 bg-gradient-to-r from-blue-300 to-transparent dark:from-blue-700"></div>
+                <div className="h-px flex-1 bg-linear-to-r from-blue-300 to-transparent dark:from-blue-700"></div>
               </div>
               <div className="grid md:grid-cols-4 gap-4">
                 {[
@@ -559,7 +559,7 @@ export default function HomePage() {
                 <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-full text-sm font-semibold">
                   Level 3: Advanced
                 </div>
-                <div className="h-px flex-1 bg-gradient-to-r from-purple-300 to-transparent dark:from-purple-700"></div>
+                <div className="h-px flex-1 bg-linear-to-r from-purple-300 to-transparent dark:from-purple-700"></div>
               </div>
               <div className="grid md:grid-cols-3 gap-4">
                 {[
@@ -613,7 +613,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold">
+              <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold">
                 <Trophy className="w-5 h-5" />
                 Complete Curriculum: 40-60 hours to job-ready skills
               </div>
@@ -715,7 +715,7 @@ export default function HomePage() {
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <div className="bg-gradient-to-r from-orange-500 to-pink-500 rounded-2xl p-8 md:p-12 text-white shadow-xl">
+          <div className="bg-linear-to-r from-orange-500 to-pink-500 rounded-2xl p-8 md:p-12 text-white shadow-xl">
             <div className="max-w-3xl mx-auto text-center">
               <motion.div
                 className="inline-block bg-white/20 px-4 py-1 rounded-full text-sm font-semibold mb-4"
@@ -798,7 +798,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <thead className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+              <thead className="bg-linear-to-r from-blue-600 to-purple-600 text-white">
                 <tr>
                   <th className="px-6 py-4 text-left font-semibold">Feature</th>
                   <th className="px-6 py-4 text-center font-semibold">
@@ -972,7 +972,7 @@ export default function HomePage() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 href="/dashboard"
-                className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity"
+                className="inline-block bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity"
               >
                 Get Started Free
               </Link>

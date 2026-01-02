@@ -1,6 +1,6 @@
 // Loading skeletons for individual sections
 const HeaderSkeleton = () => (
-  <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white animate-pulse">
+  <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white animate-pulse">
     <div className="flex items-center justify-between">
       <div>
         <div className="h-8 bg-blue-200/20 rounded w-64 mb-2"></div>

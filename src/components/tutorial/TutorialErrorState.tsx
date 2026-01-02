@@ -18,7 +18,7 @@ export default function TutorialErrorState({
   const moodColors = getMoodColors(currentMood.id);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">

@@ -57,7 +57,7 @@ export function UpgradeOverlay({
   return (
     <div className={`relative ${className}`}>
       {/* Backdrop Blur Effect */}
-      <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-br from-purple-900/30 via-indigo-900/30 to-blue-900/30 rounded-lg z-10" />
+      <div className="absolute inset-0 backdrop-blur-xl bg-linear-to-br from-purple-900/30 via-indigo-900/30 to-blue-900/30 rounded-lg z-10" />
 
       {/* Lock Icon Background */}
       <div className="absolute inset-0 flex items-center justify-center z-10 opacity-10">
@@ -77,14 +77,14 @@ export function UpgradeOverlay({
           </button>
           {/* Badge */}
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+            <div className="bg-linear-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
               CRACKED EXCLUSIVE
             </div>
           </div>
 
           {/* Feature Name */}
-          <h3 className="text-2xl font-bold text-center mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h3 className="text-2xl font-bold text-center mb-2 bg-linear-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             {featureName}
           </h3>
 
@@ -135,7 +135,7 @@ export function UpgradeOverlay({
           {/* Primary CTA */}
           <Link
             href="/subscription/upgrade"
-            className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl text-center transition-all transform hover:scale-105 shadow-lg mb-3"
+            className="block w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-6 rounded-xl text-center transition-all transform hover:scale-105 shadow-lg mb-3"
           >
             Start 7-Day FREE Trial
           </Link>
@@ -194,7 +194,7 @@ export function UpgradeBanner({
 }: UpgradeBannerProps) {
   return (
     <div
-      className={`bg-gradient-to-r from-purple-600 to-pink-600 text-white ${
+      className={`bg-linear-to-r from-purple-600 to-pink-600 text-white ${
         compact ? "px-4 py-2" : "px-6 py-4"
       } rounded-lg flex items-center justify-between gap-4`}
     >

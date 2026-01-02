@@ -88,7 +88,7 @@ export default function ContactPage() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} py-12`}
+      className={`min-h-screen bg-linear-to-br ${moodColors.gradient} py-12`}
     >
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}
@@ -156,7 +156,7 @@ export default function ContactPage() {
                 </a>
                 <a
                   href="/free-access"
-                  className="block w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg text-center hover:from-purple-600 hover:to-pink-600 transition-colors"
+                  className="block w-full bg-linear-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg text-center hover:from-purple-600 hover:to-pink-600 transition-colors"
                 >
                   💝 Request Free Access
                 </a>

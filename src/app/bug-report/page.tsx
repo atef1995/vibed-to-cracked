@@ -141,7 +141,7 @@ export default function BugReportPage() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} py-12`}
+      className={`min-h-screen bg-linear-to-br ${moodColors.gradient} py-12`}
     >
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Header */}

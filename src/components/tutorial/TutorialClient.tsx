@@ -224,7 +224,7 @@ export default function TutorialClient({
 
   // Main render
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       {/* Show anonymous progress banner */}
       {isAnonymous && <AnonymousProgressBanner />}
 

@@ -45,7 +45,7 @@ export default function AnonymousProgressBanner() {
         className="fixed top-20 left-0 right-0 z-40 px-4"
       >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-2xl p-4 flex items-center justify-between flex-wrap gap-4">
+          <div className="bg-linear-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-2xl p-4 flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
               <Eye className="w-6 h-6 flex-shrink-0" />
               <div>

@@ -265,7 +265,7 @@ export function ValidatedExercise({
   return (
     <div className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3">
+      <div className="bg-linear-to-r from-green-500 to-emerald-600 px-4 py-3">
         <div className="flex items-center justify-between">
           <h3 className="text-white font-semibold flex items-center gap-2">
             <Code2 className="w-5 h-5" />

@@ -185,7 +185,7 @@ export default function ProjectPage() {
                     {getDifficultyLabel(project.difficulty)}
                   </span>
                   {project.isPremium && (
-                    <span className="text-xs px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-medium">
+                    <span className="text-xs px-3 py-1 rounded-full bg-linear-to-r from-yellow-400 to-orange-500 text-white font-medium">
                       {project.requiredPlan}
                     </span>
                   )}
@@ -291,7 +291,7 @@ export default function ProjectPage() {
       {isLocked ? (
         <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
           <div className="max-w-md mx-auto">
-            <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="w-16 h-16 bg-linear-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <Trophy className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -303,7 +303,7 @@ export default function ProjectPage() {
             </p>
             <button
               onClick={handleProjectAccess}
-              className="bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-6 py-3 rounded-lg hover:from-yellow-600 hover:to-orange-700 transition-all duration-200"
+              className="bg-linear-to-r from-yellow-500 to-orange-600 text-white px-6 py-3 rounded-lg hover:from-yellow-600 hover:to-orange-700 transition-all duration-200"
             >
               Upgrade to {project.requiredPlan}
             </button>

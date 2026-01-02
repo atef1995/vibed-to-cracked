@@ -164,7 +164,7 @@ export function ComparisonTable({
       <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
         <table className="w-full">
           <thead>
-            <tr className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+            <tr className="bg-linear-to-r from-indigo-500 to-purple-600 text-white">
               {headers.map((header, index) => (
                 <th
                   key={index}

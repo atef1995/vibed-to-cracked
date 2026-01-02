@@ -230,7 +230,7 @@ const Console: React.FC<ConsoleProps> = ({
                     <div className="ml-6 mt-3">
                       <div className="w-48 h-1 bg-gray-700 rounded-full overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-yellow-400 via-green-400 to-blue-400 rounded-full animate-pulse"
+                          className="h-full bg-linear-to-r from-yellow-400 via-green-400 to-blue-400 rounded-full animate-pulse"
                           style={{
                             width: "70%",
                             animation:

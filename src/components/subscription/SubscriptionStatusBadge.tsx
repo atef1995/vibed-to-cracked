@@ -38,7 +38,7 @@ export function SubscriptionStatusBadge({
     switch (plan) {
       case 'CRACKED':
         return {
-          bg: 'bg-gradient-to-r from-purple-500 to-pink-500',
+          bg: 'bg-linear-to-r from-purple-500 to-pink-500',
           text: 'text-white',
           border: 'border-purple-500',
           lightBg: 'bg-purple-50 dark:bg-purple-900/20',
@@ -47,7 +47,7 @@ export function SubscriptionStatusBadge({
         };
       case 'VIBED':
         return {
-          bg: 'bg-gradient-to-r from-yellow-400 to-orange-500',
+          bg: 'bg-linear-to-r from-yellow-400 to-orange-500',
           text: 'text-white',
           border: 'border-yellow-500',
           lightBg: 'bg-yellow-50 dark:bg-yellow-900/20',
@@ -56,7 +56,7 @@ export function SubscriptionStatusBadge({
         };
       default:
         return {
-          bg: 'bg-gradient-to-r from-gray-400 to-gray-600',
+          bg: 'bg-linear-to-r from-gray-400 to-gray-600',
           text: 'text-white',
           border: 'border-gray-500',
           lightBg: 'bg-gray-50 dark:bg-gray-900/20',

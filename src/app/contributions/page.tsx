@@ -60,7 +60,7 @@ export default function ContributionsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Section */}
         <div className="mb-8">
@@ -111,7 +111,7 @@ export default function ContributionsPage() {
                 </div>
               </Link>
 
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl p-4 shadow-md border-2 border-yellow-300 dark:border-yellow-600">
+              <div className="bg-linear-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/30 dark:to-orange-900/30 rounded-xl p-4 shadow-md border-2 border-yellow-300 dark:border-yellow-600">
                 <div className="flex items-center gap-3">
                   <Trophy className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                   <div>

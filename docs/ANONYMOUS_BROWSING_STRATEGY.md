@@ -933,7 +933,7 @@ import { Lock, Sparkles, CheckCircle, Zap } from 'lucide-react';
 
 export default function AnonymousLimitReached({ category }: { category: string }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -1012,7 +1012,7 @@ export default function AnonymousLimitReached({ category }: { category: string }
         <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href={`/auth/signin?callbackUrl=/tutorials/category/${category}`}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 px-6 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
+            className="flex-1 bg-linear-to-r from-purple-600 to-blue-600 text-white font-semibold py-4 px-6 rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2"
           >
             <Zap className="w-5 h-5" />
             Sign Up Free - Continue Learning
@@ -1279,7 +1279,7 @@ export default function AnonymousProgressBanner() {
         className="fixed top-20 left-0 right-0 z-40 px-4"
       >
         <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-2xl p-4 flex items-center justify-between">
+          <div className="bg-linear-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-2xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Eye className="w-6 h-6" />
               <div>
@@ -1326,7 +1326,7 @@ import AnonymousProgressBanner from './AnonymousProgressBanner';
 
 // In the render:
 return (
-  <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+  <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
     {isAnonymous && <AnonymousProgressBanner />}
     {/* ... rest of component ... */}
   </div>

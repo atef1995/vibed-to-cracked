@@ -103,7 +103,7 @@ export function ComplexityVisualizerClient({
                 Back to Dashboard
               </Link>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
+                <div className="p-2 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg">
                   <Calculator className="w-8 h-8 text-white" />
                 </div>
                 Complexity Visualizer
@@ -125,7 +125,7 @@ export function ComplexityVisualizerClient({
             {!isCracked && (
               <Link
                 href="/subscription/upgrade"
-                className="hidden md:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg"
+                className="hidden md:flex items-center gap-2 bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold px-6 py-3 rounded-lg transition-all transform hover:scale-105 shadow-lg"
               >
                 <Sparkles className="w-5 h-5" />
                 Unlock Full Access
@@ -191,7 +191,7 @@ export function ComplexityVisualizerClient({
 
         {/* Bottom CTA Section (FREE/VIBED only) */}
         {!isCracked && (
-          <div className="mt-12 p-8 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
+          <div className="mt-12 p-8 bg-linear-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
             <div className="text-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                 Ready to Master Big O Notation?
@@ -227,7 +227,7 @@ export function ComplexityVisualizerClient({
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 href="/subscription/upgrade"
-                className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-xl text-center transition-all transform hover:scale-105 shadow-lg"
+                className="w-full sm:w-auto bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-4 px-8 rounded-xl text-center transition-all transform hover:scale-105 shadow-lg"
               >
                 Start 7-Day FREE Trial
               </Link>

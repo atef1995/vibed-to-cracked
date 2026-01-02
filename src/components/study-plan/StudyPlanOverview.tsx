@@ -69,7 +69,7 @@ const StudyPlanHeader = ({
   const progressPercentage = getOverallProgress(studyPlan, completedSteps);
 
   return (
-    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+    <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">{studyPlan.title}</h1>
@@ -209,7 +209,7 @@ const StudyPlanProgress = ({
             Current Phase
           </h3>
           <div
-            className={`bg-gradient-to-r ${currentPhase.color} rounded-lg p-4 text-white mb-4`}
+            className={`bg-linear-to-r ${currentPhase.color} rounded-lg p-4 text-white mb-4`}
           >
             <div className="flex items-center gap-3">
               <div className="text-white">
@@ -238,7 +238,7 @@ const StudyPlanProgress = ({
             </div>
             <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div
-                className={`bg-gradient-to-r ${currentPhase.color} rounded-full h-2 transition-all duration-300`}
+                className={`bg-linear-to-r ${currentPhase.color} rounded-full h-2 transition-all duration-300`}
                 style={{
                   width: `${getPhaseProgress(currentPhase, completedSteps)}%`,
                 }}
@@ -327,7 +327,7 @@ const StudyPlanSkills = ({
         {skillsLearned.map((skill, index) => (
           <span
             key={index}
-            className="px-3 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium"
+            className="px-3 py-1 bg-linear-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-800 dark:text-blue-200 rounded-full text-sm font-medium"
           >
             {skill}
           </span>

@@ -77,7 +77,7 @@ export default function UnsubscribeForm() {
           </p>
           <Link
             href="/"
-            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
+            className="inline-block bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all"
           >
             Return to Home
           </Link>

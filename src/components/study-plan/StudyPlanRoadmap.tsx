@@ -220,7 +220,7 @@ export function StudyPlanRoadmap({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-r ${phase.color} flex items-center justify-center text-white`}
+                      className={`w-12 h-12 rounded-xl bg-linear-to-r ${phase.color} flex items-center justify-center text-white`}
                     >
                       {getPhaseIcon(phase.icon)}
                     </div>
@@ -274,7 +274,7 @@ export function StudyPlanRoadmap({
                 <div className="mt-4">
                   <div className="bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                     <div
-                      className={`bg-gradient-to-r ${phase.color} rounded-full h-2 transition-all duration-500`}
+                      className={`bg-linear-to-r ${phase.color} rounded-full h-2 transition-all duration-500`}
                       style={{ width: `${progress}%` }}
                     />
                   </div>

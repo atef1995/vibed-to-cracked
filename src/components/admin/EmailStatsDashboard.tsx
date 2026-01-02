@@ -393,7 +393,7 @@ export default function EmailStatsDashboard() {
       </div>
 
       {/* Tips and Recommendations */}
-      <div className="mt-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
+      <div className="mt-8 bg-linear-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">
           💡 Recommendations
         </h3>

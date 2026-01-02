@@ -130,7 +130,7 @@ export function MoodCard({
       <button onClick={handleClick} className={cardClasses}>
         {/* Gradient overlay */}
         <div
-          className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-gradient-to-br ${currentClasses.gradient}`}
+          className={`absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity bg-linear-to-br ${currentClasses.gradient}`}
         />
 
         {/* Content */}

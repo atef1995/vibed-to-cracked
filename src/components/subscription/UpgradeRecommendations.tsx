@@ -41,7 +41,7 @@ export function UpgradeRecommendations({
   if (!access.recommendations || currentPlan === "CRACKED") return null;
 
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
+    <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 bg-blue-600 rounded-lg">
           <Crown className="w-5 h-5 text-white" />

@@ -35,18 +35,18 @@ export default function TutorialHeader({
 
     switch (requiredPlan) {
       case "VIBED":
-        badgeClass = "bg-gradient-to-r from-purple-500 to-pink-500";
+        badgeClass = "bg-linear-to-r from-purple-500 to-pink-500";
         icon = <Star className="w-3 h-3" />;
         text = "VIBED";
         break;
       case "CRACKED":
-        badgeClass = "bg-gradient-to-r from-yellow-400 to-orange-500";
+        badgeClass = "bg-linear-to-r from-yellow-400 to-orange-500";
         icon = <Crown className="w-3 h-3" />;
         text = "CRACKED";
         break;
       default:
         if (isPremium) {
-          badgeClass = "bg-gradient-to-r from-blue-500 to-purple-500";
+          badgeClass = "bg-linear-to-r from-blue-500 to-purple-500";
           icon = <Zap className="w-3 h-3" />;
           text = "PREMIUM";
         }

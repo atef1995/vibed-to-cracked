@@ -153,7 +153,7 @@ export function AlgorithmVisualizer({
       className={`border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 ${className}`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+      <div className="bg-linear-to-r from-blue-500 to-purple-600 px-3 sm:px-4 py-2 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h3 className="text-white font-semibold text-base sm:text-lg truncate">
             {config.algorithm}

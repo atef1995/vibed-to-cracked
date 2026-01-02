@@ -67,14 +67,14 @@ export function FeaturePreviewCard({
       `}
     >
       {/* Gradient border effect on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-indigo-500 opacity-0 hover:opacity-10 transition-opacity duration-300 pointer-events-none" />
+      <div className="absolute inset-0 bg-linear-to-br from-purple-500 via-pink-500 to-indigo-500 opacity-0 hover:opacity-10 transition-opacity duration-300 pointer-events-none" />
 
       {/* Card Content */}
       <div className="relative p-6">
         {/* Header with Icon and Badge */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
+            <div className="p-3 bg-linear-to-br from-purple-500 to-pink-500 rounded-lg">
               <Icon className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -86,7 +86,7 @@ export function FeaturePreviewCard({
 
           {/* CRACKED Badge */}
           <div className="flex flex-col gap-2">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 whitespace-nowrap">
+            <div className="bg-linear-to-r from-purple-600 to-pink-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 whitespace-nowrap">
               <Sparkles className="w-3 h-3" />
               CRACKED
             </div>
@@ -145,7 +145,7 @@ export function FeaturePreviewCard({
             <>
               <button
                 onClick={onDemoClick}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+                className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
               >
                 Try Demo
                 <ArrowRight className="w-4 h-4" />
@@ -164,7 +164,7 @@ export function FeaturePreviewCard({
           ) : (
             <Link
               href="/subscription/upgrade"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
+              className="w-full bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 px-6 rounded-lg transition-all transform hover:scale-105 flex items-center justify-center gap-2"
             >
               <Lock className="w-4 h-4" />
               Unlock with CRACKED
@@ -222,7 +222,7 @@ export function FeatureBadge({
 
   return (
     <div
-      className={`inline-flex items-center gap-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold ${sizeClasses[size]}`}
+      className={`inline-flex items-center gap-1 bg-linear-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold ${sizeClasses[size]}`}
     >
       <Lock className={iconSizes[size]} />
       {text}

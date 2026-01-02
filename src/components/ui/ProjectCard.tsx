@@ -226,7 +226,7 @@ export default function ProjectCard({
 
             <div className="flex items-center gap-2">
               {project.isPremium && (
-                <span className="text-xs px-2 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-medium">
+                <span className="text-xs px-2 py-1 rounded-full bg-linear-to-r from-yellow-400 to-orange-500 text-white font-medium">
                   {project.requiredPlan}
                 </span>
               )}

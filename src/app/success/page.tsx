@@ -42,7 +42,7 @@ function SuccessContent() {
   if (isLoading) {
     return (
       <div
-        className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} flex items-center justify-center`}
+        className={`min-h-screen bg-linear-to-br ${moodColors.gradient} flex items-center justify-center`}
       >
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
       </div>
@@ -51,7 +51,7 @@ function SuccessContent() {
 
   if (!success || success !== "true") {
     return (
-      <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+      <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
         <div className="container mx-auto px-4 py-12 text-center">
           <div className="max-w-2xl mx-auto">
             <div className="text-6xl mb-6">😅</div>
@@ -87,7 +87,7 @@ function SuccessContent() {
   const planEmoji = plan === "CRACKED" ? "⚡" : "🔥";
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto text-center">
           {/* Success Animation */}

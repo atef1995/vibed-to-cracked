@@ -57,7 +57,7 @@ function PaymentSuccessContent() {
   if (isLoading) {
     return (
       <div
-        className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} flex items-center justify-center`}
+        className={`min-h-screen bg-linear-to-br ${moodColors.gradient} flex items-center justify-center`}
       >
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
@@ -72,7 +72,7 @@ function PaymentSuccessContent() {
   if (!success || !sessionId) {
     return (
       <div
-        className={`min-h-screen bg-gradient-to-br ${moodColors.gradient} flex items-center justify-center`}
+        className={`min-h-screen bg-linear-to-br ${moodColors.gradient} flex items-center justify-center`}
       >
         <div className="max-w-md mx-auto text-center bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
           <div className="text-red-500 text-6xl mb-4">❌</div>
@@ -95,7 +95,7 @@ function PaymentSuccessContent() {
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-2xl mx-auto text-center">
           {/* Success Animation */}

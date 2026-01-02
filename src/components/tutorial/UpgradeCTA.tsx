@@ -71,7 +71,7 @@ export function UpgradeCTA({
   // If user already has required plan or higher, show access confirmation
   if (!isAnonymous && userPlanLevel >= requiredPlanLevel) {
     return (
-      <div className="my-6 p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border-2 border-green-200 dark:border-green-800">
+      <div className="my-6 p-6 bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border-2 border-green-200 dark:border-green-800">
         <h4 className="text-lg font-bold text-green-900 dark:text-green-100 mb-2 flex items-center gap-2">
           <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
           You Have Access to Premium Content!
@@ -90,7 +90,7 @@ export function UpgradeCTA({
 
   // Show upgrade CTA for FREE users or anonymous users
   return (
-    <div className="my-6 p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border-2 border-purple-200 dark:border-purple-800">
+    <div className="my-6 p-6 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border-2 border-purple-200 dark:border-purple-800">
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
         <div className="flex-shrink-0 p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
@@ -127,7 +127,7 @@ export function UpgradeCTA({
         <div className="space-y-2">
           <Link
             href="/auth/signin?callbackUrl=/tutorials"
-            className="block w-full sm:inline-block sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-lg text-center transition-all transform hover:scale-105 shadow-lg"
+            className="block w-full sm:inline-block sm:w-auto bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-lg text-center transition-all transform hover:scale-105 shadow-lg"
           >
             Sign Up to Get Started
           </Link>
@@ -146,7 +146,7 @@ export function UpgradeCTA({
         <div className="space-y-2">
           <Link
             href="/subscription/upgrade"
-            className="block w-full sm:inline-block sm:w-auto bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-lg text-center transition-all transform hover:scale-105 shadow-lg"
+            className="block w-full sm:inline-block sm:w-auto bg-linear-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-8 rounded-lg text-center transition-all transform hover:scale-105 shadow-lg"
           >
             {ctaText || "Start Your Free 7-Day Trial"}
           </Link>

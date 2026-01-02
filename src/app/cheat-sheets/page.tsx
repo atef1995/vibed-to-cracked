@@ -365,7 +365,7 @@ export default function CheatSheetsPage() {
                           e.stopPropagation();
                           setPremiumModalId(sheet.id);
                         }}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 py-2 font-medium text-white hover:from-yellow-500 hover:to-orange-600"
+                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 py-2 font-medium text-white hover:from-yellow-500 hover:to-orange-600"
                       >
                         <Crown className="h-4 w-4" />
                         Unlock Premium
@@ -439,7 +439,7 @@ export default function CheatSheetsPage() {
             {/* Lock Icon */}
             <div className={`flex justify-center mb-6`}>
               <div
-                className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r ${moodColors.gradient} text-white shadow-lg`}
+                className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-r ${moodColors.gradient} text-white shadow-lg`}
               >
                 <Lock className="w-10 h-10" />
               </div>
@@ -482,7 +482,7 @@ export default function CheatSheetsPage() {
                   setPremiumModalId(null);
                   router.push("/subscription/upgrade");
                 }}
-                className={`flex-1 rounded-lg bg-gradient-to-r ${moodColors.gradient} px-4 py-3 font-medium text-white hover:shadow-lg transition-all`}
+                className={`flex-1 rounded-lg bg-linear-to-r ${moodColors.gradient} px-4 py-3 font-medium text-white hover:shadow-lg transition-all`}
               >
                 Upgrade Now
               </button>

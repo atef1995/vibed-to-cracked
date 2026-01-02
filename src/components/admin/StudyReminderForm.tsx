@@ -221,7 +221,7 @@ export default function StudyReminderForm() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Reminder Email Preview</h3>
             <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
               <div className="bg-white rounded-md p-4 shadow-sm">
-                <div className="bg-gradient-to-r from-blue-400 to-cyan-400 text-white p-4 rounded-t-md">
+                <div className="bg-linear-to-r from-blue-400 to-cyan-400 text-white p-4 rounded-t-md">
                   <h2 className="text-xl font-bold">Your Code is Calling! 💻</h2>
                   <p className="text-sm opacity-90">Time to get back in the chill zone</p>
                 </div>

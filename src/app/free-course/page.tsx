@@ -38,7 +38,7 @@ export default function FreeCoursePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-16 max-w-4xl">
         {/* Hero Section */}
         <motion.div
@@ -48,7 +48,7 @@ export default function FreeCoursePage() {
           transition={{ duration: 0.8 }}
         >
           <motion.div
-            className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6"
+            className="inline-block bg-linear-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-6"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -59,7 +59,7 @@ export default function FreeCoursePage() {
           <h1 className="text-5xl font-bold text-gray-900 dark:text-gray-100 mb-6">
             Master JavaScript in
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-purple-600">
               5 Days or Less
             </span>
           </h1>
@@ -75,7 +75,7 @@ export default function FreeCoursePage() {
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
-                  className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-white dark:border-gray-900"
+                  className="w-8 h-8 rounded-full bg-linear-to-r from-blue-500 to-purple-500 border-2 border-white dark:border-gray-900"
                 />
               ))}
             </div>
@@ -154,7 +154,7 @@ export default function FreeCoursePage() {
         {/* Email Form */}
         {!submitted ? (
           <motion.div
-            className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-12 shadow-xl"
+            className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl p-8 mb-12 shadow-xl"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.5 }}

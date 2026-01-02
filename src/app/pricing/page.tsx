@@ -228,12 +228,12 @@ export default function PricingPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${moodColors.gradient}`}>
+    <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
       <div className="container mx-auto px-4 py-12">
         {/* Early Bird Pricing Banner */}
         {!isExistingSubscriber && (
           <div className="mb-8 mx-auto max-w-2xl">
-            <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg shadow-lg text-center">
+            <div className="bg-linear-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-lg shadow-lg text-center">
               <div className="font-bold text-lg">🔥 Early Adopter Pricing - Limited Time</div>
               <div className="text-sm mt-1">Lock in this price forever. Prices increase as we add more features.</div>
             </div>
@@ -531,7 +531,7 @@ export default function PricingPage() {
 
         {/* Financial Assistance Section */}
         <div className="mt-16 max-w-3xl mx-auto">
-          <div className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 text-center border border-purple-200 dark:border-purple-800">
+          <div className="bg-linear-to-r from-purple-100 to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-8 text-center border border-purple-200 dark:border-purple-800">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               💝 Can&apos;t Afford Premium?
             </h3>
@@ -543,7 +543,7 @@ export default function PricingPage() {
             </p>
             <Link
               href="/free-access"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-linear-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-colors"
             >
               <span>💝</span>
               Request Free Access
