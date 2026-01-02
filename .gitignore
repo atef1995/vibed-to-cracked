@@ -99,3 +99,13 @@ build.log
 docs/TUTORIAL_CREATION_BIBLE.md
 .claude/
 .github/
+
+# ============================================
+# PREMIUM CONTENT - LOCAL ONLY, NOT IN REPO
+# ============================================
+
+# Database seed files (contain premium quiz/tutorial data)
+scripts/dbSeeds/seeds/
+
+# MDX tutorial content (premium content stored in database)
+src/content/tutorials/
