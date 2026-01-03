@@ -15,20 +15,24 @@ interface CrackedGlitchProps {
 export default function CrackedGlitch({
   children,
   text = "Cracked",
-  className = "text-purple-600",
+  className = "text-red-600",
   style = {},
   size = "large",
-  intensity = "medium"
+  intensity = "medium",
 }: CrackedGlitchProps) {
   // Intensity multipliers for different effect levels
-  const intensityMultiplier = intensity === "low" ? 0.7 : intensity === "high" ? 1.3 : 1;
-  
+  const intensityMultiplier =
+    intensity === "low" ? 0.7 : intensity === "high" ? 1.3 : 1;
+
   // Slowed down timing configurations with intensity scaling
   const baseShakeDuration = (size === "large" ? 6 : 4) * intensityMultiplier;
-  const pixelCorruptionRepeatDelay = (size === "large" ? 8 : 6) / intensityMultiplier;
-  const fragmentationRepeatDelay = (size === "large" ? 10 : 8) / intensityMultiplier;
+  const pixelCorruptionRepeatDelay =
+    (size === "large" ? 8 : 6) / intensityMultiplier;
+  const fragmentationRepeatDelay =
+    (size === "large" ? 10 : 8) / intensityMultiplier;
   const scanLineRepeatDelay = (size === "large" ? 12 : 9) / intensityMultiplier;
-  const deadPixelRepeatDelay = (size === "large" ? 6 : 4.5) / intensityMultiplier;
+  const deadPixelRepeatDelay =
+    (size === "large" ? 6 : 4.5) / intensityMultiplier;
 
   const pixelBlockCount = size === "large" ? 15 : 8;
   const largeBlockCount = size === "large" ? 5 : 3;
@@ -36,7 +40,8 @@ export default function CrackedGlitch({
   const deadPixelCount = size === "large" ? 20 : 6;
 
   const pixelBlockSize = useMemo(
-    () => (size === "large" ? { base: 2, variance: 4 } : { base: 1, variance: 2 }),
+    () =>
+      size === "large" ? { base: 2, variance: 4 } : { base: 1, variance: 2 },
     [size]
   );
   const deadPixelSize = size === "large" ? "1px" : "0.5px";
@@ -49,7 +54,8 @@ export default function CrackedGlitch({
       height: `${pixelBlockSize.base + (i % 3)}px`,
       left: `${(i * 7) % 95}%`,
       top: `${(i * 11) % 90}%`,
-      backgroundColor: i % 3 === 0 ? "#ff0080" : i % 3 === 1 ? "#00ffff" : "#ffffff",
+      backgroundColor:
+        i % 3 === 0 ? "#ff0080" : i % 3 === 1 ? "#00ffff" : "#ffffff",
       animationDelay: i * 0.02,
       moveX: i % 2 ? 2 : -2,
       moveY: i % 3 ? 1 : -1,
@@ -86,9 +92,9 @@ export default function CrackedGlitch({
         times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
       }}
       style={{
-        filter: "drop-shadow(0 0 8px rgba(147, 51, 234, 0.5))",
+        filter: "drop-shadow(0 0 8px rgba(100, 0, 0, 0.5))",
         textShadow:
-          "0 0 10px rgba(147, 51, 234, 0.3), 0 0 20px rgba(147, 51, 234, 0.2)",
+          "0 0 10px rgba(500, 0, 0, 0.3), 0 0 20px rgba(300, 0, 0, 0.2)",
         ...style,
       }}
     >

@@ -17,10 +17,7 @@ import {
   Stars,
   Trophy,
   Droplets,
-  Target as TargetIcon,
   Code2,
-  Video,
-  Smartphone,
   Check,
 } from "lucide-react";
 import { MOODS } from "@/lib/moods";
@@ -28,6 +25,7 @@ import { getMoodIcon } from "@/lib/getMoodIcon";
 import { MoodCard } from "@/components/MoodCard";
 import CrackedGlitch from "@/components/ui/CrackedGlitch";
 import { NewYear2026Banner } from "@/components/ui/NewYear2026Banner";
+import { useCategories } from "@/hooks/useTutorialQueries";
 
 export default function HomePage() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
@@ -35,6 +33,21 @@ export default function HomePage() {
   const [backgroundElements, setBackgroundElements] = useState<
     Array<{ left: string; top: string }>
   >([]);
+
+  // Fetch categories using existing hook
+  const { data: categoriesData } = useCategories(1, 20);
+  const categories = categoriesData?.data || [];
+
+  // Filter categories by difficulty level from DB
+  const beginnerCategories = categories
+    .filter((c) => c.difficulty === "beginner")
+    .sort((a, b) => a.order - b.order);
+  const intermediateCategories = categories
+    .filter((c) => c.difficulty === "intermediate")
+    .sort((a, b) => a.order - b.order);
+  const advancedCategories = categories
+    .filter((c) => c.difficulty === "advanced")
+    .sort((a, b) => a.order - b.order);
 
   // Generate random positions only on client side to avoid hydration mismatch
   useEffect(() => {
@@ -84,21 +97,21 @@ export default function HomePage() {
         return {
           particles: [Dumbbell, Settings, Target],
           message: "Grind Mode Engaged!",
-          color: "from-purple-500 to-red-500",
+          color: "from-red-500 to-red-500",
           animation: "pulse",
         };
       default:
         return {
           particles: [Sparkles, Stars, Trophy],
           message: "Let's Go!",
-          color: "from-blue-400 to-purple-400",
+          color: "from-blue-400 to-red-400",
           animation: "bounce",
         };
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
       {/* 2026 New Year Banner */}
       <NewYear2026Banner variant="banner" />
 
@@ -107,7 +120,7 @@ export default function HomePage() {
         {backgroundElements.map((element, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-linear-to-r from-blue-200/20 to-purple-200/20 dark:from-blue-800/20 dark:to-purple-800/20 blur-xl"
+            className="absolute rounded-full bg-linear-to-r from-blue-200/20 to-red-200/20 dark:from-blue-800/20 dark:to-red-800/20 blur-xl"
             style={{
               width: `${100 + i * 50}px`,
               height: `${100 + i * 50}px`,
@@ -147,7 +160,7 @@ export default function HomePage() {
           >
             From <span className="text-blue-600">Vibed</span> to{" "}
             <CrackedGlitch
-              className="text-purple-600"
+              className="text-red-600"
               size="large"
               intensity="medium"
             />
@@ -442,25 +455,9 @@ export default function HomePage() {
                 <div className="h-px flex-1 bg-linear-to-r from-green-300 to-transparent dark:from-green-700"></div>
               </div>
               <div className="grid md:grid-cols-3 gap-4">
-                {[
-                  {
-                    title: "JavaScript Fundamentals",
-                    duration: "4-6 hrs",
-                    topics: "Variables, Functions, Arrays",
-                  },
-                  {
-                    title: "HTML Essentials",
-                    duration: "2-3 hrs",
-                    topics: "Structure, Forms, Semantic HTML",
-                  },
-                  {
-                    title: "CSS Styling",
-                    duration: "3-4 hrs",
-                    topics: "Flexbox, Grid, Animations",
-                  },
-                ].map((module, idx) => (
+                {beginnerCategories.map((category, idx) => (
                   <motion.div
-                    key={module.title}
+                    key={category.slug}
                     className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -470,15 +467,15 @@ export default function HomePage() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                        {module.title}
+                        {category.title}
                       </h3>
-                      <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <Check className="w-5 h-5 text-green-500 shrink-0" />
                     </div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                      {module.topics}
+                      {category.topics.slice(0, 3).join(", ")}
                     </p>
                     <div className="text-xs text-gray-500 dark:text-gray-500">
-                      {module.duration}
+                      {category.duration}
                     </div>
                   </motion.div>
                 ))}
@@ -500,30 +497,9 @@ export default function HomePage() {
                 <div className="h-px flex-1 bg-linear-to-r from-blue-300 to-transparent dark:from-blue-700"></div>
               </div>
               <div className="grid md:grid-cols-4 gap-4">
-                {[
-                  {
-                    title: "DOM Manipulation",
-                    duration: "2-3 hrs",
-                    topics: "Events, Dynamic Pages",
-                  },
-                  {
-                    title: "OOP Typescript",
-                    duration: "3-4 hrs",
-                    topics: "Classes, Inheritance",
-                  },
-                  {
-                    title: "Async Programming",
-                    duration: "2-3 hrs",
-                    topics: "Promises, Async/Await",
-                  },
-                  {
-                    title: "Data Structures",
-                    duration: "4-6 hrs",
-                    topics: "Arrays, Objects, Maps",
-                  },
-                ].map((module, idx) => (
+                {intermediateCategories.map((category, idx) => (
                   <motion.div
-                    key={module.title}
+                    key={category.slug}
                     className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -533,15 +509,15 @@ export default function HomePage() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                        {module.title}
+                        {category.title}
                       </h3>
-                      <Check className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                      <Check className="w-5 h-5 text-blue-500 shrink-0" />
                     </div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                      {module.topics}
+                      {category.topics.slice(0, 3).join(", ")}
                     </p>
                     <div className="text-xs text-gray-500 dark:text-gray-500">
-                      {module.duration}
+                      {category.duration}
                     </div>
                   </motion.div>
                 ))}
@@ -556,31 +532,15 @@ export default function HomePage() {
               transition={{ duration: 0.6, delay: 0.6 }}
             >
               <div className="flex items-center gap-3 mb-4">
-                <div className="bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 px-3 py-1 rounded-full text-sm font-semibold">
                   Level 3: Advanced
                 </div>
-                <div className="h-px flex-1 bg-linear-to-r from-purple-300 to-transparent dark:from-purple-700"></div>
+                <div className="h-px flex-1 bg-linear-to-r from-red-300 to-transparent dark:from-red-700"></div>
               </div>
               <div className="grid md:grid-cols-3 gap-4">
-                {[
-                  {
-                    title: "Advanced JavaScript",
-                    duration: "5-8 hrs",
-                    topics: "Closures, Patterns, Performance",
-                  },
-                  {
-                    title: "Node.js & APIs",
-                    duration: "6-8 hrs",
-                    topics: "Express, REST APIs, Databases",
-                  },
-                  {
-                    title: "Git & GitHub",
-                    duration: "2-3 hrs",
-                    topics: "Version Control, Collaboration",
-                  },
-                ].map((module, idx) => (
+                {advancedCategories.map((category, idx) => (
                   <motion.div
-                    key={module.title}
+                    key={category.slug}
                     className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700"
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -590,15 +550,15 @@ export default function HomePage() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                        {module.title}
+                        {category.title}
                       </h3>
-                      <Check className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                      <Check className="w-5 h-5 text-red-500 shrink-0" />
                     </div>
                     <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
-                      {module.topics}
+                      {category.topics.slice(0, 3).join(", ")}
                     </p>
                     <div className="text-xs text-gray-500 dark:text-gray-500">
-                      {module.duration}
+                      {category.duration}
                     </div>
                   </motion.div>
                 ))}
@@ -613,7 +573,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.8 }}
             >
-              <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold">
+              <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-red-600 text-white px-6 py-3 rounded-lg font-semibold">
                 <Trophy className="w-5 h-5" />
                 Complete Curriculum: 40-60 hours to job-ready skills
               </div>
@@ -638,7 +598,7 @@ export default function HomePage() {
           >
             Why <span className="text-blue-600">Vibed</span> to{" "}
             <CrackedGlitch
-              className="text-purple-600"
+              className="text-red-600"
               size="small"
               intensity="low"
             />
@@ -798,7 +758,7 @@ export default function HomePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <thead className="bg-linear-to-r from-blue-600 to-purple-600 text-white">
+              <thead className="bg-linear-to-r from-blue-600 to-red-600 text-white">
                 <tr>
                   <th className="px-6 py-4 text-left font-semibold">Feature</th>
                   <th className="px-6 py-4 text-center font-semibold">
@@ -972,7 +932,7 @@ export default function HomePage() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 href="/dashboard"
-                className="inline-block bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity"
+                className="inline-block bg-linear-to-r from-blue-600 to-red-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:opacity-90 transition-opacity"
               >
                 Get Started Free
               </Link>
@@ -1033,7 +993,7 @@ export default function HomePage() {
             Can&apos;t afford premium?{" "}
             <Link
               href="/free-access"
-              className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 underline"
+              className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 underline"
             >
               Request free access
             </Link>{" "}

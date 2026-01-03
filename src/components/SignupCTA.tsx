@@ -26,7 +26,7 @@ export function SignupCTA({
   if (variant === "banner" && showBenefits) {
     return (
       <div
-        className={`bg-linear-to-r from-blue-500 to-purple-600 dark:from-blue-800/70 dark:from-60% dark:to-purple-800/70 text-white rounded-2xl p-8 shadow-xl ${className}`}
+        className={`bg-linear-to-r from-blue-500 to-red-600 dark:from-blue-800/70 dark:from-60% dark:to-red-800/70 text-white rounded-2xl p-8 shadow-xl ${className}`}
       >
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center gap-2 mb-4">
@@ -76,7 +76,7 @@ export function SignupCTA({
           </div>
           <Link
             href="/auth/signin"
-            className="inline-flex items-center gap-2 bg-white dark:bg-purple-800 dark:text-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-50 transition-all hover:scale-105 shadow-lg"
+            className="inline-flex items-center gap-2 bg-white dark:bg-red-800 dark:text-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-blue-50 transition-all hover:scale-105 shadow-lg"
           >
             Sign Up Free - It&apos;s Quick!
             <ArrowRight className="h-5 w-5" />
@@ -93,7 +93,7 @@ export function SignupCTA({
     return (
       <Link
         href="/auth/signin"
-        className={`inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-purple-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-105 shadow-lg ${className}`}
+        className={`inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-red-600 text-white px-8 py-4 rounded-full font-bold text-lg hover:from-blue-700 hover:to-red-700 transition-all hover:scale-105 shadow-lg ${className}`}
       >
         {displayMessage}
         <ArrowRight className="h-5 w-5" />
@@ -128,7 +128,7 @@ export function SignupCTA({
   // Banner variant (without benefits)
   return (
     <div
-      className={`bg-linear-to-r from-blue-500 to-purple-600 text-white rounded-xl p-6 shadow-lg flex items-center justify-between ${className}`}
+      className={`bg-linear-to-r from-blue-500 to-red-600 text-white rounded-xl p-6 shadow-lg flex items-center justify-between ${className}`}
     >
       <div>
         <p className="font-bold text-lg mb-1">{displayMessage}</p>

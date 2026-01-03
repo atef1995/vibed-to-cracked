@@ -11,6 +11,7 @@ import {
   GitPullRequest,
   ToolCase,
   Zap,
+  Gamepad,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "./ui/PageLayout";
@@ -22,7 +23,7 @@ export function AnonymousDashboard() {
       <div className="container">
         {/* Hero Section */}
         <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
+          <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
             <Sparkles className="h-4 w-4" />
             Welcome to Vibed to Cracked
           </div>
@@ -117,10 +118,10 @@ export function AnonymousDashboard() {
 
             <Link
               href="/practice"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-400 dark:shadow-xl group relative"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-red-200 dark:hover:border-red-400 dark:shadow-xl group relative"
             >
               <div className="mb-4 flex justify-center">
-                <Code className="h-12 w-12 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform" />
+                <Code className="h-12 w-12 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
                 Practice
@@ -128,7 +129,7 @@ export function AnonymousDashboard() {
               <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
                 Code challenges and exercises to test your skills
               </p>
-              <div className="text-sm text-purple-600 dark:text-purple-400 font-semibold text-center">
+              <div className="text-sm text-red-600 dark:text-red-400 font-semibold text-center">
                 Start Coding →
               </div>
             </Link>
@@ -192,6 +193,23 @@ export function AnonymousDashboard() {
               </p>
               <div className="text-sm text-cyan-600 dark:text-cyan-400 font-semibold text-center">
                 Start Contributing →
+              </div>
+            </Link>
+            <Link
+              href="/quiz-challenge"
+              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl group relative"
+            >
+              <div className="mb-4 flex justify-center">
+                <Gamepad className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+                Quiz game
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+                Test your knowledge in programming
+              </p>
+              <div className="text-sm text-green-600 dark:text-green-400 font-semibold text-center">
+                Start →
               </div>
             </Link>
 

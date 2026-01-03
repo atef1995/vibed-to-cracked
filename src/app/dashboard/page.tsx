@@ -14,6 +14,7 @@ import {
   GitPullRequest,
   FileText,
   Zap,
+  Gamepad,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "@/components/ui/PageLayout";
@@ -173,7 +174,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Additional Features */}
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-4 gap-6">
           <Link
             href="/cheat-sheets"
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-yellow-200 dark:hover:border-yellow-400 dark:shadow-xl"
@@ -208,6 +209,23 @@ export default function DashboardPage() {
             </p>
             <div className="text-sm text-cyan-600 dark:text-cyan-400 font-semibold">
               Start Contributing →
+            </div>
+          </Link>
+          <Link
+            href="/quiz-challenge"
+            className=" min-h-full flex flex-col justify-between bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl"
+          >
+            <div className="mb-4 flex justify-center">
+              <Gamepad className="h-8 w-8 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Quiz Challenge Game
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Test Your knowledge in programming
+            </p>
+            <div className="text-sm text-green-600 dark:text-green-400 font-semibold">
+              Start Playing →
             </div>
           </Link>
 

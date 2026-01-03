@@ -14,81 +14,79 @@ import {
   Play,
   Trophy,
   Flame,
+  BookOpen,
 } from "lucide-react";
 import { useQuizzes } from "@/hooks/useQuizzes";
+import { useCategories } from "@/hooks/useTutorialQueries";
 import { PageLayout } from "@/components/ui/PageLayout";
 
-interface CategoryOption {
-  id: string;
-  name: string;
-  icon: React.ElementType;
-  gradient: string;
-  description: string;
-}
+// Icon mapping for categories
+const CATEGORY_ICONS: Record<string, React.ElementType> = {
+  javascript: Code,
+  fundamentals: Code,
+  react: Zap,
+  css: Palette,
+  html: Layout,
+  "data-structures": Database,
+  nodejs: Server,
+  dom: Layout,
+  oop: Code,
+  async: Zap,
+  advanced: Code,
+  github: Server,
+};
 
-const CATEGORIES: CategoryOption[] = [
-  {
-    id: "mix",
-    name: "Mix It Up! 🎲",
-    icon: Shuffle,
-    gradient: "from-purple-500 via-pink-500 to-red-500",
-    description: "Random questions from all categories",
-  },
-  {
-    id: "javascript",
-    name: "JavaScript",
-    icon: Code,
-    gradient: "from-yellow-400 to-orange-500",
-    description: "Variables, functions, async & more",
-  },
-  {
-    id: "react",
-    name: "React",
-    icon: Zap,
-    gradient: "from-cyan-400 to-blue-500",
-    description: "Components, hooks, state management",
-  },
-  {
-    id: "css",
-    name: "CSS & Styling",
-    icon: Palette,
-    gradient: "from-pink-400 to-purple-500",
-    description: "Flexbox, Grid, animations",
-  },
-  {
-    id: "html",
-    name: "HTML",
-    icon: Layout,
-    gradient: "from-orange-400 to-red-500",
-    description: "Semantic HTML, accessibility",
-  },
-  {
-    id: "data-structures",
-    name: "DSA",
-    icon: Database,
-    gradient: "from-green-400 to-emerald-500",
-    description: "Arrays, algorithms, Big O",
-  },
-  {
-    id: "nodejs",
-    name: "Node.js",
-    icon: Server,
-    gradient: "from-lime-400 to-green-500",
-    description: "Backend, APIs, Express",
-  },
-];
+// Gradient mapping for categories
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  javascript: "from-yellow-400 to-orange-500",
+  fundamentals: "from-yellow-400 to-orange-500",
+  react: "from-cyan-400 to-blue-500",
+  css: "from-pink-400 to-purple-500",
+  html: "from-orange-400 to-red-500",
+  "data-structures": "from-green-400 to-emerald-500",
+  nodejs: "from-lime-400 to-green-500",
+  dom: "from-blue-400 to-indigo-500",
+  oop: "from-violet-400 to-purple-500",
+  async: "from-teal-400 to-cyan-500",
+  advanced: "from-red-400 to-pink-500",
+  github: "from-gray-400 to-slate-500",
+};
 
 export default function QuizChallengePage() {
   const router = useRouter();
-  const { data: quizzes, isLoading } = useQuizzes();
+  const { data: quizzes, isLoading: quizzesLoading } = useQuizzes();
+  const { data: categoriesData, isLoading: categoriesLoading } = useCategories(
+    1,
+    20
+  );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [questionCount, setQuestionCount] = useState(10);
 
-  // Get available categories based on actual quizzes
-  const availableCategories = CATEGORIES.filter((cat) => {
+  const isLoading = quizzesLoading || categoriesLoading;
+  const categories = categoriesData?.data || [];
+
+  // Build category options from DB categories
+  const categoryOptions = [
+    {
+      id: "mix",
+      name: "Mix It Up!",
+      icon: Shuffle,
+      gradient: "from-purple-500 via-pink-500 to-red-500",
+      description: "Random questions from all categories",
+    },
+    ...categories.map((cat) => ({
+      id: cat.slug,
+      name: cat.title,
+      icon: CATEGORY_ICONS[cat.slug] || BookOpen,
+      gradient: CATEGORY_GRADIENTS[cat.slug] || "from-gray-400 to-slate-500",
+      description: cat.topics.slice(0, 3).join(", "),
+    })),
+  ];
+
+  // Filter to only show categories that have quizzes
+  const availableCategories = categoryOptions.filter((cat) => {
     if (cat.id === "mix") return true;
     if (!quizzes) return false;
-    // Check if any quiz title/slug contains the category keyword
     return quizzes.some(
       (q) =>
         q.slug.toLowerCase().includes(cat.id) ||
@@ -289,7 +287,7 @@ export default function QuizChallengePage() {
               <span>
                 Category:{" "}
                 <span className="text-white font-medium">
-                  {CATEGORIES.find((c) => c.id === selectedCategory)?.name}
+                  {categoryOptions.find((c) => c.id === selectedCategory)?.name}
                 </span>
               </span>
               <span>

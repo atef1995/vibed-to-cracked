@@ -97,9 +97,11 @@ export class TutorialService {
   /**
    * Get a tutorial by its MDX file path (used for security checks and content retrieval)
    */
-  static async getTutorialByMdxFile(
-    mdxFile: string
-  ): Promise<{ isPremium: boolean; requiredPlan: string | null; content: string | null } | null> {
+  static async getTutorialByMdxFile(mdxFile: string): Promise<{
+    isPremium: boolean;
+    requiredPlan: string | null;
+    content: string | null;
+  } | null> {
     try {
       const tutorial = await prisma.tutorial.findFirst({
         where: {
@@ -177,7 +179,7 @@ export class TutorialService {
   }
 
   /**
-   * Get all available tutorial categories
+   * Get all available tutorial categories (duration is stored in DB)
    */
   static async getCategories(): Promise<Category[]> {
     try {
@@ -205,7 +207,7 @@ export class TutorialService {
     })[]
   > {
     try {
-      // Get categories with tutorial counts using Prisma _count
+      // Get categories with tutorial counts
       const categoriesWithCounts = await prisma.category.findMany({
         where: {
           published: true,
@@ -293,7 +295,7 @@ export class TutorialService {
   }
 
   /**
-   * Get a specific category by slug
+   * Get a specific category by slug (duration is stored in DB)
    */
   static async getCategoryBySlug(slug: string): Promise<Category | null> {
     try {

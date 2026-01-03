@@ -23,13 +23,13 @@ import {
   ChevronDown,
   FileText,
 } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 
 export function Header() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -65,9 +65,9 @@ export function Header() {
       icon: Code,
       colors: {
         desktop:
-          "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
+          "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
         mobile:
-          "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
+          "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
       },
     },
     {
@@ -142,9 +142,9 @@ export function Header() {
       icon: FileText,
       colors: {
         desktop:
-          "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
+          "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
         mobile:
-          "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
+          "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
       },
     },
     {
@@ -172,7 +172,7 @@ export function Header() {
           <Link href="/" className="text-xl sm:text-2xl font-bold">
             <span className="text-blue-600">Vibed</span>{" "}
             <span className="inline">to </span>
-            <span className="text-purple-600">Cracked</span>
+            <span className="text-red-600">Cracked</span>
           </Link>
 
           {/* Navigation - Desktop Only */}

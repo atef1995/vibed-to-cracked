@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import {
@@ -15,7 +16,11 @@ import {
   Home,
   Zap,
   Share2,
+  BookOpen,
+  Clock,
+  ArrowRight,
 } from "lucide-react";
+import type { TutorialWithCategory } from "@/types/tutorial";
 import { useQuizzes, Question } from "@/hooks/useQuizzes";
 import { PageLayout } from "@/components/ui/PageLayout";
 
@@ -39,11 +44,19 @@ export default function QuizChallengePlayPage() {
   // Fetch all quizzes
   const { data: quizzes, isLoading, error } = useQuizzes();
 
+  // State for reshuffling questions
+  const [shuffleKey, setShuffleKey] = useState(0);
+
   // Filter and randomize questions based on category
   const gameQuestions = useMemo(() => {
     if (!quizzes || quizzes.length === 0) return [];
 
-    const allQuestions: (Question & { quizTitle: string; quizCategory: string })[] = [];
+    const allQuestions: (Question & {
+      quizTitle: string;
+      quizCategory: string;
+      shuffledOptions: string[];
+      correctIndex: number;
+    })[] = [];
 
     quizzes.forEach((quiz) => {
       // Filter by category if not "mix"
@@ -59,17 +72,35 @@ export default function QuizChallengePlayPage() {
 
       // Add questions with quiz title and category for context
       quiz.questions.forEach((q) => {
+        // Skip questions with missing or invalid data
+        if (!q.options || !Array.isArray(q.options) || q.options.length === 0)
+          return;
+        if (
+          q.correct === undefined ||
+          q.correct < 0 ||
+          q.correct >= q.options.length
+        )
+          return;
+
+        // Shuffle options and track correct answer's new index
+        const correctAnswer = q.options[q.correct];
+        const shuffledOptions = shuffleArray([...q.options]);
+        const correctIndex = shuffledOptions.indexOf(correctAnswer);
+
         allQuestions.push({
           ...q,
           quizTitle: quiz.title,
           quizCategory,
+          shuffledOptions,
+          correctIndex,
         });
       });
     });
 
     // Shuffle and take requested count
     return shuffleArray(allQuestions).slice(0, questionCount);
-  }, [quizzes, category, questionCount]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizzes, category, questionCount, shuffleKey]);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -79,11 +110,66 @@ export default function QuizChallengePlayPage() {
   const [maxStreak, setMaxStreak] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [wrongCategories, setWrongCategories] = useState<string[]>([]);
+  const [recommendations, setRecommendations] = useState<
+    TutorialWithCategory[]
+  >([]);
+
+  // Fetch tutorial recommendations based on wrong answers when quiz is complete
+  useEffect(() => {
+    if (!isComplete) return;
+
+    async function fetchRecommendations() {
+      try {
+        // Get unique categories where user got answers wrong
+        const uniqueWrongCategories = [...new Set(wrongCategories)];
+
+        if (uniqueWrongCategories.length > 0) {
+          // Fetch tutorials from categories user struggled with
+          const fetchPromises = uniqueWrongCategories
+            .slice(0, 2)
+            .map((cat) =>
+              fetch(`/api/tutorials/category/${cat}?limit=2`).then((res) =>
+                res.ok ? res.json() : null
+              )
+            );
+          const results = await Promise.all(fetchPromises);
+          const tutorials = results
+            .filter(Boolean)
+            .flatMap((data) => data.data || [])
+            .slice(0, 3);
+          setRecommendations(tutorials);
+        } else if (category === "mix") {
+          // Perfect score on mix - fetch random tutorials
+          const response = await fetch("/api/tutorials?limit=3");
+          if (response.ok) {
+            const data = await response.json();
+            setRecommendations(data.data || []);
+          }
+        } else {
+          // Perfect score on specific category - fetch from that category
+          const response = await fetch(
+            `/api/tutorials/category/${category}?limit=3`
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setRecommendations(data.data || []);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching recommendations:", error);
+      }
+    }
+
+    fetchRecommendations();
+  }, [isComplete, category]);
 
   const currentQuestion = gameQuestions[currentQuestionIndex];
   const totalQuestions = gameQuestions.length;
   const progress =
-    totalQuestions > 0 ? ((currentQuestionIndex + 1) / totalQuestions) * 100 : 0;
+    totalQuestions > 0
+      ? ((currentQuestionIndex + 1) / totalQuestions) * 100
+      : 0;
 
   // Fire confetti for correct answers
   const fireConfetti = useCallback(() => {
@@ -131,7 +217,7 @@ export default function QuizChallengePlayPage() {
     setSelectedAnswer(index);
     setShowResult(true);
 
-    const isCorrect = index === currentQuestion?.correct;
+    const isCorrect = index === currentQuestion?.correctIndex;
 
     if (isCorrect) {
       setScore((prev) => prev + 1);
@@ -142,6 +228,10 @@ export default function QuizChallengePlayPage() {
     } else {
       setStreak(0);
       fireSadEffect();
+      // Track the category of the wrong answer for recommendations
+      if (currentQuestion?.quizCategory) {
+        setWrongCategories((prev) => [...prev, currentQuestion.quizCategory]);
+      }
     }
 
     // Show explanation after delay
@@ -156,6 +246,7 @@ export default function QuizChallengePlayPage() {
       setSelectedAnswer(null);
       setShowResult(false);
       setShowExplanation(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setIsComplete(true);
       if (score >= totalQuestions * 0.7) {
@@ -170,8 +261,8 @@ export default function QuizChallengePlayPage() {
   };
 
   const handleRestart = () => {
-    // Reshuffle questions for a new game
-    router.refresh();
+    // Reshuffle questions for a new game by changing shuffleKey
+    setShuffleKey((prev) => prev + 1);
     setCurrentQuestionIndex(0);
     setSelectedAnswer(null);
     setShowResult(false);
@@ -180,6 +271,8 @@ export default function QuizChallengePlayPage() {
     setStreak(0);
     setMaxStreak(0);
     setIsComplete(false);
+    setWrongCategories([]);
+    setRecommendations([]);
   };
 
   const handleShare = async () => {
@@ -216,7 +309,9 @@ export default function QuizChallengePlayPage() {
       <div className="min-h-screen bg-linear-to-br from-purple-900 via-indigo-900 to-black flex items-center justify-center">
         <div className="text-center">
           <p className="text-white text-2xl mb-4">
-            {error ? "Something went wrong 😢" : "No questions found for this category 🤔"}
+            {error
+              ? "Something went wrong 😢"
+              : "No questions found for this category 🤔"}
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -240,7 +335,7 @@ export default function QuizChallengePlayPage() {
     const title = isPerfect ? "PERFECT!" : passed ? "CRUSHED IT!" : "Almost!";
 
     return (
-      <PageLayout>
+      <PageLayout className="flex items-center justify-center">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -277,7 +372,9 @@ export default function QuizChallengePlayPage() {
             <div className="bg-white/10 backdrop-blur rounded-2xl p-4">
               <div className="flex items-center justify-center gap-2 mb-1">
                 <Flame className="w-5 h-5 text-orange-400" />
-                <span className="text-2xl font-bold text-white">{maxStreak}</span>
+                <span className="text-2xl font-bold text-white">
+                  {maxStreak}
+                </span>
               </div>
               <p className="text-gray-400 text-sm">Best Streak</p>
             </div>
@@ -308,7 +405,7 @@ export default function QuizChallengePlayPage() {
               className="w-full py-4 bg-linear-to-r from-purple-500 to-pink-500 rounded-2xl text-white font-bold text-xl flex items-center justify-center gap-3"
             >
               <RotateCcw className="w-6 h-6" />
-              Play Again
+              Retry
             </motion.button>
 
             <motion.button
@@ -321,6 +418,62 @@ export default function QuizChallengePlayPage() {
               Change Category
             </motion.button>
           </div>
+
+          {/* Tutorial Recommendations */}
+          {recommendations.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="mt-8 w-full max-w-2xl"
+            >
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-blue-400" />
+                {wrongCategories.length > 0
+                  ? "Brush up on these topics"
+                  : "Keep learning"}
+              </h3>
+              <div className="space-y-3">
+                {recommendations.map((tutorial) => (
+                  <Link
+                    key={tutorial.id}
+                    href={`/tutorials/category/${tutorial.category.slug}/${tutorial.slug}`}
+                    className="block"
+                  >
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      className="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/10 hover:border-blue-400/50 transition-colors"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-gray-400 mb-1">
+                            {tutorial.category.title}
+                          </p>
+                          <h4 className="font-semibold text-white truncate">
+                            {tutorial.title}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-2 text-sm text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {tutorial.estimatedTime} min
+                            </span>
+                          </div>
+                        </div>
+                        <ArrowRight className="w-5 h-5 text-gray-400 shrink-0" />
+                      </div>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/tutorials"
+                className="mt-4 inline-flex items-center gap-2 text-sm text-gray-400 hover:text-blue-400 transition-colors"
+              >
+                <span>Explore all tutorials</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
+          )}
         </motion.div>
       </PageLayout>
     );
@@ -410,9 +563,9 @@ export default function QuizChallengePlayPage() {
 
             {/* Options */}
             <div className="space-y-4">
-              {currentQuestion?.options.map((option, index) => {
+              {currentQuestion?.shuffledOptions.map((option, index) => {
                 const isSelected = selectedAnswer === index;
-                const isCorrect = index === currentQuestion.correct;
+                const isCorrect = index === currentQuestion.correctIndex;
                 const showAsCorrect = showResult && isCorrect;
                 const showAsWrong = showResult && isSelected && !isCorrect;
 
