@@ -3,6 +3,7 @@
 import React from "react";
 import { MDXRemote } from "next-mdx-remote";
 import InteractiveCodeBlock from "@/components/InteractiveCodeBlock";
+import dynamic from "next/dynamic";
 import { DOMInteractiveBlock } from "@/components/ui/DOMInteractiveBlock";
 import { HTMLPreviewWindow } from "@/components/ui/HTMLPreviewWindow";
 import { HTMLEditorPreview } from "@/components/ui/HTMLEditorPreview";
@@ -21,6 +22,12 @@ import { TutorialRecommendations } from "./TutorialRecommendations";
 import { SlidingWindowVisualizer } from "../visualizer/examples/SlidingWindowVisualizer";
 import { HashTableVisualizer } from "../visualizer/examples/HashTableVisualizer";
 import { ReactEditorPreview } from "../ui/ReactEditorPreview";
+
+// Lazy load MultiFileCodeEditor to avoid SSR issues with WebContainer
+const MultiFileCodeEditor = dynamic(
+  () => import("@/components/MultiFileCodeEditor"),
+  { ssr: false }
+);
 
 interface TutorialContentProps {
   tutorial: TutorialData;
@@ -122,6 +129,7 @@ const createHeadingComponent = (level: 1 | 2 | 3 | 4) => {
 // MDX components configuration
 const mdxComponents = {
   InteractiveCodeBlock,
+  MultiFileCodeEditor,
   DOMInteractiveBlock,
   HTMLPreviewWindow,
   HTMLEditorPreview,
@@ -239,10 +247,16 @@ const mdxComponents = {
     <thead className="bg-gray-50 dark:bg-gray-700/50" {...props} />
   ),
   tbody: (props: React.HTMLAttributes<HTMLTableSectionElement>) => (
-    <tbody className="divide-y divide-gray-200 dark:divide-gray-700" {...props} />
+    <tbody
+      className="divide-y divide-gray-200 dark:divide-gray-700"
+      {...props}
+    />
   ),
   tr: (props: React.HTMLAttributes<HTMLTableRowElement>) => (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors" {...props} />
+    <tr
+      className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+      {...props}
+    />
   ),
   th: (props: React.HTMLAttributes<HTMLTableCellElement>) => (
     <th

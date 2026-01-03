@@ -2,7 +2,6 @@
 
 import { Crown, Sparkles, Lock, ArrowRight, Clock, Loader } from "lucide-react";
 import { useMood } from "@/components/providers/MoodProvider";
-import getMoodColors from "@/lib/getMoodColors";
 import { useMoodColors } from "@/hooks/useMoodColors";
 
 interface CardProps {
@@ -34,7 +33,7 @@ export const CardAction = {
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`bg-linear-to-r from-blue-600 to-purple-600 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer active:scale-95 `}
+      className={`bg-linear-to-r from-blue-600 to-red-600/70 text-white px-6 py-2 rounded-lg hover:from-blue-700 hover:to-red-700 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 cursor-pointer active:scale-95 `}
     >
       {children}
       <ArrowRight className="h-4 w-4" />

@@ -87,12 +87,19 @@ export function ComparisonTable({
    * Get badge color based on complexity
    */
   const getComplexityColor = (complexity: string): string => {
-    if (complexity.includes("O(1)")) return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-    if (complexity.includes("O(n)") && !complexity.includes("²") && !complexity.includes("³")) {
+    if (complexity.includes("O(1)"))
+      return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+    if (
+      complexity.includes("O(n)") &&
+      !complexity.includes("²") &&
+      !complexity.includes("³")
+    ) {
       return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
     }
-    if (complexity.includes("O(n log n)")) return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
-    if (complexity.includes("O(n²)")) return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
+    if (complexity.includes("O(n log n)"))
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+    if (complexity.includes("O(n²)"))
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
     if (complexity.includes("O(n³)") || complexity.includes("O(2ⁿ)")) {
       return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
     }
@@ -109,7 +116,10 @@ export function ComparisonTable({
   /**
    * Render cell value with appropriate styling
    */
-  const renderCellValue = (value: string | ComparisonValue, columnIndex: number) => {
+  const renderCellValue = (
+    value: string | ComparisonValue,
+    columnIndex: number
+  ) => {
     const stringValue = typeof value === "string" ? value : value.value;
     const isHighlighted = highlightColumn === columnIndex;
 
@@ -149,7 +159,11 @@ export function ComparisonTable({
       );
     }
 
-    return <span className={isHighlighted ? "font-semibold" : ""}>{stringValue}</span>;
+    return (
+      <span className={isHighlighted ? "font-semibold" : ""}>
+        {stringValue}
+      </span>
+    );
   };
 
   return (
@@ -164,11 +178,13 @@ export function ComparisonTable({
       <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
         <table className="w-full">
           <thead>
-            <tr className="bg-linear-to-r from-indigo-500 to-purple-600 text-white">
+            <tr className="bg-linear-to-r from-blue-500/70 to-red-600/60 text-white">
               {headers.map((header, index) => (
                 <th
                   key={index}
-                  className={`px-4 ${isCompact ? "py-2" : "py-3"} text-left text-sm font-semibold ${
+                  className={`px-4 ${
+                    isCompact ? "py-2" : "py-3"
+                  } text-left text-sm font-semibold ${
                     index === 0 ? "rounded-tl-lg" : ""
                   } ${index === headers.length - 1 ? "rounded-tr-lg" : ""}`}
                 >
@@ -183,25 +199,32 @@ export function ComparisonTable({
                 key={rowIndex}
                 className={`
                   transition-colors
-                  ${row.highlighted
-                    ? "bg-indigo-50 dark:bg-indigo-900/20 border-l-4 border-indigo-500"
-                    : rowIndex % 2 === 0
-                    ? "bg-white dark:bg-gray-900"
-                    : "bg-gray-50 dark:bg-gray-800/50"
+                  ${
+                    row.highlighted
+                      ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500"
+                      : rowIndex % 2 === 0
+                      ? "bg-white dark:bg-gray-900"
+                      : "bg-gray-50 dark:bg-gray-800/50"
                   }
-                  hover:bg-indigo-50 dark:hover:bg-indigo-900/10
+                  hover:bg-blue-50 dark:hover:bg-blue-900/10
                 `}
               >
                 <td
-                  className={`px-4 ${isCompact ? "py-2" : "py-3"} font-semibold text-gray-900 dark:text-gray-100`}
+                  className={`px-4 ${
+                    isCompact ? "py-2" : "py-3"
+                  } font-semibold text-gray-900 dark:text-gray-100`}
                 >
                   {row.label}
                 </td>
                 {row.values.map((value, colIndex) => (
                   <td
                     key={colIndex}
-                    className={`px-4 ${isCompact ? "py-2" : "py-3"} text-sm text-gray-700 dark:text-gray-300 ${
-                      highlightColumn === colIndex + 1 ? "bg-purple-50 dark:bg-purple-900/20" : ""
+                    className={`px-4 ${
+                      isCompact ? "py-2" : "py-3"
+                    } text-sm text-gray-700 dark:text-gray-300 ${
+                      highlightColumn === colIndex + 1
+                        ? "bg-red-50 dark:bg-red-900/20"
+                        : ""
                     }`}
                   >
                     {renderCellValue(value, colIndex + 1)}
@@ -220,9 +243,10 @@ export function ComparisonTable({
             key={rowIndex}
             className={`
               rounded-lg border p-4
-              ${row.highlighted
-                ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20"
-                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+              ${
+                row.highlighted
+                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                  : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
               }
             `}
           >
@@ -246,8 +270,10 @@ export function ComparisonTable({
       </div>
 
       {/* Legend for complexity colors (optional) */}
-      {rows.some(row =>
-        row.values.some(v => isComplexityNotation(typeof v === "string" ? v : v.value))
+      {rows.some((row) =>
+        row.values.some((v) =>
+          isComplexityNotation(typeof v === "string" ? v : v.value)
+        )
       ) && (
         <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
           <span className="font-semibold">Complexity Key:</span>{" "}
@@ -260,7 +286,7 @@ export function ComparisonTable({
           <span className="inline-block px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 ml-1">
             Fair
           </span>
-          <span className="inline-block px-2 py-0.5 rounded bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300 ml-1">
+          <span className="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 ml-1">
             Slow
           </span>
           <span className="inline-block px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 ml-1">

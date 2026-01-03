@@ -109,3 +109,4 @@ scripts/dbSeeds/seeds/
 
 # MDX tutorial content (premium content stored in database)
 src/content/tutorials/
+scripts/dbSeeds/tutorials/advanced/seedAdvancedTutorials.ts

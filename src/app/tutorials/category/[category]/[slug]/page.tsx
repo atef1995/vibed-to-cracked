@@ -1,7 +1,6 @@
 import React from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import TutorialClient from "../../../../../components/tutorial/TutorialClient";
 import ErrorBoundary, {
   TutorialErrorFallback,
@@ -20,11 +19,7 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
 
   return (
     <ErrorBoundary fallback={TutorialErrorFallback}>
-      <TutorialClient
-        category={category}
-        slug={slug}
-        isAnonymous={!session}
-      />
+      <TutorialClient category={category} slug={slug} isAnonymous={!session} />
     </ErrorBoundary>
   );
 }
