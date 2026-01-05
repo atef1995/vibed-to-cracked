@@ -33,9 +33,10 @@ async function safeFetch(url, options = {}) {
 // next-sitemap.config.js
 // eslint-disable-next-line import/no-anonymous-default-export
 export default {
-  siteUrl: process.env.NODE_ENV === 'production'
-    ? (process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com")
-    : "https://vibed-to-cracked.com",
+  siteUrl:
+    process.env.NODE_ENV === "production"
+      ? process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com"
+      : "https://vibed-to-cracked.com",
   generateRobotsTxt: true,
   sitemapSize: 7000,
   changefreq: "weekly",
@@ -55,12 +56,13 @@ export default {
     "/auth/*",
     "/test-error",
     "/glitch-demo",
-    "/achievements/shared/*"
+    "/achievements/shared/*",
   ],
   async additionalPaths(config) {
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? (process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com")
-      : "https://vibed-to-cracked.com";
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com"
+        : "https://vibed-to-cracked.com";
     const paths = [];
 
     // Static tutorial files from content directory
@@ -74,7 +76,7 @@ export default {
             const fullPath = path.join(dir, file.name);
             if (file.isDirectory()) {
               items.push(...walkDir(fullPath, path.join(basePath, file.name)));
-            } else if (file.name.endsWith('.mdx')) {
+            } else if (file.name.endsWith(".mdx")) {
               const slug = file.name.replace(/\.mdx$/, "");
               const tutorialPath = basePath ? `${basePath}/${slug}` : slug;
               items.push({
@@ -100,19 +102,28 @@ export default {
     const tutorialsData = await safeFetch(`${baseUrl}/api/tutorials`);
     if (tutorialsData?.success && tutorialsData?.data) {
       const dbTutorialPaths = tutorialsData.data
-        .filter(tutorial => tutorial.published)
-        .map(tutorial => ({
+        .filter((tutorial) => tutorial.published)
+        .map((tutorial) => ({
           loc: `/tutorials/${tutorial.slug}`,
           changefreq: "weekly",
           priority: tutorial.isPremium ? 0.9 : 0.8,
-          lastmod: new Date(tutorial.updatedAt || tutorial.createdAt).toISOString(),
+          lastmod: new Date(
+            tutorial.updatedAt || tutorial.createdAt
+          ).toISOString(),
         }));
       paths.push(...dbTutorialPaths);
     }
 
     // Tutorial categories
-    const categories = ["fundamentals", "oop", "advanced", "async", "dom", "data-structures"];
-    const categoryPaths = categories.map(category => ({
+    const categories = [
+      "fundamentals",
+      "oop",
+      "advanced",
+      "async",
+      "dom",
+      "data-structures",
+    ];
+    const categoryPaths = categories.map((category) => ({
       loc: `/tutorials/category/${category}`,
       changefreq: "weekly",
       priority: 0.7,
@@ -123,7 +134,7 @@ export default {
     // Challenges
     const challengesData = await safeFetch(`${baseUrl}/api/challenges`);
     if (challengesData?.challenges) {
-      const challengePaths = challengesData.challenges.map(challenge => ({
+      const challengePaths = challengesData.challenges.map((challenge) => ({
         loc: `/practice/${challenge.slug}`,
         changefreq: "weekly",
         priority: 0.7,
@@ -135,7 +146,7 @@ export default {
     // Quizzes
     const quizzesData = await safeFetch(`${baseUrl}/api/quizzes`);
     if (quizzesData?.quizzes) {
-      const quizPaths = quizzesData.quizzes.map(quiz => ({
+      const quizPaths = quizzesData.quizzes.map((quiz) => ({
         loc: `/quiz/${quiz.slug}`,
         changefreq: "weekly",
         priority: 0.6,
@@ -148,12 +159,14 @@ export default {
     const exercisesData = await safeFetch(`${baseUrl}/api/exercises`);
     if (exercisesData?.data) {
       const exercisePaths = exercisesData.data
-        .filter(exercise => exercise.published)
-        .map(exercise => ({
+        .filter((exercise) => exercise.published)
+        .map((exercise) => ({
           loc: `/exercises/${exercise.slug}`,
           changefreq: "weekly",
           priority: 0.7,
-          lastmod: new Date(exercise.updatedAt || exercise.createdAt).toISOString(),
+          lastmod: new Date(
+            exercise.updatedAt || exercise.createdAt
+          ).toISOString(),
         }));
       paths.push(...exercisePaths);
     }
@@ -162,8 +175,8 @@ export default {
     const cheatSheetsData = await safeFetch(`${baseUrl}/api/cheat-sheets`);
     if (cheatSheetsData?.data) {
       const cheatSheetPaths = cheatSheetsData.data
-        .filter(sheet => sheet.published)
-        .map(sheet => ({
+        .filter((sheet) => sheet.published)
+        .map((sheet) => ({
           loc: `/cheat-sheets/${sheet.slug}`,
           changefreq: "weekly",
           priority: 0.7,
@@ -176,8 +189,8 @@ export default {
     const studyPlansData = await safeFetch(`${baseUrl}/api/study-plans`);
     if (studyPlansData?.data) {
       const studyPlanPaths = studyPlansData.data
-        .filter(plan => plan.published)
-        .map(plan => ({
+        .filter((plan) => plan.published)
+        .map((plan) => ({
           loc: `/study-plan/${plan.slug}`,
           changefreq: "monthly",
           priority: 0.6,
@@ -189,7 +202,7 @@ export default {
     // Projects
     const projectsData = await safeFetch(`${baseUrl}/api/projects`);
     if (projectsData?.success && projectsData?.data) {
-      const projectPaths = projectsData.data.map(project => ({
+      const projectPaths = projectsData.data.map((project) => ({
         loc: `/projects/${project.slug}`,
         changefreq: "monthly",
         priority: 0.6,
@@ -202,12 +215,14 @@ export default {
     const blogData = await safeFetch(`${baseUrl}/api/blog`);
     if (blogData?.success && blogData?.data) {
       const blogPaths = blogData.data
-        .filter(post => post.published)
-        .map(post => ({
+        .filter((post) => post.published)
+        .map((post) => ({
           loc: `/blog/${post.slug}`,
           changefreq: "weekly",
           priority: 0.8,
-          lastmod: new Date(post.updatedAt || post.publishedAt || post.createdAt).toISOString(),
+          lastmod: new Date(
+            post.updatedAt || post.publishedAt || post.createdAt
+          ).toISOString(),
         }));
       paths.push(...blogPaths);
     }
@@ -228,7 +243,7 @@ export default {
       { loc: "/social", priority: 0.5 },
     ];
 
-    staticPages.forEach(page => {
+    staticPages.forEach((page) => {
       paths.push({
         ...page,
         changefreq: "weekly",
