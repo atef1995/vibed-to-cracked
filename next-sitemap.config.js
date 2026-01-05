@@ -198,9 +198,24 @@ export default {
       paths.push(...projectPaths);
     }
 
+    // Blog Posts
+    const blogData = await safeFetch(`${baseUrl}/api/blog`);
+    if (blogData?.success && blogData?.data) {
+      const blogPaths = blogData.data
+        .filter(post => post.published)
+        .map(post => ({
+          loc: `/blog/${post.slug}`,
+          changefreq: "weekly",
+          priority: 0.8,
+          lastmod: new Date(post.updatedAt || post.publishedAt || post.createdAt).toISOString(),
+        }));
+      paths.push(...blogPaths);
+    }
+
     // High priority static pages
     const staticPages = [
       { loc: "/tutorials", priority: 0.9 },
+      { loc: "/blog", priority: 0.8 },
       { loc: "/quizzes", priority: 0.8 },
       { loc: "/practice", priority: 0.8 },
       { loc: "/exercises", priority: 0.8 },
