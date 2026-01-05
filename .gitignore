@@ -42,71 +42,25 @@ next-env.d.ts
 
 /generated
 /src/generated/prisma
-CLAUDE.md
 public/sitemap-0.xml
-src/content/tutorials/nodejs/TUTORIAL-PLAN.md
-src/content/tutorials/github/GITHUB_TUTORIALS_PLAN.md
-.claude/agents/nextjs-expert-engineer.md
-.claude/settings.local.json
-email-templates/broadcast-new-features.html
-email-templates/new-features-announcement-personal.html
-email-templates/new-features-announcement.html
-email-templates/new-features-announcement-personal.txt
-email-templates/new-features-announcement.txt
-email-templates/READY_TO_SEND.md
-email-templates/WHICH_VERSION.md
-email-templates/HOW_TO_USE.md
-CHEAT_SHEETS_DELIVERY_COMPLETE.md
-CHEAT_SHEETS_QUICK_START.md
-CHEAT_SHEETS_READY.md
-CHEAT_SHEETS_SETUP_COMPLETE.md
-DATABASE_BACKUP_GUIDE.md
-docs/ALGORITHM_VISUALIZER_MOBILE_UPDATE.md
-docs/CHEAT_SHEETS_FEATURE.md
-docs/CHEAT_SHEETS_QUICK_REFERENCE.md
-docs/CHEAT_SHEETS_ROUTE_MAP.md
-docs/COURSE_EMAIL_IMPLEMENTATION_SUMMARY.md
-docs/COURSE_EMAIL_QUICK_REFERENCE.md
-docs/COURSE_EMAIL_SYSTEM.md
+
+email-templates/
+
 backup-database.ps1
 backup-database.sh
 backup-database.ts
 restore-database.ts
 .github/instructions/instructions.instructions.md
-prisma/migrations/20251016185345_add_cheat_sheet_model/migration.sql
-docs/DYNAMIC_METADATA_GUIDE.md
-docs/DYNAMIC_METADATA_PATTERN.md
-docs/DYNAMIC_METADATA_QUICK_REFERENCE.md
-docs/IMPLEMENTATION_COMPLETE.md
-docs/PUBLIC_CONTENT_STRATEGY.md
-docs/QUIZ_PUBLIC_ACCESS_COMPLETE.md
-docs/QUIZ_SEO_IMPLEMENTATION.md
-docs/SEO_DEPLOYMENT_CHECKLIST.md
-docs/SEO_DOCUMENTATION_INDEX.md
-docs/SEO_OPTIMIZATION_SUMMARY.md
-docs/SEO_QUICK_REFERENCE.md
-docs/STATIC_VS_DYNAMIC_METADATA.md
-docs/TUTORIALS_SEO_IMPLEMENTATION.md
-mydatabase.bak
-docs/EXERCISES_ROUTE_COMPLETE.md
-docs/EXERCISES_ROUTE_IMPLEMENTATION.md
-docs/EXERCISES_ROUTE_INDEX.md
-docs/EXERCISES_ROUTE_QUICK_START.md
-docs/EXERCISES_VS_QUIZ_ARCHITECTURE.md
+prisma/
 generated/
 build_final.log
 build.log
-docs/TUTORIAL_CREATION_BIBLE.md
-.claude/
 .github/
 
-# ============================================
-# PREMIUM CONTENT - LOCAL ONLY, NOT IN REPO
-# ============================================
 
-# Database seed files (contain premium quiz/tutorial data)
 scripts/dbSeeds/seeds/
 
-# MDX tutorial content (premium content stored in database)
 src/content/tutorials/
 scripts/dbSeeds/tutorials/advanced/seedAdvancedTutorials.ts
+scripts/dbSeeds/
+docs/
