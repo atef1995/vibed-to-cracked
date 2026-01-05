@@ -30,7 +30,9 @@ export async function getAllChallenges(): Promise<ChallengeWithTests[]> {
   }
 }
 
-export async function getChallengeById(id: string): Promise<ChallengeWithTests | null> {
+export async function getChallengeById(
+  id: string
+): Promise<ChallengeWithTests | null> {
   if (typeof window === "undefined") {
     // Server-side: use database service directly
     return await dbGetChallengeById(id);
@@ -50,7 +52,9 @@ export async function getChallengeById(id: string): Promise<ChallengeWithTests |
   }
 }
 
-export async function getChallengeBySlug(slug: string): Promise<ChallengeWithTests | null> {
+export async function getChallengeBySlug(
+  slug: string
+): Promise<ChallengeWithTests | null> {
   if (typeof window === "undefined") {
     // Server-side: use database service directly
     return await dbGetChallengeBySlug(slug);
@@ -117,20 +121,3 @@ export async function getChallengeDifficulties(): Promise<string[]> {
     return difficulties;
   }
 }
-
-// Static filter options for UI
-export const challengeTypes = [
-  { value: "all", label: "All Types" },
-  { value: "function", label: "Functions" },
-  { value: "array", label: "Arrays" },
-  { value: "object", label: "Objects" },
-  { value: "algorithm", label: "Algorithms" },
-  { value: "logic", label: "Logic" },
-];
-
-export const difficultyLevels = [
-  { value: "all", label: "All Levels" },
-  { value: "easy", label: "Easy" },
-  { value: "medium", label: "Medium" },
-  { value: "hard", label: "Hard" },
-];

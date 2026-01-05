@@ -1,21 +1,35 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import {
-  getAllChallenges as getAllChallengesFromLib,
-  getFilteredChallenges as getFilteredChallengesFromLib,
-} from "@/lib/challengeData";
 
 interface ChallengeFilters {
   type?: string;
   difficulty?: string;
 }
 
+// Fetch all challenges from API
+async function fetchAllChallenges() {
+  const response = await fetch("/api/challenges");
+  const data = await response.json();
+  return data.challenges || [];
+}
+
+// Fetch filtered challenges from API
+async function fetchFilteredChallenges(filters: ChallengeFilters) {
+  const params = new URLSearchParams();
+  if (filters.type) params.set("type", filters.type);
+  if (filters.difficulty) params.set("difficulty", filters.difficulty);
+
+  const response = await fetch(`/api/challenges?${params.toString()}`);
+  const data = await response.json();
+  return data.challenges || [];
+}
+
 // Hook for fetching all challenges
 export const useChallenges = () => {
   return useQuery({
     queryKey: ["challenges"],
-    queryFn: getAllChallengesFromLib,
+    queryFn: fetchAllChallenges,
     staleTime: 5 * 60 * 1000, // 5 minutes - challenges don't change often
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,
@@ -27,7 +41,7 @@ export const useChallenges = () => {
 export const useFilteredChallenges = (filters: ChallengeFilters) => {
   return useQuery({
     queryKey: ["challenges", "filtered", filters],
-    queryFn: () => getFilteredChallengesFromLib(filters),
+    queryFn: () => fetchFilteredChallenges(filters),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     retry: 2,

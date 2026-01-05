@@ -9,7 +9,6 @@ import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
 import { notFound } from "next/navigation";
 import CodeEditor from "@/components/CodeEditor";
-import { getChallengeBySlug } from "@/lib/challengeData";
 import PremiumModal from "@/components/ui/PremiumModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCodeProgress } from "@/hooks/useCodeProgress";
@@ -91,7 +90,14 @@ export default function ChallengePage({ params }: ChallengePageProps) {
       const p = await params;
       setResolvedParams(p);
 
-      const foundChallenge = await getChallengeBySlug(p.slug);
+      // Fetch challenge from API instead of importing server module
+      const response = await fetch(`/api/challenges/slug/${p.slug}`);
+      if (!response.ok) {
+        notFound();
+        return;
+      }
+      const data = await response.json();
+      const foundChallenge = data.challenge;
       if (!foundChallenge) {
         notFound();
         return;
