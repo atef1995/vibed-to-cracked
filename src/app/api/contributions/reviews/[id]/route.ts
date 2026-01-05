@@ -270,20 +270,18 @@ export async function POST(
 
     // Check if submission is ready for merge
     const peerReviewsComplete =
-      updatedSubmission.peerReviewsReceived >= updatedSubmission.peerReviewsNeeded;
+      updatedSubmission.peerReviewsReceived >=
+      updatedSubmission.peerReviewsNeeded;
     const mentorApproved = updatedSubmission.mentorReviewStatus === "APPROVED";
 
     // Award XP to reviewer
     const { awardReviewXP } = await import("@/lib/services/xpService");
-    const xpResult = await awardReviewXP(
-      session.user.id,
-      review.id,
-      type as "PEER" | "MENTOR"
-    );
+    await awardReviewXP(session.user.id, review.id, type as "PEER" | "MENTOR");
 
     // Check for review achievements
-    const { checkReviewAchievements, checkPerfectScoreAchievement } = await import("@/lib/services/achievementService");
-    const reviewAchievements = await checkReviewAchievements(session.user.id);
+    const { checkReviewAchievements, checkPerfectScoreAchievement } =
+      await import("@/lib/services/achievementService");
+    await checkReviewAchievements(session.user.id);
 
     // Check for perfect score achievement (for submitter)
     if (overallScore === 100) {
@@ -296,7 +294,11 @@ export async function POST(
         userId: submission.userId,
         type: "CONTRIBUTION_REVIEW",
         title: `${type === "PEER" ? "Peer" : "Mentor"} Review Received`,
-        message: `Your PR for "${submission.featureTitle}" received a review with an overall score of ${overallScore?.toFixed(0)}%`,
+        message: `Your PR for "${
+          submission.featureTitle
+        }" received a review with an overall score of ${overallScore?.toFixed(
+          0
+        )}%`,
         data: {
           reviewId: review.id,
           submissionId: submission.id,
@@ -314,7 +316,8 @@ export async function POST(
         mentorApproved,
         readyForMerge: peerReviewsComplete && mentorApproved,
       },
-      message: "Review submitted successfully. Thank you for contributing to the community!",
+      message:
+        "Review submitted successfully. Thank you for contributing to the community!",
     });
   } catch (error) {
     console.error("Error submitting review:", error);

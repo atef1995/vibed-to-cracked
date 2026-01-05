@@ -1,5 +1,3 @@
-import { useMoodColors } from "@/hooks/useMoodColors";
-
 export function TutorialHeaderSkeleton() {
   return (
     /* Tutorial Header Skeleton */

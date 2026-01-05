@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import PeerReviewInterface from "@/components/contributions/PeerReviewInterface";
 import MergedPRCelebration from "@/components/contributions/MergedPRCelebration";
@@ -64,9 +63,12 @@ interface Review {
   };
 }
 
-export default function SubmissionDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function SubmissionDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,7 +77,7 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
   const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   useEffect(() => {
-    params.then(p => setSubmissionId(p.id));
+    params.then((p) => setSubmissionId(p.id));
   }, [params]);
 
   useEffect(() => {
@@ -86,7 +88,11 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
 
   useEffect(() => {
     // Show celebration if just merged
-    if (submission?.prStatus === "MERGED" && submissionId && !localStorage.getItem(`celebrated-${submissionId}`)) {
+    if (
+      submission?.prStatus === "MERGED" &&
+      submissionId &&
+      !localStorage.getItem(`celebrated-${submissionId}`)
+    ) {
       setShowCelebration(true);
       localStorage.setItem(`celebrated-${submissionId}`, "true");
     }
@@ -99,7 +105,9 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
       setLoading(true);
       setError("");
 
-      const response = await fetch(`/api/contributions/submissions/${submissionId}`);
+      const response = await fetch(
+        `/api/contributions/submissions/${submissionId}`
+      );
       const data = await response.json();
 
       if (!data.success) {
@@ -151,14 +159,20 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
   const getStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       OPEN: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-      MERGED: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-      CLOSED: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
+      MERGED:
+        "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      CLOSED:
+        "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
       CHANGES_REQUESTED:
         "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
     };
 
     return (
-      <span className={`px-3 py-1 rounded-full text-sm font-medium ${styles[status] || styles.OPEN}`}>
+      <span
+        className={`px-3 py-1 rounded-full text-sm font-medium ${
+          styles[status] || styles.OPEN
+        }`}
+      >
         {status.replace("_", " ")}
       </span>
     );
@@ -169,7 +183,9 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading submission...</p>
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading submission...
+          </p>
         </div>
       </div>
     );
@@ -179,7 +195,9 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6 max-w-md">
-          <p className="text-red-800 dark:text-red-400">{error || "Submission not found"}</p>
+          <p className="text-red-800 dark:text-red-400">
+            {error || "Submission not found"}
+          </p>
           <Link
             href="/contributions/dashboard"
             className="mt-4 inline-block text-blue-600 dark:text-blue-400 hover:underline"
@@ -192,7 +210,8 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
   }
 
   const isOwner = session?.user?.id && submission.user;
-  const reviewProgress = (submission.peerReviewsReceived / submission.peerReviewsNeeded) * 100;
+  const reviewProgress =
+    (submission.peerReviewsReceived / submission.peerReviewsNeeded) * 100;
 
   if (showReviewForm) {
     return (
@@ -217,11 +236,17 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <Link href="/contributions" className="hover:text-gray-900 dark:hover:text-gray-200">
+          <Link
+            href="/contributions"
+            className="hover:text-gray-900 dark:hover:text-gray-200"
+          >
             Contributions
           </Link>
           <span>/</span>
-          <Link href="/contributions/dashboard" className="hover:text-gray-900 dark:hover:text-gray-200">
+          <Link
+            href="/contributions/dashboard"
+            className="hover:text-gray-900 dark:hover:text-gray-200"
+          >
             Dashboard
           </Link>
           <span>/</span>
@@ -250,7 +275,10 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
               <span>Branch: {submission.githubBranch}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span>Submitted {new Date(submission.submittedAt).toLocaleDateString()}</span>
+              <span>
+                Submitted{" "}
+                {new Date(submission.submittedAt).toLocaleDateString()}
+              </span>
             </div>
           </div>
 
@@ -275,66 +303,138 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
             Automated Checks
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className={`p-4 rounded-lg border-2 ${
-              submission.ciPassed
-                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-            }`}>
+            <div
+              className={`p-4 rounded-lg border-2 ${
+                submission.ciPassed
+                  ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                  : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+              }`}
+            >
               <div className="flex items-center gap-2 mb-1">
                 {submission.ciPassed ? (
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 )}
-                <span className="font-medium text-gray-900 dark:text-white">CI/CD</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  CI/CD
+                </span>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {submission.ciPassed ? "All checks passed" : "Checks failing"}
               </p>
             </div>
 
-            <div className={`p-4 rounded-lg border-2 ${
-              submission.testsPassed
-                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-            }`}>
+            <div
+              className={`p-4 rounded-lg border-2 ${
+                submission.testsPassed
+                  ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                  : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+              }`}
+            >
               <div className="flex items-center gap-2 mb-1">
                 {submission.testsPassed ? (
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 )}
-                <span className="font-medium text-gray-900 dark:text-white">Tests</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  Tests
+                </span>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {submission.testsPassed ? "All tests passing" : "Tests failing"}
               </p>
             </div>
 
-            <div className={`p-4 rounded-lg border-2 ${
-              submission.lintPassed
-                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-                : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-            }`}>
+            <div
+              className={`p-4 rounded-lg border-2 ${
+                submission.lintPassed
+                  ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                  : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+              }`}
+            >
               <div className="flex items-center gap-2 mb-1">
                 {submission.lintPassed ? (
-                  <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-5 h-5 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 text-red-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 )}
-                <span className="font-medium text-gray-900 dark:text-white">Lint</span>
+                <span className="font-medium text-gray-900 dark:text-white">
+                  Lint
+                </span>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {submission.lintPassed ? "Code style good" : "Style issues"}
@@ -352,7 +452,8 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
           <div className="mb-6">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Peer Reviews: {submission.peerReviewsReceived}/{submission.peerReviewsNeeded}
+                Peer Reviews: {submission.peerReviewsReceived}/
+                {submission.peerReviewsNeeded}
               </span>
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {Math.round(reviewProgress)}%
@@ -367,21 +468,27 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
           </div>
 
           <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium text-gray-700 dark:text-gray-300">Mentor Status:</span>
-            <span className={`px-2 py-1 rounded text-xs font-medium ${
-              submission.mentorReviewStatus === "APPROVED"
-                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                : submission.mentorReviewStatus === "CHANGES_REQUESTED"
-                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
-                : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
-            }`}>
+            <span className="font-medium text-gray-700 dark:text-gray-300">
+              Mentor Status:
+            </span>
+            <span
+              className={`px-2 py-1 rounded text-xs font-medium ${
+                submission.mentorReviewStatus === "APPROVED"
+                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                  : submission.mentorReviewStatus === "CHANGES_REQUESTED"
+                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400"
+                  : "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
+              }`}
+            >
               {submission.mentorReviewStatus}
             </span>
           </div>
 
           {submission.grade && (
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Final Grade</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Final Grade
+              </p>
               <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                 {submission.grade}%
               </p>
@@ -405,7 +512,10 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
                         {review.reviewer.image && (
-                          <img src={review.reviewer.image} alt={review.reviewer.username} />
+                          <img
+                            src={review.reviewer.image}
+                            alt={review.reviewer.username}
+                          />
                         )}
                       </div>
                       <div>
@@ -422,7 +532,9 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
                         <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                           {Math.round(review.overallScore)}
                         </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">Score</p>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Score
+                        </p>
                       </div>
                     )}
                   </div>
@@ -462,7 +574,8 @@ export default function SubmissionDetailPage({ params }: { params: Promise<{ id:
 
                   {review.submittedAt && (
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-3">
-                      Submitted {new Date(review.submittedAt).toLocaleDateString()}
+                      Submitted{" "}
+                      {new Date(review.submittedAt).toLocaleDateString()}
                     </p>
                   )}
                 </div>

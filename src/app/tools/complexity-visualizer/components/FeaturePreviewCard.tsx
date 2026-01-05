@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Lock, Sparkles, ArrowRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import Image from "next/image";
 
 /**
  * FeaturePreviewCard Component
@@ -104,7 +105,7 @@ export function FeaturePreviewCard({
         {/* Preview Image (if provided) */}
         {previewImage && (
           <div className="relative mb-4 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-            <img
+            <Image
               src={previewImage}
               alt={`${title} preview`}
               className={`w-full h-48 object-cover ${

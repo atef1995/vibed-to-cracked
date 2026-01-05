@@ -23,10 +23,7 @@ import {
   CheckCircle,
   Clock,
 } from "lucide-react";
-import type {
-  ChallengeWithTests,
-  MoodAdaptation,
-} from "@/types/challenge";
+import type { ChallengeWithTests, MoodAdaptation } from "@/types/challenge";
 
 // Static filter options for UI
 const challengeTypes = [
@@ -88,7 +85,9 @@ export default function PracticePage() {
         title: challenge.title,
         isPremium: challenge.isPremium || false,
         requiredPlan:
-          (challenge.requiredPlan === "FREE" ? "VIBED" : challenge.requiredPlan) || "VIBED",
+          (challenge.requiredPlan === "FREE"
+            ? "VIBED"
+            : challenge.requiredPlan) || "VIBED",
         type: "challenge" as const,
       },
       () => {
@@ -269,7 +268,7 @@ export default function PracticePage() {
         </div>
       ) : (
         <ContentGrid columns="3" className="mb-8">
-          {challenges.map((challenge) => {
+          {challenges.map((challenge: ChallengeWithTests) => {
             return (
               <Card
                 key={challenge.id}
@@ -286,7 +285,9 @@ export default function PracticePage() {
                 className="h-full"
                 actions={
                   <div className="flex items-center justify-between w-full">
-                    <CardAction.TimeInfo time={challenge.estimatedTime as string} />
+                    <CardAction.TimeInfo
+                      time={challenge.estimatedTime as string}
+                    />
                     <CardAction.Primary
                       onClick={() => handleChallengeClick(challenge)}
                     >
@@ -334,7 +335,9 @@ export default function PracticePage() {
                 {/* Mood-adapted description */}
                 <div className={`${moodColors.bg} rounded-lg p-3`}>
                   <p className={`${moodColors.text} text-xs leading-relaxed`}>
-                    {(challenge.moodAdaptations as MoodAdaptation[] | undefined)?.find(
+                    {(
+                      challenge.moodAdaptations as MoodAdaptation[] | undefined
+                    )?.find(
                       (adaptation: MoodAdaptation) =>
                         adaptation.mood.toLowerCase() ===
                         currentMood.id.toLowerCase()

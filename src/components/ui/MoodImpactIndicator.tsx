@@ -1,6 +1,6 @@
 "use client";
 
-import { MOODS, MoodConfig } from "@/lib/moods";
+import { MOODS } from "@/lib/moods";
 import { useMood } from "@/components/providers/MoodProvider";
 import { getMoodIcon } from "@/lib/getMoodIcon";
 import { Sparkles, Music, Bell, Lightbulb } from "lucide-react";

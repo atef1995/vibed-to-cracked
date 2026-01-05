@@ -14,7 +14,10 @@ interface ErrorBoundaryProps {
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
-class ErrorBoundaryClass extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+class ErrorBoundaryClass extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -36,17 +39,33 @@ class ErrorBoundaryClass extends React.Component<ErrorBoundaryProps, ErrorBounda
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return <this.props.fallback error={this.state.error!} resetError={this.resetError} />;
+        return (
+          <this.props.fallback
+            error={this.state.error!}
+            resetError={this.resetError}
+          />
+        );
       }
 
-      return <DefaultErrorFallback error={this.state.error!} resetError={this.resetError} />;
+      return (
+        <DefaultErrorFallback
+          error={this.state.error!}
+          resetError={this.resetError}
+        />
+      );
     }
 
     return this.props.children;
   }
 }
 
-function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+function DefaultErrorFallback({
+  error,
+  resetError,
+}: {
+  error: Error;
+  resetError: () => void;
+}) {
   return (
     <div className="min-h-[400px] flex items-center justify-center p-8">
       <div className="text-center max-w-md mx-auto">
@@ -56,9 +75,10 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
             Something went wrong
           </h3>
           <p className="text-red-700 dark:text-red-200 mb-4 text-sm">
-            We encountered an error while loading this content. This might be temporary.
+            We encountered an error while loading this content. This might be
+            temporary.
           </p>
-          
+
           {process.env.NODE_ENV === "development" && (
             <details className="mb-4 text-left">
               <summary className="cursor-pointer text-red-600 dark:text-red-400 text-sm font-medium">
@@ -85,7 +105,13 @@ function DefaultErrorFallback({ error, resetError }: { error: Error; resetError:
 }
 
 // Tutorial-specific error fallback
-export function TutorialErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+export function TutorialErrorFallback({
+  error,
+  resetError,
+}: {
+  error: Error;
+  resetError: () => void;
+}) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-200 dark:border-gray-700">
       <div className="text-center">
@@ -94,9 +120,10 @@ export function TutorialErrorFallback({ error, resetError }: { error: Error; res
           Tutorial Loading Error
         </h3>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          We couldn&apos;t load this tutorial. This might be due to a network issue or the tutorial might be temporarily unavailable.
+          We couldn&apos;t load this tutorial. This might be due to a network
+          issue or the tutorial might be temporarily unavailable.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={resetError}
@@ -130,11 +157,17 @@ export function TutorialErrorFallback({ error, resetError }: { error: Error; res
 }
 
 // Component-specific error fallback
-export function ComponentErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+export function ComponentErrorFallback({
+  error,
+  resetError,
+}: {
+  error: Error;
+  resetError: () => void;
+}) {
   return (
     <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
       <div className="flex items-center gap-3">
-        <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0" />
+        <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
             Component Error

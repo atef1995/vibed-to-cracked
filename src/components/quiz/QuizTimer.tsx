@@ -75,8 +75,6 @@ export function QuizTimer({
     const expectedTimeUsed = (currentQuestion || 0) * timePerQuestion;
     const totalTime = totalQuestions * timePerQuestion;
     const actualTimeUsed = totalTime - currentTime;
-    const timePerQuestionSoFar =
-      actualTimeUsed / Math.max(1, (currentQuestion || 0) + 1);
 
     if (actualTimeUsed > expectedTimeUsed + timePerQuestion) {
       return { color: "red", message: "Behind Schedule" };

@@ -2,7 +2,6 @@
 
 import { useSession } from "next-auth/react";
 import { useState, Suspense, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   useCategoriesWithStats,

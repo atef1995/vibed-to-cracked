@@ -4,7 +4,6 @@ import { authOptions } from "@/lib/auth";
 import Stripe from "stripe";
 import { SubscriptionService, Plan } from "@/lib/subscriptionService";
 import { StripeHelpers } from "@/lib/stripeHelpers";
-import { StripeError } from "@stripe/stripe-js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-06-30.basil" as unknown as "2025-08-27.basil",
@@ -76,7 +75,8 @@ export async function POST(request: NextRequest) {
           {
             success: false,
             error: {
-              message: "You are not eligible for a trial. Trial is only available for new users.",
+              message:
+                "You are not eligible for a trial. Trial is only available for new users.",
             },
           },
           { status: 400 }
@@ -90,7 +90,9 @@ export async function POST(request: NextRequest) {
         success: true,
         trial: true,
         message: `Your 7-day free trial for ${plan} has started! Enjoy full access to all premium features.`,
-        trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+        trialEndsAt: new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000
+        ).toISOString(),
       });
     }
 
@@ -176,7 +178,12 @@ export async function POST(request: NextRequest) {
         console.error("Error upgrading subscription:", stripeError);
 
         // If the subscription doesn't exist in Stripe, fall back to normal checkout
-        if (stripeError && typeof stripeError === 'object' && 'code' in stripeError && stripeError.code === "resource_missing") {
+        if (
+          stripeError &&
+          typeof stripeError === "object" &&
+          "code" in stripeError &&
+          stripeError.code === "resource_missing"
+        ) {
           console.log(
             "Stripe subscription not found, falling back to checkout flow"
           );
@@ -204,9 +211,8 @@ export async function POST(request: NextRequest) {
     );
 
     // Check if user qualifies for trial period on subscription
-    const isEligibleForTrialPeriod = await SubscriptionService.isEligibleForTrial(
-      session.user.id
-    );
+    const isEligibleForTrialPeriod =
+      await SubscriptionService.isEligibleForTrial(session.user.id);
 
     // Create checkout session
     const checkoutSessionData: Stripe.Checkout.SessionCreateParams = {
@@ -261,7 +267,9 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create(checkoutSessionData);
+    const checkoutSession = await stripe.checkout.sessions.create(
+      checkoutSessionData
+    );
 
     // Create payment record for tracking
     await SubscriptionService.createPayment(
