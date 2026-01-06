@@ -14,6 +14,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCodeProgress } from "@/hooks/useCodeProgress";
 import { SaveIndicator } from "@/components/ui/SaveIndicator";
 import type { ChallengeWithTests, TestResult } from "@/types/challenge";
+import { TutorialRecommendations } from "@/components/tutorial/TutorialRecommendations";
 
 // Define achievement type
 interface UnlockedAchievement {
@@ -153,7 +154,6 @@ export default function ChallengePage({ params }: ChallengePageProps) {
       const updateTotalTime = () => {
         // Track time for analytics if needed
         const timeSpent = Math.floor((Date.now() - challengeStartTime) / 1000);
-        console.log("Time spent:", timeSpent);
       };
 
       const interval = setInterval(updateTotalTime, 1000);
@@ -741,6 +741,11 @@ export default function ChallengePage({ params }: ChallengePageProps) {
             )}
           </div>
         </div>
+        <TutorialRecommendations
+          currentChallengeSlug={challenge.slug}
+          title="Related Learning Resources"
+          limit={4}
+        />
       </div>
 
       {/* Premium Modal */}

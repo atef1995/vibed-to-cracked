@@ -127,7 +127,8 @@ export function AnonymousDashboard() {
                 Practice
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Code challenges and exercises to test your skills
+                Algorithms challenges and exercises to improve your problem
+                solving ability
               </p>
               <div className="text-sm text-red-600 dark:text-red-400 font-semibold text-center">
                 Start Coding →

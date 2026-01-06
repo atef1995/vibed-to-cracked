@@ -1,9 +1,10 @@
-"use client"
+"use client";
 
 import { useEffect, use, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { ValidatedExercise } from "@/components/ui/ValidatedExercise";
+import { TutorialRecommendations } from "@/components/tutorial/TutorialRecommendations";
 
 interface ExerciseData {
   id: string;
@@ -189,6 +190,14 @@ export default function ExercisePage({
             </div>
           </div>
         )}
+
+        {/* Tutorial Recommendations */}
+        <TutorialRecommendations
+          currentExerciseSlug={exercise.slug}
+          title="Learn More About These Topics"
+          description="Master the concepts used in this exercise with these tutorials"
+          limit={3}
+        />
 
         {/* Footer Navigation */}
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700 flex justify-between">

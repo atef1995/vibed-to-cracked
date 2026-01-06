@@ -6,7 +6,9 @@ import { Clock, ArrowRight, BookOpen } from "lucide-react";
 import type { TutorialWithCategory } from "@/types/tutorial";
 
 interface TutorialRecommendationsProps {
-  currentTutorialSlug: string;
+  currentTutorialSlug?: string;
+  currentChallengeSlug?: string;
+  currentExerciseSlug?: string;
   limit?: number;
   title?: string;
   description?: string;
@@ -36,6 +38,8 @@ const DifficultyBadge = ({ difficulty }: { difficulty: number }) => {
 
 export function TutorialRecommendations({
   currentTutorialSlug,
+  currentChallengeSlug,
+  currentExerciseSlug,
   limit = 3,
   title = "Related Topics You Might Like",
   description,
@@ -50,9 +54,23 @@ export function TutorialRecommendations({
     async function fetchRecommendations() {
       try {
         setLoading(true);
-        const response = await fetch(
-          `/api/tutorials/${currentTutorialSlug}/recommendations?limit=${limit}`
-        );
+
+        let url: string;
+        if (currentChallengeSlug) {
+          // Fetch tutorials based on challenge category
+          url = `/api/challenges/${currentChallengeSlug}/tutorials?limit=${limit}`;
+        } else if (currentExerciseSlug) {
+          // Fetch tutorials based on exercise category
+          url = `/api/exercises/slug/${currentExerciseSlug}/tutorials?limit=${limit}`;
+        } else if (currentTutorialSlug) {
+          // Fetch tutorials based on current tutorial similarity
+          url = `/api/tutorials/${currentTutorialSlug}/recommendations?limit=${limit}`;
+        } else {
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error("Failed to fetch recommendations");
@@ -69,7 +87,7 @@ export function TutorialRecommendations({
     }
 
     fetchRecommendations();
-  }, [currentTutorialSlug, limit]);
+  }, [currentTutorialSlug, currentChallengeSlug, currentExerciseSlug, limit]);
 
   if (loading) {
     return (

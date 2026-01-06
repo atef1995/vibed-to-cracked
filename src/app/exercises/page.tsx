@@ -62,6 +62,7 @@ export default function ExercisesPage() {
       title="Interactive Coding Exercises"
       subtitle="Master coding through hands-on practice. Solve real-world problems
             and build your portfolio."
+      className="flex flex-col items-center"
     >
       <div className="max-w-7xl">
         {/* Guest Banner */}

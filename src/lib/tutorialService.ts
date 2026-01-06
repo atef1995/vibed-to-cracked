@@ -466,4 +466,35 @@ export class TutorialService {
       return [];
     }
   }
+
+  /**
+   * Get recommended tutorials for a challenge based on its linked category
+   * Simple and efficient - just fetches tutorials from the challenge's category
+   */
+  static async getRecommendedTutorialsFromChallenge(
+    categoryId: string | null,
+    limit: number = 3
+  ): Promise<TutorialWithAll[]> {
+    try {
+      if (!categoryId) return [];
+
+      const tutorials = await prisma.tutorial.findMany({
+        where: {
+          categoryId,
+          published: true,
+        },
+        include: {
+          quizzes: true,
+          category: true,
+        },
+        orderBy: { difficulty: "asc" },
+        take: limit,
+      });
+
+      return tutorials.filter((t) => t.category !== null) as TutorialWithAll[];
+    } catch (error) {
+      console.error("Error in getRecommendedTutorialsFromChallenge:", error);
+      return [];
+    }
+  }
 }

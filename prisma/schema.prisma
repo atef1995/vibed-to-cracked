@@ -122,23 +122,25 @@ model VerificationToken {
 }
 
 model Category {
-  id          String     @id @default(cuid())
-  slug        String     @unique
+  id          String      @id @default(cuid())
+  slug        String      @unique
   title       String
   description String
-  difficulty  String     @default("beginner")
+  difficulty  String      @default("beginner")
   topics      String[]
   duration    String
-  iconBg      String     @default("bg-blue-100 dark:bg-blue-900")
-  iconColor   String     @default("text-blue-600 dark:text-blue-400")
-  badgeBg     String     @default("bg-blue-100 dark:bg-blue-900")
-  badgeColor  String     @default("text-blue-800 dark:text-blue-200")
-  dotColor    String     @default("bg-blue-600")
-  order       Int        @default(0)
-  published   Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  iconBg      String      @default("bg-blue-100 dark:bg-blue-900")
+  iconColor   String      @default("text-blue-600 dark:text-blue-400")
+  badgeBg     String      @default("bg-blue-100 dark:bg-blue-900")
+  badgeColor  String      @default("text-blue-800 dark:text-blue-200")
+  dotColor    String      @default("bg-blue-600")
+  order       Int         @default(0)
+  published   Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   tutorials   Tutorial[]
+  challenges  Challenge[]
+  exercises   Exercise[]
 
   @@map("categories")
 }
@@ -317,6 +319,8 @@ model Challenge {
   description       String
   difficulty        String                    @default("EASY")
   type              String                    @default("FUNCTION")
+  categoryId        String?
+  category          Category?                 @relation(fields: [categoryId], references: [id])
   estimatedTime     String
   starter           String
   solution          String
@@ -1021,13 +1025,15 @@ model CourseSubscriber {
 }
 
 model Exercise {
-  id            String             @id @default(cuid())
-  slug          String             @unique
-  title         String
-  description   String             @db.Text
-  difficulty    String             @default("beginner") // beginner, intermediate, advanced
-  category      String
-  estimatedTime Int                @default(15) // in minutes
+  id               String             @id @default(cuid())
+  slug             String             @unique
+  title            String
+  description      String             @db.Text
+  difficulty       String             @default("beginner") // beginner, intermediate, advanced
+  category         String
+  tutorialCategoryId String?
+  tutorialCategory   Category?        @relation(fields: [tutorialCategoryId], references: [id])
+  estimatedTime    Int                @default(15) // in minutes
   instructions  String             @db.Text
   initialHtml    String?           @db.Text
   initialCss     String?           @db.Text

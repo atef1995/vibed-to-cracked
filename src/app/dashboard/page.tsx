@@ -111,7 +111,7 @@ export default function DashboardPage() {
               Exercises
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Interactive coding exercises with test validation
+              Interactive real-world coding exercises with test validation
             </p>
             <div className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold">
               Start Exercising →
@@ -126,10 +126,11 @@ export default function DashboardPage() {
               <Code className="h-8 w-8 text-purple-600 dark:text-purple-400" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              Practice
+              Problem Solving
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Code challenges and exercises to test your skills
+              Algorithms challenges and exercises to improve your problem
+              solving ability
             </p>
             <div className="text-sm text-purple-600 dark:text-purple-400 font-semibold">
               Start Coding →
