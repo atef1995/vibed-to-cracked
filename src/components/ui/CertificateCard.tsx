@@ -14,6 +14,7 @@ import { useMood } from "@/components/providers/MoodProvider";
 import { format } from "date-fns";
 import getMoodColors from "@/lib/getMoodColors";
 import { Certificate } from "@/types/certificate";
+import Link from "next/link";
 
 interface CertificateCardProps {
   certificate: Certificate;
@@ -131,7 +132,7 @@ export default function CertificateCard({
 
   return (
     <div
-      className={`bg-linear-to-br ${moodColors.bg} border ${moodColors.border} rounded-xl p-6 shadow-lg`}
+      className={`bg-linear-to-br ${moodColors.bg} border ${moodColors.border} rounded-xl p-6 shadow-lg w-fit max-w-dvw`}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
@@ -148,19 +149,17 @@ export default function CertificateCard({
             </div>
             <p className={`text-sm ${moodColors.text} font-medium`}>
               Certificate of Completion •{" "}
-              {certificate.type === "TUTORIAL"
-                ? "Tutorial"
-                : "Category"}
+              {certificate.type === "TUTORIAL" ? "Tutorial" : "Category"}
             </p>
           </div>
         </div>
 
         {showActions && (
-          <div className="flex items-center gap-2">
+          <div className="flex-1 items-center gap-2">
             <button
               onClick={togglePublicity}
               disabled={isUpdatingPublicity}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors "
               title={certificate.isPublic ? "Make private" : "Make public"}
             >
               {certificate.isPublic ? (
@@ -181,15 +180,15 @@ export default function CertificateCard({
               )}
             </button>
             {certificate.shareableUrl && (
-              <a
+              <Link
                 href={certificate.shareableUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors flex"
                 title="View public certificate"
               >
                 <ExternalLink className="h-4 w-4" />
-              </a>
+              </Link>
             )}
           </div>
         )}
@@ -197,13 +196,13 @@ export default function CertificateCard({
 
       {/* Metadata */}
       {metadata && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4 items-center justify-center">
           {certificate.type === "TUTORIAL" && (
             <>
               {metadata.score !== undefined && (
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    {metadata.score.toPrecision(2)}%
+                    {metadata.score}%
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     Score

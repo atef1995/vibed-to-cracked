@@ -29,6 +29,7 @@ import {
   Database,
 } from "lucide-react";
 import { devMode } from "@/lib/services/envService";
+import { PageLayout } from "../ui/PageLayout";
 
 interface StudyPlanRoadmapProps {
   studyPlan: DynamicStudyPlan;
@@ -119,15 +120,15 @@ export function StudyPlanRoadmap({
   const getStepIcon = (step: DynamicStudyPlanStep) => {
     switch (step.type) {
       case "tutorial":
-        return <BookOpen className="w-4 h-4" />;
+        return <BookOpen className="w-4 h-4 min-w-fit" />;
       case "challenge":
-        return <Code className="w-4 h-4" />;
+        return <Code className="w-4 h-4 min-w-fit" />;
       case "quiz":
-        return <Target className="w-4 h-4" />;
+        return <Target className="w-4 h-4 min-w-fit" />;
       case "project":
-        return <Trophy className="w-4 h-4" />;
+        return <Trophy className="w-4 h-4 min-w-fit" />;
       default:
-        return <Circle className="w-4 h-4" />;
+        return <Circle className="w-4 h-4 min-w-fit" />;
     }
   };
 
@@ -181,12 +182,12 @@ export function StudyPlanRoadmap({
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <>
+      <div className="flex items-center justify-between space-y-2">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
           Learning Roadmap
         </h2>
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex text-sm text-gray-600 dark:text-gray-400">
           {studyPlan.phases.length} phases • {studyPlan.totalWeeks} weeks •{" "}
           {Math.round(studyPlan.totalHours * 10) / 10} hours
         </div>
@@ -283,7 +284,7 @@ export function StudyPlanRoadmap({
 
               {/* Phase Steps */}
               {isExpanded && (
-                <div className="px-6 pb-6">
+                <div className="px-1 sm:px-6 sm:pb-6">
                   <div className="space-y-3">
                     {[...phase.steps, ...phase.projects].map(
                       (step, stepIndex) => {
@@ -314,7 +315,7 @@ export function StudyPlanRoadmap({
                                   : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 opacity-60"
                               }`}
                             >
-                              <div className="flex items-start justify-between">
+                              <div className="flex-1 sm:flex items-start justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
                                     {getStepIcon(step)}
@@ -341,7 +342,9 @@ export function StudyPlanRoadmap({
                                   <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
                                     <span className="flex items-center gap-1">
                                       <Clock className="w-3 h-3" />
-                                      {Math.round(step.estimatedHours * 10) / 10}h
+                                      {Math.round(step.estimatedHours * 10) /
+                                        10}
+                                      h
                                     </span>
                                     <span
                                       className={`px-2 py-1 rounded-full ${
@@ -364,7 +367,7 @@ export function StudyPlanRoadmap({
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex gap-2 ml-4">
+                                <div className="flex gap-2 sm:ml-4 my-2 sm:my-0">
                                   {status === "available" && onStartStep && (
                                     <button
                                       onClick={() => onStartStep(step.id)}
@@ -427,6 +430,6 @@ export function StudyPlanRoadmap({
           );
         })}
       </div>
-    </div>
+    </>
   );
 }

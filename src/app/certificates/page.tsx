@@ -7,6 +7,7 @@ import CertificateCard from "@/components/ui/CertificateCard";
 import { useMood } from "@/components/providers/MoodProvider";
 import getMoodColors from "@/lib/getMoodColors";
 import { Certificate } from "@/types/certificate";
+import { PageLayout } from "@/components/ui/PageLayout";
 
 export default function CertificatesPage() {
   const { data: session } = useSession();
@@ -39,6 +40,8 @@ export default function CertificatesPage() {
     fetchCertificates();
   }, [fetchCertificates]);
 
+  console.log(certificates);
+
   const moodColors = getMoodColors(currentMood.id);
 
   const tutorialCertificates = certificates.filter(
@@ -61,10 +64,8 @@ export default function CertificatesPage() {
   }
 
   return (
-    <div
-      className={`min-h-screen bg-linear-to-br ${moodColors.gradient} p-4`}
-    >
-      <div className="container mx-auto max-w-6xl">
+    <PageLayout className={`flex flex-col items-center`}>
+      <div>
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -82,13 +83,13 @@ export default function CertificatesPage() {
 
         {/* Filter */}
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-fit max-w-svw">
             <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             <span className="text-gray-600 dark:text-gray-400 font-medium">
               Filter:
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex-1 sm:flex space-y-1 gap-2 w-fit max-w-svw">
             {[
               { value: "ALL", label: "All", icon: Award },
               {
@@ -105,7 +106,7 @@ export default function CertificatesPage() {
               <button
                 key={value}
                 onClick={() => setFilter(value as string | "ALL")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all w-36 ${
                   filter === value
                     ? `${moodColors.accent} text-white shadow-lg`
                     : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
@@ -171,7 +172,7 @@ export default function CertificatesPage() {
           tutorialCertificates.length > 0 &&
           (filter === "ALL" || filter === "TUTORIAL") && (
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-3 max-w-dvw">
                 <Award className="h-6 w-6" />
                 Tutorial Certificates
                 <span className="text-sm font-normal text-gray-500 dark:text-gray-400">
@@ -189,6 +190,6 @@ export default function CertificatesPage() {
             </div>
           )}
       </div>
-    </div>
+    </PageLayout>
   );
 }

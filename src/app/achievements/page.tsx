@@ -258,7 +258,7 @@ function AchievementsPageContent() {
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row w-full items-center gap-4 mb-8">
           <Link
             href="/dashboard"
             className="p-2 rounded-lg bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow"
@@ -398,7 +398,7 @@ function AchievementsPageContent() {
 
               {/* Share Button for Unlocked Achievements */}
               {achievement.isUnlocked && (
-                <div className="absolute top-3 left-3">
+                <div className="flex-1 top-3 left-3">
                   <div className="relative share-menu-container">
                     <button
                       onClick={() =>

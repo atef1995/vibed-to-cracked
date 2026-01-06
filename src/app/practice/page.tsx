@@ -171,6 +171,7 @@ export default function PracticePage() {
       <PageLayout
         title="Practice Challenges"
         subtitle="Sharpen your JavaScript skills with hands-on coding challenges"
+        className="flex flex-col items-center justify-center"
       >
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
@@ -194,7 +195,7 @@ export default function PracticePage() {
     <PageLayout
       title="Practice Challenges"
       subtitle="Sharpen your JavaScript skills with hands-on coding challenges"
-      className="relative"
+      className="flex flex-col justify-center w-screen"
     >
       {/* Header Icon */}
       <div className="absolute top-6 right-6">

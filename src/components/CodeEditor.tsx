@@ -244,49 +244,52 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           </span>
         </div>
 
-        
-          <div className="flex items-center space-x-1.5 sm:space-x-2">
+        <div className="flex items-center space-x-1.5 sm:space-x-2 sm:overflow-hidden">
+          <Button
+            className="absolute w-fit h-fit"
+            color={BUTTON_COLOR.TRANSPARENT}
+            title="Copy"
+            onClick={async () => {
+              await navigator.clipboard.writeText(initialCode);
+              setIsCopied(true);
+              window.setInterval(() => setIsCopied(false), 4000);
+            }}
+          >
+            {isCopied ? <Check className="w-3" /> : <Copy className="w-3" />}
+          </Button>
+          <Button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-fit h-fit"
+            color={BUTTON_COLOR.TRANSPARENT}
+            title={
+              isExpanded
+                ? "Exit fullscreen (ESC)"
+                : "Expand to fullscreen (F11)"
+            }
+          >
+            {isExpanded ? (
+              <Minimize className="w-3" />
+            ) : (
+              <Expand className="w-3" />
+            )}
+          </Button>
+          {!readOnly && canRun && (
             <Button
-              className="absolute w-16 h-8"
               color={BUTTON_COLOR.TRANSPARENT}
-              title="Copy"
-              onClick={async () => {
-                await navigator.clipboard.writeText(initialCode);
-                setIsCopied(true);
-                window.setInterval(() => setIsCopied(false), 4000);
-              }}
+              onClick={handleRunCode}
+              disabled={isRunning || !code.trim()}
+              className="w-fit h-fit"
+              title="Run"
+              loading={isRunning}
             >
-              {isCopied ? <Check /> : <Copy />}
-            </Button>
-            <Button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="w-fit h-8"
-              color={BUTTON_COLOR.TRANSPARENT}
-              title={
-                isExpanded
-                  ? "Exit fullscreen (ESC)"
-                  : "Expand to fullscreen (F11)"
-              }
-            >
-              {isExpanded ? (
-                <Minimize/>
+              {isRunning ? (
+                <StopCircle className="w-3" />
               ) : (
-                <Expand/>
+                <Play className="w-3" />
               )}
             </Button>
-            { !readOnly && canRun && (
-              <Button
-                color={BUTTON_COLOR.TRANSPARENT}
-                onClick={handleRunCode}
-                disabled={isRunning || !code.trim()}
-                className="h-8"
-                title="Run"
-                loading={isRunning}
-              >
-                {isRunning ? <StopCircle/> : <Play/>}
-              </Button>
-            )}
-          </div>
+          )}
+        </div>
       </div>
       {/* Code Editor */}
       <div

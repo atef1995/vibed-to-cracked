@@ -133,9 +133,11 @@ export default function QuizzesPage() {
       {/* Progress Summary */}
       {!loadingProgress && session && (
         <div className="mb-6">
-          <div className="inline-flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg">
+          <div className="grid-cols-2 sm:inline-flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 px-4 py-2 rounded-lg">
             <BarChart3 className="w-4 h-4" />
             <span>Progress:</span>
+            <br></br>
+            <span>•</span>
             <span>
               {
                 Object.values(tutorialProgress).filter((p) => p.quizPassed)
@@ -143,6 +145,7 @@ export default function QuizzesPage() {
               }{" "}
               completed
             </span>
+            <br></br>
             <span>•</span>
             <span>
               {
@@ -152,10 +155,12 @@ export default function QuizzesPage() {
               }{" "}
               in progress
             </span>
+            <br></br>
             <span>•</span>
             <span>
               {totalItems - Object.keys(tutorialProgress).length} not started
             </span>
+            <br></br>
             <span>•</span>
             <span className="font-medium">{totalItems} total quizzes</span>
           </div>
