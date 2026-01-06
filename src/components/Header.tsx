@@ -22,6 +22,7 @@ import {
   ChevronUp,
   ChevronDown,
   FileText,
+  Newspaper,
 } from "lucide-react";
 import { useState, useRef } from "react";
 
@@ -134,6 +135,17 @@ export function Header() {
           "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
         mobile:
           "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
+      },
+    },
+    {
+      href: "/blog",
+      label: "Blog",
+      icon: Newspaper,
+      colors: {
+        desktop:
+          "text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20",
+        mobile:
+          "text-gray-600 dark:text-gray-400 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20",
       },
     },
     {
