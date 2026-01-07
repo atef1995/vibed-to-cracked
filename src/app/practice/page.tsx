@@ -195,7 +195,7 @@ export default function PracticePage() {
     <PageLayout
       title="Practice Challenges"
       subtitle="Sharpen your JavaScript skills with hands-on coding challenges"
-      className="flex flex-col justify-center w-screen"
+      className="flex flex-col justify-center"
     >
       {/* Header Icon */}
       <div className="absolute top-6 right-6">

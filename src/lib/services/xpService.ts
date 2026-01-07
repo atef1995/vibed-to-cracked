@@ -13,6 +13,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { leaderboardCache } from "@/lib/cache";
 
 export interface XPAwardResult {
   success: boolean;
@@ -36,7 +37,7 @@ export async function awardXP(
   userId: string,
   amount: number,
   reason: string,
-  metadata?: Record<string, unknown>
+  metadata: Record<string, unknown>
 ): Promise<XPAwardResult> {
   try {
     // Fetch current user XP and level
@@ -81,6 +82,19 @@ export async function awardXP(
         level: newLevel,
       },
     });
+
+    // Log XP transaction to database for history tracking
+    await prisma.xpTransaction.create({
+      data: {
+        userId,
+        amount,
+        reason,
+        metadata: metadata ? JSON.parse(JSON.stringify(metadata)) : undefined,
+      },
+    });
+
+    // Invalidate leaderboard cache since XP changed
+    leaderboardCache.invalidateByPrefix("leaderboard:");
 
     // Log XP transaction (optional, for audit trail)
     console.log(`[XP] Awarded ${amount} XP to user ${userId}`, {

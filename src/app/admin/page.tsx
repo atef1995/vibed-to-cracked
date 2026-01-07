@@ -1,20 +1,21 @@
-'use client';
+"use client";
 
-import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
-import { useState } from 'react';
-import PromotionalEmailForm from '@/components/admin/PromotionalEmailForm';
-import StudyReminderForm from '@/components/admin/StudyReminderForm';
-import EmailStatsDashboard from '@/components/admin/EmailStatsDashboard';
-import CronJobMonitor from '@/components/admin/CronJobMonitor';
-import PeerReviewDashboard from '@/components/admin/PeerReviewDashboard';
-import BroadcastEmailForm from '@/components/admin/BroadcastEmailForm';
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { useState } from "react";
+import PromotionalEmailForm from "@/components/admin/PromotionalEmailForm";
+import StudyReminderForm from "@/components/admin/StudyReminderForm";
+import EmailStatsDashboard from "@/components/admin/EmailStatsDashboard";
+import CronJobMonitor from "@/components/admin/CronJobMonitor";
+import PeerReviewDashboard from "@/components/admin/PeerReviewDashboard";
+import BroadcastEmailForm from "@/components/admin/BroadcastEmailForm";
+import UserStatsDashboard from "@/components/admin/UserStatsDashboard";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState("users");
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
@@ -22,20 +23,38 @@ export default function AdminPage() {
     );
   }
 
-  if (!session?.user || session.user.role !== 'ADMIN') {
-    redirect('/');
+  if (!session?.user || session.user.role !== "ADMIN") {
+    redirect("/");
   }
 
   const tabs = [
-    { id: 'dashboard', label: '📊 Dashboard', component: EmailStatsDashboard },
-    { id: 'reviews', label: '👥 Peer Reviews', component: PeerReviewDashboard },
-    { id: 'promotional', label: '📧 Promotional Emails', component: PromotionalEmailForm },
-    { id: 'reminders', label: '⏰ Study Reminders', component: StudyReminderForm },
-    { id: 'cron', label: '🤖 Cron Jobs', component: CronJobMonitor },
-    { id: 'broadcast', label: '📢 Broadcast Emails', component: BroadcastEmailForm },
+    { id: "users", label: "👤 Users", component: UserStatsDashboard },
+    {
+      id: "dashboard",
+      label: "📊 Email Stats",
+      component: EmailStatsDashboard,
+    },
+    { id: "reviews", label: "👥 Peer Reviews", component: PeerReviewDashboard },
+    {
+      id: "promotional",
+      label: "📧 Promotional Emails",
+      component: PromotionalEmailForm,
+    },
+    {
+      id: "reminders",
+      label: "⏰ Study Reminders",
+      component: StudyReminderForm,
+    },
+    { id: "cron", label: "🤖 Cron Jobs", component: CronJobMonitor },
+    {
+      id: "broadcast",
+      label: "📢 Broadcast Emails",
+      component: BroadcastEmailForm,
+    },
   ];
 
-  const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component || EmailStatsDashboard;
+  const ActiveComponent =
+    tabs.find((tab) => tab.id === activeTab)?.component || UserStatsDashboard;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -43,8 +62,12 @@ export default function AdminPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-gray-600">Manage system operations, peer reviews, and user engagement</p>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Admin Dashboard
+              </h1>
+              <p className="text-gray-600">
+                Manage system operations, peer reviews, and user engagement
+              </p>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
@@ -68,8 +91,8 @@ export default function AdminPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
                 {tab.label}

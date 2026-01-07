@@ -93,10 +93,11 @@ export default function TermsPage() {
                   features
                 </li>
                 <li>
-                  <strong>PRO</strong>: Additional premium content and features
+                  <strong>VIBED</strong>: Additional premium content and
+                  features
                 </li>
                 <li>
-                  <strong>PREMIUM</strong>: Full access to all content and
+                  <strong>CRACKED</strong>: Full access to all content and
                   advanced features
                 </li>
               </ul>

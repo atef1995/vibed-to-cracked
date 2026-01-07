@@ -109,6 +109,9 @@ model User {
   // Blog system relations
   blogPosts BlogPost[]
 
+  // XP transaction history
+  xpTransactions XpTransaction[]
+
   @@map("users")
 }
 
@@ -547,6 +550,20 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("notifications")
+}
+
+model XpTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  reason    String   // PR_MERGED, REVIEW_COMPLETED, PERFECT_SCORE, QUIZ_PASSED, etc.
+  metadata  Json?    // {submissionId, reviewId, quizId, etc.}
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("xp_transactions")
 }
 
 model Project {

@@ -13,11 +13,13 @@ import {
   ArrowLeft,
   Activity,
   Bell,
+  TrendingUp,
 } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/ui/Toast";
 import { FriendSearch } from "@/components/social/FriendSearch";
 import { FriendRequests } from "@/components/social/FriendRequests";
+import { LeaderboardList } from "@/components/social/LeaderboardList";
 
 interface Friend {
   id: string;
@@ -103,6 +105,7 @@ export default function FriendsPage() {
     { id: "friends", label: "Friends", icon: Users },
     { id: "requests", label: "Requests", icon: UserPlus },
     { id: "feed", label: "Activity Feed", icon: Activity },
+    { id: "leaderboard", label: "Leaderboard", icon: TrendingUp },
   ];
 
   const moodEmojis = {
@@ -686,6 +689,11 @@ export default function FriendsPage() {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Leaderboard Tab */}
+          {activeTab === "leaderboard" && (
+            <LeaderboardList currentUserId={session?.user?.id} />
           )}
         </div>
       </div>

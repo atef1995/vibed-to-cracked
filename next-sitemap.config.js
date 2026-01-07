@@ -51,6 +51,7 @@ export default {
     ],
   },
   exclude: [
+    "/admin",
     "/admin/*",
     "/api/*",
     "/auth/*",
@@ -98,13 +99,15 @@ export default {
       console.warn("Error processing tutorial files:", error.message);
     }
 
-    // Dynamic tutorials from database
-    const tutorialsData = await safeFetch(`${baseUrl}/api/tutorials`);
+    // Dynamic tutorials from database (fetch all by using high limit)
+    const tutorialsData = await safeFetch(
+      `${baseUrl}/api/tutorials?limit=1000`
+    );
     if (tutorialsData?.success && tutorialsData?.data) {
       const dbTutorialPaths = tutorialsData.data
-        .filter((tutorial) => tutorial.published)
+        .filter((tutorial) => tutorial.published && tutorial.category?.slug)
         .map((tutorial) => ({
-          loc: `/tutorials/${tutorial.slug}`,
+          loc: `/tutorials/category/${tutorial.category.slug}/${tutorial.slug}`,
           changefreq: "weekly",
           priority: tutorial.isPremium ? 0.9 : 0.8,
           lastmod: new Date(
@@ -171,8 +174,10 @@ export default {
       paths.push(...exercisePaths);
     }
 
-    // Cheat Sheets
-    const cheatSheetsData = await safeFetch(`${baseUrl}/api/cheat-sheets`);
+    // Cheat Sheets (fetch all by using high limit)
+    const cheatSheetsData = await safeFetch(
+      `${baseUrl}/api/cheat-sheets?limit=1000`
+    );
     if (cheatSheetsData?.data) {
       const cheatSheetPaths = cheatSheetsData.data
         .filter((sheet) => sheet.published)
@@ -211,8 +216,8 @@ export default {
       paths.push(...projectPaths);
     }
 
-    // Blog Posts
-    const blogData = await safeFetch(`${baseUrl}/api/blog`);
+    // Blog Posts (fetch all by using high limit)
+    const blogData = await safeFetch(`${baseUrl}/api/blog?limit=1000`);
     if (blogData?.success && blogData?.data) {
       const blogPaths = blogData.data
         .filter((post) => post.published)

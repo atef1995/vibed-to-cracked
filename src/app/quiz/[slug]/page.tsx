@@ -15,6 +15,7 @@ import {
   MoodImpactIndicator,
   MoodDifficultyBadge,
 } from "@/components/ui/MoodImpactIndicator";
+import { PageLayout } from "@/components/ui/PageLayout";
 
 export default function QuizPage({
   params,
@@ -169,7 +170,7 @@ export default function QuizPage({
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 select-none">
+    <PageLayout className="select-none">
       <div className="container mx-auto px-4 py-8">
         {!session && (
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -244,6 +245,6 @@ export default function QuizPage({
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 }
