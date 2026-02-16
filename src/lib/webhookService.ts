@@ -7,6 +7,8 @@ import {
 import { prisma } from "@/lib/prisma";
 import { emailService } from "@/lib/services/emailService";
 import { devMode } from "./services/envService";
+import { OrderStatus } from "@/generated/client";
+import { ShippingAddress } from "@stripe/stripe-js";
 
 // Type for Stripe Invoice parent with subscription details
 interface InvoiceParentWithSubscription {
@@ -43,6 +45,13 @@ export class WebhookService {
           subscriptionId: session.subscription,
         });
       }
+
+      // Check if this is a store order
+      if (session.metadata?.type === "store_order") {
+        return await this.handleStoreOrderCheckout(session);
+      }
+
+      // Handle subscription checkout (existing logic)
       if (!session.customer || !session.metadata?.userId) {
         if (debugMode) {
           console.error("❌ Missing customer or userId in session metadata:", {
@@ -118,6 +127,172 @@ export class WebhookService {
       console.log(` Checkout completed for user ${userId}, plan ${plan}`);
     } catch (error) {
       console.error("❌ Error handling checkout session completed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Handle store order checkout completion
+   */
+  static async handleStoreOrderCheckout(
+    session: Stripe.Checkout.Session
+  ): Promise<void> {
+    try {
+      if (debugMode) {
+        console.log("🛒 Processing store order checkout:", session.id);
+      }
+
+      const orderId = session.metadata?.orderId;
+      const userId = session.metadata?.userId;
+      const guestEmail = session.metadata?.guestEmail;
+
+      if (!orderId) {
+        console.error("❌ Missing orderId in session metadata");
+        return;
+      }
+
+      if (!userId && !guestEmail) {
+        console.error(
+          "❌ Missing both userId and guestEmail in session metadata"
+        );
+        return;
+      }
+
+      // Import store services dynamically to avoid circular dependencies
+      const { getOrderById, updateOrderStatus, fulfillOrder } =
+        await import("@/lib/services/storeService");
+      const { clearCart } = await import("@/lib/services/cartService");
+
+      // Get order details
+      const order = await getOrderById(orderId);
+
+      if (!order) {
+        console.error(`❌ Order ${orderId} not found`);
+        return;
+      }
+
+      // Extract shipping address from session
+      const sessionWithShipping = session as Stripe.Checkout.Session & {
+        shipping_details?: {
+          name?: string;
+          address?: Stripe.Address;
+        };
+      };
+      const shippingAddress = sessionWithShipping.shipping_details?.address
+        ? {
+            name: sessionWithShipping.shipping_details.name,
+            line1: sessionWithShipping.shipping_details.address.line1,
+            line2: sessionWithShipping.shipping_details.address.line2,
+            city: sessionWithShipping.shipping_details.address.city,
+            state: sessionWithShipping.shipping_details.address.state,
+            postal_code:
+              sessionWithShipping.shipping_details.address.postal_code,
+            country: sessionWithShipping.shipping_details.address.country,
+          }
+        : null;
+
+      // Update order with payment info and shipping address
+      await updateOrderStatus(orderId, OrderStatus.PAID, {
+        stripeSessionId: session.id,
+        stripePaymentIntentId: session.payment_intent as string,
+        shippingAddress,
+        phone: sessionWithShipping.customer_details?.phone,
+        completedAt: new Date().toISOString(),
+      });
+
+      // Fulfill order (decrement stock)
+      const fulfillResult = await fulfillOrder(orderId);
+
+      if (!fulfillResult.success) {
+        console.error(
+          `⚠️ Failed to fulfill order ${orderId}:`,
+          fulfillResult.error
+        );
+      }
+
+      // Clear cart (works for both authenticated and anonymous)
+      if (userId) {
+        await clearCart(userId);
+      }
+
+      // Award XP only for authenticated users
+      if (userId) {
+        const { awardXP } = await import("@/lib/services/xpService");
+
+        const previousOrders = await prisma.order.count({
+          where: {
+            userId,
+            status: OrderStatus.PAID,
+            id: { not: orderId },
+          },
+        });
+
+        if (previousOrders === 0) {
+          // First purchase bonus
+          await awardXP(userId, 50, "FIRST_PURCHASE", {
+            orderId,
+            total: order.total,
+          });
+          if (debugMode) {
+            console.log(`🎉 Awarded first purchase bonus to user ${userId}`);
+          }
+        } else {
+          // Regular purchase
+          await awardXP(userId, 25, "PURCHASE", {
+            orderId,
+            total: order.total,
+          });
+        }
+      } else {
+        if (debugMode) {
+          console.log(
+            `📦 Guest order completed (no XP awarded): ${guestEmail}`
+          );
+        }
+      }
+
+      // Send order confirmation email
+      const email = userId ? order.user?.email : guestEmail;
+      const customerName = userId ? order.user?.name : null;
+      if (email) {
+        try {
+          // Transform order data for email service
+          const emailOrderData = {
+            id: order.id,
+            total: order.total,
+            currency: order.currency,
+            createdAt: order.createdAt,
+            shippingAddress: order.shippingAddress as ShippingAddress,
+            items: order.items.map((item) => ({
+              quantity: item.quantity,
+              priceAtPurchase: item.priceAtPurchase,
+              product: {
+                name: item.product.name,
+                slug: item.product.slug,
+                images: item.product.images as string[] | null,
+              },
+            })),
+          };
+
+          await emailService.sendOrderConfirmationEmail(
+            email,
+            emailOrderData,
+            customerName || undefined
+          );
+          if (debugMode) {
+            console.log(`📧 Order confirmation email sent to ${email}`);
+          }
+        } catch (emailError) {
+          console.error("Failed to send order confirmation email:", emailError);
+          // Don't throw - email failure shouldn't stop order processing
+        }
+      }
+
+      if (debugMode) {
+        console.log(`✅ Store order ${orderId} processed successfully`);
+      }
+    } catch (error) {
+      console.error("❌ Error handling store order checkout:", error);
       throw error;
     }
   }

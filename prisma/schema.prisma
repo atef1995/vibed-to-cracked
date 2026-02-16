@@ -112,6 +112,10 @@ model User {
   // XP transaction history
   xpTransactions XpTransaction[]
 
+  // Store relations
+  orders Order[]
+  cart   Cart?
+
   @@map("users")
 }
 
@@ -427,6 +431,118 @@ model Subscription {
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
+}
+
+// ============================================================================
+// Store / E-commerce Models
+// Physical and digital products, orders, and shopping cart
+// ============================================================================
+
+enum ProductType {
+  PHYSICAL
+  DIGITAL
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model Product {
+  id              String      @id @default(cuid())
+  slug            String      @unique
+  name            String
+  description     String      @db.Text
+  price           Float
+  currency        String      @default("usd")
+  images          String[]    // Array of image URLs
+  type            ProductType @default(PHYSICAL)
+  published       Boolean     @default(false)
+  stock           Int?        // null for digital/unlimited inventory
+  stripeProductId String?     @unique
+  stripePriceId   String?
+  metadata        Json?       // Additional product data
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+
+  @@index([published, type])
+  @@index([slug])
+  @@map("products")
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  userId                String?     // Optional for guest checkout
+  guestEmail            String?     // Email for guest orders
+  total                 Float
+  currency              String      @default("usd")
+  status                OrderStatus @default(PENDING)
+  stripeSessionId       String?     @unique
+  stripePaymentIntentId String?     @unique
+  shippingAddress       Json?       // { name, line1, line2, city, state, postal_code, country, phone }
+  metadata              Json?
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  user  User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([guestEmail])
+  @@index([status])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String  @id @default(cuid())
+  orderId         String
+  productId       String
+  quantity        Int
+  priceAtPurchase Float   // Snapshot price at time of purchase
+  metadata        Json?
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  userId    String?    @unique // null for anonymous carts
+  sessionId String?    // For anonymous users
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  user  User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items CartItem[]
+
+  @@index([sessionId])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int      @default(1)
+  addedAt   DateTime @default(now())
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@index([cartId])
+  @@map("cart_items")
 }
 
 model UserSettings {

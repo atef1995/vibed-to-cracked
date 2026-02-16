@@ -23,8 +23,10 @@ import {
   ChevronDown,
   FileText,
   Newspaper,
+  ShoppingBag,
 } from "lucide-react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { CartIcon } from "@/components/store/CartIcon";
 
 export function Header() {
   const { data: session } = useSession();
@@ -32,10 +34,32 @@ export function Header() {
   const [showDropdownMenu, setShowDropdownMenu] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
+  const [cartItemCount, setCartItemCount] = useState(0);
 
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    fetchCartCount();
+  }, [session]);
+
+  const fetchCartCount = async () => {
+    try {
+      const response = await fetch("/api/store/cart");
+      if (response.ok) {
+        const data = await response.json();
+        const count =
+          data.data?.cart?.items?.reduce(
+            (sum: number, item: { quantity: number }) => sum + item.quantity,
+            0
+          ) || 0;
+        setCartItemCount(count);
+      }
+    } catch (err) {
+      console.error("Error fetching cart count:", err);
+    }
+  };
 
   const navigationItems = [
     {
@@ -127,6 +151,17 @@ export function Header() {
       },
     },
     {
+      href: "/store",
+      label: "Store",
+      icon: ShoppingBag,
+      colors: {
+        desktop:
+          "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
+        mobile:
+          "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
+      },
+    },
+    {
       href: "/projects",
       label: "Projects",
       icon: Building,
@@ -207,6 +242,9 @@ export function Header() {
 
           {/* Right Side - Compact on mobile */}
           <div className="flex items-center gap-2 sm:gap-4 ">
+            {/* Cart Icon */}
+            <CartIcon itemCount={cartItemCount} />
+
             {/* Mood Indicator - Only on larger screens */}
             {session && (
               <div className="hidden lg:flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 ">

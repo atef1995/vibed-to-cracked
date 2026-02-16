@@ -64,3 +64,4 @@ src/content/tutorials/
 scripts/dbSeeds/tutorials/advanced/seedAdvancedTutorials.ts
 scripts/dbSeeds/
 docs/
+scripts/sync-stripe-products.ts

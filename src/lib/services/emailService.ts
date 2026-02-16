@@ -2,6 +2,16 @@ import nodemailer from "nodemailer";
 import { User } from "../../generated/client";
 import { devMode } from "./envService";
 
+interface ShippingAddress {
+  name?: string | null;
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+}
+
 interface EmailConfig {
   host: string;
   port: number;
@@ -236,6 +246,36 @@ class EmailService {
     return await this.sendEmail(recipient.email, subject, html);
   }
 
+  async sendOrderConfirmationEmail(
+    email: string,
+    order: {
+      id: string;
+      total: number;
+      currency: string;
+      createdAt: Date;
+      shippingAddress: ShippingAddress | null;
+      items: Array<{
+        quantity: number;
+        priceAtPurchase: number;
+        product: {
+          name: string;
+          slug: string;
+          images: string[] | null;
+        };
+      }>;
+    },
+    customerName?: string
+  ) {
+    const subject = `Order Confirmation #${order.id.slice(-8)} - Vibed to Cracked`;
+    const html = this.generateOrderConfirmationTemplate(
+      email,
+      order,
+      customerName
+    );
+
+    return await this.sendEmail(email, subject, html);
+  }
+
   private generateWelcomeTemplate(user: User): string {
     const moodEmojis: Record<string, string> = {
       CHILL: "😎",
@@ -266,15 +306,15 @@ class EmailService {
           
           <div class="content">
             <h2>Hey ${user.name || user.username || "there"}! ${
-      moodEmojis[user.mood] || "👋"
-    }</h2>
+              moodEmojis[user.mood] || "👋"
+            }</h2>
             
             <p>Welcome to the most mood-driven web development learning platform on the web! We're excited to have you on board.</p>
             
             <div class="mood-badge">
               <strong>Your Current Mood:</strong> ${user.mood} ${
-      moodEmojis[user.mood] || ""
-    }
+                moodEmojis[user.mood] || ""
+              }
             </div>
             
             <h3>What's Next?</h3>
@@ -349,8 +389,8 @@ class EmailService {
             <p>Don't miss out on this opportunity to level up your Programming skills with premium content and features.</p>
             
             <a href="${promotion.ctaUrl}" class="cta-button">${
-      promotion.ctaText
-    }</a>
+              promotion.ctaText
+            }</a>
             
             <p><small>This offer expires soon. Take action now! ⏰</small></p>
           </div>
@@ -360,8 +400,8 @@ class EmailService {
             <p><a href="${
               process.env.NEXTAUTH_URL
             }/settings">Update email preferences</a> | <a href="${
-      process.env.NEXTAUTH_URL
-    }/unsubscribe">Unsubscribe</a></p>
+              process.env.NEXTAUTH_URL
+            }/unsubscribe">Unsubscribe</a></p>
           </div>
         </body>
       </html>
@@ -405,8 +445,8 @@ class EmailService {
             <h2>Hey ${user.name || user.username}! 👋</h2>
             
             <p>We noticed it's been ${daysSinceActive} day${
-      daysSinceActive > 1 ? "s" : ""
-    } since your last coding session. Your Programming skills are missing you!</p>
+              daysSinceActive > 1 ? "s" : ""
+            } since your last coding session. Your Programming skills are missing you!</p>
             
             ${
               reminderData.streak
@@ -489,8 +529,8 @@ class EmailService {
           <div class="content">
             <div class="info-box">
               <p><span class="label">From:</span> ${contactData.name} (${
-      contactData.email
-    })</p>
+                contactData.email
+              })</p>
               <p><span class="label">Subject:</span> ${contactData.subject}</p>
               <p><span class="label">Submitted:</span> ${new Date().toLocaleString()}</p>
             </div>
@@ -725,8 +765,8 @@ class EmailService {
                 <p>You're currently in a ${
                   paymentData.plan
                 } trial period until ${formatDate(
-                    paymentData.trialEndsAt
-                  )}. After your trial ends, your subscription will automatically continue at the regular price.</p>
+                  paymentData.trialEndsAt
+                )}. After your trial ends, your subscription will automatically continue at the regular price.</p>
               </div>
             `
                 : ""
@@ -734,8 +774,8 @@ class EmailService {
             
             <div class="plan-box">
               <h3>${planEmojis[paymentData.plan]} ${
-      paymentData.plan
-    } Plan Features</h3>
+                paymentData.plan
+              } Plan Features</h3>
               ${
                 paymentData.plan === "VIBED"
                   ? `
@@ -748,7 +788,7 @@ class EmailService {
                 </ul>
               `
                   : paymentData.plan === "CRACKED"
-                  ? `
+                    ? `
                 <ul>
                   <li>Everything in Vibed plan</li>
                   <li>AI-powered code reviews</li>
@@ -758,7 +798,7 @@ class EmailService {
                   <li>Advanced project templates</li>
                 </ul>
               `
-                  : ""
+                    : ""
               }
             </div>
 
@@ -866,15 +906,15 @@ class EmailService {
               riskLevel === "high"
                 ? "#ffebee"
                 : riskLevel === "medium"
-                ? "#fff8e1"
-                : "#e8f5e8"
+                  ? "#fff8e1"
+                  : "#e8f5e8"
             }; padding: 20px; border-left: 4px solid ${
-      riskLevel === "high"
-        ? "#f44336"
-        : riskLevel === "medium"
-        ? "#ffc107"
-        : "#4caf50"
-    }; margin: 20px 0; }
+              riskLevel === "high"
+                ? "#f44336"
+                : riskLevel === "medium"
+                  ? "#ffc107"
+                  : "#4caf50"
+            }; margin: 20px 0; }
             .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
             .label { font-weight: bold; color: #555; display: block; margin-bottom: 5px; }
             .value { white-space: pre-wrap; }
@@ -1292,8 +1332,8 @@ document.querySelector('#increment').addEventListener('click', () => {
 
             <p style="text-align: center; margin: 30px 0;">
               <a href="${baseUrl}/tutorials/category/${
-      dayContent.tutorialSlug
-    }" class="cta-button">
+                dayContent.tutorialSlug
+              }" class="cta-button">
                 Read Full Tutorial →
               </a>
             </p>
@@ -1311,8 +1351,8 @@ document.querySelector('#increment').addEventListener('click', () => {
             `
                 : `
               <p><small>Tomorrow: Day ${day + 1} - ${this.getCourseDayTitle(
-                    day + 1
-                  )}</small></p>
+                day + 1
+              )}</small></p>
             `
             }
           </div>
@@ -1394,8 +1434,8 @@ document.querySelector('#increment').addEventListener('click', () => {
               <div class="unsubscribe">
                 <p>Don't want to receive emails like this?</p>
                 <p><a href="${baseUrl}/unsubscribe?email=${encodeURIComponent(
-                    recipient.email
-                  )}">Unsubscribe from promotional emails</a></p>
+                  recipient.email
+                )}">Unsubscribe from promotional emails</a></p>
               </div>
             `
                 : ""
@@ -1450,6 +1490,157 @@ document.querySelector('#increment').addEventListener('click', () => {
     }
 
     return notes;
+  }
+
+  private generateOrderConfirmationTemplate(
+    email: string,
+    order: {
+      id: string;
+      total: number;
+      currency: string;
+      createdAt: Date;
+      shippingAddress: ShippingAddress | null;
+      items: Array<{
+        quantity: number;
+        priceAtPurchase: number;
+        product: {
+          name: string;
+          slug: string;
+          images: string[] | null;
+        };
+      }>;
+    },
+    customerName?: string
+  ): string {
+    const formatPrice = (price: number, currency: string) => {
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: currency.toUpperCase(),
+      }).format(price);
+    };
+
+    const formatDate = (date: Date) => {
+      return new Intl.DateTimeFormat("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(date);
+    };
+
+    const shippingAddress = order.shippingAddress;
+    const addressHtml = shippingAddress
+      ? `
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0; color: #333;">Shipping Address</h3>
+          <p style="margin: 5px 0;">${shippingAddress.name || ""}</p>
+          <p style="margin: 5px 0;">${shippingAddress.line1 || ""}</p>
+          ${shippingAddress.line2 ? `<p style="margin: 5px 0;">${shippingAddress.line2}</p>` : ""}
+          <p style="margin: 5px 0;">${shippingAddress.city || ""}, ${shippingAddress.state || ""} ${shippingAddress.postal_code || ""}</p>
+          <p style="margin: 5px 0;">${shippingAddress.country || ""}</p>
+        </div>
+      `
+      : "";
+
+    const itemsHtml = order.items
+      .map((item) => {
+        const images = item.product.images;
+        const imageUrl =
+          images && Array.isArray(images) && images.length > 0
+            ? images[0]
+            : null;
+
+        return `
+        <tr>
+          <td style="padding: 15px; border-bottom: 1px solid #eee;">
+            <div style="display: flex; align-items: center;">
+              ${
+                imageUrl
+                  ? `<img src="${imageUrl}" alt="${item.product.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;" />`
+                  : ""
+              }
+              <div>
+                <strong>${item.product.name}</strong><br/>
+                <span style="color: #666; font-size: 14px;">Quantity: ${item.quantity}</span>
+              </div>
+            </div>
+          </td>
+          <td style="padding: 15px; border-bottom: 1px solid #eee; text-align: right;">
+            ${formatPrice(item.priceAtPurchase, order.currency)}
+          </td>
+        </tr>
+      `;
+      })
+      .join("");
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Order Confirmation</title>
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; }
+            .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; text-align: center; }
+            .content { background: white; padding: 30px 20px; }
+            .order-summary { background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
+            .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            .total-row { background: #f0f0f0; font-weight: bold; font-size: 18px; }
+            .cta-button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0; }
+            .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Order Confirmed! 🎉</h1>
+              <p>Thank you for your purchase</p>
+            </div>
+            
+            <div class="content">
+              <h2>Hey ${customerName || "there"}!</h2>
+              
+              <p>We've received your order and will begin processing it right away. You'll receive a shipping notification once your order is on its way.</p>
+              
+              <div class="order-summary">
+                <h3 style="margin-top: 0;">Order Details</h3>
+                <p><strong>Order Number:</strong> #${order.id.slice(-8)}</p>
+                <p><strong>Order Date:</strong> ${formatDate(order.createdAt)}</p>
+                <p><strong>Email:</strong> ${email}</p>
+              </div>
+
+              ${addressHtml}
+              
+              <h3>Order Items</h3>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th style="text-align: left; padding: 10px; border-bottom: 2px solid #ddd;">Item</th>
+                    <th style="text-align: right; padding: 10px; border-bottom: 2px solid #ddd;">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                  <tr class="total-row">
+                    <td style="padding: 15px;">Total</td>
+                    <td style="padding: 15px; text-align: right;">${formatPrice(order.total, order.currency)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <p>If you have any questions about your order, please don't hesitate to contact us.</p>
+              
+              <a href="${process.env.NEXTAUTH_URL}/store" class="cta-button">Continue Shopping</a>
+            </div>
+            
+            <div class="footer">
+              <p>Thank you for supporting Vibed to Cracked!<br/>The Vibed to Cracked Team</p>
+              <p>Need help? Contact us at support@vibed-to-cracked.com</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
   }
 }
 

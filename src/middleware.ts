@@ -223,6 +223,7 @@ function isProtectedRoute(pathname: string): boolean {
   const protectedRoutes = [
     "/settings",
     "/cheat-sheets", // Cheat sheets require authentication
+    "/store/orders", // Order history requires authentication
   ];
 
   return protectedRoutes.some((route) => {
@@ -355,5 +356,6 @@ export const config = {
     // Catch all auth routes
     "/auth/:path*",
     // Quizzes are public for viewing/indexing
+    "/store/orders/:path*", // Order history requires authentication
   ],
 };
