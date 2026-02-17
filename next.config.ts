@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   experimental: {
     mdxRs: true,
   },
+  serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg"],
   // Add headers required for WebContainer (SharedArrayBuffer support)
   async headers() {
     return [
@@ -25,7 +26,7 @@ const nextConfig: NextConfig = {
     ];
   },
   // Exclude scripts and seed files from build
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
     };
