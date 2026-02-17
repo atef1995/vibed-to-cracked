@@ -6,7 +6,7 @@ import { SubscriptionService, Plan } from "@/lib/subscriptionService";
 import { StripeHelpers } from "@/lib/stripeHelpers";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-06-30.basil" as unknown as "2025-08-27.basil",
+  apiVersion: "2026-01-28.clover",
 });
 
 export async function POST(request: NextRequest) {
@@ -267,9 +267,8 @@ export async function POST(request: NextRequest) {
       };
     }
 
-    const checkoutSession = await stripe.checkout.sessions.create(
-      checkoutSessionData
-    );
+    const checkoutSession =
+      await stripe.checkout.sessions.create(checkoutSessionData);
 
     // Create payment record for tracking
     await SubscriptionService.createPayment(
@@ -280,8 +279,8 @@ export async function POST(request: NextRequest) {
           ? 9900 // $99/year for Cracked
           : 8900 // $89/year for Vibed
         : plan === "CRACKED"
-        ? 1990 // $19.90/month for Cracked
-        : 998, // $9.98/month for Vibed
+          ? 1990 // $19.90/month for Cracked
+          : 998, // $9.98/month for Vibed
       "usd",
       checkoutSession.id
     );

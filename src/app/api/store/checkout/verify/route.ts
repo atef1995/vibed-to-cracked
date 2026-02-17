@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@/generated/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-08-27.basil",
+  apiVersion: "2026-01-28.clover",
 });
 
 export async function GET(request: NextRequest) {

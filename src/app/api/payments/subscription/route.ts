@@ -10,7 +10,7 @@ import { toSubscriptionEndDateISO } from "@/lib/subscriptionUtils";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-06-30.basil" as unknown as "2025-08-27.basil",
+  apiVersion: "2026-01-28.clover",
 });
 
 export async function GET() {
@@ -159,7 +159,9 @@ export async function DELETE(request: NextRequest) {
         data: updatedSubscription,
         cancellation: {
           reason,
-          effectiveDate: toSubscriptionEndDateISO(currentSubscription.subscriptionEndsAt),
+          effectiveDate: toSubscriptionEndDateISO(
+            currentSubscription.subscriptionEndsAt
+          ),
         },
       });
     }
@@ -218,7 +220,9 @@ export async function DELETE(request: NextRequest) {
         data: updatedSubscription,
         cancellation: {
           reason,
-          effectiveDate: toSubscriptionEndDateISO(currentSubscription.subscriptionEndsAt),
+          effectiveDate: toSubscriptionEndDateISO(
+            currentSubscription.subscriptionEndsAt
+          ),
         },
       });
     } catch (stripeError: unknown) {
@@ -253,7 +257,9 @@ export async function DELETE(request: NextRequest) {
           data: updatedSubscription,
           cancellation: {
             reason,
-            effectiveDate: toSubscriptionEndDateISO(currentSubscription.subscriptionEndsAt),
+            effectiveDate: toSubscriptionEndDateISO(
+              currentSubscription.subscriptionEndsAt
+            ),
           },
         });
       }
@@ -318,9 +324,8 @@ async function handleReactivation(userId: string) {
     console.log("🎯 Processing subscription reactivation for user:", userId);
 
     // Get current subscription info
-    const currentSubscription = await SubscriptionService.getUserSubscription(
-      userId
-    );
+    const currentSubscription =
+      await SubscriptionService.getUserSubscription(userId);
 
     if (currentSubscription.plan === Plan.FREE) {
       return NextResponse.json(
@@ -330,22 +335,22 @@ async function handleReactivation(userId: string) {
     }
 
     // Check if subscription can be reactivated
-    const canReactivate = 
+    const canReactivate =
       currentSubscription.status === SubscriptionStatus.CANCELLED ||
-      (currentSubscription.status === SubscriptionStatus.TRIAL && 
-       currentSubscription.subscriptionEndsAt && 
-       currentSubscription.subscriptionEndsAt > new Date()) ||
+      (currentSubscription.status === SubscriptionStatus.TRIAL &&
+        currentSubscription.subscriptionEndsAt &&
+        currentSubscription.subscriptionEndsAt > new Date()) ||
       (currentSubscription.status === SubscriptionStatus.EXPIRED &&
-       currentSubscription.subscriptionEndsAt &&
-       currentSubscription.subscriptionEndsAt > new Date());
+        currentSubscription.subscriptionEndsAt &&
+        currentSubscription.subscriptionEndsAt > new Date());
 
     if (!canReactivate) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: { 
-            message: `Cannot reactivate subscription with status: ${currentSubscription.status}. Only cancelled subscriptions with remaining access can be reactivated.` 
-          } 
+        {
+          success: false,
+          error: {
+            message: `Cannot reactivate subscription with status: ${currentSubscription.status}. Only cancelled subscriptions with remaining access can be reactivated.`,
+          },
         },
         { status: 400 }
       );
@@ -354,13 +359,14 @@ async function handleReactivation(userId: string) {
     // Handle local trial reactivation (no Stripe subscription)
     if (!currentSubscription.stripeSubscriptionId) {
       console.log("🔄 Reactivating local trial subscription");
-      
+
       // For local trials, just update the status back to TRIAL
       if (currentSubscription.status === SubscriptionStatus.CANCELLED) {
-        const newStatus = currentSubscription.subscriptionEndsAt && 
-                         currentSubscription.subscriptionEndsAt > new Date()
-          ? SubscriptionStatus.TRIAL
-          : SubscriptionStatus.ACTIVE;
+        const newStatus =
+          currentSubscription.subscriptionEndsAt &&
+          currentSubscription.subscriptionEndsAt > new Date()
+            ? SubscriptionStatus.TRIAL
+            : SubscriptionStatus.ACTIVE;
 
         await SubscriptionService.updateUserSubscription(
           userId,
@@ -370,11 +376,13 @@ async function handleReactivation(userId: string) {
         );
 
         // Get updated subscription info
-        const updatedSubscription = await SubscriptionService.getUserSubscription(userId);
+        const updatedSubscription =
+          await SubscriptionService.getUserSubscription(userId);
 
         return NextResponse.json({
           success: true,
-          message: "Subscription reactivated successfully. Your premium access will continue.",
+          message:
+            "Subscription reactivated successfully. Your premium access will continue.",
           data: updatedSubscription,
         });
       }
@@ -382,7 +390,10 @@ async function handleReactivation(userId: string) {
       return NextResponse.json(
         {
           success: false,
-          error: { message: "No Stripe subscription found to reactivate and local subscription cannot be reactivated" },
+          error: {
+            message:
+              "No Stripe subscription found to reactivate and local subscription cannot be reactivated",
+          },
         },
         { status: 400 }
       );
@@ -412,9 +423,8 @@ async function handleReactivation(userId: string) {
       );
 
       // Get updated subscription info
-      const updatedSubscription = await SubscriptionService.getUserSubscription(
-        userId
-      );
+      const updatedSubscription =
+        await SubscriptionService.getUserSubscription(userId);
 
       return NextResponse.json({
         success: true,
