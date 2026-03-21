@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: vibed-to-cracked-app
     restart: unless-stopped
+    ports:
+      - "3000:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
@@ -38,29 +40,8 @@ services:
     networks:
       - app-network
 
-  # Caddy reverse proxy with automatic TLS
-  caddy:
-    image: caddy:2-alpine
-    container_name: vibed-to-cracked-caddy
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - app-network
-    depends_on:
-      - app
-    environment:
-      - DOMAIN=${DOMAIN}
-      - ACME_EMAIL=${ACME_EMAIL}
-
 volumes:
   postgres_data:
-  caddy_data:
-  caddy_config:
 
 networks:
   app-network:

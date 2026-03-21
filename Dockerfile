@@ -28,6 +28,8 @@ ENV NEXT_TELEMETRY_DISABLED 1
     RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" npx prisma generate && node fix-prisma-imports.js
 # Build the application
 RUN npm run build
+# Remove static sitemap files so the dynamic app/sitemap.ts route is not shadowed
+RUN rm -f public/sitemap*.xml
 
 # Production image, copy all the files and run next
 FROM base AS runner
