@@ -1,6 +1,6 @@
 # Vibed to Cracked - Docker Deployment Guide
 
-This guide will help you deploy your Vibed to Cracked application to a VPS with Docker, complete with HTTPS support via Let's Encrypt.
+This guide deploys Vibed to Cracked to a VPS using Docker Compose, PostgreSQL, and Caddy for automatic HTTPS.
 
 ## Prerequisites
 
@@ -21,9 +21,8 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 sudo usermod -aG docker $USER
 
-# Install Docker Compose
-sudo curl -L "https://github.com/docker/compose/releases/download/v2.20.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+# Docker Compose plugin is bundled with recent Docker installs
+docker compose version
 
 # Log out and back in to apply Docker group changes
 ```
@@ -32,22 +31,22 @@ sudo chmod +x /usr/local/bin/docker-compose
 
 ```bash
 # Clone your repository
-git clone https://github.com/yourusername/vibed-to-cracked.git
+git clone https://github.com/atef1995/vibed-to-cracked.git
 cd vibed-to-cracked/app
 
 # Make deployment script executable
-chmod +x deploy.sh
+chmod +x scripts/deploy.sh
 
 # Run the deployment script
-./deploy.sh
+./scripts/deploy.sh
 ```
 
 The deployment script will:
 - Guide you through configuration
 - Set up environment variables
-- Obtain SSL certificates
 - Start all services
-- Set up automatic certificate renewal
+- Run migrations and seeding
+- Let Caddy manage HTTPS certificates automatically
 
 ### 3. Configure OAuth Applications
 
@@ -76,94 +75,78 @@ cp .env.production.example .env.production
 nano .env.production
 ```
 
-### 2. Update Domain Configuration
+### 2. Set Domain and ACME Email in .env.production
 
-Replace `yourdomain.com` in these files:
-- `docker-compose.yml`
-- `nginx/sites-available/vibed-to-cracked`
+These variables are required for Caddy TLS automation:
 
-### 3. Enable Nginx Site
-
-```bash
-ln -sf ../sites-available/vibed-to-cracked nginx/sites-enabled/vibed-to-cracked
+```env
+DOMAIN=yourdomain.com
+ACME_EMAIL=you@yourdomain.com
 ```
 
-### 4. Start Services
+### 3. Start Services
 
 ```bash
 # Build and start all services
-docker-compose up -d --build
+docker compose --env-file .env.production up -d --build
 
 # Run database migrations
-docker-compose exec app npx prisma migrate deploy
-docker-compose exec app npx prisma db seed
-
-# Obtain SSL certificates
-docker-compose run --rm certbot
-
-# Reload nginx
-docker-compose exec nginx nginx -s reload
+docker compose --env-file .env.production exec -T app npx prisma migrate deploy
+docker compose --env-file .env.production exec -T app npx prisma db seed
 ```
 
 ## Service Architecture
 
 - **app**: Next.js application (port 3000 internal)
-- **db**: PostgreSQL database (port 5432)
-- **nginx**: Reverse proxy with SSL (ports 80, 443)
-- **certbot**: SSL certificate management
+- **db**: PostgreSQL database (internal network by default)
+- **caddy**: Reverse proxy with automatic TLS (ports 80, 443)
 
 ## Useful Commands
 
 ### Application Management
 ```bash
 # View all logs
-docker-compose logs -f
+docker compose --env-file .env.production logs -f
 
 # View specific service logs
-docker-compose logs -f app
-docker-compose logs -f nginx
-docker-compose logs -f db
+docker compose --env-file .env.production logs -f app
+docker compose --env-file .env.production logs -f caddy
+docker compose --env-file .env.production logs -f db
 
 # Restart services
-docker-compose restart
-docker-compose restart app
+docker compose --env-file .env.production restart
+docker compose --env-file .env.production restart app
 
 # Update application
 git pull
-docker-compose up --build -d app
+docker compose --env-file .env.production up --build -d app
 
 # Stop all services
-docker-compose down
+docker compose --env-file .env.production down
 ```
 
 ### Database Management
 ```bash
 # Access database
-docker-compose exec db psql -U postgres -d vibed_to_cracked
+docker compose --env-file .env.production exec db psql -U postgres -d vibed_to_cracked
 
 # Create backup
-docker-compose exec db pg_dump -U postgres vibed_to_cracked > backup_$(date +%Y%m%d_%H%M%S).sql
+docker compose --env-file .env.production exec -T db pg_dump -U postgres vibed_to_cracked > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Restore backup
-docker-compose exec -T db psql -U postgres -d vibed_to_cracked < backup.sql
+docker compose --env-file .env.production exec -T db psql -U postgres -d vibed_to_cracked < backup.sql
 
 # Run migrations
-docker-compose exec app npx prisma migrate deploy
-
-# Reset database (DANGER!)
-docker-compose exec app npx prisma migrate reset --force
+docker compose --env-file .env.production exec -T app npx prisma migrate deploy
 ```
 
-### SSL Management
+### Caddy TLS Management
 ```bash
-# Renew certificates manually
-docker-compose run --rm certbot renew
+# Tail Caddy logs for certificate issuance details
+docker compose --env-file .env.production logs -f caddy
 
-# Test certificate renewal
-docker-compose run --rm certbot renew --dry-run
-
-# View certificate info
-docker-compose exec certbot certbot certificates
+# View persisted certificate storage
+docker volume inspect app_caddy_data
 ```
 
 ### Monitoring
@@ -201,8 +184,8 @@ sudo ufw enable
 sudo apt update && sudo apt upgrade -y
 
 # Update Docker images
-docker-compose pull
-docker-compose up -d
+docker compose --env-file .env.production pull
+docker compose --env-file .env.production up -d
 
 # Clean up Docker
 docker system prune -a
@@ -226,32 +209,31 @@ docker system prune -a
 
 ### Common Issues
 
-1. **SSL certificates not working**
+1. **HTTPS certificates not working**
    ```bash
-   # Check if certificates exist
-   docker-compose exec certbot ls /etc/letsencrypt/live/yourdomain.com/
-   
-   # Re-obtain certificates
-   docker-compose run --rm certbot
-   docker-compose exec nginx nginx -s reload
+   # Check Caddy logs for ACME errors
+   docker compose --env-file .env.production logs caddy
+
+   # Ensure DNS points to VPS and ports 80/443 are open
+   nslookup yourdomain.com
    ```
 
 2. **Database connection errors**
    ```bash
    # Check database status
-   docker-compose exec db pg_isready -U postgres
+   docker compose --env-file .env.production exec db pg_isready -U postgres
    
    # Check database logs
-   docker-compose logs db
+   docker compose --env-file .env.production logs db
    ```
 
 3. **Application not starting**
    ```bash
    # Check application logs
-   docker-compose logs app
+   docker compose --env-file .env.production logs app
    
    # Rebuild application
-   docker-compose up --build -d app
+   docker compose --env-file .env.production up --build -d app
    ```
 
 4. **Domain not resolving**
@@ -260,12 +242,12 @@ docker system prune -a
 
 ### Performance Optimization
 
-1. **Enable Gzip compression** (already configured in nginx)
+1. **Enable compression** (already configured in Caddy)
 2. **Set up CDN** for static assets
 3. **Database optimization**:
    ```bash
    # Analyze database performance
-   docker-compose exec db psql -U postgres -d vibed_to_cracked -c "ANALYZE;"
+   docker compose --env-file .env.production exec db psql -U postgres -d vibed_to_cracked -c "ANALYZE;"
    ```
 
 ## Backup Strategy
@@ -276,7 +258,7 @@ Create a backup script:
 #!/bin/bash
 # backup.sh
 DATE=$(date +%Y%m%d_%H%M%S)
-docker-compose exec -T db pg_dump -U postgres vibed_to_cracked > "backups/db_backup_$DATE.sql"
+docker compose --env-file .env.production exec -T db pg_dump -U postgres vibed_to_cracked > "backups/db_backup_$DATE.sql"
 tar -czf "backups/app_backup_$DATE.tar.gz" .env.production prisma/
 ```
 
@@ -289,7 +271,7 @@ Add to crontab:
 ## Scaling Considerations
 
 For high traffic, consider:
-- Load balancer (nginx upstream)
+- Load balancer (Caddy or managed LB upstream)
 - Database replica for read queries
 - Redis for session storage
 - CDN for static assets
@@ -298,7 +280,7 @@ For high traffic, consider:
 ## Support
 
 If you encounter issues:
-1. Check the logs: `docker-compose logs -f`
+1. Check the logs: `docker compose --env-file .env.production logs -f`
 2. Verify environment variables
 3. Check firewall settings
 4. Ensure domain DNS is properly configured

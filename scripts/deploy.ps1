@@ -1,13 +1,9 @@
-# Vibed to Cracked - Windows Deployment Script
-# PowerShell version for Windows users
-
 param(
     [string]$Domain,
-    [string]$Email,
+    [string]$AcmeEmail,
     [switch]$Help
 )
 
-# Colors for output
 $Red = "Red"
 $Green = "Green"
 $Yellow = "Yellow"
@@ -19,105 +15,103 @@ function Write-ColorOutput {
 }
 
 function Show-Help {
-    Write-ColorOutput $Blue "🚀 Vibed to Cracked - Windows Deployment Script"
+    Write-ColorOutput $Blue "Vibed to Cracked - Windows Deployment Script"
     Write-Host "=================================================="
     Write-Host ""
-    Write-Host "Usage: .\deploy.ps1 [-Domain <domain>] [-Email <email>] [-Help]"
-    Write-Host ""
-    Write-Host "Parameters:"
-    Write-Host "  -Domain    Your domain name (e.g., yourdomain.com)"
-    Write-Host "  -Email     Your email for SSL certificates"
-    Write-Host "  -Help      Show this help message"
+    Write-Host "Usage: .\deploy.ps1 [-Domain <domain>] [-AcmeEmail <email>] [-Help]"
     Write-Host ""
     Write-Host "Example:"
-    Write-Host "  .\deploy.ps1 -Domain 'mysite.com' -Email 'admin@mysite.com'"
+    Write-Host "  .\deploy.ps1 -Domain 'mysite.com' -AcmeEmail 'admin@mysite.com'"
     Write-Host ""
     exit 0
+}
+
+function Get-UserInput {
+    param($Prompt, $Default = "")
+    if ($Default) {
+        $userInput = Read-Host "$Prompt [$Default]"
+        if ([string]::IsNullOrWhiteSpace($userInput)) {
+            return $Default
+        }
+        return $userInput
+    }
+    return (Read-Host $Prompt)
 }
 
 if ($Help) {
     Show-Help
 }
 
-Write-ColorOutput $Blue "🚀 Vibed to Cracked - Deployment Script"
-Write-Host "=========================================="
+Write-ColorOutput $Blue "Vibed to Cracked - Deployment Script"
+Write-Host "========================================="
 
-# Check if Docker is installed
 try {
     $dockerVersion = docker --version
-    Write-ColorOutput $Green " Docker found: $dockerVersion"
-} catch {
-    Write-ColorOutput $Red "❌ Docker is not installed or not in PATH."
-    Write-Host "Please install Docker Desktop for Windows first:"
-    Write-Host "https://docs.docker.com/desktop/install/windows-install/"
+    Write-ColorOutput $Green "Docker found: $dockerVersion"
+}
+catch {
+    Write-ColorOutput $Red "Docker is not installed or not in PATH."
     exit 1
 }
 
-# Check if Docker Compose is available
-try {
-    $composeVersion = docker-compose --version
-    Write-ColorOutput $Green " Docker Compose found: $composeVersion"
-} catch {
-    Write-ColorOutput $Red "❌ Docker Compose is not available."
-    Write-Host "Please ensure Docker Desktop is running."
-    exit 1
-}
-
-# Function to prompt for input
-function Get-UserInput {
-    param($Prompt, $Default = "")
-    
-    if ($Default) {
-        $input = Read-Host "$Prompt [$Default]"
-        if ([string]::IsNullOrWhiteSpace($input)) {
-            return $Default
-        }
-    } else {
-        $input = Read-Host $Prompt
+$ComposeBase = @("docker", "compose")
+docker compose version *> $null
+if ($LASTEXITCODE -ne 0) {
+    docker-compose --version *> $null
+    if ($LASTEXITCODE -ne 0) {
+        Write-ColorOutput $Red "Docker Compose is not available."
+        exit 1
     }
-    return $input
+    $ComposeBase = @("docker-compose")
 }
 
-# Check if .env.production exists
+function Invoke-Compose {
+    param(
+        [Parameter(ValueFromRemainingArguments = $true)]
+        [string[]]$Args
+    )
+
+    if ($ComposeBase.Count -eq 2) {
+        & $ComposeBase[0] $ComposeBase[1] @Args
+    }
+    else {
+        & $ComposeBase[0] @Args
+    }
+}
+
 if (-not (Test-Path ".env.production")) {
-    Write-ColorOutput $Yellow "⚠️  .env.production not found. Let's create it!"
-    
-    # Get domain and email
+    Write-ColorOutput $Yellow ".env.production not found. Creating it now."
+
     if (-not $Domain) {
-        $Domain = Get-UserInput "Enter your domain name (e.g., yourdomain.com)"
+        $Domain = Get-UserInput "Enter your domain name (example.com)"
     }
-    if (-not $Email) {
-        $Email = Get-UserInput "Enter your email for SSL certificates"
+    if (-not $AcmeEmail) {
+        $AcmeEmail = Get-UserInput "Enter email for ACME certificates"
     }
-    
-    # Database configuration
+
     $PostgresPassword = Get-UserInput "Enter PostgreSQL password"
-    
-    # NextAuth configuration
-    Write-ColorOutput $Yellow "Generating NextAuth secret..."
-    $NextAuthSecret = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes([System.Guid]::NewGuid().ToString() + [System.Guid]::NewGuid().ToString()))
-    
-    # OAuth configuration
-    Write-ColorOutput $Blue "📝 You'll need to set up OAuth applications:"
+    $NextAuthSecret = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(([Guid]::NewGuid().ToString("N") + [Guid]::NewGuid().ToString("N"))))
+
+    Write-ColorOutput $Blue "OAuth setup references:"
     Write-Host "GitHub: https://github.com/settings/applications/new"
     Write-Host "Google: https://console.developers.google.com/"
-    
+
     $GitHubId = Get-UserInput "Enter GitHub Client ID"
     $GitHubSecret = Get-UserInput "Enter GitHub Client Secret"
     $GoogleClientId = Get-UserInput "Enter Google Client ID"
     $GoogleClientSecret = Get-UserInput "Enter Google Client Secret"
-    
-    # Stripe configuration
     $StripeSecretKey = Get-UserInput "Enter Stripe Secret Key (optional)" ""
     $StripeWebhookSecret = Get-UserInput "Enter Stripe Webhook Secret (optional)" ""
-    
-    # Create .env.production file
+
     $envContent = @"
-# Generated by deployment script
-DATABASE_URL=postgresql://postgres:$PostgresPassword@db:5432/vibed_to_cracked
+# Generated by scripts/deploy.ps1
+DOMAIN=$Domain
+ACME_EMAIL=$AcmeEmail
+
 POSTGRES_DB=vibed_to_cracked
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=$PostgresPassword
+DATABASE_URL=postgresql://postgres:$PostgresPassword@db:5432/vibed_to_cracked
 
 NEXTAUTH_URL=https://$Domain
 NEXTAUTH_SECRET=$NextAuthSecret
@@ -134,94 +128,45 @@ STRIPE_WEBHOOK_SECRET=$StripeWebhookSecret
 EMAIL_FROM=noreply@$Domain
 "@
 
-    $envContent | Out-File -FilePath ".env.production" -Encoding UTF8
-    
-    # Update docker-compose.yml with domain
-    (Get-Content "docker-compose.yml") -replace "yourdomain.com", $Domain -replace "your-email@example.com", $Email | Set-Content "docker-compose.yml"
-    
-    # Update nginx configuration with domain
-    (Get-Content "nginx\sites-available\vibed-to-cracked") -replace "yourdomain.com", $Domain | Set-Content "nginx\sites-available\vibed-to-cracked"
-    
-    Write-ColorOutput $Green " Configuration files updated!"
+    $envContent | Out-File -FilePath ".env.production" -Encoding utf8
+    Write-ColorOutput $Green "Created .env.production"
 }
 
-# Enable nginx site (Windows equivalent)
-$enabledPath = "nginx\sites-enabled\vibed-to-cracked"
-$availablePath = "..\sites-available\vibed-to-cracked"
+$DomainFromEnv = ((Get-Content ".env.production" | Where-Object { $_ -match "^DOMAIN=" }) -replace "^DOMAIN=", "")
 
-if (-not (Test-Path $enabledPath)) {
-    # Create symbolic link equivalent for Windows
-    Copy-Item "nginx\sites-available\vibed-to-cracked" $enabledPath
-    Write-ColorOutput $Green " Nginx site enabled"
-}
-
-# Build and start services
-Write-ColorOutput $Blue "🔨 Building and starting services..."
-docker-compose up -d --build
-
+Write-ColorOutput $Blue "Building and starting services..."
+Invoke-Compose --env-file .env.production up -d --build
 if ($LASTEXITCODE -ne 0) {
-    Write-ColorOutput $Red "❌ Failed to start services. Check the logs with: docker-compose logs"
+    Write-ColorOutput $Red "Failed to start services."
     exit 1
 }
 
-# Wait for services to be ready
-Write-ColorOutput $Blue " Waiting for services to start..."
+Write-ColorOutput $Blue "Waiting for services to start..."
 Start-Sleep -Seconds 15
 
-# Run database migrations
-Write-ColorOutput $Blue "🗄️  Running database migrations..."
-docker-compose exec app npx prisma migrate deploy
-
-if ($LASTEXITCODE -eq 0) {
-    Write-ColorOutput $Blue "🌱 Seeding database..."
-    docker-compose exec app npx prisma db seed
-}
-
-# Get domain from environment file
-$envFile = Get-Content ".env.production"
-$nextAuthUrl = ($envFile | Where-Object { $_ -match "NEXTAUTH_URL=" }) -replace "NEXTAUTH_URL=", ""
-$DomainFromEnv = $nextAuthUrl -replace "https://", ""
-
-# Check SSL certificates
-Write-ColorOutput $Blue "🔒 Checking SSL certificates..."
-$certCheck = docker-compose exec -T certbot ls "/etc/letsencrypt/live/$DomainFromEnv" 2>$null
-
+Write-ColorOutput $Blue "Running database migrations..."
+Invoke-Compose --env-file .env.production exec -T app npx prisma migrate deploy
 if ($LASTEXITCODE -ne 0) {
-    Write-ColorOutput $Blue "🔒 Obtaining SSL certificates..."
-    docker-compose run --rm certbot
-    
-    if ($LASTEXITCODE -eq 0) {
-        # Reload nginx after getting certificates
-        docker-compose exec nginx nginx -s reload
-        Write-ColorOutput $Green " SSL certificates obtained and nginx reloaded"
-    } else {
-        Write-ColorOutput $Yellow "⚠️  SSL certificate acquisition failed. You may need to configure them manually."
-    }
-} else {
-    Write-ColorOutput $Green " SSL certificates already exist"
+    Write-ColorOutput $Red "Migration failed."
+    exit 1
 }
 
+Write-ColorOutput $Blue "Running database seed..."
+Invoke-Compose --env-file .env.production exec -T app npx prisma db seed
+
+Write-ColorOutput $Blue "Showing recent Caddy logs..."
+Invoke-Compose --env-file .env.production logs --tail=40 caddy
+
 Write-Host ""
-Write-ColorOutput $Green "🎉 Deployment completed!"
+Write-ColorOutput $Green "Deployment completed."
 Write-Host ""
-Write-ColorOutput $Blue "📋 What's running:"
-Write-Host "• Next.js app: https://$DomainFromEnv"
-Write-Host "• PostgreSQL database"
-Write-Host "• Nginx reverse proxy with SSL"
+Write-ColorOutput $Blue "Running services:"
+Write-Host "- Next.js app behind Caddy: https://$DomainFromEnv"
+Write-Host "- PostgreSQL database"
+Write-Host "- Caddy reverse proxy with automatic TLS"
 Write-Host ""
-Write-ColorOutput $Blue "📝 Useful commands:"
-Write-Host "• View logs: docker-compose logs -f"
-Write-Host "• Stop services: docker-compose down"
-Write-Host "• Update app: docker-compose up --build -d app"
-Write-Host "• Database backup: docker-compose exec db pg_dump -U postgres vibed_to_cracked > backup.sql"
-Write-Host ""
-Write-ColorOutput $Yellow "🔒 Security reminders:"
-Write-Host "• Keep your .env.production file secure"
-Write-Host "• Regularly update Docker images"
-Write-Host "• Monitor your application logs"
-Write-Host "• Set up proper firewall rules on your VPS"
-Write-Host ""
-Write-ColorOutput $Blue "🌐 Next steps:"
-Write-Host "1. Point your domain DNS to your VPS IP address"
-Write-Host "2. Configure OAuth applications with the correct callback URLs"
-Write-Host "3. Test your application at https://$DomainFromEnv"
+Write-ColorOutput $Blue "Useful commands:"
+Write-Host "- View logs: docker compose --env-file .env.production logs -f"
+Write-Host "- Stop services: docker compose --env-file .env.production down"
+Write-Host "- Update app: docker compose --env-file .env.production up --build -d app"
+Write-Host "- Database backup: docker compose --env-file .env.production exec -T db pg_dump -U postgres vibed_to_cracked > backup.sql"
