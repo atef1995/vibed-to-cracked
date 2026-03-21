@@ -9,6 +9,7 @@ RUN apk add --no-cache \
       postgresql-client \
       wget \
       ca-certificates \
+      tini \
     && wget -q \
          "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-${TARGETARCH}" \
          -O /usr/local/bin/supercronic \
@@ -33,4 +34,4 @@ COPY docker/cron/entrypoint.sh         /entrypoint.sh
 RUN sed -i 's/\r//' /app/crontab /entrypoint.sh /app/scripts/backup.sh \
     && chmod +x /entrypoint.sh /app/scripts/backup.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/sbin/tini", "--", "/entrypoint.sh"]
