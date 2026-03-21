@@ -30,7 +30,20 @@ export async function GET(req: NextRequest) {
 
     console.log(`📊 Found ${subscribers.length} active subscribers`);
 
+    // Skip subscribers whose platform account has emailUnsubscribed set
+    const subscriberEmails = subscribers.map((s) => s.email);
+    const unsubscribedUsers = await prisma.user.findMany({
+      where: { email: { in: subscriberEmails }, emailUnsubscribed: true },
+      select: { email: true },
+    });
+    const unsubscribedEmails = new Set(unsubscribedUsers.map((u) => u.email));
+
     for (const subscriber of subscribers) {
+      if (unsubscribedEmails.has(subscriber.email)) {
+        stats.skipped++;
+        continue;
+      }
+
       stats.totalProcessed++;
 
       // Calculate days since signup
