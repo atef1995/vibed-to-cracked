@@ -37,10 +37,7 @@ export async function POST(req: NextRequest) {
   try {
     // Verify the request is from our cron job (simple auth token)
     const authHeader = req.headers.get("authorization");
-    const expectedToken =
-      process.env.CRON_SECRET_TOKEN || "default-cron-secret";
-
-    if (authHeader !== `Bearer ${expectedToken}`) {
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

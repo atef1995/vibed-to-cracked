@@ -19,7 +19,7 @@ require('dotenv').config();
 
 // Configuration
 const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
-const CRON_SECRET = process.env.CRON_SECRET_TOKEN || 'default-cron-secret';
+const CRON_SECRET = process.env.CRON_SECRET || 'default-cron-secret';
 const IS_TEST_MODE = process.argv.includes('--test');
 
 async function makeRequest(url, options = {}) {
