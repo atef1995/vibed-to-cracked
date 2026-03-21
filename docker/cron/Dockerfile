@@ -29,6 +29,8 @@ COPY scripts/backup.sh                  ./scripts/
 COPY docker/cron/crontab               ./crontab
 COPY docker/cron/entrypoint.sh         /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh ./scripts/backup.sh
+# Strip Windows CRLF line endings from all shell/cron files copied from the host
+RUN sed -i 's/\r//' /app/crontab /entrypoint.sh /app/scripts/backup.sh \
+    && chmod +x /entrypoint.sh /app/scripts/backup.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
