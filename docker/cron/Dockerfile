@@ -1,21 +1,26 @@
 FROM node:22-alpine
 
-# supercronic: a cron daemon built for containers (no setuid, logs to stdout)
+# TARGETARCH is set automatically by Docker to the build target architecture (amd64, arm64, etc.)
+# supercronic release filenames match Docker's TARGETARCH naming convention exactly
+ARG TARGETARCH=amd64
 ENV SUPERCRONIC_VERSION=0.2.33
-ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-amd64
 
 RUN apk add --no-cache \
       postgresql-client \
       wget \
       ca-certificates \
-    && wget -q "$SUPERCRONIC_URL" -O /usr/local/bin/supercronic \
-    && chmod +x /usr/local/bin/supercronic
+    && wget -q \
+         "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-${TARGETARCH}" \
+         -O /usr/local/bin/supercronic \
+    && chmod +x /usr/local/bin/supercronic \
+    && supercronic --version
 
 WORKDIR /app
 
 # Install only the runtime dependency needed by the scripts
 COPY package.json ./
-RUN npm install --omit=dev --ignore-scripts 2>/dev/null || true
+RUN npm install --omit=dev --ignore-scripts 2>/dev/null || true \
+    && npm install dotenv --ignore-scripts 2>/dev/null || true
 
 COPY scripts/cron-study-reminders.js    ./scripts/
 COPY scripts/cron-send-course-emails.js ./scripts/
