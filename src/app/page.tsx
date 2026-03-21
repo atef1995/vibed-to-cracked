@@ -24,7 +24,6 @@ import { MOODS } from "@/lib/moods";
 import { getMoodIcon } from "@/lib/getMoodIcon";
 import { MoodCard } from "@/components/MoodCard";
 import CrackedGlitch from "@/components/ui/CrackedGlitch";
-import { NewYear2026Banner } from "@/components/ui/NewYear2026Banner";
 import { useCategories } from "@/hooks/useTutorialQueries";
 
 export default function HomePage() {
@@ -112,9 +111,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-red-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
-      {/* 2026 New Year Banner */}
-      <NewYear2026Banner variant="banner" />
-
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {backgroundElements.map((element, i) => (
@@ -143,9 +139,6 @@ export default function HomePage() {
       </div>
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
-        {/* 2026 New Year Hero Celebration */}
-        <NewYear2026Banner variant="hero" />
-
         <motion.div
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
@@ -244,14 +237,14 @@ export default function HomePage() {
                       mood.id === "chill"
                         ? [-5, 5, -5]
                         : mood.id === "rush"
-                        ? [-10, 0, -10]
-                        : [-3, 3, -3],
+                          ? [-10, 0, -10]
+                          : [-3, 3, -3],
                     rotate:
                       mood.id === "chill"
                         ? [-5, 5, -5]
                         : mood.id === "rush"
-                        ? [0, 10, 0]
-                        : [0, 0, 0],
+                          ? [0, 10, 0]
+                          : [0, 0, 0],
                   }}
                   transition={{
                     duration:

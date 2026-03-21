@@ -34,8 +34,29 @@ services:
     networks:
       - app-network
 
+  # Cron job runner (supercronic inside Docker, hits app over internal network)
+  cron:
+    build:
+      context: .
+      dockerfile: docker/cron/Dockerfile
+    container_name: vibed-to-cracked-cron
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    environment:
+      - NEXTAUTH_URL=http://app:3000
+      - CRON_LOG_FILE=/var/log/cron-jobs/cron.log
+    volumes:
+      - cron_logs:/var/log/cron-jobs
+    networks:
+      - app-network
+    depends_on:
+      - app
+      - db
+
 volumes:
   postgres_data:
+  cron_logs:
 
 networks:
   app-network:

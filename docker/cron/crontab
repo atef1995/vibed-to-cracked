@@ -1,0 +1,11 @@
+# study reminders - every 30 minutes, respects per-user preferredTime window
+*/30 * * * * node /app/scripts/cron-study-reminders.js
+
+# course drip emails - daily at 9 AM UTC
+0 9 * * * node /app/scripts/cron-send-course-emails.js
+
+# expired review assignments - daily at midnight UTC
+0 0 * * * node /app/scripts/cron-review-assignments.js
+
+# database backup - daily at 2 AM UTC
+0 2 * * * /app/scripts/backup.sh
