@@ -9,7 +9,7 @@
     "build:production": "NODE_ENV=production next build",
     "start": "next start",
     "start:production": "NODE_ENV=production next start",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && node fix-prisma-imports.js",
     "postbuild": "next-sitemap",
     "lint": "next lint",
     "test": "jest",
