@@ -29,6 +29,14 @@ const MultiFileCodeEditor = dynamic(
   { ssr: false }
 );
 
+const TutorialGameWorld = dynamic(
+  () =>
+    import("@/components/tutorial/game/TutorialGameWorld").then((m) => ({
+      default: m.TutorialGameWorld,
+    })),
+  { ssr: false }
+);
+
 interface TutorialContentProps {
   tutorial: TutorialData;
   contentLoaded: boolean;
@@ -146,6 +154,7 @@ const mdxComponents = {
   SlidingWindowVisualizer,
   HashTableVisualizer,
   ReactEditorPreview,
+  TutorialGameWorld,
   // Use custom heading components with anchor IDs
   h1: createHeadingComponent(1),
   h2: createHeadingComponent(2),
