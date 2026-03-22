@@ -85,6 +85,17 @@ export function Header() {
       },
     },
     {
+      href: "/cheat-sheets",
+      label: "Cheat Sheets",
+      icon: FileText,
+      colors: {
+        desktop:
+          "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
+        mobile:
+          "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
+      },
+    },
+    {
       href: "/practice",
       label: "Practice",
       icon: Code,
