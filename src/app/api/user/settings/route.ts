@@ -93,6 +93,22 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    if (name.trim().length > 255) {
+      return NextResponse.json(
+        { success: false, error: "Name must be 255 characters or fewer" },
+        { status: 400 }
+      );
+    }
+
+    const validMoods = ["CHILL", "RUSH", "GRIND"];
+    const normalizedMood = preferredMood?.toUpperCase();
+    if (normalizedMood && !validMoods.includes(normalizedMood)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid mood" },
+        { status: 400 }
+      );
+    }
+
     // Get user ID first
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
@@ -111,7 +127,7 @@ export async function PUT(request: NextRequest) {
       where: { email: session.user.email },
       data: {
         name: name.trim(),
-        mood: preferredMood?.toUpperCase() || "CHILL",
+        mood: normalizedMood || "CHILL",
       },
     });
 

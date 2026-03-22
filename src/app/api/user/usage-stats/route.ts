@@ -8,10 +8,7 @@ export async function GET() {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: { message: "Authentication required" } },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.user.id;
@@ -26,31 +23,51 @@ export async function GET() {
         completedAt: true,
         timeSpent: true,
       },
+      take: 1000,
+      orderBy: { completedAt: "desc" },
     });
 
-    const completedTutorials = tutorialProgress.filter((p: { completedAt: Date | null; timeSpent: number | null }) => p.completedAt);
-    const tutorialThisWeek = completedTutorials.filter((p: { completedAt: Date | null; timeSpent: number | null }) => 
-      p.completedAt && p.completedAt >= oneWeekAgo
+    const completedTutorials = tutorialProgress.filter(
+      (p: { completedAt: Date | null; timeSpent: number | null }) =>
+        p.completedAt
+    );
+    const tutorialThisWeek = completedTutorials.filter(
+      (p: { completedAt: Date | null; timeSpent: number | null }) =>
+        p.completedAt && p.completedAt >= oneWeekAgo
     ).length;
-    const tutorialThisMonth = completedTutorials.filter((p: { completedAt: Date | null; timeSpent: number | null }) => 
-      p.completedAt && p.completedAt >= oneMonthAgo
+    const tutorialThisMonth = completedTutorials.filter(
+      (p: { completedAt: Date | null; timeSpent: number | null }) =>
+        p.completedAt && p.completedAt >= oneMonthAgo
     ).length;
 
     // Calculate tutorial streak
     let tutorialStreak = 0;
     const sortedCompletedTutorials = completedTutorials
-      .filter((p: { completedAt: Date | null; timeSpent: number | null }) => p.completedAt)
-      .sort((a: { completedAt: Date | null; timeSpent: number | null }, b: { completedAt: Date | null; timeSpent: number | null }) => new Date(b.completedAt!).getTime() - new Date(a.completedAt!).getTime());
-    
+      .filter(
+        (p: { completedAt: Date | null; timeSpent: number | null }) =>
+          p.completedAt
+      )
+      .sort(
+        (
+          a: { completedAt: Date | null; timeSpent: number | null },
+          b: { completedAt: Date | null; timeSpent: number | null }
+        ) =>
+          new Date(b.completedAt!).getTime() -
+          new Date(a.completedAt!).getTime()
+      );
+
     let currentDate = new Date(now);
     currentDate.setHours(0, 0, 0, 0);
-    
+
     for (let i = 0; i < sortedCompletedTutorials.length; i++) {
       const completedDate = new Date(sortedCompletedTutorials[i].completedAt!);
       completedDate.setHours(0, 0, 0, 0);
-      
-      const daysDiff = Math.floor((currentDate.getTime() - completedDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+
+      const daysDiff = Math.floor(
+        (currentDate.getTime() - completedDate.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+
       if (daysDiff === tutorialStreak) {
         tutorialStreak++;
         currentDate = new Date(completedDate.getTime() - 24 * 60 * 60 * 1000);
@@ -67,17 +84,33 @@ export async function GET() {
         createdAt: true,
         challengeId: true,
       },
+      take: 1000,
+      orderBy: { createdAt: "desc" },
     });
 
     const uniqueChallengesSolved = new Set(
-      challengeAttempts.filter((a: { passed: boolean; createdAt: Date; challengeId: string }) => a.passed).map((a: { passed: boolean; createdAt: Date; challengeId: string }) => a.challengeId)
+      challengeAttempts
+        .filter(
+          (a: { passed: boolean; createdAt: Date; challengeId: string }) =>
+            a.passed
+        )
+        .map(
+          (a: { passed: boolean; createdAt: Date; challengeId: string }) =>
+            a.challengeId
+        )
     ).size;
 
-    const challengeSuccessRate = challengeAttempts.length > 0 
-      ? (challengeAttempts.filter((a: { passed: boolean; createdAt: Date; challengeId: string }) => a.passed).length / challengeAttempts.length) * 100 
-      : 0;
+    const challengeSuccessRate =
+      challengeAttempts.length > 0
+        ? (challengeAttempts.filter(
+            (a: { passed: boolean; createdAt: Date; challengeId: string }) =>
+              a.passed
+          ).length /
+            challengeAttempts.length) *
+          100
+        : 0;
 
-    // Fetch quiz statistics  
+    // Fetch quiz statistics
     const quizAttempts = await prisma.quizAttempt.findMany({
       where: { userId },
       select: {
@@ -90,20 +123,50 @@ export async function GET() {
           },
         },
       },
+      take: 1000,
+      orderBy: { createdAt: "desc" },
     });
 
     const completedQuizzes = quizAttempts.length;
-    const averageQuizScore = quizAttempts.length > 0 
-      ? (quizAttempts.reduce((sum: number, attempt: { score: number; answers: unknown; createdAt: Date; quiz: { questions: unknown } }) => {
-          const totalQuestions = Array.isArray(attempt.quiz.questions) ? attempt.quiz.questions.length : 0;
-          return sum + (totalQuestions > 0 ? (attempt.score / totalQuestions) * 100 : 0);
-        }, 0) / quizAttempts.length) 
-      : 0;
+    const averageQuizScore =
+      quizAttempts.length > 0
+        ? quizAttempts.reduce(
+            (
+              sum: number,
+              attempt: {
+                score: number;
+                answers: unknown;
+                createdAt: Date;
+                quiz: { questions: unknown };
+              }
+            ) => {
+              const totalQuestions = Array.isArray(attempt.quiz.questions)
+                ? attempt.quiz.questions.length
+                : 0;
+              return (
+                sum +
+                (totalQuestions > 0
+                  ? (attempt.score / totalQuestions) * 100
+                  : 0)
+              );
+            },
+            0
+          ) / quizAttempts.length
+        : 0;
 
-    const perfectQuizScores = quizAttempts.filter((attempt: { score: number; answers: unknown; createdAt: Date; quiz: { questions: unknown } }) => {
-      const totalQuestions = Array.isArray(attempt.quiz.questions) ? attempt.quiz.questions.length : 0;
-      return attempt.score === totalQuestions;
-    }).length;
+    const perfectQuizScores = quizAttempts.filter(
+      (attempt: {
+        score: number;
+        answers: unknown;
+        createdAt: Date;
+        quiz: { questions: unknown };
+      }) => {
+        const totalQuestions = Array.isArray(attempt.quiz.questions)
+          ? attempt.quiz.questions.length
+          : 0;
+        return attempt.score === totalQuestions;
+      }
+    ).length;
 
     // Fetch project statistics (mock data since project model might not exist yet)
     const projectsCompleted = 0;
@@ -111,13 +174,22 @@ export async function GET() {
     const averageProjectRating = 0;
 
     // Calculate time statistics
-    const totalTimeSpent = tutorialProgress.reduce((sum, p) => sum + (p.timeSpent || 0), 0);
-    const totalDays = Math.max(1, Math.floor((now.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)));
+    const totalTimeSpent = tutorialProgress.reduce(
+      (sum, p) => sum + (p.timeSpent || 0),
+      0
+    );
+    const totalDays = Math.max(
+      1,
+      Math.floor((now.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    );
     const dailyAverage = totalTimeSpent / totalDays;
     const weeklyAverage = dailyAverage * 7;
 
     // Find longest session (mock data)
-    const longestSession = Math.max(...tutorialProgress.map(p => p.timeSpent || 0), 0);
+    const longestSession = Math.max(
+      ...tutorialProgress.map((p) => p.timeSpent || 0),
+      0
+    );
 
     // Fetch recent achievements (mock data since achievements model might not exist yet)
     const recentAchievements: Array<{
@@ -169,18 +241,11 @@ export async function GET() {
       },
     };
 
-    return NextResponse.json({
-      success: true,
-      data: usageData,
-    });
-
+    return NextResponse.json(usageData);
   } catch (error) {
     console.error("Error fetching usage statistics:", error);
     return NextResponse.json(
-      {
-        success: false,
-        error: { message: "Failed to fetch usage statistics" },
-      },
+      { error: "Failed to fetch usage statistics" },
       { status: 500 }
     );
   }

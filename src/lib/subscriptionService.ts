@@ -32,8 +32,6 @@ export type SubscriptionStatus =
   (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
 export type PaymentStatus = (typeof PaymentStatus)[keyof typeof PaymentStatus];
 
-
-
 export interface PlanLimits {
   maxTutorials: number;
   maxChallenges: number;
@@ -253,7 +251,11 @@ export class SubscriptionService {
       data: {
         subscription: plan,
         subscriptionStatus: status,
-        subscriptionEndsAt: subscriptionEndsAt ? (typeof subscriptionEndsAt === "string" ? new Date(subscriptionEndsAt) : subscriptionEndsAt) : null,
+        subscriptionEndsAt: subscriptionEndsAt
+          ? typeof subscriptionEndsAt === "string"
+            ? new Date(subscriptionEndsAt)
+            : subscriptionEndsAt
+          : null,
       },
     });
   }
@@ -326,14 +328,19 @@ export class SubscriptionService {
   /**
    * Check if one plan meets the requirement of another
    */
+  private static readonly planLevels: Record<Plan, number> = {
+    [Plan.FREE]: 0,
+    [Plan.VIBED]: 1,
+    [Plan.CRACKED]: 2,
+  };
+
   private static planMeetsRequirement(
     userPlan: Plan,
     requiredPlan: Plan
   ): boolean {
-    const planHierarchy = [Plan.FREE, Plan.VIBED, Plan.CRACKED];
-    const userPlanIndex = planHierarchy.indexOf(userPlan);
-    const requiredPlanIndex = planHierarchy.indexOf(requiredPlan);
-    return userPlanIndex >= requiredPlanIndex;
+    return (
+      (this.planLevels[userPlan] ?? -1) >= (this.planLevels[requiredPlan] ?? 0)
+    );
   }
 
   /**

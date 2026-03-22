@@ -500,7 +500,7 @@ export class ProjectService {
           status: "ASSIGNED",
           type: "ADMIN",
           expiredAt: new Date(), // Will be updated when actually expired
-          rejectedAt: new Date(), // Will be updated when actually rejected  
+          rejectedAt: new Date(), // Will be updated when actually rejected
           rejectionReason: "", // Will be updated when actually rejected
         },
       });
@@ -562,7 +562,7 @@ export class ProjectService {
             status: "ASSIGNED" as const,
             type: "PEER" as const,
             expiredAt: new Date(), // Will be updated when actually expired
-            rejectedAt: new Date(), // Will be updated when actually rejected  
+            rejectedAt: new Date(), // Will be updated when actually rejected
             rejectionReason: "", // Will be updated when actually rejected
           }));
 
@@ -643,6 +643,12 @@ export class ProjectService {
 
         if (!assignment) {
           throw new Error("Assignment not found");
+        }
+
+        if (assignment.reviewerId !== reviewerId) {
+          throw new Error(
+            "Unauthorized: assignment belongs to a different reviewer"
+          );
         }
 
         // Create the review
@@ -783,7 +789,7 @@ export class ProjectService {
         status: "ASSIGNED" as const,
         type: "PEER" as const,
         expiredAt: new Date(), // Will be updated when actually expired
-        rejectedAt: new Date(), // Will be updated when actually rejected  
+        rejectedAt: new Date(), // Will be updated when actually rejected
         rejectionReason: "", // Will be updated when actually rejected
       }));
 

@@ -14,109 +14,113 @@ export async function GET(request: NextRequest) {
     const query = searchParams.get("q");
 
     if (!query) {
-      return NextResponse.json({ error: "Query parameter is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Query parameter is required" },
+        { status: 400 }
+      );
     }
 
-    // Search for users by username or name (case insensitive, partial match)
-    const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          {
-            username: {
-              contains: query,
-            },
-          },
-          {
-            name: {
-              contains: query,
-            },
-          },
-        ],
-        NOT: {
-          email: session.user.email, // Exclude current user
+    // Search users and get current user ID in parallel
+    const [users, currentUserRecord] = await Promise.all([
+      prisma.user.findMany({
+        where: {
+          OR: [
+            { username: { contains: query } },
+            { name: { contains: query } },
+          ],
+          NOT: { email: session.user.email },
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        username: true,
-        image: true,
-        updatedAt: true, // Use updatedAt as last active indicator
-      },
-      take: 10, // Limit results to prevent overwhelming UI
-    });
+        select: {
+          id: true,
+          name: true,
+          username: true,
+          image: true,
+          updatedAt: true,
+        },
+        take: 10,
+      }),
+      prisma.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      }),
+    ]);
 
-    // Filter out users who are already friends or have pending requests
-    const currentUserId = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!currentUserId) {
+    if (!currentUserRecord) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get existing friend relationships and pending requests
-    const existingRelationships = await prisma.friendRequest.findMany({
-      where: {
-        OR: [
-          {
-            senderId: currentUserId.id,
-            receiverId: { in: users.map((u: { id: string }) => u.id) },
-          },
-          {
-            senderId: { in: users.map((u: { id: string }) => u.id) },
-            receiverId: currentUserId.id,
-          },
-        ],
-      },
-      select: {
-        senderId: true,
-        receiverId: true,
-        status: true,
-      },
-    });
+    const currentUserId = currentUserRecord.id;
 
-    const friendships = await prisma.friendship.findMany({
-      where: {
-        OR: [
-          {
-            user1Id: currentUserId.id,
-            user2Id: { in: users.map((u: { id: string }) => u.id) },
-          },
-          {
-            user1Id: { in: users.map((u: { id: string }) => u.id) },
-            user2Id: currentUserId.id,
-          },
-        ],
-      },
-      select: {
-        user1Id: true,
-        user2Id: true,
-      },
-    });
+    // Fetch friend relationships and existing requests in parallel
+    const [existingRelationships, friendships] = await Promise.all([
+      prisma.friendRequest.findMany({
+        where: {
+          OR: [
+            {
+              senderId: currentUserId,
+              receiverId: { in: users.map((u) => u.id) },
+            },
+            {
+              senderId: { in: users.map((u) => u.id) },
+              receiverId: currentUserId,
+            },
+          ],
+        },
+        select: { senderId: true, receiverId: true, status: true },
+      }),
+      prisma.friendship.findMany({
+        where: {
+          OR: [
+            { user1Id: currentUserId, user2Id: { in: users.map((u) => u.id) } },
+            { user1Id: { in: users.map((u) => u.id) }, user2Id: currentUserId },
+          ],
+        },
+        select: { user1Id: true, user2Id: true },
+      }),
+    ]);
 
     // Create sets of user IDs to exclude
     const requestUserIds = new Set(
-      existingRelationships.map((rel: { senderId: string; receiverId: string }) => 
-        rel.senderId === currentUserId.id ? rel.receiverId : rel.senderId
+      existingRelationships.map(
+        (rel: { senderId: string; receiverId: string }) =>
+          rel.senderId === currentUserId ? rel.receiverId : rel.senderId
       )
     );
 
     const friendUserIds = new Set(
-      friendships.map((friendship: { user1Id: string; user2Id: string }) => 
-        friendship.user1Id === currentUserId.id ? friendship.user2Id : friendship.user1Id
+      friendships.map((friendship: { user1Id: string; user2Id: string }) =>
+        friendship.user1Id === currentUserId
+          ? friendship.user2Id
+          : friendship.user1Id
       )
     );
 
     // Filter out users with existing relationships
-    const availableUsers = users.filter((user: { id: string; name: string | null; username: string | null; image: string | null; updatedAt: Date }) => 
-      !requestUserIds.has(user.id) && !friendUserIds.has(user.id)
-    ).map((user: { id: string; name: string | null; username: string | null; image: string | null; updatedAt: Date }) => ({
-      ...user,
-      lastActive: user.updatedAt,
-      isOnline: new Date().getTime() - new Date(user.updatedAt).getTime() < 5 * 60 * 1000, // Online if active within 5 minutes
-    }));
+    const availableUsers = users
+      .filter(
+        (user: {
+          id: string;
+          name: string | null;
+          username: string | null;
+          image: string | null;
+          updatedAt: Date;
+        }) => !requestUserIds.has(user.id) && !friendUserIds.has(user.id)
+      )
+      .map(
+        (user: {
+          id: string;
+          name: string | null;
+          username: string | null;
+          image: string | null;
+          updatedAt: Date;
+        }) => ({
+          ...user,
+          lastActive: user.updatedAt,
+          isOnline:
+            new Date().getTime() - new Date(user.updatedAt).getTime() <
+            5 * 60 * 1000, // Online if active within 5 minutes
+        })
+      );
 
     return NextResponse.json({ users: availableUsers });
   } catch (error) {

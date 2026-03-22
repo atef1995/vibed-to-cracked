@@ -99,7 +99,7 @@ export type AchievementId = keyof typeof ACHIEVEMENTS;
 
 export interface AchievementUnlockResult {
   unlocked: boolean;
-  achievement?: typeof ACHIEVEMENTS[AchievementId];
+  achievement?: (typeof ACHIEVEMENTS)[AchievementId];
   alreadyUnlocked?: boolean;
 }
 
@@ -208,25 +208,25 @@ export async function checkPRAchievements(
   });
 
   // Check First PR
-  if (mergedPRCount === 1) {
+  if (mergedPRCount >= 1) {
     const result = await unlockAchievement(userId, "FIRST_PR");
     results.push(result);
   }
 
   // Check 10 PRs
-  if (mergedPRCount === 10) {
+  if (mergedPRCount >= 10) {
     const result = await unlockAchievement(userId, "TEN_PRS");
     results.push(result);
   }
 
   // Check 50 PRs
-  if (mergedPRCount === 50) {
+  if (mergedPRCount >= 50) {
     const result = await unlockAchievement(userId, "FIFTY_PRS");
     results.push(result);
   }
 
   // Check 100 PRs
-  if (mergedPRCount === 100) {
+  if (mergedPRCount >= 100) {
     const result = await unlockAchievement(userId, "HUNDRED_PRS");
     results.push(result);
   }
@@ -255,19 +255,19 @@ export async function checkReviewAchievements(
   });
 
   // Check First Review
-  if (completedReviewCount === 1) {
+  if (completedReviewCount >= 1) {
     const result = await unlockAchievement(userId, "FIRST_REVIEW");
     results.push(result);
   }
 
   // Check 50 Reviews
-  if (completedReviewCount === 50) {
+  if (completedReviewCount >= 50) {
     const result = await unlockAchievement(userId, "FIFTY_REVIEWS");
     results.push(result);
   }
 
   // Check 100 Reviews
-  if (completedReviewCount === 100) {
+  if (completedReviewCount >= 100) {
     const result = await unlockAchievement(userId, "HUNDRED_REVIEWS");
     results.push(result);
   }
@@ -291,6 +291,32 @@ export async function checkPerfectScoreAchievement(
   }
 
   return null;
+}
+
+/**
+ * Check and unlock streak-related achievements
+ *
+ * @param userId - User ID
+ * @param currentStreak - Current streak in days
+ * @returns Array of newly unlocked achievements
+ */
+export async function checkStreakAchievements(
+  userId: string,
+  currentStreak: number
+): Promise<AchievementUnlockResult[]> {
+  const results: AchievementUnlockResult[] = [];
+
+  if (currentStreak >= 7) {
+    const result = await unlockAchievement(userId, "WEEK_STREAK");
+    results.push(result);
+  }
+
+  if (currentStreak >= 30) {
+    const result = await unlockAchievement(userId, "MONTH_STREAK");
+    results.push(result);
+  }
+
+  return results.filter((r) => r.unlocked);
 }
 
 /**

@@ -157,6 +157,26 @@ export async function awardPRMergeXP(
   submissionId: string,
   isFirstPR: boolean = false
 ): Promise<XPAwardResult> {
+  // Idempotency: don't award twice for the same submission
+  const existing = await prisma.xpTransaction.findFirst({
+    where: {
+      userId,
+      reason: "PR_MERGED",
+      metadata: {
+        path: ["submissionId"],
+        equals: submissionId,
+      },
+    },
+  });
+
+  if (existing) {
+    return {
+      success: true,
+      xpAwarded: 0,
+      newTotal: 0,
+    };
+  }
+
   let totalXP = xpAmount;
 
   // Bonus for first PR
@@ -185,6 +205,26 @@ export async function awardReviewXP(
   reviewId: string,
   type: "PEER" | "MENTOR"
 ): Promise<XPAwardResult> {
+  // Idempotency: don't award twice for the same review
+  const existing = await prisma.xpTransaction.findFirst({
+    where: {
+      userId,
+      reason: "REVIEW_COMPLETED",
+      metadata: {
+        path: ["reviewId"],
+        equals: reviewId,
+      },
+    },
+  });
+
+  if (existing) {
+    return {
+      success: true,
+      xpAwarded: 0,
+      newTotal: 0,
+    };
+  }
+
   const xpAmount = type === "MENTOR" ? 50 : 25;
 
   return awardXP(userId, xpAmount, "REVIEW_COMPLETED", {

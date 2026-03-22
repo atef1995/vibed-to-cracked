@@ -39,10 +39,12 @@ async function calculateUserStats(userId: string) {
       let hasActivityToday = false;
 
       // Check if there's activity today first
-      const todayProgress = (recentProgress as TutorialProgress[]).some((p: TutorialProgress) => {
-        const progressDate = new Date(p.updatedAt);
-        return progressDate.toDateString() === today.toDateString();
-      });
+      const todayProgress = (recentProgress as TutorialProgress[]).some(
+        (p: TutorialProgress) => {
+          const progressDate = new Date(p.updatedAt);
+          return progressDate.toDateString() === today.toDateString();
+        }
+      );
 
       if (todayProgress) {
         currentStreak = 1;
@@ -51,7 +53,9 @@ async function calculateUserStats(userId: string) {
 
       // Count consecutive days working backwards
       const activityDates = new Set(
-        recentProgress.map((p: {updatedAt: Date}) => new Date(p.updatedAt).toDateString())
+        recentProgress.map((p: { updatedAt: Date }) =>
+          new Date(p.updatedAt).toDateString()
+        )
       );
 
       if (hasActivityToday) {
@@ -135,35 +139,91 @@ export async function GET() {
         },
       });
 
-      // Transform friendships to get friend info with calculated stats
-      const friends = await Promise.all(
-        (friendships as unknown[]).map(async (friendship: unknown) => {
-          const f = friendship as {
-            user1Id: string;
-            user1: { id: string; name: string | null; username: string | null; image: string | null; mood: string | null };
-            user2: { id: string; name: string | null; username: string | null; image: string | null; mood: string | null };
-            createdAt: Date;
-          };
-          const friend =
-            f.user1Id === user.id
-              ? f.user2
-              : f.user1;
+      type FriendshipRow = {
+        user1Id: string;
+        user1: {
+          id: string;
+          name: string | null;
+          username: string | null;
+          image: string | null;
+          mood: string | null;
+        };
+        user2: {
+          id: string;
+          name: string | null;
+          username: string | null;
+          image: string | null;
+          mood: string | null;
+        };
+        createdAt: Date;
+      };
 
-          // Calculate friend's stats
-          const friendStats = await calculateUserStats(friend.id);
-
-          return {
-            id: friend.id,
-            name: friend.name,
-            username: friend.username,
-            image: friend.image,
-            mood: friend.mood,
-            totalPoints: friendStats.totalPoints,
-            currentStreak: friendStats.currentStreak,
-            friendsSince: f.createdAt,
-          };
+      // Extract friend records from friendships
+      const friendRecords = (friendships as unknown as FriendshipRow[]).map(
+        (f) => ({
+          friend: f.user1Id === user.id ? f.user2 : f.user1,
+          friendsSince: f.createdAt,
         })
       );
+
+      const friendIds = friendRecords.map((r) => r.friend.id);
+
+      // Batch fetch all stats in 2 queries instead of 2N
+      const [allAchievements, allProgress] = await Promise.all([
+        prisma.userAchievement.findMany({
+          where: { userId: { in: friendIds } },
+          include: { achievement: { select: { points: true } } },
+        }),
+        prisma.tutorialProgress.findMany({
+          where: { userId: { in: friendIds } },
+          select: { userId: true, updatedAt: true },
+          orderBy: { updatedAt: "desc" },
+        }),
+      ]);
+
+      // Build lookup maps
+      const pointsByUser = new Map<string, number>();
+      for (const ua of allAchievements) {
+        pointsByUser.set(
+          ua.userId,
+          (pointsByUser.get(ua.userId) ?? 0) + ua.achievement.points
+        );
+      }
+
+      const progressByUser = new Map<string, Date[]>();
+      for (const p of allProgress) {
+        const list = progressByUser.get(p.userId) ?? [];
+        list.push(p.updatedAt);
+        progressByUser.set(p.userId, list);
+      }
+
+      function calcStreak(dates: Date[] | undefined): number {
+        if (!dates || dates.length === 0) return 0;
+        const today = new Date();
+        const dateStrings = new Set(
+          dates.map((d) => new Date(d).toDateString())
+        );
+        let streak = 0;
+        const check = new Date(today);
+        check.setHours(0, 0, 0, 0);
+        while (dateStrings.has(check.toDateString())) {
+          streak++;
+          check.setDate(check.getDate() - 1);
+        }
+        return streak;
+      }
+
+      // Transform friendships to get friend info with calculated stats
+      const friends = friendRecords.map(({ friend, friendsSince }) => ({
+        id: friend.id,
+        name: friend.name,
+        username: friend.username,
+        image: friend.image,
+        mood: friend.mood,
+        totalPoints: pointsByUser.get(friend.id) ?? 0,
+        currentStreak: calcStreak(progressByUser.get(friend.id)),
+        friendsSince,
+      }));
 
       // Get pending friend requests (sent and received)
       const sentRequests = await prisma.friendRequest.findMany({
@@ -203,18 +263,32 @@ export async function GET() {
       return NextResponse.json({
         success: true,
         friends,
-        sentRequests: sentRequests.map((req: {id: string; receiver: unknown; message: string | null; createdAt: Date}) => ({
-          id: req.id,
-          user: req.receiver,
-          message: req.message,
-          createdAt: req.createdAt,
-        })),
-        receivedRequests: receivedRequests.map((req: {id: string; sender: unknown; message: string | null; createdAt: Date}) => ({
-          id: req.id,
-          sender: req.sender,
-          message: req.message,
-          createdAt: req.createdAt,
-        })),
+        sentRequests: sentRequests.map(
+          (req: {
+            id: string;
+            receiver: unknown;
+            message: string | null;
+            createdAt: Date;
+          }) => ({
+            id: req.id,
+            user: req.receiver,
+            message: req.message,
+            createdAt: req.createdAt,
+          })
+        ),
+        receivedRequests: receivedRequests.map(
+          (req: {
+            id: string;
+            sender: unknown;
+            message: string | null;
+            createdAt: Date;
+          }) => ({
+            id: req.id,
+            sender: req.sender,
+            message: req.message,
+            createdAt: req.createdAt,
+          })
+        ),
       });
     } catch (dbError) {
       console.log("Database not ready, using mock data:", dbError);

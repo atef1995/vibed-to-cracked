@@ -29,6 +29,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Verify the progress share exists and the user has visibility to it
+    const progressShare = await prisma.progressShare.findUnique({
+      where: { id: progressShareId },
+      select: { id: true, userId: true, visibility: true, title: true },
+    });
+
+    if (!progressShare) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    if (progressShare.visibility === "PRIVATE" && progressShare.userId !== user.id) {
+      return NextResponse.json({ error: "Cannot react to private progress" }, { status: 403 });
+    }
+
     // Check if user already reacted with this type
     const existingReaction = await prisma.reaction.findUnique({
       where: {
@@ -65,12 +79,7 @@ export async function POST(request: NextRequest) {
       });
 
       // Create notification for the progress share owner
-      const progressShare = await prisma.progressShare.findUnique({
-        where: { id: progressShareId },
-        select: { userId: true, title: true },
-      });
-
-      if (progressShare && progressShare.userId !== user.id) {
+      if (progressShare.userId !== user.id) {
         await prisma.notification.create({
           data: {
             userId: progressShare.userId,

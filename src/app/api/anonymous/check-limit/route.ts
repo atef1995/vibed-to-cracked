@@ -4,24 +4,33 @@
  * Checks if an anonymous user has reached the tutorial viewing limit.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { AnonymousTrackingService } from '@/lib/services/anonymousTrackingService';
+import { NextRequest, NextResponse } from "next/server";
+import { AnonymousTrackingService } from "@/lib/services/anonymousTrackingService";
 
 const ANONYMOUS_TUTORIAL_LIMIT = 5;
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const anonymousId = searchParams.get('anonymousId');
+    const anonymousId = searchParams.get("anonymousId");
 
     if (!anonymousId) {
       return NextResponse.json(
-        { error: 'Missing anonymousId' },
+        { error: "Missing anonymousId" },
         { status: 400 }
       );
     }
 
-    const session = await AnonymousTrackingService.getAnonymousSession(anonymousId);
+    // Validate format to reject arbitrary probing
+    if (!/^anon_[a-z0-9]+_\d+$/.test(anonymousId)) {
+      return NextResponse.json(
+        { error: "Invalid anonymousId" },
+        { status: 400 }
+      );
+    }
+
+    const session =
+      await AnonymousTrackingService.getAnonymousSession(anonymousId);
 
     if (!session) {
       return NextResponse.json({
@@ -32,7 +41,8 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const tutorialsViewed = (session.tutorialsViewed as Array<{ tutorialId: string }>) || [];
+    const tutorialsViewed =
+      (session.tutorialsViewed as Array<{ tutorialId: string }>) || [];
     const viewedCount = tutorialsViewed.length;
     const limitReached = viewedCount >= ANONYMOUS_TUTORIAL_LIMIT;
 
@@ -43,9 +53,9 @@ export async function GET(request: NextRequest) {
       remainingViews: Math.max(0, ANONYMOUS_TUTORIAL_LIMIT - viewedCount),
     });
   } catch (error) {
-    console.error('Error checking anonymous limit:', error);
+    console.error("Error checking anonymous limit:", error);
     return NextResponse.json(
-      { error: 'Failed to check limit' },
+      { error: "Failed to check limit" },
       { status: 500 }
     );
   }

@@ -68,7 +68,8 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "GitHub account not connected. Please sign in with GitHub first.",
+          error:
+            "GitHub account not connected. Please sign in with GitHub first.",
         },
         { status: 400 }
       );
@@ -151,7 +152,8 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "You have already submitted this feature. Use the update endpoint to resubmit.",
+          error:
+            "You have already submitted this feature. Use the update endpoint to resubmit.",
           submissionId: existingSubmission.id,
         },
         { status: 409 }
@@ -198,7 +200,8 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           success: false,
-          error: "PR must be from your fork, not from a branch in the main repository",
+          error:
+            "PR must be from your fork, not from a branch in the main repository",
         },
         { status: 400 }
       );
@@ -208,27 +211,73 @@ export async function POST(request: Request) {
     const ciStatus = await githubService.checkCIStatus(prUrl);
 
     // Create submission
-    const submission = await prisma.contributionSubmission.create({
-      data: {
+    let submission;
+    try {
+      submission = await prisma.contributionSubmission.create({
+        data: {
+          userId: session.user.id,
+          projectId: project.id,
+          githubPrUrl: prUrl,
+          githubPrNumber: prInfo.number,
+          githubBranch: prInfo.branch,
+          githubForkUrl: prInfo.forkUrl,
+          prStatus: prInfo.state === "open" ? "OPEN" : "CLOSED",
+          prTitle: prInfo.title,
+          prDescription: prInfo.description || "",
+          featureId,
+          featureTitle: feature.title,
+          ciPassed: ciStatus.ciPassed,
+          testsPassed: ciStatus.checks.some((c) =>
+            c.name.toLowerCase().includes("test")
+          ),
+          lintPassed: ciStatus.checks.some((c) =>
+            c.name.toLowerCase().includes("lint")
+          ),
+        },
+      });
+    } catch (e: unknown) {
+      if ((e as { code?: string }).code === "P2002") {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              "You have already submitted this feature. Use the update endpoint to resubmit.",
+          },
+          { status: 409 }
+        );
+      }
+      throw e;
+    }
+
+    // Re-verify monthly limit post-create to guard against concurrent submissions
+    const countAfterCreate = await prisma.contributionSubmission.count({
+      where: {
         userId: session.user.id,
-        projectId: project.id,
-        githubPrUrl: prUrl,
-        githubPrNumber: prInfo.number,
-        githubBranch: prInfo.branch,
-        githubForkUrl: prInfo.forkUrl,
-        prStatus: prInfo.state === "open" ? "OPEN" : "CLOSED",
-        prTitle: prInfo.title,
-        prDescription: prInfo.description || "",
-        featureId,
-        featureTitle: feature.title,
-        ciPassed: ciStatus.ciPassed,
-        testsPassed: ciStatus.checks.some((c) => c.name.toLowerCase().includes("test")),
-        lintPassed: ciStatus.checks.some((c) => c.name.toLowerCase().includes("lint")),
+        submittedAt: {
+          gte: new Date(currentYear, currentMonth, 1),
+          lt: new Date(currentYear, currentMonth + 1, 1),
+        },
       },
     });
 
+    if (userLimit !== Infinity && countAfterCreate > userLimit) {
+      await prisma.contributionSubmission.delete({
+        where: { id: submission.id },
+      });
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Monthly submission limit reached (${userLimit} PRs). Upgrade to submit more.`,
+          limit: userLimit,
+          used: userLimit,
+        },
+        { status: 429 }
+      );
+    }
+
     // Add automated comment to PR
-    const platformUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const platformUrl =
+      process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const commentMessage = `
 🎉 **Submission Received!**
 

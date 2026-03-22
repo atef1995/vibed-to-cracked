@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
     const { searchParams } = new URL(request.url);
-    const sharedBy = searchParams.get('sharedBy'); // Optional user ID who shared this
+    const sharedBy = searchParams.get("sharedBy"); // Optional user ID who shared this
 
     if (!id) {
       return NextResponse.json(
@@ -70,13 +70,6 @@ export async function GET(
           unlockedAt: sharerData.achievements[0].unlockedAt,
         };
       }
-    }
-
-    if (!achievement) {
-      return NextResponse.json(
-        { success: false, error: "Achievement not found" },
-        { status: 404 }
-      );
     }
 
     return NextResponse.json({

@@ -93,8 +93,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (mailchecker.isValid((body.email as string) || "")) {
-      return NextResponse.json({ error: "error email" }, { status: 400 });
+    if (!mailchecker.isValid((body.email as string) || "")) {
+      return NextResponse.json({ error: "Please use a non-disposable email address" }, { status: 400 });
     }
 
     // Get additional security information

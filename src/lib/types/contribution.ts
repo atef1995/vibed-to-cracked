@@ -87,24 +87,35 @@ export type ProjectRequiredChecks = RequiredCheck[];
 export function parseProjectFeatures(
   features: Prisma.JsonValue
 ): ContributionFeature[] {
-  if (!Array.isArray(features)) {
-    return [];
-  }
-  return features as unknown as ContributionFeature[];
+  if (!Array.isArray(features)) return [];
+  return (features as unknown[]).filter(
+    (f): f is ContributionFeature =>
+      f !== null &&
+      typeof f === "object" &&
+      typeof (f as Record<string, unknown>).id === "string" &&
+      typeof (f as Record<string, unknown>).title === "string"
+  );
 }
 
 export function parseReviewCriteria(
   criteria: Prisma.JsonValue
 ): ReviewCriterion[] {
-  if (!Array.isArray(criteria)) {
-    return [];
-  }
-  return criteria as unknown as ReviewCriterion[];
+  if (!Array.isArray(criteria)) return [];
+  return (criteria as unknown[]).filter(
+    (c): c is ReviewCriterion =>
+      c !== null &&
+      typeof c === "object" &&
+      typeof (c as Record<string, unknown>).category === "string" &&
+      typeof (c as Record<string, unknown>).weight === "number"
+  );
 }
 
 export function parseRequiredChecks(checks: Prisma.JsonValue): RequiredCheck[] {
-  if (!Array.isArray(checks)) {
-    return [];
-  }
-  return checks as unknown as RequiredCheck[];
+  if (!Array.isArray(checks)) return [];
+  return (checks as unknown[]).filter(
+    (c): c is RequiredCheck =>
+      c !== null &&
+      typeof c === "object" &&
+      typeof (c as Record<string, unknown>).name === "string"
+  );
 }

@@ -435,6 +435,25 @@ export default function ChallengePage({ params }: ChallengePageProps) {
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Challenge Description */}
           <div className="space-y-6">
+            {" "}
+            <Link
+              href="/practice"
+              className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              Back to Practice
+            </Link>{" "}
             {/* Challenge Header */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-4">
@@ -474,18 +493,18 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                       {isTimedOut
                         ? "⏰ Timer Expired"
                         : currentMood.id === "rush"
-                        ? "Rush Mode Timer"
-                        : "Grind Mode Timer"}
+                          ? "Rush Mode Timer"
+                          : "Grind Mode Timer"}
                     </span>
                     <span
                       className={`text-lg font-bold ${
                         isTimedOut
                           ? "text-red-600 dark:text-red-400"
                           : timeLeft <= 60
-                          ? "text-red-600 dark:text-red-400"
-                          : currentMood.id === "rush"
-                          ? "text-orange-600 dark:text-orange-400"
-                          : "text-blue-600 dark:text-blue-400"
+                            ? "text-red-600 dark:text-red-400"
+                            : currentMood.id === "rush"
+                              ? "text-orange-600 dark:text-orange-400"
+                              : "text-blue-600 dark:text-blue-400"
                       }`}
                     >
                       {isTimedOut
@@ -509,7 +528,6 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                 </div>
               )}
             </div>
-
             {/* Mood-Adapted Motivation */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 border-l-4 border-l-purple-500 dark:border-l-purple-400">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -523,7 +541,6 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                 )?.content || "Get ready to tackle this challenge!"}
               </p>
             </div>
-
             {/* Test Cases */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
@@ -545,7 +562,6 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                 ))}
               </div>
             </div>
-
             {/* Test Results */}
             {testResults && (
               <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
@@ -628,8 +644,8 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                         currentMood.id === "rush"
                           ? "bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700"
                           : currentMood.id === "grind"
-                          ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-                          : "bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                            ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                            : "bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
                       }`}
                     >
                       🔄 Try Again
@@ -642,17 +658,17 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                         currentMood.id === "rush"
                           ? "bg-orange-600 text-white hover:bg-orange-700 dark:bg-orange-600 dark:hover:bg-orange-700"
                           : currentMood.id === "grind"
-                          ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
-                          : "bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
+                            ? "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+                            : "bg-green-600 text-white hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700"
                       }`}
                     >
                       {isRunning
                         ? "Running..."
                         : currentMood.id === "rush"
-                        ? "⚡ Quick Test"
-                        : currentMood.id === "grind"
-                        ? "🔥 Test & Verify"
-                        : "😌 Test Solution"}
+                          ? "⚡ Quick Test"
+                          : currentMood.id === "grind"
+                            ? "🔥 Test & Verify"
+                            : "😌 Test Solution"}
                     </button>
                   )}
                   <button
@@ -670,8 +686,8 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                   currentMood.id === "rush"
                     ? "bg-orange-50 dark:bg-orange-900/20 border-orange-400 dark:border-orange-500"
                     : currentMood.id === "grind"
-                    ? "bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500"
-                    : "bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-500"
+                      ? "bg-blue-50 dark:bg-blue-900/20 border-blue-400 dark:border-blue-500"
+                      : "bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-500"
                 }`}
               >
                 <div className="text-sm font-medium text-gray-800 dark:text-gray-200">
@@ -699,8 +715,8 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                   currentMood.id === "rush"
                     ? "// Rush mode: Write a quick working solution!"
                     : currentMood.id === "grind"
-                    ? "// Grind mode: Think through this step by step..."
-                    : "// Chill mode: Take your time and experiment..."
+                      ? "// Grind mode: Think through this step by step..."
+                      : "// Chill mode: Take your time and experiment..."
                 }
                 onCodeChange={setCurrentCode}
               />
@@ -804,8 +820,8 @@ export default function ChallengePage({ params }: ChallengePageProps) {
                     currentMood.id === "rush"
                       ? "bg-orange-600 hover:bg-orange-700"
                       : currentMood.id === "grind"
-                      ? "bg-blue-600 hover:bg-blue-700"
-                      : "bg-green-600 hover:bg-green-700"
+                        ? "bg-blue-600 hover:bg-blue-700"
+                        : "bg-green-600 hover:bg-green-700"
                   }`}
                 >
                   🔄 Try Again

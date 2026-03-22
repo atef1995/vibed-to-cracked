@@ -28,7 +28,11 @@ interface ReviewAssignment {
   submittedAt: Date | null;
   createdAt: Date;
   status: string;
-  submission: { prTitle: string | null; featureTitle: string | null; project: { title: string } };
+  submission: {
+    prTitle: string | null;
+    featureTitle: string | null;
+    project: { title: string };
+  };
 }
 
 export async function GET() {
@@ -90,17 +94,52 @@ export async function GET() {
 
     // Calculate stats
     const totalSubmissions = submissions.length;
-    const mergedPRs = (submissions as Submission[]).filter((s) => s.prStatus === "MERGED").length;
-    const reviewsGiven = (reviewAssignments as ReviewAssignment[]).filter((r) => r.submittedAt !== null).length;
+    const mergedPRs = (submissions as Submission[]).filter(
+      (s) => s.prStatus === "MERGED"
+    ).length;
+    const reviewsGiven = (reviewAssignments as ReviewAssignment[]).filter(
+      (r) => r.submittedAt !== null
+    ).length;
 
     // Calculate XP earned from merged PRs
     const xpEarned = (submissions as Submission[])
       .filter((s) => s.prStatus === "MERGED")
       .reduce((sum: number, s: Submission) => sum + s.project.xpReward, 0);
 
-    // Calculate streak (consecutive days with activity)
-    // For simplicity, counting as 0 - implement proper streak logic later
-    const currentStreak = 0;
+    // Calculate streak: consecutive calendar days with any activity (submission or review)
+    const activityDates = new Set<string>();
+    for (const s of submissions) {
+      activityDates.add(s.submittedAt.toISOString().slice(0, 10));
+    }
+    for (const r of reviewAssignments as ReviewAssignment[]) {
+      if (r.submittedAt) {
+        activityDates.add(r.submittedAt.toISOString().slice(0, 10));
+      }
+    }
+
+    let currentStreak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      if (activityDates.has(key)) {
+        currentStreak++;
+      } else {
+        // Allow a one-day gap only for today (streak might not have happened yet today)
+        if (i === 0) continue;
+        break;
+      }
+    }
+
+    // Check streak achievements (fire-and-forget — don't block the response)
+    if (currentStreak >= 7) {
+      const { checkStreakAchievements } =
+        await import("@/lib/services/achievementService");
+      checkStreakAchievements(session.user.id, currentStreak).catch((err) =>
+        console.error("[Dashboard] streak achievement check failed:", err)
+      );
+    }
 
     // Format submissions for frontend
     const submissionSummaries = (submissions as Submission[]).map((s) => ({
@@ -117,7 +156,9 @@ export async function GET() {
     }));
 
     // Format review assignments for frontend
-    const reviewAssignmentSummaries = (reviewAssignments as ReviewAssignment[]).map((r) => ({
+    const reviewAssignmentSummaries = (
+      reviewAssignments as ReviewAssignment[]
+    ).map((r) => ({
       id: r.id,
       submissionId: r.submissionId,
       prTitle: r.submission.prTitle,

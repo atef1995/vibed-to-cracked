@@ -1065,9 +1065,11 @@ model ContributionReview {
   submission ContributionSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   reviewer   User                   @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
 
+  @@unique([submissionId, reviewerId])
   @@index([submissionId])
   @@index([reviewerId])
   @@index([type])
+  @@index([status])
   @@map("contribution_reviews")
 }
 

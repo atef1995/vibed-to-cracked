@@ -165,26 +165,6 @@ export async function POST(
       );
     }
 
-    // Check if user already reviewed this submission
-    const existingReview = await prisma.contributionReview.findFirst({
-      where: {
-        submissionId,
-        reviewerId: session.user.id,
-      },
-    });
-
-    if (existingReview) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "You have already reviewed this submission",
-          reviewId: existingReview.id,
-        },
-        { status: 409 }
-      );
-    }
-
-    // Check review type permissions
     if (type === "MENTOR" && session.user.role !== "ADMIN") {
       return NextResponse.json(
         {
@@ -193,6 +173,28 @@ export async function POST(
         },
         { status: 403 }
       );
+    }
+
+    // Validate scores are in 0-100 range
+    const scoreFields = {
+      codeQualityScore,
+      functionalityScore,
+      documentationScore,
+      bestPracticesScore,
+    };
+    for (const [field, value] of Object.entries(scoreFields)) {
+      if (
+        value != null &&
+        (typeof value !== "number" || value < 0 || value > 100)
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `${field} must be a number between 0 and 100`,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Calculate overall score with weighted rubric
@@ -227,46 +229,57 @@ export async function POST(
       status = "APPROVED";
     }
 
-    // Create review
-    const review = await prisma.contributionReview.create({
-      data: {
-        submissionId,
-        reviewerId: session.user.id,
-        type,
-        status,
-        codeQualityScore,
-        functionalityScore,
-        documentationScore,
-        bestPracticesScore,
-        overallScore,
-        strengths,
-        improvements,
-        suggestions,
-        filesReviewed,
-        commentsAdded,
-        githubReviewUrl,
-        submittedAt: new Date(),
-      },
-    });
-
-    // Update submission review count
-    const updatedSubmission = await prisma.contributionSubmission.update({
-      where: { id: submissionId },
-      data: {
-        peerReviewsReceived: {
-          increment: type === "PEER" ? 1 : 0,
-        },
-        mentorReviewStatus:
-          type === "MENTOR"
-            ? status === "APPROVED"
-              ? "APPROVED"
-              : "CHANGES_REQUESTED"
-            : undefined,
-      },
-      include: {
-        reviews: true,
-      },
-    });
+    // Create review and update submission counter atomically
+    let review;
+    let updatedSubmission;
+    try {
+      [review, updatedSubmission] = await prisma.$transaction([
+        prisma.contributionReview.create({
+          data: {
+            submissionId,
+            reviewerId: session.user.id,
+            type,
+            status,
+            codeQualityScore,
+            functionalityScore,
+            documentationScore,
+            bestPracticesScore,
+            overallScore,
+            strengths,
+            improvements,
+            suggestions,
+            filesReviewed,
+            commentsAdded,
+            githubReviewUrl,
+            submittedAt: new Date(),
+          },
+        }),
+        prisma.contributionSubmission.update({
+          where: { id: submissionId },
+          data: {
+            peerReviewsReceived: { increment: type === "PEER" ? 1 : 0 },
+            mentorReviewStatus:
+              type === "MENTOR"
+                ? status === "APPROVED"
+                  ? "APPROVED"
+                  : "CHANGES_REQUESTED"
+                : undefined,
+          },
+          include: { reviews: true },
+        }),
+      ]);
+    } catch (e: unknown) {
+      if ((e as { code?: string }).code === "P2002") {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "You have already reviewed this submission",
+          },
+          { status: 409 }
+        );
+      }
+      throw e;
+    }
 
     // Check if submission is ready for merge
     const peerReviewsComplete =

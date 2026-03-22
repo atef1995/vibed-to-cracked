@@ -1,8 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import {
   removeFromCart,
   updateCartItemQuantity,
 } from "@/lib/services/cartService";
+
+async function verifyCartItemOwnership(
+  itemId: string,
+  request: NextRequest
+): Promise<{ ok: true } | { ok: false; response: NextResponse }> {
+  const item = await prisma.cartItem.findUnique({
+    where: { id: itemId },
+    select: { cart: { select: { userId: true, sessionId: true } } },
+  });
+
+  if (!item) {
+    return {
+      ok: false,
+      response: NextResponse.json({ error: "Item not found" }, { status: 404 }),
+    };
+  }
+
+  const session = await getServerSession(authOptions);
+
+  if (item.cart.userId) {
+    // Authenticated cart — must be the owner
+    if (!session?.user?.id || item.cart.userId !== session.user.id) {
+      return {
+        ok: false,
+        response: NextResponse.json({ error: "Unauthorized" }, { status: 403 }),
+      };
+    }
+  } else if (item.cart.sessionId) {
+    // Anonymous cart — session cookie must match
+    const cookieSessionId = request.cookies.get("cart_session_id")?.value;
+    if (!cookieSessionId || item.cart.sessionId !== cookieSessionId) {
+      return {
+        ok: false,
+        response: NextResponse.json({ error: "Unauthorized" }, { status: 403 }),
+      };
+    }
+  }
+
+  return { ok: true };
+}
 
 export async function PUT(
   request: NextRequest,
@@ -12,6 +55,10 @@ export async function PUT(
 
   try {
     ({ itemId } = await params);
+
+    const ownership = await verifyCartItemOwnership(itemId, request);
+    if (!ownership.ok) return ownership.response;
+
     const body = await request.json();
     const quantity = Number(body.quantity);
 
@@ -61,6 +108,9 @@ export async function DELETE(
 
   try {
     ({ itemId } = await params);
+
+    const ownership = await verifyCartItemOwnership(itemId, request);
+    if (!ownership.ok) return ownership.response;
 
     const result = await removeFromCart(itemId);
 

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { OrderStatus } from "@/generated/client";
 
@@ -70,6 +72,14 @@ export async function GET(request: NextRequest) {
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    // Ownership check: authenticated users can only view their own orders
+    if (order.userId) {
+      const authSession = await getServerSession(authOptions);
+      if (!authSession?.user?.id || order.userId !== authSession.user.id) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
     }
 
     // Idempotency check: if order already PAID, return success without updating

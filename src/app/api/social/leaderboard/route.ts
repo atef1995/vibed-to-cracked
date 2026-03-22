@@ -50,15 +50,27 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const type = (searchParams.get("type") as "xp" | "points") || "xp";
-    const scope =
-      (searchParams.get("scope") as "global" | "friends") || "global";
-    const period =
-      (searchParams.get("period") as "all" | "weekly" | "monthly") || "all";
+    const type = searchParams.get("type") || "xp";
+    const scope = searchParams.get("scope") || "global";
+    const period = searchParams.get("period") || "all";
+
+    if (!["xp", "points"].includes(type)) {
+      return NextResponse.json({ error: "Invalid type" }, { status: 400 });
+    }
+    if (!["global", "friends"].includes(scope)) {
+      return NextResponse.json({ error: "Invalid scope" }, { status: 400 });
+    }
+    if (!["all", "weekly", "monthly"].includes(period)) {
+      return NextResponse.json({ error: "Invalid period" }, { status: 400 });
+    }
+
+    const typedType = type as "xp" | "points";
+    const typedScope = scope as "global" | "friends";
+    const typedPeriod = period as "all" | "weekly" | "monthly";
 
     // Generate cache key
-    const cacheKey = `leaderboard:${type}:${scope}:${period}:${
-      scope === "friends" ? user.id : "global"
+    const cacheKey = `leaderboard:${typedType}:${typedScope}:${typedPeriod}:${
+      typedScope === "friends" ? user.id : "global"
     }`;
 
     // Check cache
@@ -67,9 +79,9 @@ export async function GET(request: NextRequest) {
       // Recalculate current user position (may have changed)
       const currentUserEntry = await getCurrentUserEntry(
         user.id,
-        type,
-        period,
-        scope
+        typedType,
+        typedPeriod,
+        typedScope
       );
       return NextResponse.json({
         ...cached,
@@ -79,7 +91,7 @@ export async function GET(request: NextRequest) {
 
     // Get friend IDs if scope is friends
     let friendIds: string[] = [];
-    if (scope === "friends") {
+    if (typedScope === "friends") {
       const friendships = await prisma.friendship.findMany({
         where: {
           OR: [{ user1Id: user.id }, { user2Id: user.id }],
@@ -96,27 +108,27 @@ export async function GET(request: NextRequest) {
 
     let entries: LeaderboardEntry[];
 
-    if (type === "xp") {
-      entries = await getXpLeaderboard(period, scope, friendIds);
+    if (typedType === "xp") {
+      entries = await getXpLeaderboard(typedPeriod, typedScope, friendIds);
     } else {
-      entries = await getPointsLeaderboard(period, scope, friendIds);
+      entries = await getPointsLeaderboard(typedPeriod, typedScope, friendIds);
     }
 
     // Get current user's entry
     const currentUserEntry = await getCurrentUserEntry(
       user.id,
-      type,
-      period,
-      scope
+      typedType,
+      typedPeriod,
+      typedScope
     );
 
     const response: LeaderboardResponse = {
       success: true,
       entries,
       currentUser: currentUserEntry,
-      type,
-      scope,
-      period,
+      type: typedType,
+      scope: typedScope,
+      period: typedPeriod,
     };
 
     // Cache the response (without currentUser since that needs to be fresh)

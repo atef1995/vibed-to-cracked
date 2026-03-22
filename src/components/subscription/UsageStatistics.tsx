@@ -1,18 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { 
-  BarChart3, 
-  BookOpen, 
-  Code, 
-  Target, 
+import {
+  BarChart3,
+  BookOpen,
+  Code,
+  Target,
   Trophy,
   TrendingUp,
   Calendar,
   Clock,
   Award,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
 } from "lucide-react";
 
 interface UsageData {
@@ -75,17 +75,17 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
   const fetchUsageData = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/user/usage-stats');
-      const result = await response.json();
-      
-      if (result.success) {
-        setData(result.data);
-      } else {
-        setError(result.error?.message || 'Failed to fetch usage statistics');
+      const response = await fetch("/api/user/usage-stats");
+      if (!response.ok) {
+        const result = await response.json();
+        setError(result.error || "Failed to fetch usage statistics");
+        return;
       }
+      const result = await response.json();
+      setData(result);
     } catch (err) {
-      setError('Failed to load usage statistics');
-      console.error('Usage stats fetch error:', err);
+      setError("Failed to load usage statistics");
+      console.error("Usage stats fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -95,7 +95,9 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
     if (minutes < 60) return `${minutes}m`;
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`;
   };
 
   const formatPercentage = (value: number) => {
@@ -275,7 +277,7 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
               Learning Streak
             </h4>
           </div>
-          
+
           <div className="text-center">
             <div className="text-4xl font-bold text-green-600 mb-2">
               {data.tutorials.streak}
@@ -284,7 +286,7 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
               Days in a row
             </div>
           </div>
-          
+
           <div className="mt-4 bg-green-100 dark:bg-green-900/30 rounded-lg p-3">
             <div className="text-sm text-green-800 dark:text-green-200">
               Keep it up! Complete a tutorial today to maintain your streak.
@@ -299,7 +301,7 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
               Recent Achievements
             </h4>
           </div>
-          
+
           {data.achievements.recent.length > 0 ? (
             <div className="space-y-3">
               {data.achievements.recent.slice(0, 3).map((achievement) => (
@@ -349,15 +351,21 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
             </h5>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Completed:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Completed:
+                </span>
                 <span className="font-medium">{data.tutorials.completed}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">This Month:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  This Month:
+                </span>
                 <span className="font-medium">{data.tutorials.thisMonth}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Available:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Available:
+                </span>
                 <span className="font-medium">{data.tutorials.total}</span>
               </div>
             </div>
@@ -369,16 +377,24 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
             </h5>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Solved:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Solved:
+                </span>
                 <span className="font-medium">{data.challenges.solved}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Attempted:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Attempted:
+                </span>
                 <span className="font-medium">{data.challenges.attempted}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Success Rate:</span>
-                <span className="font-medium">{formatPercentage(data.challenges.successRate)}</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Success Rate:
+                </span>
+                <span className="font-medium">
+                  {formatPercentage(data.challenges.successRate)}
+                </span>
               </div>
             </div>
           </div>
@@ -389,16 +405,26 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
             </h5>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Completed:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Completed:
+                </span>
                 <span className="font-medium">{data.quizzes.completed}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Perfect Scores:</span>
-                <span className="font-medium">{data.quizzes.perfectScores}</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Perfect Scores:
+                </span>
+                <span className="font-medium">
+                  {data.quizzes.perfectScores}
+                </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Avg Score:</span>
-                <span className="font-medium">{formatPercentage(data.quizzes.averageScore)}</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Avg Score:
+                </span>
+                <span className="font-medium">
+                  {formatPercentage(data.quizzes.averageScore)}
+                </span>
               </div>
             </div>
           </div>
@@ -409,16 +435,24 @@ export function UsageStatistics({ userId }: UsageStatisticsProps) {
             </h5>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Completed:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Completed:
+                </span>
                 <span className="font-medium">{data.projects.completed}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Showcased:</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Showcased:
+                </span>
                 <span className="font-medium">{data.projects.showcased}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Avg Rating:</span>
-                <span className="font-medium">{data.projects.averageRating.toFixed(1)}/5</span>
+                <span className="text-gray-600 dark:text-gray-400">
+                  Avg Rating:
+                </span>
+                <span className="font-medium">
+                  {data.projects.averageRating.toFixed(1)}/5
+                </span>
               </div>
             </div>
           </div>

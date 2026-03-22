@@ -19,19 +19,61 @@ import type {
   GitHubWebhookCheckRunEvent,
 } from "@/lib/types/github";
 
+async function verifyGitHubSignature(
+  body: string,
+  signature: string | null,
+  secret: string
+): Promise<boolean> {
+  if (!signature) return false;
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const mac = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
+  const expected =
+    "sha256=" +
+    Array.from(new Uint8Array(mac))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  // Constant-time comparison to prevent timing attacks
+  if (expected.length !== signature.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < expected.length; i++) {
+    mismatch |= expected.charCodeAt(i) ^ signature.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 export async function POST(request: Request) {
   try {
     const event = request.headers.get("X-GitHub-Event");
-    // Signature verification disabled for development
-    // In production, uncomment to verify webhook authenticity
-    // const signature = request.headers.get("X-Hub-Signature-256");
-    const payload = await request.json();
+    const signature = request.headers.get("X-Hub-Signature-256");
+    const rawBody = await request.text();
 
-    // TODO: Verify webhook signature for security in production
-    // const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
-    // if (!verifySignature(signature, payload, webhookSecret)) {
-    //   return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-    // }
+    const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
+    if (webhookSecret) {
+      const valid = await verifyGitHubSignature(
+        rawBody,
+        signature,
+        webhookSecret
+      );
+      if (!valid) {
+        return NextResponse.json(
+          { error: "Invalid signature" },
+          { status: 401 }
+        );
+      }
+    } else {
+      console.warn(
+        "[Webhook] GITHUB_WEBHOOK_SECRET not set — skipping signature verification"
+      );
+    }
+
+    const payload = JSON.parse(rawBody);
 
     switch (event) {
       case "pull_request":
@@ -39,9 +81,7 @@ export async function POST(request: Request) {
         break;
 
       case "pull_request_review":
-        await handlePullRequestReviewEvent(
-          payload as GitHubWebhookReviewEvent
-        );
+        await handlePullRequestReviewEvent(payload as GitHubWebhookReviewEvent);
         break;
 
       case "check_run":
@@ -79,9 +119,7 @@ async function handlePullRequestEvent(payload: GitHubWebhookPREvent) {
   });
 
   if (!submission) {
-    console.log(
-      `No submission found for PR: ${pull_request.html_url}`
-    );
+    console.log(`No submission found for PR: ${pull_request.html_url}`);
     return;
   }
 
@@ -167,23 +205,26 @@ async function handlePullRequestEvent(payload: GitHubWebhookPREvent) {
           );
 
           // Check for achievement unlocks
-          const { checkPRAchievements } = await import("@/lib/services/achievementService");
+          const { checkPRAchievements } =
+            await import("@/lib/services/achievementService");
           const newAchievements = await checkPRAchievements(submission.userId);
 
           // Get first unlocked achievement badge for celebration
-          const badgeUnlocked = newAchievements.length > 0 && newAchievements[0].achievement
-            ? {
-                id: newAchievements[0].achievement.id,
-                title: newAchievements[0].achievement.title,
-                icon: newAchievements[0].achievement.icon,
-              }
-            : undefined;
+          const badgeUnlocked =
+            newAchievements.length > 0 && newAchievements[0].achievement
+              ? {
+                  id: newAchievements[0].achievement.id,
+                  title: newAchievements[0].achievement.title,
+                  icon: newAchievements[0].achievement.icon,
+                }
+              : undefined;
 
           // Create notification
           const bonusMessage = isFirstPR ? " (+100 bonus for first PR!)" : "";
-          const achievementMessage = newAchievements.length > 0
-            ? ` Achievement unlocked: ${newAchievements[0].achievement?.title}!`
-            : "";
+          const achievementMessage =
+            newAchievements.length > 0
+              ? ` Achievement unlocked: ${newAchievements[0].achievement?.title}!`
+              : "";
 
           await prisma.notification.create({
             data: {
@@ -225,9 +266,7 @@ async function handlePullRequestEvent(payload: GitHubWebhookPREvent) {
 /**
  * Handle pull_request_review events (submitted, approved, etc.)
  */
-async function handlePullRequestReviewEvent(
-  payload: GitHubWebhookReviewEvent
-) {
+async function handlePullRequestReviewEvent(payload: GitHubWebhookReviewEvent) {
   const { action, review, pull_request } = payload;
 
   if (action !== "submitted") {
