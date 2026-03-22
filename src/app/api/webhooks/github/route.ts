@@ -55,22 +55,20 @@ export async function POST(request: Request) {
     const rawBody = await request.text();
 
     const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
-    if (webhookSecret) {
-      const valid = await verifyGitHubSignature(
-        rawBody,
-        signature,
-        webhookSecret
+    if (!webhookSecret) {
+      console.error("[Webhook] GITHUB_WEBHOOK_SECRET is not configured");
+      return NextResponse.json(
+        { error: "Webhook not configured" },
+        { status: 500 }
       );
-      if (!valid) {
-        return NextResponse.json(
-          { error: "Invalid signature" },
-          { status: 401 }
-        );
-      }
-    } else {
-      console.warn(
-        "[Webhook] GITHUB_WEBHOOK_SECRET not set — skipping signature verification"
-      );
+    }
+    const valid = await verifyGitHubSignature(
+      rawBody,
+      signature,
+      webhookSecret
+    );
+    if (!valid) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     const payload = JSON.parse(rawBody);

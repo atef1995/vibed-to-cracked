@@ -14,7 +14,11 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const tutorialIds = searchParams.get("tutorialIds")?.split(",").filter(Boolean);
+    const tutorialIds = searchParams
+      .get("tutorialIds")
+      ?.split(",")
+      .filter(Boolean)
+      .slice(0, 100);
 
     if (!tutorialIds?.length) {
       return NextResponse.json({

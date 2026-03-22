@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { ProgressService } from "@/lib/progressService";
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userId = searchParams.get("userId");
-    const tutorialId = searchParams.get("tutorialId");
-
-    if (!userId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { code: "MISSING_USER_ID", message: "User ID is required" },
-        },
-        { status: 400 }
-      );
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { searchParams } = new URL(request.url);
+    const tutorialId = searchParams.get("tutorialId") ?? undefined;
+    const userId = session.user.id;
 
     if (tutorialId) {
       // Get specific tutorial progress

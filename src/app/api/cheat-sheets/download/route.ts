@@ -111,11 +111,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if premium and user has access
-    if (cheatSheet.isPremium && token?.subscription === "FREE") {
-      return NextResponse.json(
-        { error: "Premium content requires subscription" },
-        { status: 403 }
-      );
+    if (cheatSheet.isPremium) {
+      if (!token) {
+        return NextResponse.json(
+          { error: "Authentication required" },
+          { status: 401 }
+        );
+      }
+      if (token.subscription === "FREE") {
+        return NextResponse.json(
+          { error: "Premium content requires subscription" },
+          { status: 403 }
+        );
+      }
     }
 
     // Increment download count
@@ -130,12 +138,14 @@ export async function POST(request: NextRequest) {
 
       if (cheatSheet.downloadUrl.startsWith("local:")) {
         const relativePath = cheatSheet.downloadUrl.slice("local:".length);
-        const filePath = path.join(
-          process.cwd(),
-          "private",
-          "downloads",
-          relativePath
-        );
+        const base = path.resolve(process.cwd(), "private", "downloads");
+        const filePath = path.resolve(base, relativePath);
+        if (!filePath.startsWith(base + path.sep)) {
+          return NextResponse.json(
+            { error: "Invalid file path" },
+            { status: 400 }
+          );
+        }
         const buffer = await fs.readFile(filePath);
         pdfBytes = buffer.buffer.slice(
           buffer.byteOffset,

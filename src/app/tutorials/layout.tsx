@@ -24,12 +24,17 @@ export async function generateMetadata(): Promise<Metadata> {
         description: `${tutorialCount}+ interactive tutorials to help you master JavaScript, HTML, CSS, DSA, OOP and more.`,
         type: "website",
         url: "/tutorials",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Learn Coding - Comprehensive Tutorials for All Levels",
+        description: `${tutorialCount}+ interactive tutorials to help you master JavaScript, HTML, CSS, DSA, OOP and more.`,
       },
     };
   } catch (error) {
     console.error("Error generating tutorials metadata:", error);
 
-    // Fallback metadata
     return {
       title: "Learn Coding - Free Programming Tutorials | Vibed to Cracked",
       description:
@@ -42,6 +47,13 @@ export async function generateMetadata(): Promise<Metadata> {
           "Interactive tutorials for JavaScript, HTML, CSS, DSA, OOP, GitHub and more.",
         type: "website",
         url: "/tutorials",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Learn Coding - Comprehensive Tutorials for All Levels",
+        description:
+          "Interactive tutorials for JavaScript, HTML, CSS, DSA, OOP, GitHub and more.",
       },
     };
   }

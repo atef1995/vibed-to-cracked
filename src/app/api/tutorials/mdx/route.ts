@@ -25,8 +25,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Reject path traversal and enforce safe slug format
-    if (!/^[a-zA-Z0-9_-]+$/.test(fileName)) {
+    // Reject path traversal and enforce safe slug format.
+    // Each segment must start with alphanumeric/_/- so ".." is impossible.
+    if (
+      !/^[a-zA-Z0-9_-][a-zA-Z0-9._-]*(\/[a-zA-Z0-9_-][a-zA-Z0-9._-]*)*$/.test(
+        fileName
+      )
+    ) {
       return NextResponse.json(
         {
           success: false,

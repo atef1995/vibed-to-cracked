@@ -50,6 +50,12 @@ export async function generateMetadata({
         description: `${tutorialCount}+ tutorials to help you master ${categoryName}.`,
         type: "website",
         url: `/tutorials/category/${category}`,
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${categoryName} Tutorials - Master Your Skills`,
+        description: `${tutorialCount}+ tutorials to help you master ${categoryName}.`,
       },
     };
   } catch (error) {
@@ -67,6 +73,12 @@ export async function generateMetadata({
         description: `Master ${formattedCategory} with our interactive tutorials.`,
         type: "website",
         url: `/tutorials/category/${category}`,
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${formattedCategory} Tutorials`,
+        description: `Master ${formattedCategory} with our interactive tutorials.`,
       },
     };
   }

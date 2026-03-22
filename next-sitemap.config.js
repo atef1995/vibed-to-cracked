@@ -26,4 +26,33 @@ export default {
     "/glitch-demo",
     "/achievements/shared/*",
   ],
+  additionalPaths: async (config) => {
+    const baseUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com"
+        : "http://localhost:3000";
+
+    const paths = [];
+
+    try {
+      const res = await fetch(`${baseUrl}/api/tutorials`);
+      if (res.ok) {
+        const data = await res.json();
+        const tutorials = data.data ?? [];
+        for (const tutorial of tutorials) {
+          if (tutorial.category?.slug && tutorial.slug) {
+            paths.push({
+              loc: `/tutorials/category/${tutorial.category.slug}/${tutorial.slug}`,
+              changefreq: "weekly",
+              priority: 0.7,
+            });
+          }
+        }
+      }
+    } catch {
+      // non-fatal — sitemap still generates for static routes
+    }
+
+    return paths;
+  },
 };
