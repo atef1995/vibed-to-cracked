@@ -196,7 +196,7 @@ export default function Card({
 
       {/* Card Content */}
       <div
-        className={`flex flex-col h-full ${
+        className={`flex flex-col flex-1 ${
           isPremium ? "opacity-30 pointer-events-none" : ""
         }`}
       >
@@ -204,14 +204,20 @@ export default function Card({
         {/* Main content area */}
         <div className="p-6 flex-1">{children}</div>
 
-        {/* Footer/Actions section */}
-        {(footer || actions) && (
+        {/* Footer section */}
+        {footer && (
           <div className="px-6 pb-6 pt-0 mt-auto border-t border-gray-100 dark:border-gray-700">
-            {footer && <div className="pt-4 mb-4">{footer}</div>}
-            {actions && <div className="pt-4">{actions}</div>}
+            <div className="pt-4">{footer}</div>
           </div>
         )}
       </div>
+
+      {/* Actions — rendered outside the locked content area so they remain interactive */}
+      {actions && (
+        <div className="relative z-30 px-6 pb-6 pt-0 border-t border-gray-100 dark:border-gray-700">
+          <div className="pt-4">{actions}</div>
+        </div>
+      )}
     </div>
   );
 }

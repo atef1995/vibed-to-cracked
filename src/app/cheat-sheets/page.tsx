@@ -26,6 +26,7 @@ import {
 
 interface CheatSheet {
   id: string;
+  slug: string;
   title: string;
   topic: string;
   category: string;
@@ -129,15 +130,26 @@ export default function CheatSheetsPage() {
         throw new Error("Download failed");
       }
 
-      const data = await response.json();
-
-      // Trigger download
-      const link = document.createElement("a");
-      link.href = data.downloadUrl;
-      link.download = data.fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const contentType = response.headers.get("Content-Type") ?? "";
+      if (contentType.includes("application/pdf")) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${sheet.slug}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        const data = await response.json();
+        const link = document.createElement("a");
+        link.href = data.downloadUrl;
+        link.download = data.fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     } catch (err) {
       console.error("Download error:", err);
       alert("Failed to download cheat sheet");
@@ -150,27 +162,6 @@ export default function CheatSheetsPage() {
     setSelectedCategory(null);
     setCurrentPage(1);
   };
-
-  if (!session) {
-    return (
-      <PageLayout title="Cheat Sheets" subtitle="Sign up to access">
-        <div className="text-center py-12">
-          <FileText className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-          <h2 className="text-2xl font-bold mb-2">Access Cheat Sheets</h2>
-          <p className="text-gray-600 mb-6">
-            Sign up to download our comprehensive cheat sheets for programming
-            concepts
-          </p>
-          <Link
-            href="/api/auth/signin"
-            className="inline-block bg-blue-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-600"
-          >
-            Sign Up Now
-          </Link>
-        </div>
-      </PageLayout>
-    );
-  }
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -301,6 +292,39 @@ export default function CheatSheetsPage() {
                     setPremiumModalId(sheet.id);
                   }
                 }}
+                actions={
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/cheat-sheets/${sheet.slug}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-2 font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Preview
+                    </Link>
+                    {sheet.isPremium &&
+                    (!session || session?.user?.subscription === "FREE") ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPremiumModalId(sheet.id);
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 py-2 font-medium text-white hover:from-yellow-500 hover:to-orange-600"
+                      >
+                        <Crown className="h-4 w-4" />
+                        Unlock
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleDownload(sheet)}
+                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-medium text-white hover:bg-blue-600"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download
+                      </button>
+                    )}
+                  </div>
+                }
               >
                 <div className="space-y-4">
                   {/* Difficulty Badge */}
@@ -310,8 +334,8 @@ export default function CheatSheetsPage() {
                         sheet.difficulty === "beginner"
                           ? "bg-green-500"
                           : sheet.difficulty === "intermediate"
-                          ? "bg-yellow-500"
-                          : "bg-red-500"
+                            ? "bg-yellow-500"
+                            : "bg-red-500"
                       }`}
                     >
                       {sheet.difficulty.charAt(0).toUpperCase() +
@@ -354,40 +378,6 @@ export default function CheatSheetsPage() {
                     <span>
                       {sheet.fileFormat} • {sheet.fileSize}
                     </span>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 border-t border-gray-100 pt-4 dark:border-gray-700">
-                    {sheet.isPremium &&
-                    session?.user?.subscription === "FREE" ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPremiumModalId(sheet.id);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 py-2 font-medium text-white hover:from-yellow-500 hover:to-orange-600"
-                      >
-                        <Crown className="h-4 w-4" />
-                        Unlock Premium
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => setPreviewingId(sheet.id)}
-                          className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-gray-100 py-2 font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                        >
-                          <Eye className="h-4 w-4" />
-                          Preview
-                        </button>
-                        <button
-                          onClick={() => handleDownload(sheet)}
-                          className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-medium text-white hover:bg-blue-600"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </button>
-                      </>
-                    )}
                   </div>
                 </div>
               </Card>

@@ -67,3 +67,4 @@ docs/
 scripts/sync-stripe-products.ts
 backup.sql
 backup.dump
+private

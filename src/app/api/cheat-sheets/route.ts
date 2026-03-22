@@ -24,8 +24,10 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
     const difficulty = searchParams.get("difficulty") || "";
-    const page = parseInt(searchParams.get("page") || "1");
-    const limit = parseInt(searchParams.get("limit") || "6");
+    const rawPage = parseInt(searchParams.get("page") || "1");
+    const rawLimit = parseInt(searchParams.get("limit") || "6");
+    const page = Math.max(1, isNaN(rawPage) ? 1 : rawPage);
+    const limit = Math.min(50, Math.max(1, isNaN(rawLimit) ? 6 : rawLimit));
     const isPremium = searchParams.get("isPremium");
 
     // Build filter object
@@ -73,10 +75,10 @@ export async function GET(request: NextRequest) {
       orderBy: [{ isPremium: "desc" }, { order: "asc" }],
     });
 
-    // Increment view count for each sheet
-    for (const sheet of cheatSheets) {
-      await prisma.cheatSheet.update({
-        where: { id: sheet.id },
+    // Increment view count in one query
+    if (cheatSheets.length > 0) {
+      await prisma.cheatSheet.updateMany({
+        where: { id: { in: cheatSheets.map((s) => s.id) } },
         data: { viewCount: { increment: 1 } },
       });
     }

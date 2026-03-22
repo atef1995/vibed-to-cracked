@@ -222,7 +222,6 @@ async function handleAnonymousTutorialAccess(
 function isProtectedRoute(pathname: string): boolean {
   const protectedRoutes = [
     "/settings",
-    "/cheat-sheets", // Cheat sheets require authentication
     "/store/orders", // Order history requires authentication
   ];
 

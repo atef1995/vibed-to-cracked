@@ -7,11 +7,11 @@ services:
     container_name: vibed-to-cracked-app
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env.local
     ports:
       - "3002:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
     volumes:
       - ./prisma:/app/prisma
     networks:
@@ -19,18 +19,18 @@ services:
     depends_on:
       - db
 
-  # Database (PostgreSQL for production)
+  # Database (PostgreSQL for local)
   db:
     image: postgres:17-alpine
     container_name: vibed-to-cracked-db
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env.local
     environment:
       - POSTGRES_DB=${POSTGRES_DB:-vibed_to_cracked}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -44,7 +44,7 @@ services:
     container_name: vibed-to-cracked-cron
     restart: unless-stopped
     env_file:
-      - .env.production
+      - .env.local
     environment:
       - NEXTAUTH_URL=http://app:3000
       - CRON_LOG_FILE=/var/log/cron-jobs/cron.log
