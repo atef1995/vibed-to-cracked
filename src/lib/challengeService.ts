@@ -4,9 +4,7 @@ import {
   ChallengeTest,
   ChallengeMoodAdaptation,
 } from "../generated/client";
-import type {
-  ChallengeWithTests as FrontendChallengeWithTests,
-} from "@/types/challenge";
+import type { ChallengeWithTests as FrontendChallengeWithTests } from "@/types/challenge";
 
 // Prisma types for internal use
 export type PrismaChallengeWithTests = Challenge & {
@@ -39,8 +37,8 @@ function transformToFrontendChallenge(
     updatedAt: challenge.updatedAt,
     tests: challenge.tests.map((test: ChallengeTest) => ({
       id: test.id,
-      input: JSON.stringify(test.input),
-      expected: JSON.stringify(test.expected),
+      input: test.input,
+      expected: test.expected,
       description: test.description,
     })),
     moodAdaptations: challenge.moodAdaptations.map((adaptation) => ({
