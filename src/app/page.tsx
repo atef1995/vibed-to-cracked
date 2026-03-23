@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
   Waves,
   Wind,
@@ -19,6 +19,8 @@ import {
   Droplets,
   Code2,
   Check,
+  MessageCircle,
+  Bot,
 } from "lucide-react";
 import { MOODS } from "@/lib/moods";
 import { getMoodIcon } from "@/lib/getMoodIcon";
@@ -26,12 +28,76 @@ import { MoodCard } from "@/components/MoodCard";
 import CrackedGlitch from "@/components/ui/CrackedGlitch";
 import { useCategories } from "@/hooks/useTutorialQueries";
 
+const TUTOR_CONVERSATIONS = [
+  [
+    {
+      role: "user" as const,
+      text: "What does .map() actually do under the hood?",
+    },
+    {
+      role: "tutor" as const,
+      text: ".map() creates a new array by calling your function on every element. Think of it like a factory line \u2014 each item goes in, gets transformed, and comes out the other side.",
+    },
+    { role: "user" as const, text: "How is it different from forEach then?" },
+    {
+      role: "tutor" as const,
+      text: ".map() returns the new array, forEach returns nothing. Need the results? Use .map(). Just want side effects? forEach.",
+    },
+  ],
+  [
+    {
+      role: "user" as const,
+      text: "I keep getting 'Cannot read property of undefined' \u2014 what's going on?",
+    },
+    {
+      role: "tutor" as const,
+      text: "You're trying to access a property on something that doesn't exist yet. Add a console.log() right before the error line to see what's actually there.",
+    },
+    {
+      role: "user" as const,
+      text: "Oh! My API response has data nested inside a .data property.",
+    },
+    {
+      role: "tutor" as const,
+      text: "Classic one. Use optional chaining: response?.data?.users keeps it safe. You'll never have to guess about nested data again.",
+    },
+  ],
+  [
+    {
+      role: "user" as const,
+      text: "When should I use async/await vs .then() chains?",
+    },
+    {
+      role: "tutor" as const,
+      text: "async/await is almost always cleaner. Reads top to bottom like regular code. .then() chains get messy fast, especially with error handling.",
+    },
+    {
+      role: "user" as const,
+      text: "But what about running multiple requests at once?",
+    },
+    {
+      role: "tutor" as const,
+      text: "Promise.all() works with both styles. The real win with await is readability \u2014 your future self will thank you when debugging at 2am.",
+    },
+  ],
+];
+
 export default function HomePage() {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const [backgroundElements, setBackgroundElements] = useState<
     Array<{ left: string; top: string }>
   >([]);
+
+  // AI Tutor animated chat state
+  const tutorSectionRef = useRef<HTMLDivElement>(null);
+  const tutorInView = useInView(tutorSectionRef, { once: false, amount: 0.3 });
+  const [convoIdx, setConvoIdx] = useState(0);
+  const [visibleMessages, setVisibleMessages] = useState<
+    (typeof TUTOR_CONVERSATIONS)[0]
+  >([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const animationRef = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   // Fetch categories using existing hook
   const { data: categoriesData } = useCategories(1, 20);
@@ -56,6 +122,59 @@ export default function HomePage() {
     }));
     setBackgroundElements(elements);
   }, []);
+
+  // Animated tutor chat — plays through messages when section is in view
+  const playConversation = useCallback((index: number) => {
+    const convo = TUTOR_CONVERSATIONS[index];
+    animationRef.current.forEach(clearTimeout);
+    animationRef.current = [];
+    setVisibleMessages([]);
+    setIsTyping(false);
+
+    let delay = 600;
+    convo.forEach((msg, i) => {
+      if (msg.role === "tutor") {
+        // Show typing indicator before tutor message
+        const typingTimer = setTimeout(() => setIsTyping(true), delay);
+        animationRef.current.push(typingTimer);
+        delay += 1400;
+        const msgTimer = setTimeout(() => {
+          setIsTyping(false);
+          setVisibleMessages((prev) => [...prev, msg]);
+        }, delay);
+        animationRef.current.push(msgTimer);
+        delay += 1200;
+      } else {
+        const msgTimer = setTimeout(() => {
+          setVisibleMessages((prev) => [...prev, msg]);
+        }, delay);
+        animationRef.current.push(msgTimer);
+        delay += 1000;
+      }
+    });
+
+    // Cycle to next conversation after all messages shown
+    const cycleTimer = setTimeout(() => {
+      const next = (index + 1) % TUTOR_CONVERSATIONS.length;
+      setConvoIdx(next);
+    }, delay + 3000);
+    animationRef.current.push(cycleTimer);
+  }, []);
+
+  useEffect(() => {
+    if (tutorInView) {
+      playConversation(convoIdx);
+    } else {
+      animationRef.current.forEach(clearTimeout);
+      animationRef.current = [];
+      setVisibleMessages([]);
+      setIsTyping(false);
+    }
+    return () => {
+      animationRef.current.forEach(clearTimeout);
+      animationRef.current = [];
+    };
+  }, [tutorInView, convoIdx, playConversation]);
 
   const handleMoodClick = (moodId: string) => {
     setSelectedMood(moodId);
@@ -574,6 +693,195 @@ export default function HomePage() {
           </div>
         </motion.div>
 
+        {/* AI Tutor Section */}
+        <motion.div
+          ref={tutorSectionRef}
+          className="mb-16"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.h2
+            className="text-3xl font-bold text-center mb-4 text-gray-900 dark:text-gray-100"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Your Personal AI Tutor, Always On
+          </motion.h2>
+          <motion.p
+            className="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Stuck on a concept? Highlight any code or text and get instant,
+            context-aware explanations tailored to your mood and skill level.
+          </motion.p>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto items-center">
+            {/* Left: Animated chat */}
+            <motion.div
+              className="relative bg-gray-900 rounded-xl border border-gray-700 overflow-hidden shadow-2xl"
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+            >
+              {/* Chat header */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-700 bg-gray-800">
+                <Bot className="w-5 h-5 text-blue-400" />
+                <span className="text-sm font-medium text-gray-200">
+                  AI Tutor
+                </span>
+                <span className="ml-auto text-xs text-green-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full inline-block animate-pulse" />
+                  Online
+                </span>
+              </div>
+              {/* Animated messages */}
+              <div className="p-4 space-y-3 min-h-55">
+                <AnimatePresence mode="popLayout">
+                  {visibleMessages.map((msg, i) => (
+                    <motion.div
+                      key={`${convoIdx}-${i}`}
+                      className={`flex gap-2 ${msg.role === "tutor" ? "justify-end" : ""}`}
+                      initial={{ opacity: 0, y: 12, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.95 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                    >
+                      <div
+                        className={`rounded-lg px-3 py-2 max-w-[85%] ${
+                          msg.role === "user"
+                            ? "bg-blue-600/20 border border-blue-500/30"
+                            : "bg-gray-700"
+                        }`}
+                      >
+                        <p
+                          className={`text-sm ${
+                            msg.role === "user"
+                              ? "text-blue-100"
+                              : "text-gray-200"
+                          }`}
+                        >
+                          {msg.text}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+                <AnimatePresence>
+                  {isTyping && (
+                    <motion.div
+                      className="flex items-center gap-1 text-gray-500 text-xs pl-1"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span className="inline-block w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse" />
+                      <span className="inline-block w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse [animation-delay:0.2s]" />
+                      <span className="inline-block w-1.5 h-1.5 bg-gray-500 rounded-full animate-pulse [animation-delay:0.4s]" />
+                      <span className="ml-1">Typing...</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              {/* Conversation indicator dots */}
+              <div className="flex justify-center gap-1.5 pb-3">
+                {TUTOR_CONVERSATIONS.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+                      i === convoIdx ? "bg-blue-400" : "bg-gray-600"
+                    }`}
+                  />
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Right: Feature bullets + dynamic stats */}
+            <motion.div
+              className="space-y-6"
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+            >
+              {[
+                {
+                  icon: MessageCircle,
+                  title: "Context-Aware Answers",
+                  desc: "The tutor reads the tutorial, challenge, or exercise you're on and gives answers specific to what you're learning.",
+                },
+                {
+                  icon: Sparkles,
+                  title: "Mood-Adaptive Personality",
+                  desc: "Chill mode gets a patient Zen tutor. Rush mode gets rapid-fire Bolt. Grind mode gets the no-nonsense Forge.",
+                },
+                {
+                  icon: Code2,
+                  title: "Highlight-to-Ask",
+                  desc: "Select any code or text on the page and ask about it directly. No copy-pasting into ChatGPT.",
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  className="flex gap-4 items-start"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
+                >
+                  <div className="shrink-0 w-10 h-10 rounded-lg bg-blue-600/10 dark:bg-blue-400/10 flex items-center justify-center">
+                    <item.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {item.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Topic tags */}
+              <motion.div
+                className="pt-4 border-t border-gray-200 dark:border-gray-700"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+              >
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wide">
+                  Works across all content
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    "Tutorials",
+                    "Practice Challenges",
+                    "Exercises",
+                    "Code Examples",
+                  ].map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+
         {/* Features Section */}
         <motion.div
           className="mb-16"
@@ -798,6 +1106,12 @@ export default function HomePage() {
                     us: true,
                   },
                   {
+                    feature: "AI Tutor on Every Page",
+                    youtube: false,
+                    bootcamp: false,
+                    us: true,
+                  },
+                  {
                     feature: "Progress Tracking",
                     youtube: false,
                     bootcamp: true,
@@ -912,8 +1226,8 @@ export default function HomePage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            Master JavaScript with mood-adaptive learning that actually works
-            for real life.
+            Master Web development with mood-adaptive learning and a personal AI
+            tutor that actually helps you when you&apos;re stuck.
           </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center"
