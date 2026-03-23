@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useMood } from "@/components/providers/MoodProvider";
 import { useTutorial } from "@/hooks/useTutorial";
@@ -10,6 +10,7 @@ import { useTutorialStart } from "@/hooks/useTutorialStart";
 import { useTutorialCompletion } from "@/hooks/useTutorialCompletion";
 import { useProgressiveLoading } from "@/hooks/useProgressiveLoading";
 import { useFeedbackTrigger } from "@/hooks/useFeedbackTrigger";
+import { useTutorChat } from "@/hooks/useTutorChat";
 import getMoodColors from "@/lib/getMoodColors";
 import TutorialLoading from "../../app/tutorials/category/[category]/[slug]/loading";
 import TutorialHeader from "@/components/tutorial/TutorialHeader";
@@ -21,6 +22,9 @@ import AccessWarningBanner from "@/components/tutorial/AccessWarningBanner";
 import TutorialErrorState from "@/components/tutorial/TutorialErrorState";
 import AnonymousProgressBanner from "@/components/tutorial/AnonymousProgressBanner";
 import AnonymousLimitReached from "@/components/tutorial/AnonymousLimitReached";
+import TutorFAB from "@/components/tutor/TutorFAB";
+import TutorChatPanel from "@/components/tutor/TutorChatPanel";
+import SelectionTooltip from "@/components/tutor/SelectionTooltip";
 import { FeedbackModal } from "@/components/feedback/FeedbackModal";
 import { submitFeedback } from "@/lib/services/feedbackService";
 import { FeedbackFormData } from "@/types/feedback";
@@ -50,6 +54,8 @@ export default function TutorialClient({
   const { currentMood } = useMood();
   const [contentLoaded, setContentLoaded] = useState(false);
   const [anonymousLimitReached, setAnonymousLimitReached] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Get session directly instead of making API call
   // subscriptionInfo is pre-loaded in the session to prevent repeated DB queries
@@ -118,6 +124,31 @@ export default function TutorialClient({
     mdxSource: tutorial?.mdxSource,
     onLoaded: () => setContentLoaded(true),
   });
+
+  // AI Tutor chat
+  const isAuthenticated = !!session?.user?.id;
+  const tutor = useTutorChat({
+    tutorialSlug: slug,
+    enabled: isAuthenticated && !isAnonymous,
+  });
+
+  const handleTutorToggle = useCallback(() => {
+    setTutorOpen((prev) => !prev);
+  }, []);
+
+  const handleTextSelect = useCallback(
+    (text: string) => {
+      tutor.setHighlightedText(text);
+      setTutorOpen(true);
+    },
+    [tutor]
+  );
+
+  const handleSignInPrompt = useCallback(() => {
+    window.location.href =
+      "/auth/signin?callbackUrl=" +
+      encodeURIComponent(window.location.pathname);
+  }, []);
 
   // Handle anonymous tracking
   useEffect(() => {
@@ -236,8 +267,13 @@ export default function TutorialClient({
           {/* Access Warning Banner */}
           <AccessWarningBanner accessCheck={accessCheck} />
 
-          {/* Tutorial Content */}
-          <TutorialContent tutorial={tutorial} contentLoaded={contentLoaded} />
+          {/* Tutorial Content (wrapped for text selection) */}
+          <div ref={contentRef}>
+            <TutorialContent
+              tutorial={tutorial}
+              contentLoaded={contentLoaded}
+            />
+          </div>
 
           {/* Quiz Section */}
           <TutorialQuizSection
@@ -253,6 +289,41 @@ export default function TutorialClient({
           />
         </div>
       </div>
+
+      {/* AI Tutor */}
+      <TutorFAB
+        onClick={handleTutorToggle}
+        isOpen={tutorOpen}
+        moodColors={moodColors}
+        remaining={tutor.usage.remaining}
+        isAuthenticated={isAuthenticated}
+        onSignInPrompt={handleSignInPrompt}
+      />
+
+      {isAuthenticated && !isAnonymous && (
+        <>
+          <TutorChatPanel
+            isOpen={tutorOpen}
+            onClose={() => setTutorOpen(false)}
+            messages={tutor.messages}
+            isStreaming={tutor.isStreaming}
+            usage={tutor.usage}
+            highlightedText={tutor.highlightedText}
+            onSendMessage={tutor.sendMessage}
+            onClearHistory={tutor.clearHistory}
+            onStopStreaming={tutor.stopStreaming}
+            onClearHighlight={() => tutor.setHighlightedText(null)}
+            moodColors={moodColors}
+            moodId={currentMood.id}
+          />
+
+          <SelectionTooltip
+            containerRef={contentRef}
+            onSelect={handleTextSelect}
+            moodAccent={moodColors.accent}
+          />
+        </>
+      )}
 
       {/* Feedback Modal - only shown for authenticated users */}
       {!isAnonymous && shouldShowFeedback && feedbackTutorial && (

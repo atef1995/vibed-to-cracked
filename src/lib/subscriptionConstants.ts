@@ -14,8 +14,9 @@ export const SubscriptionStatus = {
   EXPIRED: "EXPIRED",
 } as const;
 
-export type Plan = typeof Plan[keyof typeof Plan];
-export type SubscriptionStatus = typeof SubscriptionStatus[keyof typeof SubscriptionStatus];
+export type Plan = (typeof Plan)[keyof typeof Plan];
+export type SubscriptionStatus =
+  (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
 
 // Plan configurations
 export const PLAN_CONFIGS = {
@@ -27,11 +28,13 @@ export const PLAN_CONFIGS = {
     challengesPerMonth: 3,
     quizzesPerMonth: 2,
     storageGB: 0.5,
+    aiTutorMessagesPerDay: 5,
     features: [
       "Limited tutorials (5/month)",
       "Limited challenges (3/month)",
       "Limited quizzes (2/month)",
       "0.5GB storage",
+      "AI tutor (5 messages/day)",
     ],
   },
   [Plan.VIBED]: {
@@ -42,6 +45,7 @@ export const PLAN_CONFIGS = {
     challengesPerMonth: null,
     quizzesPerMonth: null,
     storageGB: 10,
+    aiTutorMessagesPerDay: 50,
     features: [
       "Unlimited tutorials",
       "Unlimited challenges",
@@ -50,6 +54,7 @@ export const PLAN_CONFIGS = {
       "Priority support",
       "Ad-free experience",
       "Advanced analytics",
+      "AI tutor (50 messages/day)",
     ],
   },
   [Plan.CRACKED]: {
@@ -60,6 +65,7 @@ export const PLAN_CONFIGS = {
     challengesPerMonth: null,
     quizzesPerMonth: null,
     storageGB: 50,
+    aiTutorMessagesPerDay: null, // Unlimited
     features: [
       "All Vibed features",
       "50GB storage",
@@ -68,6 +74,7 @@ export const PLAN_CONFIGS = {
       "API access",
       "Team collaboration",
       "Offline access",
+      "Unlimited AI tutor",
     ],
   },
 } as const;
