@@ -54,8 +54,10 @@ restore-database.ts
 generated/
 build_final.log
 build.log
-.github/
-
+.github/instructions/
+.github/prompts/
+.github/skills/
+.github/copilot-instructions.md
 
 scripts/dbSeeds/seeds/
 

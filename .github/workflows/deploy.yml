@@ -1,0 +1,61 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [master]
+    paths-ignore:
+      - "docs/**"
+      - "README.md"
+      - ".github/instructions/**"
+      - ".github/prompts/**"
+      - ".github/skills/**"
+      - "*.md"
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          command_timeout: 15m
+          script: |
+            set -e
+            DEPLOY_PATH="${{ secrets.VPS_DEPLOY_PATH }}"
+            cd "$DEPLOY_PATH"
+
+            echo "==> Pulling latest code"
+            git pull origin master
+
+            echo "==> Creating pre-deploy backup"
+            mkdir -p backups
+            docker compose exec -T db pg_dump -U postgres vibed_to_cracked | gzip > "backups/pre-deploy-$(date +%Y%m%d-%H%M%S).sql.gz"
+
+            echo "==> Building containers"
+            docker compose build app cron
+
+            echo "==> Rolling restart (db untouched)"
+            docker compose up -d --no-deps app cron
+
+            echo "==> Waiting for app to be healthy"
+            sleep 10
+            curl --retry 5 --retry-delay 5 --retry-all-errors --fail http://localhost:3002/api/health
+
+            echo "==> Running database migrations"
+            docker compose exec -T app npx prisma migrate deploy
+
+            echo "==> Cleaning up old images"
+            docker image prune -f
+
+            echo "==> Deploy complete"
