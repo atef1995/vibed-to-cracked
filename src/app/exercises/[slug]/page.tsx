@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, use, useState } from "react";
+import { useEffect, use, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { HelpCircle } from "lucide-react";
 import { ValidatedExercise } from "@/components/ui/ValidatedExercise";
 import { TutorialRecommendations } from "@/components/tutorial/TutorialRecommendations";
+import { ExerciseTour } from "@/components/exercises/ExerciseTour";
 
 interface ExerciseData {
   id: string;
@@ -50,6 +52,13 @@ export default function ExercisePage({
   const [exercise, setExercise] = useState<ExerciseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const startTourRef = useRef<(() => void) | null>(null);
+
+  const isFirstExercise = resolvedParams.slug === "html-button-styling";
+
+  const handleStartRef = useCallback((fn: () => void) => {
+    startTourRef.current = fn;
+  }, []);
 
   useEffect(() => {
     const fetchExercise = async () => {
@@ -138,6 +147,16 @@ export default function ExercisePage({
                 <span>⏱️ {exercise.estimatedTime} minutes</span>
               </div>
             </div>
+            {isFirstExercise && (
+              <button
+                onClick={() => startTourRef.current?.()}
+                className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors cursor-pointer px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                title="How to use this exercise"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">How to use</span>
+              </button>
+            )}
           </div>
 
           <p className="mt-4 text-gray-700 dark:text-gray-300">
@@ -154,6 +173,9 @@ export default function ExercisePage({
             </p>
           </div>
         )}
+
+        {/* Guided Tour for first exercise */}
+        {isFirstExercise && <ExerciseTour onStartRef={handleStartRef} />}
 
         {/* Exercise Component */}
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">

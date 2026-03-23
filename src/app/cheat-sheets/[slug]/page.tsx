@@ -20,12 +20,18 @@ const difficultyColors: Record<string, string> = {
   advanced: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
+export const dynamicParams = true;
+
 export async function generateStaticParams() {
-  const sheets = await prisma.cheatSheet.findMany({
-    where: { published: true },
-    select: { slug: true },
-  });
-  return sheets.map((s) => ({ slug: s.slug }));
+  try {
+    const sheets = await prisma.cheatSheet.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    return sheets.map((s) => ({ slug: s.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export default async function CheatSheetPage({ params }: Props) {

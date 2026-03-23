@@ -115,27 +115,27 @@ export function ValidatedExercise({
     // Use existing iframe if available, otherwise create a temporary one
     let iframeWindow: Window | null = iframeRef.current?.contentWindow || null;
     let tempIframe: HTMLIFrameElement | null = null;
-    
+
     if (!iframeWindow) {
-      tempIframe = document.createElement('iframe');
-      tempIframe.style.display = 'none';
+      tempIframe = document.createElement("iframe");
+      tempIframe.style.display = "none";
       document.body.appendChild(tempIframe);
-      
+
       // Get the iframe window and document
       iframeWindow = tempIframe.contentWindow;
       if (!iframeWindow) {
         setIsChecking(false);
         return;
       }
-      
+
       const doc = iframeWindow.document;
       const previewHtml = generatePreviewHTML();
-      
+
       // Write HTML directly to iframe document
       doc.open();
       doc.write(previewHtml);
       doc.close();
-      
+
       // Wait for content to be parsed and scripts to execute
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
@@ -146,7 +146,10 @@ export function ValidatedExercise({
     for (const testCase of testCases) {
       try {
         // Get validator function from registry
-        const validateFn = getValidator(exerciseId || "", testCase.validatorKey);
+        const validateFn = getValidator(
+          exerciseId || "",
+          testCase.validatorKey
+        );
 
         if (!validateFn) {
           results.push({
@@ -265,7 +268,10 @@ export function ValidatedExercise({
   return (
     <div className="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-6">
       {/* Header */}
-      <div className="bg-linear-to-r from-green-500 to-emerald-600 px-4 py-3">
+      <div
+        data-tour="exercise-header"
+        className="bg-linear-to-r from-green-500 to-emerald-600 px-4 py-3"
+      >
         <div className="flex items-center justify-between">
           <h3 className="text-white font-semibold flex items-center gap-2">
             <Code2 className="w-5 h-5" />
@@ -281,6 +287,7 @@ export function ValidatedExercise({
             </button>
             {solution && (
               <button
+                data-tour="exercise-solution-btn"
                 onClick={loadSolution}
                 className="text-white/80 hover:text-white transition-colors px-3 py-1.5 rounded hover:bg-white/10 text-xs font-medium cursor-pointer"
                 title="Show solution"
@@ -293,7 +300,10 @@ export function ValidatedExercise({
       </div>
 
       {/* Instructions */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border-b-2 border-blue-200 dark:border-blue-700 px-4 py-3">
+      <div
+        data-tour="exercise-instructions"
+        className="bg-blue-50 dark:bg-blue-900/20 border-b-2 border-blue-200 dark:border-blue-700 px-4 py-3"
+      >
         <h4 className="text-blue-800 dark:text-blue-300 font-semibold text-sm mb-1">
           📝 Exercise Instructions:
         </h4>
@@ -328,7 +338,10 @@ export function ValidatedExercise({
       )}
 
       {/* Tab Navigation */}
-      <div className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+      <div
+        data-tour="exercise-tabs"
+        className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600"
+      >
         <div className="flex">
           {showHtmlEditor && (
             <button
@@ -370,6 +383,7 @@ export function ValidatedExercise({
             </button>
           )}
           <button
+            data-tour="exercise-preview-tab"
             onClick={() => setActiveTab("preview")}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
               activeTab === "preview"
@@ -384,7 +398,7 @@ export function ValidatedExercise({
       </div>
 
       {/* Editor Content */}
-      <div className="m-3">
+      <div data-tour="exercise-editor" className="m-3">
         {activeTab === "html" && showHtmlEditor && (
           <div className="h-full">
             <CodeEditor
@@ -462,7 +476,10 @@ export function ValidatedExercise({
 
       {/* Hints */}
       {hints.length > 0 && (
-        <div className="border-t-2 border-gray-200 dark:border-gray-700 p-4">
+        <div
+          data-tour="exercise-hints"
+          className="border-t-2 border-gray-200 dark:border-gray-700 p-4"
+        >
           <button
             onClick={() => {
               if (!showHints) {
@@ -493,6 +510,7 @@ export function ValidatedExercise({
       {/* Check Button */}
       <div className="border-t-2 border-gray-200 dark:border-gray-700 p-4 bg-white dark:bg-gray-800">
         <button
+          data-tour="exercise-check-btn"
           onClick={runTests}
           disabled={isChecking}
           className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
