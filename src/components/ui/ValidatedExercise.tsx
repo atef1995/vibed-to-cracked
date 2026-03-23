@@ -41,6 +41,7 @@ interface ValidatedExerciseProps {
   showCssEditor?: boolean;
   showJsEditor?: boolean;
   exerciseId?: string;
+  exerciseSlug?: string;
 }
 
 export function ValidatedExercise({
@@ -56,6 +57,7 @@ export function ValidatedExercise({
   showCssEditor = true,
   showJsEditor = true,
   exerciseId,
+  exerciseSlug,
 }: ValidatedExerciseProps) {
   const { data: session } = useSession();
   const toast = useToast();
@@ -147,7 +149,7 @@ export function ValidatedExercise({
       try {
         // Get validator function from registry
         const validateFn = getValidator(
-          exerciseId || "",
+          exerciseSlug || exerciseId || "",
           testCase.validatorKey
         );
 

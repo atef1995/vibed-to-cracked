@@ -223,7 +223,8 @@ export default function ExercisePage({
             testCases={testCasesForComponent}
             hints={exercise.hints}
             solution={exercise.solution}
-            exerciseId={exercise.slug}
+            exerciseId={exercise.id}
+            exerciseSlug={exercise.slug}
           />
         </div>
 
