@@ -26,6 +26,7 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { CartIcon } from "@/components/store/CartIcon";
 
 export function Header() {
@@ -36,9 +37,17 @@ export function Header() {
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [cartItemCount, setCartItemCount] = useState(0);
 
+  const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Collapse all menus on route change
+  useEffect(() => {
+    setShowMobileNav(false);
+    setIsExpanded(false);
+    setShowDropdownMenu(false);
+  }, [pathname]);
 
   useEffect(() => {
     fetchCartCount();
@@ -376,10 +385,12 @@ export function Header() {
                   onClick={() => {
                     signOut({ callbackUrl: "/" });
                   }}
-                  className="flex flex-col justify-center items-center text-xs gap-2 text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                  className="flex flex-col items-center gap-2 p-3 rounded-lg transition-all duration-200 transform active:scale-95 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
                 >
-                  <LogOut className="w-4 h-4" />
-                  Logout
+                  <LogOut className="w-5 h-5" />
+                  <span className="text-xs text-center font-medium leading-tight">
+                    Logout
+                  </span>
                 </button>
               </div>
 
