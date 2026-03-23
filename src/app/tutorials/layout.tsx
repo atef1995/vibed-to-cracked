@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { TutorialService } from "@/lib/tutorialService";
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const tutorialCount = await TutorialService.getTutorialsCount();

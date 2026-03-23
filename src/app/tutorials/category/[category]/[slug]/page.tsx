@@ -5,21 +5,9 @@ import TutorialClient from "../../../../../components/tutorial/TutorialClient";
 import ErrorBoundary, {
   TutorialErrorFallback,
 } from "@/components/ErrorBoundary";
-import { TutorialService } from "@/lib/tutorialService";
 
+export const dynamic = "force-dynamic";
 export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  try {
-    const tutorials = await TutorialService.getAllTutorials();
-    return tutorials.map((t) => ({
-      category: t.category.slug,
-      slug: t.slug,
-    }));
-  } catch {
-    return [];
-  }
-}
 
 interface TutorialPageProps {
   params: Promise<{ category: string; slug: string }>;

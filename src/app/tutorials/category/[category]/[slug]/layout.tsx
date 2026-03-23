@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { TutorialService } from "@/lib/tutorialService";
 
+export const dynamic = "force-dynamic";
+
 const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
 
 export async function generateMetadata({
