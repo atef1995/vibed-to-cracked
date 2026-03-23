@@ -54,9 +54,6 @@ jobs:
             sleep 10
             curl --retry 5 --retry-delay 5 --retry-all-errors --fail http://localhost:3002/api/health
 
-            echo "==> Running database migrations"
-            docker compose exec -T app npx prisma migrate deploy
-
             echo "==> Cleaning up old images"
             docker image prune -f
 
