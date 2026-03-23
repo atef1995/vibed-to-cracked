@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
-    const response = await fetch(`${baseUrl}/api/cheat-sheets`, {
-      next: { revalidate: 3600 },
+    const total = await prisma.cheatSheet.count({
+      where: { published: true },
     });
-
-    if (!response.ok) throw new Error("Failed to fetch cheat sheets");
-
-    const data = await response.json();
-    const total = data.pagination?.total || 0;
     const countLabel =
       total > 0 ? `${total}+ Guides` : "Quick Reference Guides";
 

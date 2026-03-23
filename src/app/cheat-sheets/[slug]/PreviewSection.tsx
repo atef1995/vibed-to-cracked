@@ -6,12 +6,14 @@ import Image from "next/image";
 
 interface Props {
   previewUrl: string;
+  title: string;
   isLocked: boolean;
   requiredPlan?: string | null;
 }
 
 export default function PreviewSection({
   previewUrl,
+  title,
   isLocked,
   requiredPlan,
 }: Props) {
@@ -21,10 +23,9 @@ export default function PreviewSection({
     <div className="mb-6 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
       {/* Fixed height container — object-top keeps the top portion always visible */}
       <div className="relative h-105">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <Image
           src={previewUrl}
-          alt="Cheat sheet preview"
+          alt={`${title} preview`}
           fill
           className="object-cover object-top select-none"
           draggable={false}

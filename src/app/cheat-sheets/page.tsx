@@ -4,15 +4,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Download,
-  Eye,
-  FileText,
-  Loader,
-  Search,
-  Lock,
-  Crown,
-} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Eye, FileText, Loader, Search, Lock, Crown } from "lucide-react";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
 import Pagination from "@/components/ui/Pagination";
@@ -23,6 +16,7 @@ import {
   MoodImpactIndicator,
   QuickMoodSwitcher,
 } from "@/components/ui/MoodImpactIndicator";
+import { Plan } from "@/lib/subscriptionConstants";
 
 interface CheatSheet {
   id: string;
@@ -41,15 +35,34 @@ interface CheatSheet {
   isPremium?: boolean;
 }
 
+interface CheatSheetsResponse {
+  data: CheatSheet[];
+  categories: string[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
+
+function useDebounce(value: string, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const id = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+
 export default function CheatSheetsPage() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
   const moodColors = useMoodColors();
   const router = useRouter();
 
-  const [cheatSheets, setCheatSheets] = useState<CheatSheet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,104 +70,38 @@ export default function CheatSheetsPage() {
     null
   );
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [previewingId, setPreviewingId] = useState<string | null>(null);
   const [premiumModalId, setPremiumModalId] = useState<string | null>(null);
-  const [totalItems, setTotalItems] = useState(0);
-  const [categories, setCategories] = useState<string[]>([]);
 
-  // Fetch cheat sheets from database
-  useEffect(() => {
-    const fetchCheatSheets = async () => {
-      try {
-        setLoading(true);
-        const params = new URLSearchParams({
-          search: searchTerm,
-          category: selectedCategory || "",
-          difficulty: selectedDifficulty || "",
-          page: currentPage.toString(),
-          limit: itemsPerPage.toString(),
-        });
+  const debouncedSearch = useDebounce(searchTerm, 350);
 
-        const response = await fetch(`/api/cheat-sheets?${params}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch cheat sheets");
-
-        const data = await response.json();
-        setCheatSheets(data.data);
-        setTotalItems(data.pagination.total);
-
-        // Extract unique categories
-        const uniqueCategories = Array.from(
-          new Set(data.data.map((sheet: CheatSheet) => sheet.category))
-        ) as string[];
-        setCategories(uniqueCategories.sort());
-      } catch (err) {
-        console.error("Error fetching cheat sheets:", err);
-        setError("Failed to load cheat sheets. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCheatSheets();
-  }, [
-    searchTerm,
-    selectedDifficulty,
-    selectedCategory,
-    currentPage,
-    itemsPerPage,
-  ]);
-
-  const handleDownload = async (sheet: CheatSheet) => {
-    try {
-      // Check subscription for premium content
-      if (sheet.isPremium && session?.user?.subscription === "FREE") {
-        router.push("/pricing");
-        return;
-      }
-
-      // Call download tracking API
-      const response = await fetch("/api/cheat-sheets/download", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ sheetId: sheet.id }),
+  const { data, isLoading, error } = useQuery<CheatSheetsResponse>({
+    queryKey: [
+      "cheat-sheets",
+      debouncedSearch,
+      selectedDifficulty,
+      selectedCategory,
+      currentPage,
+      itemsPerPage,
+    ],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        search: debouncedSearch,
+        category: selectedCategory || "",
+        difficulty: selectedDifficulty || "",
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
       });
 
-      if (!response.ok) {
-        throw new Error("Download failed");
-      }
+      const response = await fetch(`/api/cheat-sheets?${params}`);
+      if (!response.ok) throw new Error("Failed to fetch cheat sheets");
+      return response.json();
+    },
+  });
 
-      const contentType = response.headers.get("Content-Type") ?? "";
-      if (contentType.includes("application/pdf")) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${sheet.slug}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      } else {
-        const data = await response.json();
-        const link = document.createElement("a");
-        link.href = data.downloadUrl;
-        link.download = data.fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
-    } catch (err) {
-      console.error("Download error:", err);
-      alert("Failed to download cheat sheet");
-    }
-  };
+  const cheatSheets = data?.data ?? [];
+  const categories = data?.categories ?? [];
+  const totalItems = data?.pagination?.total ?? 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   const clearFilters = () => {
     setSearchTerm("");
@@ -163,10 +110,12 @@ export default function CheatSheetsPage() {
     setCurrentPage(1);
   };
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const premiumSheet = premiumModalId
+    ? cheatSheets.find((s) => s.id === premiumModalId)
+    : null;
 
   return (
-    <PageLayout title="📚 Cheat Sheets" subtitle="Quick reference guides">
+    <PageLayout title="Cheat Sheets" subtitle="Quick reference guides">
       {/* Header with Mood Section */}
       <div
         className={`mb-8 rounded-lg border p-6 transition-colors duration-300 ${moodColors.border} ${moodColors.gradient}`}
@@ -261,7 +210,7 @@ export default function CheatSheetsPage() {
       </div>
 
       {/* Loading State */}
-      {loading && (
+      {isLoading && (
         <div className="flex items-center justify-center py-12">
           <Loader className="h-8 w-8 animate-spin text-blue-500" />
         </div>
@@ -270,12 +219,12 @@ export default function CheatSheetsPage() {
       {/* Error State */}
       {error && (
         <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
-          {error}
+          Failed to load cheat sheets. Please try again later.
         </div>
       )}
 
       {/* Cheat Sheets Grid */}
-      {!loading && cheatSheets.length > 0 && (
+      {!isLoading && cheatSheets.length > 0 && (
         <>
           <ContentGrid columns="3">
             {cheatSheets.map((sheet) => (
@@ -287,7 +236,7 @@ export default function CheatSheetsPage() {
                 onPremiumClick={() => {
                   if (
                     sheet.isPremium &&
-                    session?.user?.subscription === "FREE"
+                    session?.user?.subscription === Plan.FREE
                   ) {
                     setPremiumModalId(sheet.id);
                   }
@@ -303,7 +252,7 @@ export default function CheatSheetsPage() {
                       Preview
                     </Link>
                     {sheet.isPremium &&
-                    (!session || session?.user?.subscription === "FREE") ? (
+                    (!session || session?.user?.subscription === Plan.FREE) ? (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -315,13 +264,14 @@ export default function CheatSheetsPage() {
                         Unlock
                       </button>
                     ) : (
-                      <button
-                        onClick={() => handleDownload(sheet)}
+                      <Link
+                        href={`/cheat-sheets/${sheet.slug}`}
+                        onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-blue-500 py-2 font-medium text-white hover:bg-blue-600"
                       >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </button>
+                        <FileText className="h-4 w-4" />
+                        View
+                      </Link>
                     )}
                   </div>
                 }
@@ -376,7 +326,7 @@ export default function CheatSheetsPage() {
                   {/* File Info */}
                   <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                     <span>
-                      {sheet.fileFormat} • {sheet.fileSize}
+                      {sheet.fileFormat} - {sheet.fileSize}
                     </span>
                   </div>
                 </div>
@@ -396,7 +346,7 @@ export default function CheatSheetsPage() {
       )}
 
       {/* Empty State */}
-      {!loading && cheatSheets.length === 0 && (
+      {!isLoading && cheatSheets.length === 0 && !error && (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-12 dark:border-gray-600">
           <FileText className="mb-4 h-12 w-12 text-gray-400" />
           <p className="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
@@ -417,7 +367,7 @@ export default function CheatSheetsPage() {
       )}
 
       {/* Premium Lock Modal */}
-      {premiumModalId && (
+      {premiumSheet && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
           onClick={() => setPremiumModalId(null)}
@@ -427,7 +377,7 @@ export default function CheatSheetsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Lock Icon */}
-            <div className={`flex justify-center mb-6`}>
+            <div className="flex justify-center mb-6">
               <div
                 className={`inline-flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-r ${moodColors.gradient} text-white shadow-lg`}
               >
@@ -437,26 +387,27 @@ export default function CheatSheetsPage() {
 
             {/* Cheat Sheet Title */}
             <h3 className="text-center text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {cheatSheets.find((s) => s.id === premiumModalId)?.title}
+              {premiumSheet.title}
             </h3>
 
             {/* Premium Required Text */}
             <p className="text-center text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-              {cheatSheets.find((s) => s.id === premiumModalId)?.requiredPlan}{" "}
-              Content
+              {premiumSheet.requiredPlan} Content
             </p>
 
             {/* Description */}
             <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6">
-              {cheatSheets.find((s) => s.id === premiumModalId)?.description}
+              {premiumSheet.description}
             </p>
 
             {/* Mood-based message */}
             <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6">
-              {currentMood.id === "rush" && "🔥 Unlock all premium resources!"}
+              {currentMood.id === "rush" &&
+                "Unlock all premium resources and accelerate your learning."}
               {currentMood.id === "grind" &&
-                "💪 Level up with premium content!"}
-              {currentMood.id === "chill" && "✨ Explore premium content!"}
+                "Level up with premium content and keep the momentum going."}
+              {currentMood.id === "chill" &&
+                "Explore premium content at your own pace."}
             </p>
 
             {/* Action Buttons */}
@@ -470,58 +421,13 @@ export default function CheatSheetsPage() {
               <button
                 onClick={() => {
                   setPremiumModalId(null);
-                  router.push("/subscription/upgrade");
+                  router.push("/pricing");
                 }}
                 className={`flex-1 rounded-lg bg-linear-to-r ${moodColors.gradient} px-4 py-3 font-medium text-white hover:shadow-lg transition-all`}
               >
                 Upgrade Now
               </button>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* Preview Modal */}
-      {previewingId && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={() => setPreviewingId(null)}
-        >
-          <div
-            className="w-full max-w-2xl rounded-lg bg-white p-6 dark:bg-gray-800"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold dark:text-white">
-                {cheatSheets.find((s) => s.id === previewingId)?.title}
-              </h2>
-              <button
-                onClick={() => setPreviewingId(null)}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400"
-              >
-                ✕
-              </button>
-            </div>
-            <div className="mb-6 aspect-video rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
-              <div className="text-center">
-                <FileText className="mb-2 h-12 w-12 text-gray-400 mx-auto" />
-                <p className="text-gray-500 dark:text-gray-400">
-                  Preview image will appear here
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                const sheet = cheatSheets.find((s) => s.id === previewingId);
-                if (sheet) {
-                  handleDownload(sheet);
-                  setPreviewingId(null);
-                }
-              }}
-              className="w-full rounded-lg bg-blue-500 py-3 font-medium text-white hover:bg-blue-600"
-            >
-              Download Now
-            </button>
           </div>
         </div>
       )}

@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Tag } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Plan } from "@/lib/subscriptionConstants";
 import DownloadButton from "./DownloadButton";
 import PreviewSection from "./PreviewSection";
 
@@ -19,6 +20,14 @@ const difficultyColors: Record<string, string> = {
   advanced: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
 
+export async function generateStaticParams() {
+  const sheets = await prisma.cheatSheet.findMany({
+    where: { published: true },
+    select: { slug: true },
+  });
+  return sheets.map((s) => ({ slug: s.slug }));
+}
+
 export default async function CheatSheetPage({ params }: Props) {
   const { slug } = await params;
 
@@ -32,7 +41,7 @@ export default async function CheatSheetPage({ params }: Props) {
   const isLocked =
     sheet.isPremium &&
     (!session ||
-      (session.user as { subscription?: string })?.subscription === "FREE");
+      (session.user as { subscription?: string })?.subscription === Plan.FREE);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4">
@@ -91,6 +100,7 @@ export default async function CheatSheetPage({ params }: Props) {
           {sheet.previewUrl && (
             <PreviewSection
               previewUrl={sheet.previewUrl}
+              title={sheet.title}
               isLocked={isLocked}
               requiredPlan={sheet.requiredPlan}
             />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Download, Lock } from "lucide-react";
+import { Plan } from "@/lib/subscriptionConstants";
 
 interface Props {
   id: string;
@@ -32,7 +33,7 @@ export default function DownloadButton({
 
     if (
       isPremium &&
-      (session.user as { subscription?: string })?.subscription === "FREE"
+      (session.user as { subscription?: string })?.subscription === Plan.FREE
     ) {
       router.push("/pricing");
       return;

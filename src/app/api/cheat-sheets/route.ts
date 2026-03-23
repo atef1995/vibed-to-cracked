@@ -75,16 +75,17 @@ export async function GET(request: NextRequest) {
       orderBy: [{ isPremium: "desc" }, { order: "asc" }],
     });
 
-    // Increment view count in one query
-    if (cheatSheets.length > 0) {
-      await prisma.cheatSheet.updateMany({
-        where: { id: { in: cheatSheets.map((s) => s.id) } },
-        data: { viewCount: { increment: 1 } },
-      });
-    }
+    // Fetch all distinct categories for filter dropdown
+    const allCategories = await prisma.cheatSheet.findMany({
+      where: { published: true },
+      select: { category: true },
+      distinct: ["category"],
+      orderBy: { category: "asc" },
+    });
 
     return NextResponse.json({
       data: cheatSheets,
+      categories: allCategories.map((c) => c.category),
       pagination: {
         total,
         page,
