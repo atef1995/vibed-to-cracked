@@ -84,6 +84,11 @@ const fetchTutorial = async (slug: string): Promise<TutorialData> => {
   // Serialize the MDX content
   const mdxSource = await serialize(finalContent, {
     parseFrontmatter: false, // We already parsed it in the API route
+    // Tutorial content is from our own MDX files, not user input.
+    // blockJS defaults to true in next-mdx-remote v6, which strips ALL
+    // JSX expressions ({`...`} children, ={value} props, ={300} numbers).
+    // blockDangerousJS (default true) still blocks eval/require/process.
+    blockJS: false,
     mdxOptions: {
       remarkPlugins: [],
       rehypePlugins: [],

@@ -9,7 +9,7 @@ import dynamic from "next/dynamic";
 const MultiFileCodeEditor = dynamic(() => import("./MultiFileCodeEditor"), {
   ssr: false,
   loading: () => (
-    <div className="h-[300px] bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+    <div className="h-75 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
   ),
 });
 

@@ -11,6 +11,7 @@ import { Play, Code, Eye } from "lucide-react";
 import { HTMLPreviewWindow } from "./HTMLPreviewWindow";
 import CodeEditor from "../CodeEditor";
 import BlockConsole from "./BlockConsole";
+
 interface DOMInteractiveBlockProps {
   title: string;
   description: string;
