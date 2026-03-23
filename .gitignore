@@ -51,7 +51,6 @@ backup-database.sh
 backup-database.ts
 restore-database.ts
 .github/instructions/instructions.instructions.md
-prisma/
 generated/
 build_final.log
 build.log
@@ -69,3 +68,4 @@ backup.sql
 backup.dump
 private
 atef@173.212.253.103
+prisma/mydatabase.bak
