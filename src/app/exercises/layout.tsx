@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const exerciseCount = await prisma.exercise.count({ where: { published: true } });
+    const exerciseCount = await prisma.exercise.count({
+      where: { published: true },
+    });
 
     return {
       title: `Interactive Coding Exercises - ${exerciseCount}+ Hands-On Practice Problems | Vibed to Cracked`,

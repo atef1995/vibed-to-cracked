@@ -11,7 +11,13 @@ export async function generateMetadata({
   try {
     const exercise = await prisma.exercise.findUnique({
       where: { slug },
-      select: { title: true, description: true, difficulty: true, category: true, estimatedTime: true },
+      select: {
+        title: true,
+        description: true,
+        difficulty: true,
+        category: true,
+        estimatedTime: true,
+      },
     });
 
     if (!exercise) {
