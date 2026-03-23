@@ -119,6 +119,8 @@ model User {
   // AI tutor relations
   tutorConversations TutorConversation[]
 
+
+
   @@map("users")
 }
 
@@ -176,7 +178,6 @@ model Tutorial {
   feedback         TutorialFeedback[]
   tutorialProgress TutorialProgress[]
   category             Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  tutorConversations   TutorConversation[]
 
   @@index([categoryId, published, order])
   @@index([published, order])
@@ -1293,18 +1294,18 @@ model BlogCategory {
 // ============================================================================
 
 model TutorConversation {
-  id         String          @id @default(cuid())
-  userId     String
-  tutorialId String
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tutorial   Tutorial        @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
-  messages   TutorMessage[]
+  id          String          @id @default(cuid())
+  userId      String
+  contentType String          // "tutorial" | "challenge" | "exercise"
+  contentId   String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages    TutorMessage[]
 
-  @@unique([userId, tutorialId])
+  @@unique([userId, contentType, contentId])
   @@index([userId])
-  @@index([tutorialId])
+  @@index([contentType, contentId])
   @@map("tutor_conversations")
 }
 

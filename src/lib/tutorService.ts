@@ -2,15 +2,19 @@ import { prisma } from "@/lib/prisma";
 
 export class TutorService {
   /**
-   * Get or create a conversation for a user on a specific tutorial
+   * Get or create a conversation for a user on a specific content item
    */
-  static async getOrCreateConversation(userId: string, tutorialId: string) {
+  static async getOrCreateConversation(
+    userId: string,
+    contentType: string,
+    contentId: string
+  ) {
     try {
       const conversation = await prisma.tutorConversation.upsert({
         where: {
-          userId_tutorialId: { userId, tutorialId },
+          userId_contentType_contentId: { userId, contentType, contentId },
         },
-        create: { userId, tutorialId },
+        create: { userId, contentType, contentId },
         update: { updatedAt: new Date() },
         include: {
           messages: {
@@ -123,17 +127,42 @@ export class TutorService {
   }
 
   /**
-   * Get a user's conversation for a specific tutorial by slug
+   * Get a user's conversation for a specific content item by slug
    */
-  static async getConversationByTutorialSlug(
+  static async getConversationBySlug(
     userId: string,
-    tutorialSlug: string
+    contentType: string,
+    contentSlug: string
   ) {
     try {
-      const conversation = await prisma.tutorConversation.findFirst({
+      // Look up the content ID from the slug based on content type
+      let contentId: string | null = null;
+
+      if (contentType === "tutorial") {
+        const tutorial = await prisma.tutorial.findUnique({
+          where: { slug: contentSlug },
+          select: { id: true },
+        });
+        contentId = tutorial?.id ?? null;
+      } else if (contentType === "challenge") {
+        const challenge = await prisma.challenge.findUnique({
+          where: { slug: contentSlug },
+          select: { id: true },
+        });
+        contentId = challenge?.id ?? null;
+      } else if (contentType === "exercise") {
+        const exercise = await prisma.exercise.findUnique({
+          where: { slug: contentSlug },
+          select: { id: true },
+        });
+        contentId = exercise?.id ?? null;
+      }
+
+      if (!contentId) return null;
+
+      const conversation = await prisma.tutorConversation.findUnique({
         where: {
-          userId,
-          tutorial: { slug: tutorialSlug },
+          userId_contentType_contentId: { userId, contentType, contentId },
         },
         include: {
           messages: {
@@ -144,7 +173,7 @@ export class TutorService {
       });
       return conversation;
     } catch (error) {
-      console.error("Error in getConversationByTutorialSlug:", error);
+      console.error("Error in getConversationBySlug:", error);
       return null;
     }
   }

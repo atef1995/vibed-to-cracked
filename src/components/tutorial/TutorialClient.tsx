@@ -128,7 +128,8 @@ export default function TutorialClient({
   // AI Tutor chat
   const isAuthenticated = !!session?.user?.id;
   const tutor = useTutorChat({
-    tutorialSlug: slug,
+    contentType: "tutorial",
+    contentSlug: slug,
     enabled: isAuthenticated && !isAnonymous,
   });
 

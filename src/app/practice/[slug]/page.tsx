@@ -6,7 +6,7 @@ import { useToastContext } from "@/components/providers/ToastProvider";
 import { useUnifiedSubscription } from "@/hooks/useUnifiedSubscription";
 import { submitChallengeAction } from "@/lib/actions";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { notFound } from "next/navigation";
 import CodeEditor from "@/components/CodeEditor";
 import PremiumModal from "@/components/ui/PremiumModal";
@@ -15,6 +15,11 @@ import { useCodeProgress } from "@/hooks/useCodeProgress";
 import { SaveIndicator } from "@/components/ui/SaveIndicator";
 import type { ChallengeWithTests, TestResult } from "@/types/challenge";
 import { TutorialRecommendations } from "@/components/tutorial/TutorialRecommendations";
+import { useTutorChat } from "@/hooks/useTutorChat";
+import TutorFAB from "@/components/tutor/TutorFAB";
+import TutorChatPanel from "@/components/tutor/TutorChatPanel";
+import SelectionTooltip from "@/components/tutor/SelectionTooltip";
+import getMoodColors from "@/lib/getMoodColors";
 
 // Define achievement type
 interface UnlockedAchievement {
@@ -71,6 +76,29 @@ export default function ChallengePage({ params }: ChallengePageProps) {
   );
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [showTimeoutModal, setShowTimeoutModal] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // AI Tutor chat
+  const isAuthenticated = !!session?.user?.id;
+  const tutor = useTutorChat({
+    contentType: "challenge",
+    contentSlug: resolvedParams?.slug || "",
+    enabled: isAuthenticated && !!resolvedParams?.slug,
+  });
+  const moodColors = getMoodColors(currentMood.id);
+
+  const handleTutorToggle = useCallback(() => {
+    setTutorOpen((prev) => !prev);
+  }, []);
+
+  const handleTextSelect = useCallback(
+    (text: string) => {
+      tutor.setHighlightedText(text);
+      setTutorOpen(true);
+    },
+    [tutor]
+  );
 
   // Get mood-specific time limit for challenges
   const getMoodTimeLimit = useCallback(() => {
@@ -432,7 +460,7 @@ export default function ChallengePage({ params }: ChallengePageProps) {
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Challenge Description */}
-          <div className="space-y-6">
+          <div ref={contentRef} className="space-y-6">
             {" "}
             <Link
               href="/practice"
@@ -828,6 +856,43 @@ export default function ChallengePage({ params }: ChallengePageProps) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* AI Tutor */}
+      <TutorFAB
+        onClick={handleTutorToggle}
+        isOpen={tutorOpen}
+        moodColors={moodColors}
+        remaining={tutor.usage.remaining}
+        isAuthenticated={isAuthenticated}
+        onSignInPrompt={() => {
+          window.location.href =
+            "/auth/signin?callbackUrl=" +
+            encodeURIComponent(window.location.pathname);
+        }}
+      />
+      {isAuthenticated && (
+        <>
+          <TutorChatPanel
+            isOpen={tutorOpen}
+            onClose={() => setTutorOpen(false)}
+            messages={tutor.messages}
+            isStreaming={tutor.isStreaming}
+            onSendMessage={tutor.sendMessage}
+            onClearHistory={tutor.clearHistory}
+            onStopStreaming={tutor.stopStreaming}
+            usage={tutor.usage}
+            moodColors={moodColors}
+            moodId={currentMood.id}
+            highlightedText={tutor.highlightedText}
+            onClearHighlight={() => tutor.setHighlightedText(null)}
+          />
+          <SelectionTooltip
+            containerRef={contentRef}
+            onSelect={handleTextSelect}
+            moodAccent={moodColors.accent}
+          />
+        </>
       )}
     </div>
   );

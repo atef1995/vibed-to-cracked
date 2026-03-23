@@ -184,9 +184,24 @@ export default function TutorChatPanel({
                 </p>
                 <p className="max-w-65 text-xs text-gray-500 dark:text-gray-400">
                   I won&apos;t give you the answer directly, but I&apos;ll help
-                  you figure it out. Highlight any text in the tutorial and ask
-                  me about it.
+                  you figure it out. Ask me anything or highlight text to ask
+                  about it.
                 </p>
+                <div className="mt-4 flex flex-col gap-2 w-full max-w-[260px]">
+                  {[
+                    "Can you explain this in simpler terms?",
+                    "I'm stuck, where do I start?",
+                    "What does this code do?",
+                  ].map((q) => (
+                    <button
+                      key={q}
+                      onClick={() => onSendMessage(q)}
+                      className="rounded-lg border border-gray-200 px-3 py-2 text-left text-xs text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600 dark:hover:bg-gray-800"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 

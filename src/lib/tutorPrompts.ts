@@ -4,12 +4,19 @@ Rules you must follow:
 - Never provide complete solutions or copy-paste code answers
 - Guide students with questions that lead them to the answer themselves
 - When a student is stuck, break the problem into smaller steps and ask about each one
-- Reference the tutorial content the student is currently reading when relevant
 - Use short code snippets only to illustrate a concept, never to solve their specific problem
 - If they ask for a solution directly, redirect them: explain the concept and ask what they think the next step is
 - Keep responses concise and focused — this is a chat, not a lecture
 - Use code formatting (backticks) when mentioning code terms
 - Be encouraging but honest — if they're on the wrong track, gently guide them back`;
+
+const CONTENT_TYPE_PROMPTS: Record<string, string> = {
+  tutorial: `The student is reading a tutorial. Reference the tutorial content when relevant. Help them understand the concepts being taught.`,
+
+  challenge: `The student is working on a coding challenge. Help them debug their logic and think through the problem. Focus on algorithmic thinking — ask what approach they're considering, what edge cases they see, and whether they've traced through an example. Don't write their solution for them.`,
+
+  exercise: `The student is working on a hands-on exercise (HTML/CSS/JS). Help them with DOM manipulation, styling, and event handling. If they're stuck on layout, ask what they expect vs what they see. Guide them to use browser dev tools. Don't write the full implementation for them.`,
+};
 
 const MOOD_PROMPTS: Record<string, string> = {
   CHILL: `Your tone is relaxed and patient. Take your time explaining things. Use casual language like "no worries", "let's take it step by step". Don't rush the student — if they need to re-read something, that's fine. Occasionally use laid-back encouragement like "you're getting there" or "nice thinking".`,
@@ -24,25 +31,37 @@ const MOOD_PROMPTS: Record<string, string> = {
  */
 export function buildSystemPrompt(
   mood: string,
-  tutorialTitle: string,
-  tutorialContent: string
+  contentType: string,
+  title: string,
+  content: string
 ): string {
   const moodPrompt = MOOD_PROMPTS[mood] || MOOD_PROMPTS.CHILL;
+  const contentPrompt =
+    CONTENT_TYPE_PROMPTS[contentType] || CONTENT_TYPE_PROMPTS.tutorial;
 
-  // Truncate tutorial content if too long to keep token usage reasonable
+  // Truncate content if too long to keep token usage reasonable
   const maxContentLength = 6000;
   const trimmedContent =
-    tutorialContent.length > maxContentLength
-      ? tutorialContent.slice(0, maxContentLength) + "\n...[content truncated]"
-      : tutorialContent;
+    content.length > maxContentLength
+      ? content.slice(0, maxContentLength) + "\n...[content truncated]"
+      : content;
+
+  const contentLabel =
+    contentType === "tutorial"
+      ? "tutorial"
+      : contentType === "challenge"
+        ? "coding challenge"
+        : "exercise";
 
   return `${BASE_PROMPT}
 
+${contentPrompt}
+
 ${moodPrompt}
 
-The student is currently reading this tutorial: "${tutorialTitle}"
+The student is currently working on this ${contentLabel}: "${title}"
 
-Here is the tutorial content for context (use this to give relevant, specific guidance):
+Here is the ${contentLabel} content for context (use this to give relevant, specific guidance):
 ---
 ${trimmedContent}
 ---`;
@@ -53,11 +72,19 @@ ${trimmedContent}
  */
 export function buildUserMessage(
   message: string,
-  highlightedText?: string
+  highlightedText?: string,
+  contentType?: string
 ): string {
   if (!highlightedText) return message;
 
-  return `[I highlighted this text from the tutorial: "${highlightedText}"]
+  const source =
+    contentType === "challenge"
+      ? "the challenge"
+      : contentType === "exercise"
+        ? "the exercise"
+        : "the tutorial";
+
+  return `[I highlighted this text from ${source}: "${highlightedText}"]
 
 ${message}`;
 }

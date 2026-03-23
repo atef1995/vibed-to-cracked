@@ -16,12 +16,14 @@ interface UsageInfo {
 }
 
 interface UseTutorChatOptions {
-  tutorialSlug: string;
+  contentType: string;
+  contentSlug: string;
   enabled?: boolean;
 }
 
 export function useTutorChat({
-  tutorialSlug,
+  contentType,
+  contentSlug,
   enabled = true,
 }: UseTutorChatOptions) {
   const [messages, setMessages] = useState<TutorMessage[]>([]);
@@ -33,15 +35,15 @@ export function useTutorChat({
 
   // Fetch conversation history
   const { data: historyData } = useQuery({
-    queryKey: ["tutor-history", tutorialSlug],
+    queryKey: ["tutor-history", contentType, contentSlug],
     queryFn: async () => {
       const res = await fetch(
-        `/api/tutor/history?tutorialSlug=${encodeURIComponent(tutorialSlug)}`
+        `/api/tutor/history?contentType=${encodeURIComponent(contentType)}&contentSlug=${encodeURIComponent(contentSlug)}`
       );
       if (!res.ok) return { conversation: null, messages: [] };
       return res.json();
     },
-    enabled: enabled && !!tutorialSlug,
+    enabled: enabled && !!contentSlug,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -97,7 +99,8 @@ export function useTutorChat({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            tutorialSlug,
+            contentType,
+            contentSlug,
             message: text,
             highlightedText: selectedText || highlightedText,
           }),
@@ -146,7 +149,7 @@ export function useTutorChat({
 
         // Invalidate history cache so it refreshes next time
         queryClient.invalidateQueries({
-          queryKey: ["tutor-history", tutorialSlug],
+          queryKey: ["tutor-history", contentType, contentSlug],
         });
       } catch (err: unknown) {
         if (err instanceof Error && err.name === "AbortError") return;
@@ -168,7 +171,14 @@ export function useTutorChat({
         abortControllerRef.current = null;
       }
     },
-    [isStreaming, tutorialSlug, highlightedText, refetchUsage, queryClient]
+    [
+      isStreaming,
+      contentType,
+      contentSlug,
+      highlightedText,
+      refetchUsage,
+      queryClient,
+    ]
   );
 
   const clearHistory = useCallback(async () => {
@@ -181,12 +191,12 @@ export function useTutorChat({
       );
       setMessages([]);
       queryClient.invalidateQueries({
-        queryKey: ["tutor-history", tutorialSlug],
+        queryKey: ["tutor-history", contentType, contentSlug],
       });
     } catch (err) {
       console.error("Failed to clear history:", err);
     }
-  }, [conversationId, tutorialSlug, queryClient]);
+  }, [conversationId, contentType, contentSlug, queryClient]);
 
   const stopStreaming = useCallback(() => {
     abortControllerRef.current?.abort();

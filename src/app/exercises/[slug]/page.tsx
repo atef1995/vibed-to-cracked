@@ -7,6 +7,12 @@ import { HelpCircle } from "lucide-react";
 import { ValidatedExercise } from "@/components/ui/ValidatedExercise";
 import { TutorialRecommendations } from "@/components/tutorial/TutorialRecommendations";
 import { ExerciseTour } from "@/components/exercises/ExerciseTour";
+import { useMood } from "@/components/providers/MoodProvider";
+import { useTutorChat } from "@/hooks/useTutorChat";
+import TutorFAB from "@/components/tutor/TutorFAB";
+import TutorChatPanel from "@/components/tutor/TutorChatPanel";
+import SelectionTooltip from "@/components/tutor/SelectionTooltip";
+import getMoodColors from "@/lib/getMoodColors";
 
 interface ExerciseData {
   id: string;
@@ -49,12 +55,36 @@ export default function ExercisePage({
 }) {
   const resolvedParams = use(params);
   const { data: session } = useSession();
+  const { currentMood } = useMood();
   const [exercise, setExercise] = useState<ExerciseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const startTourRef = useRef<(() => void) | null>(null);
+  const [tutorOpen, setTutorOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const isFirstExercise = resolvedParams.slug === "html-button-styling";
+  const isAuthenticated = !!session?.user?.id;
+
+  // AI Tutor chat (requires auth)
+  const tutor = useTutorChat({
+    contentType: "exercise",
+    contentSlug: resolvedParams.slug,
+    enabled: isAuthenticated,
+  });
+  const moodColors = getMoodColors(currentMood.id);
+
+  const handleTutorToggle = useCallback(() => {
+    setTutorOpen((prev) => !prev);
+  }, []);
+
+  const handleTextSelect = useCallback(
+    (text: string) => {
+      tutor.setHighlightedText(text);
+      setTutorOpen(true);
+    },
+    [tutor]
+  );
 
   const handleStartRef = useCallback((fn: () => void) => {
     startTourRef.current = fn;
@@ -178,7 +208,10 @@ export default function ExercisePage({
         {isFirstExercise && <ExerciseTour onStartRef={handleStartRef} />}
 
         {/* Exercise Component */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+        <div
+          ref={contentRef}
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6"
+        >
           <ValidatedExercise
             title={exercise.title}
             instructions={exercise.instructions}
@@ -237,6 +270,43 @@ export default function ExercisePage({
           </Link>
         </div>
       </div>
+
+      {/* AI Tutor */}
+      <TutorFAB
+        onClick={handleTutorToggle}
+        isOpen={tutorOpen}
+        moodColors={moodColors}
+        remaining={tutor.usage.remaining}
+        isAuthenticated={isAuthenticated}
+        onSignInPrompt={() => {
+          window.location.href =
+            "/auth/signin?callbackUrl=" +
+            encodeURIComponent(window.location.pathname);
+        }}
+      />
+      {isAuthenticated && (
+        <>
+          <TutorChatPanel
+            isOpen={tutorOpen}
+            onClose={() => setTutorOpen(false)}
+            messages={tutor.messages}
+            isStreaming={tutor.isStreaming}
+            onSendMessage={tutor.sendMessage}
+            onClearHistory={tutor.clearHistory}
+            onStopStreaming={tutor.stopStreaming}
+            usage={tutor.usage}
+            moodColors={moodColors}
+            moodId={currentMood.id}
+            highlightedText={tutor.highlightedText}
+            onClearHighlight={() => tutor.setHighlightedText(null)}
+          />
+          <SelectionTooltip
+            containerRef={contentRef}
+            onSelect={handleTextSelect}
+            moodAccent={moodColors.accent}
+          />
+        </>
+      )}
     </div>
   );
 }

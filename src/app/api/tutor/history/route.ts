@@ -11,18 +11,20 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const tutorialSlug = searchParams.get("tutorialSlug");
+    const contentType = searchParams.get("contentType");
+    const contentSlug = searchParams.get("contentSlug");
 
-    if (!tutorialSlug) {
+    if (!contentType || !contentSlug) {
       return NextResponse.json(
-        { error: "Missing tutorialSlug parameter" },
+        { error: "Missing contentType or contentSlug parameter" },
         { status: 400 }
       );
     }
 
-    const conversation = await TutorService.getConversationByTutorialSlug(
+    const conversation = await TutorService.getConversationBySlug(
       session.user.id,
-      tutorialSlug
+      contentType,
+      contentSlug
     );
 
     if (!conversation) {

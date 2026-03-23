@@ -5,11 +5,14 @@ import { TutorService } from "@/lib/tutorService";
 import { TutorialService } from "@/lib/tutorialService";
 import { buildSystemPrompt, buildUserMessage } from "@/lib/tutorPrompts";
 import { PLAN_CONFIGS, Plan } from "@/lib/subscriptionConstants";
+import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+const VALID_CONTENT_TYPES = ["tutorial", "challenge", "exercise"];
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +21,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { tutorialSlug, message, highlightedText } = await request.json();
+    const { contentType, contentSlug, message, highlightedText } =
+      await request.json();
 
-    if (!tutorialSlug || !message) {
+    if (!contentType || !contentSlug || !message) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!VALID_CONTENT_TYPES.includes(contentType)) {
+      return NextResponse.json(
+        { error: "Invalid content type" },
         { status: 400 }
       );
     }
@@ -53,19 +64,55 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get tutorial content for context
-    const tutorial = await TutorialService.getTutorialBySlug(tutorialSlug);
-    if (!tutorial) {
-      return NextResponse.json(
-        { error: "Tutorial not found" },
-        { status: 404 }
-      );
+    // Fetch content based on type
+    let contentId: string;
+    let title: string;
+    let contentBody: string;
+
+    if (contentType === "tutorial") {
+      const tutorial = await TutorialService.getTutorialBySlug(contentSlug);
+      if (!tutorial) {
+        return NextResponse.json(
+          { error: "Tutorial not found" },
+          { status: 404 }
+        );
+      }
+      contentId = tutorial.id;
+      title = tutorial.title;
+      contentBody = tutorial.content || tutorial.description || "";
+    } else if (contentType === "challenge") {
+      const challenge = await prisma.challenge.findUnique({
+        where: { slug: contentSlug },
+      });
+      if (!challenge) {
+        return NextResponse.json(
+          { error: "Challenge not found" },
+          { status: 404 }
+        );
+      }
+      contentId = challenge.id;
+      title = challenge.title;
+      contentBody = `${challenge.description}\n\nStarter code:\n${challenge.starter || ""}`;
+    } else {
+      const exercise = await prisma.exercise.findUnique({
+        where: { slug: contentSlug },
+      });
+      if (!exercise) {
+        return NextResponse.json(
+          { error: "Exercise not found" },
+          { status: 404 }
+        );
+      }
+      contentId = exercise.id;
+      title = exercise.title;
+      contentBody = `${exercise.instructions}\n\nInitial HTML:\n${exercise.initialHtml || ""}\n\nInitial CSS:\n${exercise.initialCss || ""}\n\nInitial JS:\n${exercise.initialJs || ""}`;
     }
 
     // Get or create conversation
     const conversation = await TutorService.getOrCreateConversation(
       session.user.id,
-      tutorial.id
+      contentType,
+      contentId
     );
 
     // Save the user message
@@ -83,8 +130,9 @@ export async function POST(request: NextRequest) {
         role: "system",
         content: buildSystemPrompt(
           session.user.mood || "CHILL",
-          tutorial.title,
-          tutorial.content || tutorial.description || ""
+          contentType,
+          title,
+          contentBody
         ),
       },
       ...recentMessages.map((msg) => ({
@@ -93,7 +141,7 @@ export async function POST(request: NextRequest) {
       })),
       {
         role: "user" as const,
-        content: buildUserMessage(message, highlightedText),
+        content: buildUserMessage(message, highlightedText, contentType),
       },
     ];
 
