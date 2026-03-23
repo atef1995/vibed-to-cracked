@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import type { JWT } from "next-auth/jwt";
-import { devMode } from "./lib/services/envService";
-const debugMode = devMode();
+const debugMode = process.env.NODE_ENV === "development";
 
 // Helper to generate anonymous ID
 function generateAnonymousId(): string {
@@ -38,8 +37,9 @@ export async function middleware(req: NextRequest) {
 
   // If we have a valid token and user is trying to access signin page, redirect to dashboard
   if (isAuthenticated && pathname.startsWith("/auth/signin")) {
+    const raw = req.nextUrl.searchParams.get("callbackUrl") || "/dashboard";
     const callbackUrl =
-      req.nextUrl.searchParams.get("callbackUrl") || "/dashboard";
+      raw.startsWith("/") && !raw.startsWith("//") ? raw : "/dashboard";
     if (debugMode) {
       console.log(
         "Redirecting authenticated user from signin to:",
@@ -245,14 +245,9 @@ async function checkTutorialAccessLimits(
 
 export const config = {
   matcher: [
-    // Quizzes and practice are now public (SEO friendly)
     "/settings/:path*",
-    "/tutorials/category/:path*", // Keep for anonymous limit checking
-    "/auth/signin",
-    "/auth/signin/:path*",
-    // Catch all auth routes
+    "/tutorials/category/:path*",
     "/auth/:path*",
-    // Quizzes are public for viewing/indexing
-    "/store/orders/:path*", // Order history requires authentication
+    "/store/orders/:path*",
   ],
 };
