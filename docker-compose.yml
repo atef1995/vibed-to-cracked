@@ -14,7 +14,14 @@ services:
       - NODE_ENV=production
     volumes:
       - ./prisma:/app/prisma
-      - ./private:/app/private # add this
+      - ./private:/app/private
+    healthcheck:
+      test:
+        ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
     networks:
       - app-network
     depends_on:
