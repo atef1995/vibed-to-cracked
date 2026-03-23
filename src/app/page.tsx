@@ -21,6 +21,8 @@ import {
   Check,
   MessageCircle,
   Bot,
+  Play,
+  Monitor,
 } from "lucide-react";
 import { MOODS } from "@/lib/moods";
 import { getMoodIcon } from "@/lib/getMoodIcon";
@@ -310,6 +312,35 @@ export default function HomePage() {
               </Link>
             </motion.div>
           </motion.div>
+        </motion.div>
+
+        {/* Platform Demo Showcase */}
+        <motion.div
+          className="mb-16 max-w-5xl mx-auto"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+        >
+          <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-2xl bg-gray-900 aspect-video group">
+            {/* Replace this div's contents with a <video> or <img> tag */}
+            {/* Example: <video src="/demo.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" /> */}
+            {/* Example: <img src="/demo.gif" alt="Platform demo" className="w-full h-full object-cover" /> */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80">
+              <div className="w-16 h-16 rounded-full bg-blue-600/90 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <Play className="w-7 h-7 text-white ml-1" />
+              </div>
+              <p className="text-gray-400 text-sm">Platform walkthrough</p>
+            </div>
+            {/* Fake browser chrome */}
+            <div className="absolute top-0 inset-x-0 h-8 bg-gray-800 flex items-center px-3 gap-1.5 pointer-events-none">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              <span className="ml-3 text-xs text-gray-500">
+                vibed-to-cracked.com
+              </span>
+            </div>
+          </div>
         </motion.div>
 
         {/* Mood Selection Preview */}
@@ -963,6 +994,95 @@ export default function HomePage() {
                 <p className="text-gray-600 dark:text-gray-400">
                   {feature.description}
                 </p>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Feature Showcase Gallery */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.h2
+            className="text-3xl font-bold text-center mb-4 text-gray-900 dark:text-gray-100"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            See It In Action
+          </motion.h2>
+          <motion.p
+            className="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Real screenshots and recordings from the platform
+          </motion.p>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {[
+              {
+                title: "Mood-Adaptive Learning",
+                description:
+                  "Pick your vibe and the entire experience adapts -- content tone, tutor personality, and UI feel.",
+                // Replace placeholder with: src="/showcase/mood-system.gif" or a video
+                mediaSrc: null as string | null,
+              },
+              {
+                title: "Interactive Code Editor",
+                description:
+                  "Write and run JavaScript right in the browser. No setup, no installs, instant feedback.",
+                mediaSrc: null as string | null,
+              },
+              {
+                title: "AI Tutor Conversations",
+                description:
+                  "Highlight code, ask questions, get contextual answers on any tutorial or challenge.",
+                mediaSrc: null as string | null,
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.title}
+                className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }}
+                whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              >
+                {/* Media area -- replace placeholder with <img> or <video> */}
+                <div className="relative aspect-video bg-gray-100 dark:bg-gray-900">
+                  {item.mediaSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.mediaSrc}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <Monitor className="w-10 h-10 text-gray-400 dark:text-gray-600 mb-2" />
+                      <span className="text-xs text-gray-400 dark:text-gray-600">
+                        Add video or GIF
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {item.description}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>

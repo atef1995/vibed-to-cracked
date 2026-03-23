@@ -13,9 +13,10 @@
  *   node scripts/cron-study-reminders.js --test
  */
 
-const https = require("https");
-const http = require("http");
-require("dotenv").config();
+import https from "node:https";
+import http from "node:http";
+import fs from "node:fs";
+import "dotenv/config";
 
 // Configuration
 const BASE_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
@@ -139,7 +140,6 @@ async function runStudyRemindersCron() {
 
     // Log to file for monitoring (optional)
     if (process.env.CRON_LOG_FILE) {
-      const fs = require("fs");
       const logEntry = {
         timestamp: new Date().toISOString(),
         job: "study-reminders",
@@ -158,7 +158,6 @@ async function runStudyRemindersCron() {
 
     // Log error to file for monitoring
     if (process.env.CRON_LOG_FILE) {
-      const fs = require("fs");
       const logEntry = {
         timestamp: new Date().toISOString(),
         job: "study-reminders",

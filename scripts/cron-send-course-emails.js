@@ -8,36 +8,39 @@
  *   node scripts/cron-send-course-emails.js --test
  */
 
-const https = require('https');
-const http = require('http');
-require('dotenv').config();
+import https from "node:https";
+import http from "node:http";
+import fs from "node:fs";
+import "dotenv/config";
 
-const BASE_URL = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+const BASE_URL = process.env.NEXTAUTH_URL || "http://localhost:3000";
 const CRON_SECRET = process.env.CRON_SECRET;
-const IS_TEST_MODE = process.argv.includes('--test');
+const IS_TEST_MODE = process.argv.includes("--test");
 
 function makeRequest(url, options = {}) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
-    const isHttps = urlObj.protocol === 'https:';
+    const isHttps = urlObj.protocol === "https:";
     const client = isHttps ? https : http;
 
     const requestOptions = {
       hostname: urlObj.hostname,
       port: urlObj.port || (isHttps ? 443 : 80),
       path: urlObj.pathname + urlObj.search,
-      method: options.method || 'GET',
+      method: options.method || "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'Vibed-to-Cracked-Cron/1.0',
+        "Content-Type": "application/json",
+        "User-Agent": "Vibed-to-Cracked-Cron/1.0",
         ...options.headers,
       },
     };
 
     const req = client.request(requestOptions, (res) => {
-      let data = '';
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => {
+      let data = "";
+      res.on("data", (chunk) => {
+        data += chunk;
+      });
+      res.on("end", () => {
         try {
           resolve({ status: res.statusCode, data: JSON.parse(data) });
         } catch {
@@ -46,15 +49,14 @@ function makeRequest(url, options = {}) {
       });
     });
 
-    req.on('error', reject);
+    req.on("error", reject);
     req.end();
   });
 }
 
 function writeLog(entry) {
   if (!process.env.CRON_LOG_FILE) return;
-  const fs = require('fs');
-  fs.appendFileSync(process.env.CRON_LOG_FILE, JSON.stringify(entry) + '\n');
+  fs.appendFileSync(process.env.CRON_LOG_FILE, JSON.stringify(entry) + "\n");
 }
 
 async function run() {
@@ -71,7 +73,7 @@ async function run() {
     }
 
     const res = await makeRequest(`${BASE_URL}/api/cron/send-course-emails`, {
-      method: 'GET',
+      method: "GET",
       headers: { Authorization: `Bearer ${CRON_SECRET}` },
     });
 
@@ -80,18 +82,31 @@ async function run() {
     }
 
     const stats = res.data.stats || res.data;
-    console.log(`done totalProcessed=${stats.totalProcessed ?? 0} emailsSent=${stats.emailsSent ?? 0} errors=${stats.errors ?? 0} completed=${stats.completed ?? 0}`);
+    console.log(
+      `done totalProcessed=${stats.totalProcessed ?? 0} emailsSent=${stats.emailsSent ?? 0} errors=${stats.errors ?? 0} completed=${stats.completed ?? 0}`
+    );
 
-    writeLog({ timestamp, job: 'send-course-emails', status: 'success', stats });
-
+    writeLog({
+      timestamp,
+      job: "send-course-emails",
+      status: "success",
+      stats,
+    });
   } catch (err) {
-    console.error(`[${new Date().toISOString()}] send-course-emails failed: ${err.message}`);
-    writeLog({ timestamp, job: 'send-course-emails', status: 'error', error: err.message });
+    console.error(
+      `[${new Date().toISOString()}] send-course-emails failed: ${err.message}`
+    );
+    writeLog({
+      timestamp,
+      job: "send-course-emails",
+      status: "error",
+      error: err.message,
+    });
     process.exit(1);
   }
 }
 
-process.on('SIGTERM', () => process.exit(0));
-process.on('SIGINT', () => process.exit(0));
+process.on("SIGTERM", () => process.exit(0));
+process.on("SIGINT", () => process.exit(0));
 
 run();

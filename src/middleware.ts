@@ -5,33 +5,6 @@ import type { JWT } from "next-auth/jwt";
 import { devMode } from "./lib/services/envService";
 const debugMode = devMode();
 
-// Request timeout constant
-const FETCH_TIMEOUT = 5000; // 5 seconds
-
-// Helper function to fetch with timeout
-async function fetchWithTimeout(
-  url: string,
-  options: RequestInit = {}
-): Promise<Response> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    return response;
-  } catch (error) {
-    clearTimeout(timeoutId);
-    if ((error as Error).name === "AbortError") {
-      throw new Error("Request timeout");
-    }
-    throw error;
-  }
-}
-
 // Helper to generate anonymous ID
 function generateAnonymousId(): string {
   const timestamp = Date.now();
@@ -155,7 +128,7 @@ async function handleAnonymousTutorialAccess(
 
     if (debugMode) {
       console.log(
-        " First-time anonymous visitor, setting cookie and allowing tutorial access"
+        "First-time anonymous visitor, setting cookie and allowing tutorial access"
       );
     }
 
@@ -171,52 +144,70 @@ async function handleAnonymousTutorialAccess(
     return response;
   }
 
-  // Check how many tutorials they've viewed
+  // Cookie-based tutorial counting (no self-fetch needed in Edge runtime)
+  const viewedCookie = req.cookies.get("vibed_tutorials_viewed")?.value;
+  let viewedSlugs: string[] = [];
+
   try {
-    const baseUrl = new URL(req.url).origin;
-    const trackingUrl = `${baseUrl}/api/anonymous/check-limit?anonymousId=${anonymousId}`;
-
-    const response = await fetchWithTimeout(trackingUrl);
-
-    if (!response.ok) {
-      // If check fails, allow access (fail open)
-      if (debugMode) {
-        console.log("⚠️ Anonymous check failed, allowing access");
-      }
-      return null;
+    if (viewedCookie) {
+      viewedSlugs = JSON.parse(viewedCookie);
     }
-
-    const data = await response.json();
-
-    if (data.limitReached) {
-      // Redirect to signup page with message
-      if (debugMode) {
-        console.log("🚫 Anonymous limit reached, redirecting to signup");
-      }
-
-      const signupUrl = new URL("/auth/signin", req.url);
-      signupUrl.searchParams.set("callbackUrl", pathname);
-      signupUrl.searchParams.set(
-        "message",
-        `You've viewed ${ANONYMOUS_TUTORIAL_LIMIT} tutorials! Sign up free to continue learning.`
-      );
-      signupUrl.searchParams.set("reason", "anonymous_limit");
-
-      return NextResponse.redirect(signupUrl);
-    }
-
-    // Within limit - allow access
-    if (debugMode) {
-      console.log(
-        ` Anonymous access granted (${data.viewedCount}/${ANONYMOUS_TUTORIAL_LIMIT})`
-      );
-    }
-    return null;
-  } catch (error) {
-    console.error("Error checking anonymous limit:", error);
-    // Fail open - allow access
-    return null;
+  } catch {
+    viewedSlugs = [];
   }
+
+  // Extract tutorial slug from pathname
+  const pathParts = pathname.split("/").filter(Boolean);
+  const tutorialSlug = pathParts[pathParts.length - 1];
+
+  if (!tutorialSlug) {
+    return null; // Allow category listing pages
+  }
+
+  // Check if limit reached (only counts new tutorials, not revisits)
+  if (
+    viewedSlugs.length >= ANONYMOUS_TUTORIAL_LIMIT &&
+    !viewedSlugs.includes(tutorialSlug)
+  ) {
+    if (debugMode) {
+      console.log("Anonymous limit reached, redirecting to signup");
+    }
+
+    const signupUrl = new URL("/auth/signin", req.url);
+    signupUrl.searchParams.set("callbackUrl", pathname);
+    signupUrl.searchParams.set(
+      "message",
+      `You've viewed ${ANONYMOUS_TUTORIAL_LIMIT} tutorials! Sign up free to continue learning.`
+    );
+    signupUrl.searchParams.set("reason", "anonymous_limit");
+
+    return NextResponse.redirect(signupUrl);
+  }
+
+  // Track this tutorial if not already viewed
+  if (!viewedSlugs.includes(tutorialSlug)) {
+    viewedSlugs.push(tutorialSlug);
+    const response = NextResponse.next();
+    response.cookies.set(
+      "vibed_tutorials_viewed",
+      JSON.stringify(viewedSlugs),
+      {
+        maxAge: 60 * 60 * 24 * 365,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+      }
+    );
+    return response;
+  }
+
+  if (debugMode) {
+    console.log(
+      `Anonymous access granted (${viewedSlugs.length}/${ANONYMOUS_TUTORIAL_LIMIT})`
+    );
+  }
+  return null;
 }
 
 function isProtectedRoute(pathname: string): boolean {
@@ -242,107 +233,14 @@ interface TutorialAccessResult {
 }
 
 async function checkTutorialAccessLimits(
-  token: JWT | null,
-  sessionToken: { name: string; value: string } | undefined,
-  pathname: string,
-  req: NextRequest
+  _token: JWT | null,
+  _sessionToken: { name: string; value: string } | undefined,
+  _pathname: string,
+  _req: NextRequest
 ): Promise<TutorialAccessResult> {
-  try {
-    // Extract tutorial slug from pathname (e.g., /tutorials/category/javascript/variables -> variables)
-    const pathParts = pathname.split("/").filter(Boolean);
-    const tutorialSlug = pathParts[pathParts.length - 1];
-
-    if (!tutorialSlug) {
-      if (debugMode) {
-        console.log("🔧 No tutorial slug found, allowing category page");
-      }
-      return { hasAccess: true }; // Allow category pages
-    }
-
-    // Get user subscription info - use the request origin instead of NEXTAUTH_URL for internal calls
-    const baseUrl = new URL(req.url).origin;
-    const subscriptionUrl = `${baseUrl}/api/payments/subscription`;
-
-    // Use the session token from cookies
-    const sessionTokenCookie = sessionToken?.value;
-    const sessionTokenName = sessionToken?.name;
-
-    const subscriptionResponse = await fetchWithTimeout(subscriptionUrl, {
-      headers: {
-        Cookie: `${sessionTokenName}=${sessionTokenCookie}`,
-      },
-    });
-
-    if (!subscriptionResponse.ok) {
-      console.error(
-        "🔧 Failed to fetch subscription info in middleware, status:",
-        subscriptionResponse.status
-      );
-      return { hasAccess: true }; // Allow access on error to avoid blocking users
-    }
-
-    const subscriptionData = await subscriptionResponse.json();
-
-    if (!subscriptionData.success) {
-      console.error("Subscription API returned error:", subscriptionData.error);
-      return { hasAccess: true }; // Allow access on error
-    }
-
-    const { access } = subscriptionData.data;
-    const { subscription } = access;
-
-    // If user has premium access, allow all tutorials
-    if (subscription.canAccessPremium) {
-      return { hasAccess: true };
-    }
-
-    // Get tutorial info to check if it's premium
-    const tutorialResponse = await fetchWithTimeout(
-      `${baseUrl}/api/tutorials?slug=${tutorialSlug}`
-    );
-
-    if (!tutorialResponse.ok) {
-      return { hasAccess: true }; // Allow access if we can't check tutorial status
-    }
-
-    const tutorialData = await tutorialResponse.json();
-
-    if (!tutorialData.success) {
-      return { hasAccess: true }; // Allow access if we can't check tutorial status
-    }
-
-    const tutorial = tutorialData.data;
-
-    // Check if tutorial is premium and user doesn't have premium access
-    if (tutorial.isPremium && !subscription.canAccessPremium) {
-      return {
-        hasAccess: false,
-        reason:
-          "This is a premium tutorial. Upgrade to access premium content.",
-        suggestedPlan: "VIBED",
-      };
-    }
-
-    // Check if tutorial requires a specific plan
-    if (tutorial.requiredPlan && tutorial.requiredPlan !== "FREE") {
-      const planHierarchy = ["FREE", "VIBED", "CRACKED"];
-      const userPlanIndex = planHierarchy.indexOf(subscription.plan);
-      const requiredPlanIndex = planHierarchy.indexOf(tutorial.requiredPlan);
-
-      if (userPlanIndex < requiredPlanIndex) {
-        return {
-          hasAccess: false,
-          reason: `This tutorial requires the ${tutorial.requiredPlan} plan or higher`,
-          suggestedPlan: tutorial.requiredPlan,
-        };
-      }
-    }
-
-    return { hasAccess: true };
-  } catch (error) {
-    console.error("Error checking tutorial access limits:", error);
-    return { hasAccess: true }; // Allow access on error to avoid blocking users
-  }
+  // Premium tutorial gating is enforced at the page level where Prisma is available.
+  // Edge middleware cannot reliably self-fetch internal APIs in containerized deployments.
+  return { hasAccess: true };
 }
 
 export const config = {
