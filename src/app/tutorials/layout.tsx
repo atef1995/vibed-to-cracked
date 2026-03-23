@@ -31,6 +31,9 @@ export async function generateMetadata(): Promise<Metadata> {
         title: "Learn Coding - Comprehensive Tutorials for All Levels",
         description: `${tutorialCount}+ interactive tutorials to help you master JavaScript, HTML, CSS, DSA, OOP and more.`,
       },
+      alternates: {
+        canonical: "/tutorials",
+      },
     };
   } catch (error) {
     console.error("Error generating tutorials metadata:", error);
@@ -54,6 +57,9 @@ export async function generateMetadata(): Promise<Metadata> {
         title: "Learn Coding - Comprehensive Tutorials for All Levels",
         description:
           "Interactive tutorials for JavaScript, HTML, CSS, DSA, OOP, GitHub and more.",
+      },
+      alternates: {
+        canonical: "/tutorials",
       },
     };
   }

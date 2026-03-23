@@ -22,9 +22,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vibed to Cracked - Programming Learning with Mood",
+  metadataBase: new URL(
+    process.env.NEXTAUTH_URL ?? "https://vibed-to-cracked.com"
+  ),
+  title: "Vibed to Cracked - Learn Programming at Your Own Pace",
   description:
-    "Become a Web Developmer at your own pace with mood-driven content. Choose chill, rush, or grind mode for personalized learning.",
+    "Become a web developer at your own pace with mood-driven content. Choose chill, rush, or grind mode for personalized tutorials, quizzes, and coding challenges.",
+  keywords:
+    "learn programming, web development, javascript tutorials, coding challenges, mood-driven learning, DSA, OOP, React tutorials",
+  openGraph: {
+    title: "Vibed to Cracked - Learn Programming at Your Own Pace",
+    description:
+      "Mood-driven programming learning platform. Tutorials, quizzes, and coding challenges for every skill level.",
+    url: "/",
+    type: "website",
+    siteName: "Vibed to Cracked",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vibed to Cracked - Learn Programming at Your Own Pace",
+    description:
+      "Mood-driven programming learning platform. Tutorials, quizzes, and coding challenges for every skill level.",
+  },
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({

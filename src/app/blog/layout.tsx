@@ -24,6 +24,15 @@ export async function generateMetadata(): Promise<Metadata> {
         description: `${postCount}+ articles on programming, web development, and tech insights.`,
         type: "website",
         url: "/blog",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Blog - Programming & Tech Articles | Vibed to Cracked",
+        description: `${postCount}+ articles on programming, web development, and tech insights.`,
+      },
+      alternates: {
+        canonical: "/blog",
       },
     };
   } catch (error) {
@@ -41,6 +50,16 @@ export async function generateMetadata(): Promise<Metadata> {
           "Articles on programming, web development, and tech insights.",
         type: "website",
         url: "/blog",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Blog - Programming & Tech Articles | Vibed to Cracked",
+        description:
+          "Articles on programming, web development, and tech insights.",
+      },
+      alternates: {
+        canonical: "/blog",
       },
     };
   }

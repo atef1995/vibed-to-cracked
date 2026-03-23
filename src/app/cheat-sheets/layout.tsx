@@ -26,6 +26,16 @@ export async function generateMetadata(): Promise<Metadata> {
           "Downloadable cheat sheets for DSA, algorithms, JavaScript, and more. Free and premium tiers.",
         type: "website",
         url: "/cheat-sheets",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Quick Reference Cheat Sheets for Programmers",
+        description:
+          "Downloadable cheat sheets for DSA, algorithms, JavaScript, and more.",
+      },
+      alternates: {
+        canonical: "/cheat-sheets",
       },
     };
   } catch {
@@ -41,6 +51,16 @@ export async function generateMetadata(): Promise<Metadata> {
           "Downloadable cheat sheets for DSA, algorithms, JavaScript, and more.",
         type: "website",
         url: "/cheat-sheets",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Quick Reference Cheat Sheets for Programmers",
+        description:
+          "Downloadable cheat sheets for DSA, algorithms, JavaScript, and more.",
+      },
+      alternates: {
+        canonical: "/cheat-sheets",
       },
     };
   }

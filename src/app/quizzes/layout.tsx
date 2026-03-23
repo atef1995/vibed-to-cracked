@@ -24,6 +24,15 @@ export async function generateMetadata(): Promise<Metadata> {
         description: `${quizCount}+ interactive quizzes for JavaScript, HTML, CSS, DSA, OOP, GitHub and more. Learn at your own pace.`,
         type: "website",
         url: "/quizzes",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Coding Quizzes - Master Multiple Programming Languages",
+        description: `${quizCount}+ interactive quizzes for JavaScript, HTML, CSS, DSA, OOP, GitHub and more.`,
+      },
+      alternates: {
+        canonical: "/quizzes",
       },
     };
   } catch (error) {
@@ -43,6 +52,16 @@ export async function generateMetadata(): Promise<Metadata> {
           "Interactive quizzes for JavaScript, HTML, CSS, DSA, OOP, GitHub and more. Learn at your own pace with personalized difficulty levels.",
         type: "website",
         url: "/quizzes",
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Coding Quizzes - Master Multiple Programming Languages",
+        description:
+          "Interactive quizzes for JavaScript, HTML, CSS, DSA, OOP, GitHub and more.",
+      },
+      alternates: {
+        canonical: "/quizzes",
       },
     };
   }

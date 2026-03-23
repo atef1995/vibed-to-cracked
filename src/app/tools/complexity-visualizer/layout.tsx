@@ -9,6 +9,17 @@ export const metadata: Metadata = {
     description:
       "Interactive tools to master time and space complexity with visual charts, algorithm comparisons, and real benchmarks.",
     type: "website",
+    url: "/tools/complexity-visualizer",
+    siteName: "Vibed to Cracked",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Complexity Visualizer - Master Big O Notation",
+    description:
+      "Interactive tools to master time and space complexity with visual charts, algorithm comparisons, and real benchmarks.",
+  },
+  alternates: {
+    canonical: "/tools/complexity-visualizer",
   },
 };
 

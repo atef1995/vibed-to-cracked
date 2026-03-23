@@ -15,6 +15,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     exercises,
     projects,
     blogPosts,
+    cheatSheets,
   ] = await Promise.all([
     prisma.tutorial.findMany({
       where: { published: true },
@@ -44,6 +45,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       select: { slug: true, updatedAt: true },
     }),
     prisma.blogPost.findMany({
+      where: { published: true },
+      select: { slug: true, updatedAt: true },
+    }),
+    prisma.cheatSheet.findMany({
       where: { published: true },
       select: { slug: true, updatedAt: true },
     }),
@@ -108,6 +113,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: b.updatedAt,
       changeFrequency: "weekly" as const,
       priority: 0.8,
+    })),
+    ...cheatSheets.map((cs) => ({
+      url: `${BASE_URL}/cheat-sheets/${cs.slug}`,
+      lastModified: cs.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     })),
   ];
 }

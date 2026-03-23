@@ -42,6 +42,15 @@ export async function generateMetadata({
         description: sheet.description,
         type: "article",
         url: `/cheat-sheets/${slug}`,
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${sheet.title} - Quick Reference`,
+        description: sheet.description,
+      },
+      alternates: {
+        canonical: `/cheat-sheets/${slug}`,
       },
     };
   } catch {
@@ -52,6 +61,9 @@ export async function generateMetadata({
     return {
       title: `${formattedTitle} Cheat Sheet | Vibed to Cracked`,
       description: "Quick reference cheat sheet for programmers.",
+      alternates: {
+        canonical: `/cheat-sheets/${slug}`,
+      },
     };
   }
 }

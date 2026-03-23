@@ -57,6 +57,9 @@ export async function generateMetadata({
         title: `${categoryName} Tutorials - Master Your Skills`,
         description: `${tutorialCount}+ tutorials to help you master ${categoryName}.`,
       },
+      alternates: {
+        canonical: `/tutorials/category/${category}`,
+      },
     };
   } catch (error) {
     console.error("Error generating category metadata:", error);
@@ -79,6 +82,9 @@ export async function generateMetadata({
         card: "summary_large_image",
         title: `${formattedCategory} Tutorials`,
         description: `Master ${formattedCategory} with our interactive tutorials.`,
+      },
+      alternates: {
+        canonical: `/tutorials/category/${category}`,
       },
     };
   }

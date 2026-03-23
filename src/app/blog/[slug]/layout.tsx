@@ -34,6 +34,7 @@ export async function generateMetadata({
           post.excerpt || `Read ${post.title} on Vibed to Cracked blog.`,
         type: "article",
         url: `/blog/${slug}`,
+        siteName: "Vibed to Cracked",
         images: post.coverImage ? [{ url: post.coverImage }] : undefined,
         publishedTime: post.publishedAt?.toISOString(),
         authors: post.author.name ? [post.author.name] : undefined,
@@ -43,6 +44,9 @@ export async function generateMetadata({
         title: post.title,
         description: post.excerpt || undefined,
         images: post.coverImage ? [post.coverImage] : undefined,
+      },
+      alternates: {
+        canonical: `/blog/${slug}`,
       },
     };
   } catch (error) {

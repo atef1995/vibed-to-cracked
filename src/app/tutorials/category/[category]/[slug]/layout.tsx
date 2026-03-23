@@ -56,6 +56,9 @@ export async function generateMetadata({
         title: ogTitle,
         description: ogDescription,
       },
+      alternates: {
+        canonical: `/tutorials/category/${category}/${slug}`,
+      },
     };
   } catch (error) {
     console.error("Error generating tutorial metadata:", error);
@@ -78,6 +81,9 @@ export async function generateMetadata({
         card: "summary_large_image",
         title: `${formattedTitle} Tutorial`,
         description: `Master ${formattedTitle} with our interactive tutorial.`,
+      },
+      alternates: {
+        canonical: `/tutorials/category/${category}/${slug}`,
       },
     };
   }
@@ -123,6 +129,38 @@ export default async function TutorialLayout({
     // non-critical — page still renders fine without structured data
   }
 
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: baseUrl },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Tutorials",
+        item: `${baseUrl}/tutorials`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: category
+          .charAt(0)
+          .toUpperCase()
+          .concat(category.slice(1).replace(/-/g, " ")),
+        item: `${baseUrl}/tutorials/category/${category}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
+        name: slug
+          .charAt(0)
+          .toUpperCase()
+          .concat(slug.slice(1).replace(/-/g, " ")),
+        item: `${baseUrl}/tutorials/category/${category}/${slug}`,
+      },
+    ],
+  };
+
   return (
     <>
       {jsonLd && (
@@ -131,6 +169,10 @@ export default async function TutorialLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       {children}
     </>
   );

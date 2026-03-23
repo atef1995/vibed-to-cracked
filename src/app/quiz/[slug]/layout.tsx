@@ -42,6 +42,15 @@ export async function generateMetadata({
         description: `Test your ${quiz.title.toLowerCase()} knowledge with interactive questions. Multiple difficulty levels available.`,
         type: "website",
         url: `/quiz/${slug}`,
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${quiz.title} Quiz - Challenge Yourself`,
+        description: `Test your ${quiz.title.toLowerCase()} knowledge with interactive questions.`,
+      },
+      alternates: {
+        canonical: `/quiz/${slug}`,
       },
     };
   } catch (error) {
@@ -58,6 +67,16 @@ export async function generateMetadata({
         title: "Interactive Coding Quiz",
         description: "Challenge yourself with our interactive coding quizzes.",
         type: "website",
+        url: `/quiz/${slug}`,
+        siteName: "Vibed to Cracked",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: "Interactive Coding Quiz",
+        description: "Challenge yourself with our interactive coding quizzes.",
+      },
+      alternates: {
+        canonical: `/quiz/${slug}`,
       },
     };
   }
