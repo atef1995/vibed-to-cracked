@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TutorialService } from "@/lib/tutorialService";
 
 export async function generateMetadata({
   params,
@@ -8,29 +9,11 @@ export async function generateMetadata({
   const { category } = await params;
 
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
-
-    // Fetch category metadata
-    const categoryResponse = await fetch(
-      `${baseUrl}/api/tutorials/categories?slug=${category}`,
-      { next: { revalidate: 3600 } }
-    );
-
-    // Also fetch tutorials in this category for count
-    const tutorialsResponse = await fetch(
-      `${baseUrl}/api/tutorials?category=${category}`,
-      { next: { revalidate: 3600 } }
-    );
-
-    if (!categoryResponse.ok || !tutorialsResponse.ok) {
-      throw new Error("Failed to fetch category data");
-    }
-
-    const categoryData = await categoryResponse.json();
-    const tutorialsData = await tutorialsResponse.json();
-
-    const categoryMeta = categoryData.data?.[0];
-    const tutorialCount = tutorialsData.data?.length || 0;
+    // Fetch category metadata and tutorial count directly from service layer
+    const [categoryMeta, tutorialCount] = await Promise.all([
+      TutorialService.getCategoryBySlug(category),
+      TutorialService.getTutorialsCount({ category }),
+    ]);
 
     if (!categoryMeta) {
       return {
@@ -39,7 +22,7 @@ export async function generateMetadata({
       };
     }
 
-    const categoryName: string = categoryMeta.name || category;
+    const categoryName: string = categoryMeta.title || category;
 
     return {
       title: `${categoryName} Tutorials - ${tutorialCount}+ Lessons | Learn ${categoryName} | Vibed to Cracked`,

@@ -5,6 +5,15 @@ import TutorialClient from "../../../../../components/tutorial/TutorialClient";
 import ErrorBoundary, {
   TutorialErrorFallback,
 } from "@/components/ErrorBoundary";
+import { TutorialService } from "@/lib/tutorialService";
+
+export async function generateStaticParams() {
+  const tutorials = await TutorialService.getAllTutorials();
+  return tutorials.map((t) => ({
+    category: t.category.slug,
+    slug: t.slug,
+  }));
+}
 
 interface TutorialPageProps {
   params: Promise<{ category: string; slug: string }>;

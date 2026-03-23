@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
+import { TutorialService } from "@/lib/tutorialService";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
-    const response = await fetch(`${baseUrl}/api/tutorials`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch tutorials");
-    }
-
-    const data = await response.json();
-    const tutorialCount = data.data?.length || 0;
+    const tutorialCount = await TutorialService.getTutorialsCount();
 
     return {
       title: `Learn Coding - ${tutorialCount}+ Free Tutorials | JavaScript, HTML, CSS, OOP, DSA | Vibed to Cracked`,

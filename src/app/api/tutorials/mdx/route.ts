@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
     // Security: Check if tutorial is premium and verify user access
     if (
       tutorial?.isPremium ||
-      (tutorial?.requiredPlan && tutorial.requiredPlan !== "FREE")
+      (tutorial?.requiredPlan && tutorial.requiredPlan !== Plan.FREE)
     ) {
       const session = await getServerSession(authOptions);
 

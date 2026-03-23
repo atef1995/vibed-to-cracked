@@ -677,7 +677,7 @@ export default function HomePage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
               >
-                🎁 Limited Time Offer
+                Limited Time Offer
               </motion.div>
               <motion.h2
                 className="text-3xl md:text-4xl font-bold mb-4"
@@ -893,7 +893,7 @@ export default function HomePage() {
             className="mb-4"
           >
             <div className="inline-block bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              🔥 Early Adopter Pricing Active
+              Early Adopter Pricing Active
             </div>
           </motion.div>
           <motion.h2
@@ -990,7 +990,7 @@ export default function HomePage() {
             >
               Request free access
             </Link>{" "}
-            - we believe everyone deserves to learn! 💝
+            - we believe everyone deserves to learn!
           </motion.p>
         </motion.div>
       </div>

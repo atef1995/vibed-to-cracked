@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TutorialService } from "@/lib/tutorialService";
 
 const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
 
@@ -10,18 +11,7 @@ export async function generateMetadata({
   const { category, slug } = await params;
 
   try {
-    // Fetch the specific tutorial
-    const response = await fetch(`${baseUrl}/api/tutorials?slug=${slug}`, {
-      next: { revalidate: 3600 },
-    });
-
-    if (!response.ok) {
-      throw new Error("Tutorial not found");
-    }
-
-    const data = await response.json();
-
-    const tutorial = data.data;
+    const tutorial = await TutorialService.getTutorialBySlug(slug);
 
     if (!tutorial) {
       return {
@@ -103,27 +93,21 @@ export default async function TutorialLayout({
   let jsonLd: Record<string, unknown> | null = null;
 
   try {
-    const res = await fetch(`${baseUrl}/api/tutorials?slug=${slug}`, {
-      next: { revalidate: 3600 },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const tutorial = data.data;
-      if (tutorial) {
-        jsonLd = {
-          "@context": "https://schema.org",
-          "@type": "Course",
-          name: tutorial.title,
-          description: tutorial.description ?? `Learn ${tutorial.title}`,
-          url: `${baseUrl}/tutorials/category/${category}/${slug}`,
-          provider: {
-            "@type": "Organization",
-            name: "Vibed to Cracked",
-            url: baseUrl,
-          },
-          ...(tutorial.updatedAt && { dateModified: tutorial.updatedAt }),
-        };
-      }
+    const tutorial = await TutorialService.getTutorialBySlug(slug);
+    if (tutorial) {
+      jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Course",
+        name: tutorial.title,
+        description: tutorial.description ?? `Learn ${tutorial.title}`,
+        url: `${baseUrl}/tutorials/category/${category}/${slug}`,
+        provider: {
+          "@type": "Organization",
+          name: "Vibed to Cracked",
+          url: baseUrl,
+        },
+        ...(tutorial.updatedAt && { dateModified: tutorial.updatedAt }),
+      };
     }
   } catch {
     // non-critical — page still renders fine without structured data
