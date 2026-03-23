@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
+import { BlogService } from "@/lib/blogService";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
-    const response = await fetch(`${baseUrl}/api/blog`, {
-      next: { revalidate: 3600 },
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch blog posts");
-    }
-
-    const data = await response.json();
-    const postCount = data.pagination?.totalCount || 0;
+    const postCount = await BlogService.getPostsCount();
 
     return {
       title: `Blog - ${postCount}+ Articles on Programming & Tech | Vibed to Cracked`,

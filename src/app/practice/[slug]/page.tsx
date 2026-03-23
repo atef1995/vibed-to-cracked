@@ -295,8 +295,6 @@ export default function ChallengePage({ params }: ChallengePageProps) {
             timeSpent
           );
 
-          console.log("Challenge submission result:", result);
-
           // Show achievement notifications if any were unlocked
           if (
             result.success &&

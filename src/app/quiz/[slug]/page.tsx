@@ -100,8 +100,6 @@ export default function QuizPage({
     );
   }
 
-  console.log({ quiz, session });
-
   const currentMoodConfig = MOODS[currentMood.id.toLowerCase()];
 
   if (quizState.showResults) {

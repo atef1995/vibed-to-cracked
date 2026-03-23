@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { QuizService } from "@/lib/quizService";
 
 export async function generateMetadata({
   params,
@@ -8,18 +9,7 @@ export async function generateMetadata({
   const { slug } = await params;
 
   try {
-    // Fetch quiz data to generate dynamic metadata
-    const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
-    const response = await fetch(`${baseUrl}/api/quizzes/slug/${slug}`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
-    });
-
-    if (!response.ok) {
-      throw new Error("Quiz not found");
-    }
-
-    const data = await response.json();
-    const quiz = data.quiz;
+    const quiz = await QuizService.getQuizBySlug(slug);
 
     if (!quiz) {
       return {

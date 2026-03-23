@@ -325,8 +325,8 @@ export default function CategoryPage() {
                             {isLocked
                               ? "Unlock"
                               : tutorial.progress?.quizPassed
-                              ? "Review"
-                              : "Start"}{" "}
+                                ? "Review"
+                                : "Start"}{" "}
                             Tutorial
                           </>
                         )}

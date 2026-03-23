@@ -123,7 +123,6 @@ export default function StudyPlanPage() {
 
   // TanStack Query hooks
   const { data, isLoading, error, refetch } = useStudyPlan();
-  console.log({ data });
 
   // Redirect to signin if not authenticated
   if (status === "unauthenticated") {
@@ -165,7 +164,6 @@ export default function StudyPlanPage() {
         }
         break;
       default:
-        console.log("Starting step:", step.title);
         setNavigatingStepId(null); // Clear loading if no navigation
     }
   };

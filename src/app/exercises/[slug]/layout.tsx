@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-
-const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
+import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata({
   params,
@@ -10,16 +9,10 @@ export async function generateMetadata({
   const { slug } = await params;
 
   try {
-    const response = await fetch(`${baseUrl}/api/exercises/slug/${slug}`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
+    const exercise = await prisma.exercise.findUnique({
+      where: { slug },
+      select: { title: true, description: true, difficulty: true, category: true, estimatedTime: true },
     });
-
-    if (!response.ok) {
-      throw new Error("Exercise not found");
-    }
-
-    const data = await response.json();
-    const exercise = data.exercise;
 
     if (!exercise) {
       return {

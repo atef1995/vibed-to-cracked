@@ -1,18 +1,9 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
-    const response = await fetch(`${baseUrl}/api/quizzes`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch quizzes");
-    }
-
-    const data = await response.json();
-    const quizCount = data.quizzes?.length || 0;
+    const quizCount = await prisma.quiz.count();
 
     return {
       title: `Coding Quizzes - ${quizCount}+ Interactive Quizzes | Vibed to Cracked`,

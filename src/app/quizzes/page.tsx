@@ -60,9 +60,6 @@ export default function QuizzesPage() {
 
   const { data: tutorialProgress = {}, isLoading: loadingProgress } =
     useTutorialProgress(session?.user?.id);
-  if (process.env.NODE_ENV === "development") {
-    console.log(tutorialProgress);
-  }
 
   // Pagination hook
   const {
@@ -243,8 +240,8 @@ export default function QuizzesPage() {
                 {currentMoodConfig.quizSettings.difficulty === "easy"
                   ? "Focus on fundamental concepts and basic syntax"
                   : currentMoodConfig.quizSettings.difficulty === "medium"
-                  ? "Mix of basic and intermediate concepts"
-                  : "Challenging questions covering advanced topics"}
+                    ? "Mix of basic and intermediate concepts"
+                    : "Challenging questions covering advanced topics"}
               </div>
             </div>
             <div className="text-left">

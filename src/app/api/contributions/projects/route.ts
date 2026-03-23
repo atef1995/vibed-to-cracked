@@ -14,6 +14,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { parseProjectFeatures } from "@/lib/types/contribution";
+import { Plan } from "@/lib/subscriptionConstants";
 
 interface ProjectSubmission {
   projectId: string;
@@ -75,24 +76,18 @@ export async function GET(request: Request) {
     }
 
     // Check user's subscription for premium content access
-    const userSubscription = session?.user?.subscription || "FREE";
+    const userSubscription = session?.user?.subscription || Plan.FREE;
 
     // If user doesn't have premium, exclude premium projects
     // unless they explicitly filtered for premium (to show locked state)
-    if (userSubscription === "FREE" && premiumFilter !== "true") {
-      where.OR = [
-        { isPremium: false },
-        { requiredPlan: "FREE" }
-      ];
+    if (userSubscription === Plan.FREE && premiumFilter !== "true") {
+      where.OR = [{ isPremium: false }, { requiredPlan: Plan.FREE }];
     }
 
     // Fetch projects
     const projects = await prisma.contributionProject.findMany({
       where,
-      orderBy: [
-        { difficulty: "asc" },
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ difficulty: "asc" }, { createdAt: "desc" }],
       select: {
         id: true,
         slug: true,
@@ -135,28 +130,34 @@ export async function GET(request: Request) {
 
       // Create a map of project submissions
       const submissionMap = new Map(
-        (userSubmissions as ProjectSubmission[]).map((sub: ProjectSubmission) => [
-          `${sub.projectId}-${sub.featureId}`,
-          sub.prStatus,
-        ])
+        (userSubmissions as ProjectSubmission[]).map(
+          (sub: ProjectSubmission) => [
+            `${sub.projectId}-${sub.featureId}`,
+            sub.prStatus,
+          ]
+        )
       );
 
-      projectsWithStatus = (projects as ProjectData[]).map((project: ProjectData) => {
-        const features = parseProjectFeatures(project.features);
-        const featuresWithStatus = (features as unknown[]).map((feature: unknown) => {
-          const f = feature as { id: string };
-          return {
-            ...(feature as Record<string, unknown>),
-            userStatus: submissionMap.get(`${project.id}-${f.id}`) || null,
-          };
-        });
+      projectsWithStatus = (projects as ProjectData[]).map(
+        (project: ProjectData) => {
+          const features = parseProjectFeatures(project.features);
+          const featuresWithStatus = (features as unknown[]).map(
+            (feature: unknown) => {
+              const f = feature as { id: string };
+              return {
+                ...(feature as Record<string, unknown>),
+                userStatus: submissionMap.get(`${project.id}-${f.id}`) || null,
+              };
+            }
+          );
 
-        return {
-          ...project,
-          features: featuresWithStatus,
-          totalSubmissions: project._count.submissions || 0,
-        };
-      });
+          return {
+            ...project,
+            features: featuresWithStatus,
+            totalSubmissions: project._count.submissions || 0,
+          };
+        }
+      );
     }
 
     return NextResponse.json({

@@ -88,7 +88,7 @@ function AchievementsPageContent() {
 
   // Social sharing functions
   const generateShareText = (achievement: Achievement) => {
-    return `🏆 Just unlocked "${achievement.title}" on Vibed to Cracked! ${achievement.icon}\n\n${achievement.description}\n\n+${achievement.points} points earned! 🚀\n\n#VibedToCracked #CodingAchievement #LearnToCode`;
+    return `Just unlocked "${achievement.title}" on Vibed to Cracked! ${achievement.icon}\n\n${achievement.description}\n\n+${achievement.points} points earned!\n\n#VibedToCracked #CodingAchievement #LearnToCode`;
   };
 
   const generateShareUrl = (achievement: Achievement) => {
@@ -152,7 +152,7 @@ function AchievementsPageContent() {
     const progressPercentage = Math.round(
       (stats.unlockedCount / stats.totalCount) * 100
     );
-    const text = `🚀 My coding journey on Vibed to Cracked:\n\n🏆 ${stats.unlockedCount}/${stats.totalCount} achievements unlocked (${progressPercentage}%)\n⭐ ${stats.totalPoints} total points earned\n\nJoin me in learning to code! 💻\n\n#VibedToCracked #LearnToCode #CodingJourney`;
+    const text = `My coding journey on Vibed to Cracked:\n\n${stats.unlockedCount}/${stats.totalCount} achievements unlocked (${progressPercentage}%)\n${stats.totalPoints} total points earned\n\nJoin me in learning to code!\n\n#VibedToCracked #LearnToCode #CodingJourney`;
 
     if (typeof navigator !== "undefined" && "share" in navigator) {
       navigator

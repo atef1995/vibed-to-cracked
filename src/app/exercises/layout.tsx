@@ -1,17 +1,9 @@
 import type { Metadata } from "next";
-
-const baseUrl = process.env.NEXTAUTH_URL || "https://vibed-to-cracked.com";
+import { prisma } from "@/lib/prisma";
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const response = await fetch(`${baseUrl}/api/exercises`, {
-      next: { revalidate: 3600 }, // Revalidate every hour
-    });
-
-    if (!response.ok) throw new Error("Failed to fetch exercises");
-
-    const data = await response.json();
-    const exerciseCount = data.data?.length || 0;
+    const exerciseCount = await prisma.exercise.count({ where: { published: true } });
 
     return {
       title: `Interactive Coding Exercises - ${exerciseCount}+ Hands-On Practice Problems | Vibed to Cracked`,

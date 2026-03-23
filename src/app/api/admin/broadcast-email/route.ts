@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { emailService } from "@/lib/services/emailService";
+import { Plan } from "@/lib/subscriptionConstants";
 
 /**
  * POST /api/admin/broadcast-email
@@ -37,7 +38,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let recipients: { email: string; name: string | null; username: string | null }[] = [];
+    let recipients: {
+      email: string;
+      name: string | null;
+      username: string | null;
+    }[] = [];
 
     // Fetch recipients based on type
     switch (recipientType) {
@@ -57,7 +62,7 @@ export async function POST(request: NextRequest) {
       case "free":
         recipients = await prisma.user.findMany({
           where: {
-            subscription: "FREE",
+            subscription: Plan.FREE,
             emailUnsubscribed: false,
           },
           select: {
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
         recipients = await prisma.user.findMany({
           where: {
             subscription: {
-              in: ["VIBED", "CRACKED"],
+              in: [Plan.VIBED, Plan.CRACKED],
             },
             emailUnsubscribed: false,
           },

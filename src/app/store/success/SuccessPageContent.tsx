@@ -48,7 +48,6 @@ export default function SuccessPageContent() {
         setLoading(false);
       } else if (response.status === 202) {
         // Payment still processing - retry
-        console.log("Payment processing, will retry...");
         if (retryCount < 15) {
           // Max 15 retries = 30 seconds
           setRetryCount((prev) => prev + 1);

@@ -46,8 +46,7 @@ function SignInContent() {
             });
 
             if (response.ok) {
-              const data = await response.json();
-              console.log("Anonymous session converted:", data);
+              await response.json();
               // Clear anonymous data from localStorage
               localStorage.removeItem("vibed_anonymous_id");
               localStorage.removeItem("vibed_anonymous_session");

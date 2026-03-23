@@ -28,27 +28,27 @@ export default function AdminPage() {
   }
 
   const tabs = [
-    { id: "users", label: "👤 Users", component: UserStatsDashboard },
+    { id: "users", label: "Users", component: UserStatsDashboard },
     {
       id: "dashboard",
-      label: "📊 Email Stats",
+      label: "Email Stats",
       component: EmailStatsDashboard,
     },
-    { id: "reviews", label: "👥 Peer Reviews", component: PeerReviewDashboard },
+    { id: "reviews", label: "Peer Reviews", component: PeerReviewDashboard },
     {
       id: "promotional",
-      label: "📧 Promotional Emails",
+      label: "Promotional Emails",
       component: PromotionalEmailForm,
     },
     {
       id: "reminders",
-      label: "⏰ Study Reminders",
+      label: "Study Reminders",
       component: StudyReminderForm,
     },
-    { id: "cron", label: "🤖 Cron Jobs", component: CronJobMonitor },
+    { id: "cron", label: "Cron Jobs", component: CronJobMonitor },
     {
       id: "broadcast",
-      label: "📢 Broadcast Emails",
+      label: "Broadcast Emails",
       component: BroadcastEmailForm,
     },
   ];

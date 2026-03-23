@@ -40,8 +40,6 @@ export default function CertificatesPage() {
     fetchCertificates();
   }, [fetchCertificates]);
 
-  console.log(certificates);
-
   const moodColors = getMoodColors(currentMood.id);
 
   const tutorialCertificates = certificates.filter(
