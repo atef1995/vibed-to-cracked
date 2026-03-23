@@ -11,7 +11,7 @@ function generateAnonymousId(): string {
   return `anon_${random}_${timestamp}`;
 }
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   if (debugMode) {
