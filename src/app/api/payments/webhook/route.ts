@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const headersList = await headers();
     const sig = headersList.get("stripe-signature");
 
-    console.log("📝 Webhook details:", {
+    console.log("Webhook details:", {
       bodyLength: body.length,
       hasSignature: !!sig,
       endpointSecretSet: !!endpointSecret,
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       event = stripe.webhooks.constructEvent(body, sig!, endpointSecret);
       console.log(" Webhook signature verified successfully");
     } catch (err) {
-      console.error("❌ Webhook signature verification failed:", err);
+      console.error("Webhook signature verification failed:", err);
       return NextResponse.json(
         { error: "Webhook signature verification failed" },
         { status: 400 }

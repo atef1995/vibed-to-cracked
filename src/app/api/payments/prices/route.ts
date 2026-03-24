@@ -69,7 +69,6 @@ export async function GET() {
           annual: vibedAnnual,
         },
       },
-      allPrices: priceMap,
     });
   } catch (error) {
     console.error("Error fetching Stripe prices:", error);

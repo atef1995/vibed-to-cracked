@@ -2,57 +2,58 @@ import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+async function requireAdmin() {
   const session = await getServerSession(authOptions);
+  if (session?.user?.role !== "ADMIN") {
+    return null;
+  }
+  return session;
+}
 
- if (session?.user?.role !== "ADMIN") {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Authentication required",
-        },
-        { status: 401 }
-      );
-    }
-  console.log("🧪 Test webhook endpoint called");
-  
+export async function POST(request: NextRequest) {
+  const session = await requireAdmin();
+  if (!session) {
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
   try {
     const body = await request.text();
-    const headers = Object.fromEntries(request.headers.entries());
-    
-    console.log("📥 Received data:", {
+
+    console.log("[test-webhook] Received data:", {
       method: request.method,
-      url: request.url,
       bodyLength: body.length,
-      headers: headers,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
-    return NextResponse.json({ 
-      success: true, 
+
+    return NextResponse.json({
+      success: true,
       message: "Test webhook received",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("❌ Test webhook error:", error);
-    return NextResponse.json({ 
-      success: false, 
-      error: "Test webhook failed" 
-    }, { status: 500 });
+    console.error("[test-webhook] Error:", error);
+    return NextResponse.json(
+      { error: "Test webhook failed" },
+      { status: 500 }
+    );
   }
 }
 
-export async function GET(request: NextRequest) {
-  console.log("🧪 Test webhook GET endpoint called");
-  
-  return NextResponse.json({ 
-    success: true, 
+export async function GET() {
+  const session = await requireAdmin();
+  if (!session) {
+    return NextResponse.json(
+      { error: "Authentication required" },
+      { status: 401 }
+    );
+  }
+
+  return NextResponse.json({
+    success: true,
     message: "Test webhook endpoint is working",
     timestamp: new Date().toISOString(),
-    env: {
-      hasStripeKey: !!process.env.STRIPE_SECRET_KEY,
-      hasWebhookSecret: !!process.env.STRIPE_WEBHOOK_SECRET,
-      nodeEnv: process.env.NODE_ENV
-    }
   });
 }

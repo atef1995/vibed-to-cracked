@@ -3,7 +3,6 @@ import Stripe from "stripe";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { OrderStatus } from "@/generated/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-01-28.clover",
@@ -80,89 +79,31 @@ export async function GET(request: NextRequest) {
       if (!authSession?.user?.id || order.userId !== authSession.user.id) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
-    }
-
-    // Idempotency check: if order already PAID, return success without updating
-    if (order.status === OrderStatus.PAID) {
-      console.log(`[Verify] Order ${order.id} already PAID - skipping update`);
-      return NextResponse.json({
-        success: true,
-        order: {
-          id: order.id,
-          status: order.status,
-          total: order.total,
-          items: order.items.map((item) => ({
-            id: item.id,
-            productName: item.product.name,
-            quantity: item.quantity,
-            price: item.priceAtPurchase,
-          })),
-          createdAt: order.createdAt,
-        },
-      });
-    }
-
-    const metadata =
-      order.metadata && typeof order.metadata === "object"
-        ? (order.metadata as Record<string, unknown>)
-        : null;
-    const cartId =
-      metadata && typeof metadata.cartId === "string" ? metadata.cartId : null;
-    const collectedGuestEmail = session.customer_details?.email || null;
-
-    console.log(`[Verify] Updating order ${order.id} to PAID status`);
-
-    await prisma.$transaction(async (tx) => {
-      await tx.order.update({
-        where: { id: order.id },
-        data: {
-          status: OrderStatus.PAID,
-          ...(order.guestEmail
-            ? {}
-            : collectedGuestEmail
-              ? { guestEmail: collectedGuestEmail }
-              : {}),
-        },
-      });
-
-      if (cartId) {
-        await tx.cartItem.deleteMany({
-          where: { cartId },
-        });
-        console.log(`[Verify] Cleared cart ${cartId}`);
+    } else {
+      // Guest orders: verify the email matches what Stripe collected
+      const collectedEmail = session.customer_details?.email;
+      if (!collectedEmail) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
       }
-    });
-
-    console.log(`[Verify] Order ${order.id} successfully updated to PAID`);
-
-    const updatedOrder = await prisma.order.findUnique({
-      where: { id: order.id },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
-
-    if (!updatedOrder) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      if (order.guestEmail && order.guestEmail !== collectedEmail) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
     }
 
+    // Read-only: return current order state. The webhook handles fulfillment.
     return NextResponse.json({
       success: true,
       order: {
-        id: updatedOrder.id,
-        status: updatedOrder.status,
-        total: updatedOrder.total,
-        items: updatedOrder.items.map((item) => ({
+        id: order.id,
+        status: order.status,
+        total: order.total,
+        items: order.items.map((item) => ({
           id: item.id,
           productName: item.product.name,
           quantity: item.quantity,
           price: item.priceAtPurchase,
         })),
-        createdAt: updatedOrder.createdAt,
+        createdAt: order.createdAt,
       },
     });
   } catch (error) {

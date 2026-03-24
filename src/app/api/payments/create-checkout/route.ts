@@ -203,10 +203,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (!session.user.email) {
+      return NextResponse.json(
+        { success: false, error: { message: "Email is required for checkout" } },
+        { status: 400 }
+      );
+    }
+
     // Validate and get/create Stripe customer
     const customerId = await StripeHelpers.validateAndGetCustomer(
       session.user.id,
-      session.user.email!,
+      session.user.email,
       session.user.name || undefined
     );
 
@@ -246,11 +253,9 @@ export async function POST(request: NextRequest) {
       billing_address_collection: "required",
       // Customer updates for tax calculation
       customer_update: {
-        address: "auto", // Automatically save address from checkout
-        shipping: "auto", // Automatically save shipping from checkout
+        address: "auto",
+        shipping: "auto",
       },
-      // Add customer email if no existing customer
-      customer_email: !customerId ? session.user.email! : undefined,
       // Automatic tax calculation with proper customer address handling
       automatic_tax: { enabled: true },
     };
@@ -270,18 +275,16 @@ export async function POST(request: NextRequest) {
     const checkoutSession =
       await stripe.checkout.sessions.create(checkoutSessionData);
 
+    // Derive the amount from the Stripe price to keep the record accurate
+    const price = await stripe.prices.retrieve(priceId!);
+    const amount = price.unit_amount || 0;
+
     // Create payment record for tracking
     await SubscriptionService.createPayment(
       session.user.id,
       plan,
-      annual
-        ? plan === "CRACKED"
-          ? 9900 // $99/year for Cracked
-          : 8900 // $89/year for Vibed
-        : plan === "CRACKED"
-          ? 1990 // $19.90/month for Cracked
-          : 998, // $9.98/month for Vibed
-      "usd",
+      amount,
+      price.currency || "usd",
       checkoutSession.id
     );
 

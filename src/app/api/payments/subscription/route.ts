@@ -69,7 +69,7 @@ export async function DELETE(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const { reason = "user_requested" } = body;
 
-    console.log("🎯 Processing subscription cancellation:", {
+    console.log("Processing subscription cancellation:", {
       userId: session.user.id,
       reason,
     });
@@ -101,12 +101,12 @@ export async function DELETE(request: NextRequest) {
 
     // Handle trial cancellation
     if (currentSubscription.status === SubscriptionStatus.TRIAL) {
-      console.log("📋 Cancelling trial subscription");
+      console.log("Cancelling trial subscription");
 
       // Check if this is a Stripe trial (from checkout) or local trial (instant)
       if (currentSubscription.stripeSubscriptionId) {
         console.log(
-          "🔄 Cancelling Stripe trial subscription:",
+          "Cancelling Stripe trial subscription:",
           currentSubscription.stripeSubscriptionId
         );
 
@@ -136,7 +136,7 @@ export async function DELETE(request: NextRequest) {
         );
       } else {
         console.log(
-          "📋 Cancelling local trial subscription (no Stripe subscription)"
+          "Cancelling local trial subscription (no Stripe subscription)"
         );
 
         // For local trials, mark as cancelled locally - will be handled by background job
@@ -179,7 +179,7 @@ export async function DELETE(request: NextRequest) {
 
     try {
       console.log(
-        "🔄 Cancelling Stripe subscription:",
+        "Cancelling Stripe subscription:",
         currentSubscription.stripeSubscriptionId
       );
 
@@ -226,7 +226,7 @@ export async function DELETE(request: NextRequest) {
         },
       });
     } catch (stripeError: unknown) {
-      console.error("❌ Stripe cancellation error:", stripeError);
+      console.error("Stripe cancellation error:", stripeError);
 
       // Handle case where Stripe subscription doesn't exist
       if (
@@ -236,7 +236,7 @@ export async function DELETE(request: NextRequest) {
         stripeError.code === "resource_missing"
       ) {
         console.log(
-          "⚠️ Stripe subscription not found, cancelling locally only"
+          "Stripe subscription not found, cancelling locally only"
         );
 
         // Cancel locally but keep access until original end date
@@ -267,7 +267,7 @@ export async function DELETE(request: NextRequest) {
       throw stripeError;
     }
   } catch (error) {
-    console.error("❌ Error cancelling subscription:", error);
+    console.error("Error cancelling subscription:", error);
     return NextResponse.json(
       {
         success: false,
@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   } catch (error) {
-    console.error("❌ Error in subscription POST:", error);
+    console.error("Error in subscription POST:", error);
     return NextResponse.json(
       {
         success: false,
@@ -321,7 +321,7 @@ export async function POST(request: NextRequest) {
 
 async function handleReactivation(userId: string) {
   try {
-    console.log("🎯 Processing subscription reactivation for user:", userId);
+    console.log("Processing subscription reactivation for user:", userId);
 
     // Get current subscription info
     const currentSubscription =
@@ -358,7 +358,7 @@ async function handleReactivation(userId: string) {
 
     // Handle local trial reactivation (no Stripe subscription)
     if (!currentSubscription.stripeSubscriptionId) {
-      console.log("🔄 Reactivating local trial subscription");
+      console.log("Reactivating local trial subscription");
 
       // For local trials, just update the status back to TRIAL
       if (currentSubscription.status === SubscriptionStatus.CANCELLED) {
@@ -433,7 +433,7 @@ async function handleReactivation(userId: string) {
         data: updatedSubscription,
       });
     } catch (stripeError: unknown) {
-      console.error("❌ Stripe reactivation error:", stripeError);
+      console.error("Stripe reactivation error:", stripeError);
 
       if (
         stripeError &&
@@ -455,7 +455,7 @@ async function handleReactivation(userId: string) {
       throw stripeError;
     }
   } catch (error) {
-    console.error("❌ Error reactivating subscription:", error);
+    console.error("Error reactivating subscription:", error);
     return NextResponse.json(
       {
         success: false,

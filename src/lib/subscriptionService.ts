@@ -202,9 +202,9 @@ export class SubscriptionService {
   /**
    * Get plan limits for a user
    */
-  static async getUserPlanLimits(userId: string): Promise<PlanLimits> {
-    const subscription = await this.getUserSubscription(userId);
-    return PLAN_CONFIGS[subscription.plan];
+  static async getUserPlanLimits(userId: string, plan?: Plan): Promise<PlanLimits> {
+    const userPlan = plan ?? (await this.getUserSubscription(userId)).plan;
+    return PLAN_CONFIGS[userPlan];
   }
 
   /**
@@ -212,11 +212,12 @@ export class SubscriptionService {
    */
   static async checkContentLimits(
     userId: string,
-    contentType: "tutorial" | "challenge"
+    contentType: "tutorial" | "challenge",
+    limits?: PlanLimits
   ): Promise<{ withinLimits: boolean; current: number; max: number }> {
-    const limits = await this.getUserPlanLimits(userId);
+    const resolvedLimits = limits ?? (await this.getUserPlanLimits(userId));
     const maxAllowed =
-      contentType === "tutorial" ? limits.maxTutorials : limits.maxChallenges;
+      contentType === "tutorial" ? resolvedLimits.maxTutorials : resolvedLimits.maxChallenges;
 
     if (maxAllowed === Infinity) {
       return { withinLimits: true, current: 0, max: Infinity };
@@ -348,9 +349,9 @@ export class SubscriptionService {
    */
   static async getUserAccessSummary(userId: string) {
     const subscription = await this.getUserSubscription(userId);
-    const limits = await this.getUserPlanLimits(userId);
-    const tutorialLimits = await this.checkContentLimits(userId, "tutorial");
-    const challengeLimits = await this.checkContentLimits(userId, "challenge");
+    const limits = PLAN_CONFIGS[subscription.plan];
+    const tutorialLimits = await this.checkContentLimits(userId, "tutorial", limits);
+    const challengeLimits = await this.checkContentLimits(userId, "challenge", limits);
 
     return {
       subscription,
