@@ -326,10 +326,14 @@ export default function HomePage() {
             {/* Example: <video src="/demo.mp4" autoPlay muted loop playsInline className="w-full h-full object-cover" /> */}
             {/* Example: <img src="/demo.gif" alt="Platform demo" className="w-full h-full object-cover" /> */}
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/80">
-              <div className="w-16 h-16 rounded-full bg-blue-600/90 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Play className="w-7 h-7 text-white ml-1" />
-              </div>
-              <p className="text-gray-400 text-sm">Platform walkthrough</p>
+              <video
+                src="/vtc.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover"
+              />
             </div>
             {/* Fake browser chrome */}
             <div className="absolute top-0 inset-x-0 h-8 bg-gray-800 flex items-center px-3 gap-1.5 pointer-events-none">
