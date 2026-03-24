@@ -133,31 +133,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send emails to all recipients
+    // Send emails in batches to avoid rate limiting
+    const BATCH_SIZE = 10;
     let sentCount = 0;
     let failedCount = 0;
     const errors: string[] = [];
 
-    for (const recipient of recipients) {
-      try {
-        const result = await emailService.sendBroadcastEmail(
-          recipient,
-          subject,
-          message,
-          includeUnsubscribe
-        );
+    for (let i = 0; i < recipients.length; i += BATCH_SIZE) {
+      const batch = recipients.slice(i, i + BATCH_SIZE);
 
-        if (result.success) {
+      const batchResults = await Promise.allSettled(
+        batch.map((recipient) =>
+          emailService.sendBroadcastEmail(
+            recipient,
+            subject,
+            message,
+            includeUnsubscribe
+          )
+        )
+      );
+
+      for (let j = 0; j < batchResults.length; j++) {
+        const result = batchResults[j];
+        if (result.status === "fulfilled" && result.value.success) {
           sentCount++;
         } else {
           failedCount++;
-          errors.push(`${recipient.email}: ${result.error}`);
+          const errMsg =
+            result.status === "rejected"
+              ? result.reason?.message || "Unknown error"
+              : result.value.error;
+          errors.push(`${batch[j].email}: ${errMsg}`);
         }
-      } catch (error) {
-        failedCount++;
-        errors.push(
-          `${recipient.email}: ${error instanceof Error ? error.message : "Unknown error"}`
-        );
+      }
+
+      // Delay between batches to avoid SMTP rate limits
+      if (i + BATCH_SIZE < recipients.length) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
 

@@ -3,17 +3,14 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { emailService } from "@/lib/services/emailService";
 import { prisma } from "@/lib/prisma";
+import { requireAdmin } from "@/lib/auth-utils";
 
 export async function POST(request: NextRequest) {
   try {
-    // Get user session
+    const adminCheck = await requireAdmin();
+    if (adminCheck) return adminCheck;
+
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Authentication required" },
-        { status: 401 }
-      );
-    }
 
     const body = await request.json();
     const { 
@@ -32,7 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Get full user data from database
     const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
+      where: { id: session!.user.id }
     });
 
     if (!user) {

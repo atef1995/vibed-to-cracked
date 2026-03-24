@@ -1,6 +1,17 @@
 import nodemailer from "nodemailer";
+import { createHmac } from "crypto";
 import { User } from "../../generated/client";
 import { devMode } from "./envService";
+
+function escapeHtml(str: string | null | undefined): string {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 interface ShippingAddress {
   name?: string | null;
@@ -27,7 +38,7 @@ interface EmailConfig {
 }
 const debugMode = devMode();
 
-class EmailService {
+export class EmailService {
   private transporter: nodemailer.Transporter;
 
   constructor() {
@@ -110,6 +121,18 @@ class EmailService {
     return await this.sendEmail(user.email, subject, html);
   }
 
+  static generateUnsubscribeToken(email: string): string {
+    const secret = process.env.NEXTAUTH_SECRET || process.env.CRON_SECRET || "";
+    return createHmac("sha256", secret)
+      .update(email.toLowerCase())
+      .digest("hex");
+  }
+
+  static verifyUnsubscribeToken(email: string, token: string): boolean {
+    const expected = EmailService.generateUnsubscribeToken(email);
+    return expected === token;
+  }
+
   async sendStudyReminderEmail(
     user: User,
     reminderData: {
@@ -119,7 +142,7 @@ class EmailService {
     }
   ) {
     const subject = `Time to get back to coding, ${
-      user.name || user.username || "there"
+      escapeHtml(user.name || user.username) || "there"
     }! 💪`;
     const html = this.generateStudyReminderTemplate(user, reminderData);
 
@@ -133,7 +156,7 @@ class EmailService {
     message: string;
     userAgent?: string;
   }) {
-    const subject = `[Contact Form] ${contactData.subject}`;
+    const subject = `[Contact Form] ${escapeHtml(contactData.subject)}`;
     const html = this.generateContactFormTemplate(contactData);
 
     // Send to admin/support email
@@ -159,9 +182,9 @@ class EmailService {
     url?: string;
     severity: "low" | "medium" | "high" | "critical";
   }) {
-    const subject = `[BUG REPORT - ${bugData.severity.toUpperCase()}] ${
+    const subject = `[BUG REPORT - ${bugData.severity.toUpperCase()}] ${escapeHtml(
       bugData.title
-    }`;
+    )}`;
     const html = this.generateBugReportTemplate(bugData);
 
     // Send to development team email
@@ -197,12 +220,18 @@ class EmailService {
       requestHeaders: Record<string, string | null>;
     };
   }) {
-    const subject = `[FREE ACCESS REQUEST] ${requestData.name} from ${requestData.country}`;
+    const subject = `[FREE ACCESS REQUEST] ${escapeHtml(requestData.name)} from ${escapeHtml(requestData.country)}`;
     const html = this.generateFreeAccessRequestTemplate(requestData);
 
     // Send to admin email
     const adminEmail = process.env.ADMIN_EMAIL;
-    return await this.sendEmail(adminEmail!, subject, html);
+    if (!adminEmail) {
+      return {
+        success: false,
+        error: "No recipient email defined in environment variables",
+      };
+    }
+    return await this.sendEmail(adminEmail, subject, html);
   }
 
   async sendPaymentConfirmationEmail(
@@ -305,7 +334,7 @@ class EmailService {
           </div>
           
           <div class="content">
-            <h2>Hey ${user.name || user.username || "there"}! ${
+            <h2>Hey ${escapeHtml(user.name || user.username) || "there"}! ${
               moodEmojis[user.mood] || "👋"
             }</h2>
             
@@ -376,9 +405,9 @@ class EmailService {
           </div>
           
           <div class="content">
-            <h2>Hey ${user.name || user.username}!</h2>
+            <h2>Hey ${escapeHtml(user.name || user.username) || "there"}!</h2>
             
-            <p>${promotion.description}</p>
+            <p>${escapeHtml(promotion.description)}</p>
             
             <div class="highlight">
               <strong>This offer is personalized for your ${
@@ -388,9 +417,9 @@ class EmailService {
             
             <p>Don't miss out on this opportunity to level up your Programming skills with premium content and features.</p>
             
-            <a href="${promotion.ctaUrl}" class="cta-button">${
+            <a href="${escapeHtml(promotion.ctaUrl)}" class="cta-button">${escapeHtml(
               promotion.ctaText
-            }</a>
+            )}</a>
             
             <p><small>This offer expires soon. Take action now! ⏰</small></p>
           </div>
@@ -401,7 +430,7 @@ class EmailService {
               process.env.NEXTAUTH_URL
             }/settings">Update email preferences</a> | <a href="${
               process.env.NEXTAUTH_URL
-            }/unsubscribe">Unsubscribe</a></p>
+            }/api/email/unsubscribe?email=${encodeURIComponent(user.email)}&token=${EmailService.generateUnsubscribeToken(user.email)}">Unsubscribe</a></p>
           </div>
         </body>
       </html>
@@ -442,7 +471,7 @@ class EmailService {
           </div>
           
           <div class="content">
-            <h2>Hey ${user.name || user.username}! 👋</h2>
+            <h2>Hey ${escapeHtml(user.name || user.username) || "there"}! 👋</h2>
             
             <p>We noticed it's been ${daysSinceActive} day${
               daysSinceActive > 1 ? "s" : ""
@@ -528,23 +557,23 @@ class EmailService {
           
           <div class="content">
             <div class="info-box">
-              <p><span class="label">From:</span> ${contactData.name} (${
+              <p><span class="label">From:</span> ${escapeHtml(contactData.name)} (${escapeHtml(
                 contactData.email
-              })</p>
-              <p><span class="label">Subject:</span> ${contactData.subject}</p>
+              )})</p>
+              <p><span class="label">Subject:</span> ${escapeHtml(contactData.subject)}</p>
               <p><span class="label">Submitted:</span> ${new Date().toLocaleString()}</p>
             </div>
             
             <div class="message-box">
               <h3>Message:</h3>
-              <p style="white-space: pre-wrap;">${contactData.message}</p>
+              <p style="white-space: pre-wrap;">${escapeHtml(contactData.message)}</p>
             </div>
             
             ${
               contactData.userAgent
                 ? `
               <div class="info-box">
-                <p><span class="label">User Agent:</span> ${contactData.userAgent}</p>
+                <p><span class="label">User Agent:</span> ${escapeHtml(contactData.userAgent)}</p>
               </div>
             `
                 : ""
@@ -553,9 +582,9 @@ class EmailService {
           
           <div class="footer">
             <p>This email was sent from the Vibed to Cracked contact form.</p>
-            <p>Reply directly to this email to respond to ${
+            <p>Reply directly to this email to respond to ${escapeHtml(
               contactData.name
-            }.</p>
+            )}.</p>
           </div>
         </body>
       </html>
@@ -618,7 +647,7 @@ class EmailService {
           
           <div class="content">
             <div class="info-section">
-              <h2>${bugData.title}</h2>
+              <h2>${escapeHtml(bugData.title)}</h2>
               <p><span class="severity-badge">${
                 bugData.severity
               } Priority</span></p>
@@ -627,8 +656,8 @@ class EmailService {
                 bugData.userName || bugData.userEmail
                   ? `
                 <p><span class="label">Reported by:</span> 
-                ${bugData.userName ? `${bugData.userName} ` : ""}
-                ${bugData.userEmail ? `(${bugData.userEmail})` : ""}</p>
+                ${bugData.userName ? `${escapeHtml(bugData.userName)} ` : ""}
+                ${bugData.userEmail ? `(${escapeHtml(bugData.userEmail)})` : ""}</p>
               `
                   : ""
               }
@@ -637,29 +666,29 @@ class EmailService {
               
               ${
                 bugData.url
-                  ? `<p><span class="label">Page URL:</span> <a href="${bugData.url}">${bugData.url}</a></p>`
+                  ? `<p><span class="label">Page URL:</span> <a href="${escapeHtml(bugData.url)}">${escapeHtml(bugData.url)}</a></p>`
                   : ""
               }
             </div>
             
             <div class="bug-section">
               <span class="label">Description:</span>
-              <p style="white-space: pre-wrap;">${bugData.description}</p>
+              <p style="white-space: pre-wrap;">${escapeHtml(bugData.description)}</p>
             </div>
             
             <div class="repro-section">
               <span class="label">Steps to Reproduce:</span>
-              <p style="white-space: pre-wrap;">${bugData.stepsToReproduce}</p>
+              <p style="white-space: pre-wrap;">${escapeHtml(bugData.stepsToReproduce)}</p>
             </div>
             
             <div class="behavior-section">
               <span class="label">Expected Behavior:</span>
-              <p style="white-space: pre-wrap;">${bugData.expectedBehavior}</p>
+              <p style="white-space: pre-wrap;">${escapeHtml(bugData.expectedBehavior)}</p>
             </div>
             
             <div class="bug-section">
               <span class="label">Actual Behavior:</span>
-              <p style="white-space: pre-wrap;">${bugData.actualBehavior}</p>
+              <p style="white-space: pre-wrap;">${escapeHtml(bugData.actualBehavior)}</p>
             </div>
             
             ${
@@ -667,7 +696,7 @@ class EmailService {
                 ? `
               <div class="info-section">
                 <span class="label">🌐 Browser Information:</span>
-                <pre>${bugData.browserInfo}</pre>
+                <pre>${escapeHtml(bugData.browserInfo)}</pre>
               </div>
             `
                 : ""
@@ -751,11 +780,11 @@ class EmailService {
               <p>Your subscription is now active and ready to use!</p>
             </div>
 
-            <h2>Hey ${user.name || user.username}! 👋</h2>
+            <h2>Hey ${escapeHtml(user.name || user.username) || "there"}! 👋</h2>
             
-            <p>Thank you for upgrading to the ${
+            <p>Thank you for upgrading to the ${escapeHtml(
               paymentData.plan
-            } plan! Your payment has been successfully processed and you now have access to all premium features.</p>
+            )} plan! Your payment has been successfully processed and you now have access to all premium features.</p>
 
             ${
               paymentData.isTrialActive && paymentData.trialEndsAt
@@ -893,7 +922,7 @@ class EmailService {
       <html>
         <head>
           <meta charset="utf-8">
-          <title>Free Access Request - ${requestData.name}</title>
+          <title>Free Access Request - ${escapeHtml(requestData.name)}</title>
           <style>
             body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
             .header { background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
@@ -938,21 +967,21 @@ class EmailService {
           <div class="content">
             <div class="personal-info">
               <h2>👤 Personal Information</h2>
-              <p><span class="label">Name:</span> ${requestData.name}</p>
-              <p><span class="label">Email:</span> ${requestData.email}</p>
-              <p><span class="label">Country:</span> ${requestData.country}</p>
+              <p><span class="label">Name:</span> ${escapeHtml(requestData.name)}</p>
+              <p><span class="label">Email:</span> ${escapeHtml(requestData.email)}</p>
+              <p><span class="label">Country:</span> ${escapeHtml(requestData.country)}</p>
               <p><span class="label">Age:</span> ${
                 requestData.age || "Not specified"
               }</p>
-              <p><span class="label">Occupation:</span> ${
+              <p><span class="label">Occupation:</span> ${escapeHtml(
                 requestData.occupation
-              }</p>
-              <p><span class="label">Programming Experience:</span> ${
+              )}</p>
+              <p><span class="label">Programming Experience:</span> ${escapeHtml(
                 requestData.experience
-              }</p>
-              <p><span class="label">How Found Us:</span> ${
+              )}</p>
+              <p><span class="label">How Found Us:</span> ${escapeHtml(
                 requestData.howFoundUs
-              }</p>
+              )}</p>
             </div>
 
             <div class="request-details">
@@ -960,27 +989,27 @@ class EmailService {
               
               <div style="margin-bottom: 20px;">
                 <span class="label">Why requesting free access:</span>
-                <div class="value">${requestData.reason}</div>
+                <div class="value">${escapeHtml(requestData.reason)}</div>
               </div>
 
               <div style="margin-bottom: 20px;">
                 <span class="label">Learning Goals:</span>
-                <div class="value">${requestData.goals}</div>
+                <div class="value">${escapeHtml(requestData.goals)}</div>
               </div>
 
               <div style="margin-bottom: 20px;">
                 <span class="label">Time Commitment:</span>
-                <div class="value">${requestData.timeCommitment}</div>
+                <div class="value">${escapeHtml(requestData.timeCommitment)}</div>
               </div>
 
               <div style="margin-bottom: 20px;">
                 <span class="label">Previous Platform Experience:</span>
-                <div class="value">${requestData.hasTriedOtherPlatforms}</div>
+                <div class="value">${escapeHtml(requestData.hasTriedOtherPlatforms)}</div>
               </div>
 
               <div style="margin-bottom: 20px;">
                 <span class="label">Financial Situation:</span>
-                <div class="value">${requestData.financialSituation}</div>
+                <div class="value">${escapeHtml(requestData.financialSituation)}</div>
               </div>
             </div>
 
@@ -1003,15 +1032,15 @@ class EmailService {
               <p><span class="label">Timestamp:</span> ${new Date(
                 requestData.securityInfo.timestamp
               ).toLocaleString()}</p>
-              <p><span class="label">User Agent:</span> ${
+              <p><span class="label">User Agent:</span> ${escapeHtml(
                 requestData.securityInfo.userAgent
-              }</p>
-              <p><span class="label">Accept Language:</span> ${
+              )}</p>
+              <p><span class="label">Accept Language:</span> ${escapeHtml(
                 requestData.securityInfo.acceptLanguage
-              }</p>
-              <p><span class="label">Referer:</span> ${
+              )}</p>
+              <p><span class="label">Referer:</span> ${escapeHtml(
                 requestData.securityInfo.referer
-              }</p>
+              )}</p>
               
               <details>
                 <summary style="cursor: pointer; font-weight: bold; margin: 10px 0;">Request Headers (Click to expand)</summary>
@@ -1321,7 +1350,7 @@ document.querySelector('#increment').addEventListener('click', () => {
           </div>
 
           <div class="content">
-            <h2>Hey ${userName}! 👋</h2>
+            <h2>Hey ${escapeHtml(userName)}!</h2>
 
             ${dayContent.content}
 
@@ -1380,7 +1409,7 @@ document.querySelector('#increment').addEventListener('click', () => {
         </head>
         <body>
           <h1>Day ${day} Content</h1>
-          <p>Hello ${userName},</p>
+          <p>Hello ${escapeHtml(userName)},</p>
           <p>Your Day ${day} content will be available soon!</p>
         </body>
       </html>
@@ -1393,13 +1422,18 @@ document.querySelector('#increment').addEventListener('click', () => {
     message: string,
     includeUnsubscribe: boolean
   ): string {
-    const displayName = recipient.name || recipient.username || "there";
+    const displayName = escapeHtml(
+      recipient.name || recipient.username || "there"
+    );
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
 
     // Replace variables in message
     let processedMessage = message;
     processedMessage = processedMessage.replace(/{username}/g, displayName);
-    processedMessage = processedMessage.replace(/{email}/g, recipient.email);
+    processedMessage = processedMessage.replace(
+      /{email}/g,
+      escapeHtml(recipient.email)
+    );
 
     return `
       <!DOCTYPE html>
@@ -1419,7 +1453,7 @@ document.querySelector('#increment').addEventListener('click', () => {
         </head>
         <body>
           <div class="header">
-            <h1>${subject}</h1>
+            <h1>${escapeHtml(subject)}</h1>
             <p>Message from Vibed to Cracked</p>
           </div>
 
@@ -1433,9 +1467,9 @@ document.querySelector('#increment').addEventListener('click', () => {
                 ? `
               <div class="unsubscribe">
                 <p>Don't want to receive emails like this?</p>
-                <p><a href="${baseUrl}/unsubscribe?email=${encodeURIComponent(
+                <p><a href="${baseUrl}/api/email/unsubscribe?email=${encodeURIComponent(
                   recipient.email
-                )}">Unsubscribe from promotional emails</a></p>
+                )}&token=${EmailService.generateUnsubscribeToken(recipient.email)}">Unsubscribe from promotional emails</a></p>
               </div>
             `
                 : ""
@@ -1532,11 +1566,11 @@ document.querySelector('#increment').addEventListener('click', () => {
       ? `
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h3 style="margin-top: 0; color: #333;">Shipping Address</h3>
-          <p style="margin: 5px 0;">${shippingAddress.name || ""}</p>
-          <p style="margin: 5px 0;">${shippingAddress.line1 || ""}</p>
-          ${shippingAddress.line2 ? `<p style="margin: 5px 0;">${shippingAddress.line2}</p>` : ""}
-          <p style="margin: 5px 0;">${shippingAddress.city || ""}, ${shippingAddress.state || ""} ${shippingAddress.postal_code || ""}</p>
-          <p style="margin: 5px 0;">${shippingAddress.country || ""}</p>
+          <p style="margin: 5px 0;">${escapeHtml(shippingAddress.name)}</p>
+          <p style="margin: 5px 0;">${escapeHtml(shippingAddress.line1)}</p>
+          ${shippingAddress.line2 ? `<p style="margin: 5px 0;">${escapeHtml(shippingAddress.line2)}</p>` : ""}
+          <p style="margin: 5px 0;">${escapeHtml(shippingAddress.city)}, ${escapeHtml(shippingAddress.state)} ${escapeHtml(shippingAddress.postal_code)}</p>
+          <p style="margin: 5px 0;">${escapeHtml(shippingAddress.country)}</p>
         </div>
       `
       : "";
@@ -1555,11 +1589,11 @@ document.querySelector('#increment').addEventListener('click', () => {
             <div style="display: flex; align-items: center;">
               ${
                 imageUrl
-                  ? `<img src="${imageUrl}" alt="${item.product.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;" />`
+                  ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.product.name)}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px;" />`
                   : ""
               }
               <div>
-                <strong>${item.product.name}</strong><br/>
+                <strong>${escapeHtml(item.product.name)}</strong><br/>
                 <span style="color: #666; font-size: 14px;">Quantity: ${item.quantity}</span>
               </div>
             </div>
@@ -1598,7 +1632,7 @@ document.querySelector('#increment').addEventListener('click', () => {
             </div>
             
             <div class="content">
-              <h2>Hey ${customerName || "there"}!</h2>
+              <h2>Hey ${escapeHtml(customerName) || "there"}!</h2>
               
               <p>We've received your order and will begin processing it right away. You'll receive a shipping notification once your order is on its way.</p>
               

@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { emailService } from '@/lib/services/emailService';
-import { requireAdmin } from '@/lib/auth-utils';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { emailService } from "@/lib/services/emailService";
+import { requireAdmin } from "@/lib/auth-utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,11 +19,12 @@ export async function POST(req: NextRequest) {
     const inactiveUsers = await prisma.user.findMany({
       where: {
         id: userIds ? { in: userIds } : undefined,
+        emailUnsubscribed: { not: true },
         userSettings: {
           reminderNotifications: true,
         },
-        // Users who haven't had recent progress
-        OR: [
+        // Users who haven't had recent progress in ANY category
+        AND: [
           {
             progress: {
               none: {
@@ -57,13 +58,13 @@ export async function POST(req: NextRequest) {
         userSettings: true,
         progress: {
           orderBy: {
-            updatedAt: 'desc',
+            updatedAt: "desc",
           },
           take: 1,
         },
         tutorialProgress: {
           orderBy: {
-            updatedAt: 'desc',
+            updatedAt: "desc",
           },
           take: 1,
           include: {
@@ -72,7 +73,7 @@ export async function POST(req: NextRequest) {
         },
         challengeProgress: {
           where: {
-            status: 'IN_PROGRESS',
+            status: "IN_PROGRESS",
           },
           take: 1,
           include: {
@@ -83,13 +84,13 @@ export async function POST(req: NextRequest) {
     });
 
     const results = [];
-    
+
     for (const user of inactiveUsers) {
       try {
         // Determine last activity and next suggested content
         const lastProgress = user.progress[0] || user.tutorialProgress[0];
         const lastActive = lastProgress?.updatedAt || user.createdAt;
-        
+
         // Find next lesson or challenge
         let nextLesson = null;
         if (user.tutorialProgress[0]?.tutorial) {
@@ -114,8 +115,11 @@ export async function POST(req: NextRequest) {
           nextLesson: nextLesson || undefined,
         };
 
-        const result = await emailService.sendStudyReminderEmail(user, reminderData);
-        
+        const result = await emailService.sendStudyReminderEmail(
+          user,
+          reminderData
+        );
+
         results.push({
           userId: user.id,
           email: user.email,
@@ -130,7 +134,7 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           email: user.email,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -141,8 +145,11 @@ export async function POST(req: NextRequest) {
       results,
     });
   } catch (error) {
-    console.error('Error sending study reminder emails:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error sending study reminder emails:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -154,7 +161,7 @@ export async function GET(req: NextRequest) {
     if (adminCheck) return adminCheck;
 
     const { searchParams } = new URL(req.url);
-    const daysInactive = parseInt(searchParams.get('days') || '3');
+    const daysInactive = parseInt(searchParams.get("days") || "3");
 
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysInactive);
@@ -210,7 +217,10 @@ export async function GET(req: NextRequest) {
       daysInactive,
     });
   } catch (error) {
-    console.error('Error getting study reminder stats:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error getting study reminder stats:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

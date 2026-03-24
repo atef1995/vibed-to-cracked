@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { emailService } from '@/lib/services/emailService';
-import { requireAdmin } from '@/lib/auth-utils';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { emailService } from "@/lib/services/emailService";
+import { requireAdmin } from "@/lib/auth-utils";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,25 +12,32 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { userIds, promotion } = body;
 
-    if (!promotion || !promotion.title || !promotion.description || !promotion.ctaText || !promotion.ctaUrl) {
-      return NextResponse.json({ error: 'Missing required promotion fields' }, { status: 400 });
+    if (
+      !promotion ||
+      !promotion.title ||
+      !promotion.description ||
+      !promotion.ctaText ||
+      !promotion.ctaUrl
+    ) {
+      return NextResponse.json(
+        { error: "Missing required promotion fields" },
+        { status: 400 }
+      );
     }
 
     // Get users who have email notifications enabled
     const targetUsers = await prisma.user.findMany({
       where: {
         id: userIds ? { in: userIds } : undefined,
+        emailUnsubscribed: { not: true },
         userSettings: {
           emailNotifications: true,
         },
       },
-      include: {
-        userSettings: true,
-      },
     });
 
     const results = [];
-    
+
     for (const user of targetUsers) {
       try {
         const result = await emailService.sendPromotionalEmail(user, promotion);
@@ -46,7 +53,7 @@ export async function POST(req: NextRequest) {
           userId: user.id,
           email: user.email,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -57,8 +64,11 @@ export async function POST(req: NextRequest) {
       results,
     });
   } catch (error) {
-    console.error('Error sending promotional emails:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error sending promotional emails:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -85,7 +95,10 @@ export async function GET() {
       eligibleForPromotions: usersWithEmailEnabled,
     });
   } catch (error) {
-    console.error('Error getting promotional email stats:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error("Error getting promotional email stats:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
   }
 }

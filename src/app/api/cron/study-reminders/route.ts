@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { emailService } from "@/lib/services/emailService";
 
-type ActivityRecord = {
-  updatedAt: Date;
-};
-
 function isInReminderWindow(
   now: Date,
   timezone: string,
@@ -174,6 +170,42 @@ export async function POST(req: NextRequest) {
     let emailsSent = 0;
     let errors = 0;
 
+    // Pre-calculate streaks for all users in batch to avoid N+1 queries
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const userIds = inactiveUsers.map((u) => u.id);
+
+    const [allProgressActivities, allTutorialActivities, allChallengeActivities] =
+      await Promise.all([
+        prisma.progress.findMany({
+          where: { userId: { in: userIds }, updatedAt: { gte: thirtyDaysAgo } },
+          select: { userId: true, updatedAt: true },
+        }),
+        prisma.tutorialProgress.findMany({
+          where: { userId: { in: userIds }, updatedAt: { gte: thirtyDaysAgo } },
+          select: { userId: true, updatedAt: true },
+        }),
+        prisma.challengeAttempt.findMany({
+          where: { userId: { in: userIds }, createdAt: { gte: thirtyDaysAgo } },
+          select: { userId: true, createdAt: true },
+        }),
+      ]);
+
+    // Build a map of userId -> Set of active days
+    const streakMap = new Map<string, Set<string>>();
+    for (const a of allProgressActivities) {
+      if (!streakMap.has(a.userId)) streakMap.set(a.userId, new Set());
+      streakMap.get(a.userId)!.add(a.updatedAt.toISOString().split("T")[0]);
+    }
+    for (const a of allTutorialActivities) {
+      if (!streakMap.has(a.userId)) streakMap.set(a.userId, new Set());
+      streakMap.get(a.userId)!.add(a.updatedAt.toISOString().split("T")[0]);
+    }
+    for (const a of allChallengeActivities) {
+      if (!streakMap.has(a.userId)) streakMap.set(a.userId, new Set());
+      streakMap.get(a.userId)!.add(a.createdAt.toISOString().split("T")[0]);
+    }
+
     for (const user of inactiveUsers) {
       try {
         // Determine last activity and next suggested content
@@ -210,38 +242,8 @@ export async function POST(req: NextRequest) {
           };
         }
 
-        // Calculate streak (count of different days with activity in last 30 days)
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-        const [progressActivities, tutorialActivities, challengeActivities] =
-          await Promise.all([
-            prisma.progress.findMany({
-              where: { userId: user.id, updatedAt: { gte: thirtyDaysAgo } },
-              select: { updatedAt: true },
-            }),
-            prisma.tutorialProgress.findMany({
-              where: { userId: user.id, updatedAt: { gte: thirtyDaysAgo } },
-              select: { updatedAt: true },
-            }),
-            prisma.challengeAttempt.findMany({
-              where: { userId: user.id, createdAt: { gte: thirtyDaysAgo } },
-              select: { createdAt: true },
-            }),
-          ]);
-
-        const uniqueDays = new Set([
-          ...progressActivities.map(
-            (a: ActivityRecord) => a.updatedAt.toISOString().split("T")[0]
-          ),
-          ...tutorialActivities.map(
-            (a: ActivityRecord) => a.updatedAt.toISOString().split("T")[0]
-          ),
-          ...challengeActivities.map(
-            (a: { createdAt: Date }) => a.createdAt.toISOString().split("T")[0]
-          ),
-        ]);
-        const streak = uniqueDays.size;
+        // Use precomputed streak from batch query
+        const streak = streakMap.get(user.id)?.size ?? 0;
 
         const reminderData = {
           lastActive,
@@ -304,14 +306,15 @@ export async function POST(req: NextRequest) {
 
     // Log the cron job execution to database for monitoring
     try {
-      await prisma.codeExecution.create({
+      await prisma.emailLog.create({
         data: {
-          code: "CRON_STUDY_REMINDERS",
-          result: `Sent ${emailsSent} reminders, ${errors} errors`,
-          success: errors === 0,
-          timeSpent: Math.round(executionTime / 1000),
-          mood: "SYSTEM",
-          tutorialId: null,
+          type: "REMINDER",
+          subject: "Automated Study Reminder",
+          recipientCount: inactiveUsers.length,
+          sentCount: emailsSent,
+          failedCount: errors,
+          recipientType: "inactive",
+          sentBy: "system-cron",
         },
       });
     } catch (logError) {
@@ -335,15 +338,15 @@ export async function POST(req: NextRequest) {
 
     // Log the failed cron job
     try {
-      await prisma.codeExecution.create({
+      await prisma.emailLog.create({
         data: {
-          code: "CRON_STUDY_REMINDERS",
-          result: "Cron job failed",
-          error: error instanceof Error ? error.message : "Unknown error",
-          success: false,
-          timeSpent: 0,
-          mood: "SYSTEM",
-          tutorialId: null,
+          type: "REMINDER",
+          subject: "Automated Study Reminder - FAILED",
+          recipientCount: 0,
+          sentCount: 0,
+          failedCount: 0,
+          recipientType: "inactive",
+          sentBy: "system-cron",
         },
       });
     } catch (logError) {
@@ -373,10 +376,11 @@ export async function GET(req: NextRequest) {
 
     const inactiveUsersCount = await prisma.user.count({
       where: {
+        emailUnsubscribed: { not: true },
         userSettings: {
           reminderNotifications: true,
         },
-        OR: [
+        AND: [
           {
             progress: {
               none: {

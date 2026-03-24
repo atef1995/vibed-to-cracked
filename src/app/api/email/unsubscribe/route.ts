@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { EmailService } from "@/lib/services/emailService";
 
 export async function GET(req: NextRequest) {
   try {
@@ -10,23 +11,21 @@ export async function GET(req: NextRequest) {
     const token = searchParams.get("token");
 
     if (!email || !token) {
-      return NextResponse.json(
-        { error: "Missing email or token" },
-        { status: 400 }
+      return NextResponse.redirect(
+        `${process.env.NEXTAUTH_URL}/unsubscribe?error=missing`,
+        { status: 302 }
       );
     }
 
-    // Token verification is not implemented — require session auth instead
-    const session = await getServerSession(authOptions);
-    if (
-      !session?.user?.email ||
-      session.user.email.toLowerCase() !== email.toLowerCase()
-    ) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!EmailService.verifyUnsubscribeToken(email, token)) {
+      return NextResponse.redirect(
+        `${process.env.NEXTAUTH_URL}/unsubscribe?error=invalid`,
+        { status: 302 }
+      );
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { email },
     });
 
     if (!user) {
@@ -68,12 +67,12 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
+      where: { id: session.user.id },
     });
 
     if (!user) {
