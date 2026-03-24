@@ -37,8 +37,8 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing checkout session completed:", session.id);
-        console.log("Session data:", {
+        console.log("🎯 Processing checkout session completed:", session.id);
+        console.log("📊 Session data:", {
           customer: session.customer,
           metadata: session.metadata,
           paymentStatus: session.payment_status,
@@ -54,7 +54,7 @@ export class WebhookService {
       // Handle subscription checkout (existing logic)
       if (!session.customer || !session.metadata?.userId) {
         if (debugMode) {
-          console.error("Missing customer or userId in session metadata:", {
+          console.error("❌ Missing customer or userId in session metadata:", {
             hasCustomer: !!session.customer,
             metadata: session.metadata,
           });
@@ -65,7 +65,7 @@ export class WebhookService {
       const userId = session.metadata.userId;
       const plan = session.metadata.plan as Plan;
       if (debugMode) {
-        console.log(`Processing payment for user ${userId}, plan ${plan}`);
+        console.log(`💳 Processing payment for user ${userId}, plan ${plan}`);
       }
       // Update payment record
       const payment = await prisma.payment.findFirst({
@@ -74,14 +74,14 @@ export class WebhookService {
 
       if (payment) {
         if (debugMode) {
-          console.log("Updating payment record:", payment.id);
+          console.log("📝 Updating payment record:", payment.id);
         }
         await prisma.payment.update({
           where: { id: payment.id },
           data: { status: "COMPLETED" },
         });
       } else {
-        console.warn("No payment record found for session:", session.id);
+        console.warn("⚠️  No payment record found for session:", session.id);
       }
 
       // If there's a subscription, it will be handled by subscription.created event
@@ -89,7 +89,7 @@ export class WebhookService {
       if (session.subscription) {
         if (debugMode) {
           console.log(
-            "Session has subscription, will be handled by subscription events"
+            "🔄 Session has subscription, will be handled by subscription events"
           );
         }
       }
@@ -102,7 +102,7 @@ export class WebhookService {
 
         if (user) {
           if (debugMode) {
-            console.log("Sending payment confirmation email to user");
+            console.log("📧 Sending payment confirmation email to user");
           }
           await emailService.sendPaymentConfirmationEmail(user, {
             plan: plan,
@@ -118,15 +118,15 @@ export class WebhookService {
         }
       } catch (emailError) {
         console.error(
-          "Failed to send payment confirmation email:",
+          "⚠️ Failed to send payment confirmation email:",
           emailError
         );
         // Don't throw - email failure shouldn't break webhook processing
       }
 
-      Checkout completed for user ${userId}, plan ${plan}`);
+      console.log(` Checkout completed for user ${userId}, plan ${plan}`);
     } catch (error) {
-      console.error("Error handling checkout session completed:", error);
+      console.error("❌ Error handling checkout session completed:", error);
       throw error;
     }
   }
@@ -139,7 +139,7 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing store order checkout:", session.id);
+        console.log("🛒 Processing store order checkout:", session.id);
       }
 
       const orderId = session.metadata?.orderId;
@@ -147,13 +147,13 @@ export class WebhookService {
       const guestEmail = session.metadata?.guestEmail;
 
       if (!orderId) {
-        console.error("Missing orderId in session metadata");
+        console.error("❌ Missing orderId in session metadata");
         return;
       }
 
       if (!userId && !guestEmail) {
         console.error(
-          "Missing both userId and guestEmail in session metadata"
+          "❌ Missing both userId and guestEmail in session metadata"
         );
         return;
       }
@@ -167,7 +167,7 @@ export class WebhookService {
       const order = await getOrderById(orderId);
 
       if (!order) {
-        console.error(`Order ${orderId} not found`);
+        console.error(`❌ Order ${orderId} not found`);
         return;
       }
 
@@ -205,7 +205,7 @@ export class WebhookService {
 
       if (!fulfillResult.success) {
         console.error(
-          `Failed to fulfill order ${orderId}:`,
+          `⚠️ Failed to fulfill order ${orderId}:`,
           fulfillResult.error
         );
       }
@@ -234,7 +234,7 @@ export class WebhookService {
             total: order.total,
           });
           if (debugMode) {
-            console.log(`Awarded first purchase bonus to user ${userId}`);
+            console.log(`🎉 Awarded first purchase bonus to user ${userId}`);
           }
         } else {
           // Regular purchase
@@ -246,7 +246,7 @@ export class WebhookService {
       } else {
         if (debugMode) {
           console.log(
-            `Guest order completed (no XP awarded): ${guestEmail}`
+            `📦 Guest order completed (no XP awarded): ${guestEmail}`
           );
         }
       }
@@ -280,7 +280,7 @@ export class WebhookService {
             customerName || undefined
           );
           if (debugMode) {
-            console.log(`Order confirmation email sent to ${email}`);
+            console.log(`📧 Order confirmation email sent to ${email}`);
           }
         } catch (emailError) {
           console.error("Failed to send order confirmation email:", emailError);
@@ -289,10 +289,10 @@ export class WebhookService {
       }
 
       if (debugMode) {
-        console.log(`Store order ${orderId} processed successfully`);
+        console.log(`✅ Store order ${orderId} processed successfully`);
       }
     } catch (error) {
-      console.error("Error handling store order checkout:", error);
+      console.error("❌ Error handling store order checkout:", error);
       throw error;
     }
   }
@@ -305,8 +305,8 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing subscription created:", subscription.id);
-        console.log("Subscription data:", {
+        console.log("🎯 Processing subscription created:", subscription.id);
+        console.log("📊 Subscription data:", {
           customerId: subscription.customer,
           status: subscription.status,
           metadata: subscription.metadata,
@@ -317,11 +317,11 @@ export class WebhookService {
       const customer = await stripe.customers.retrieve(customerId);
 
       if (customer.deleted) {
-        console.error("Customer is deleted");
+        console.error("❌ Customer is deleted");
         return;
       }
       if (debugMode) {
-        console.log("Customer data:", {
+        console.log("👤 Customer data:", {
           id: customer.id,
           metadata: customer.metadata,
         });
@@ -330,7 +330,7 @@ export class WebhookService {
       if (!userId) {
         if (debugMode) {
           console.error(
-            "No userId found in customer metadata:",
+            "❌ No userId found in customer metadata:",
             customer.metadata
           );
         }
@@ -369,7 +369,7 @@ export class WebhookService {
         subscriptionItem.current_period_start * 1000
       );
       if (debugMode) {
-        console.log("Subscription dates:", {
+        console.log("📅 Subscription dates:", {
           billing_cycle_anchor: billingCycleAnchor,
           item_current_period_end: subscriptionItem.current_period_end,
           item_current_period_start: subscriptionItem.current_period_start,
@@ -385,14 +385,14 @@ export class WebhookService {
         isNaN(subscriptionStartsAt.getTime())
       ) {
         console.error(
-          "Invalid subscription dates, cannot update subscription"
+          "❌ Invalid subscription dates, cannot update subscription"
         );
         return;
       }
 
       if (debugMode) {
         console.log(
-          `Updating user subscription: userId=${userId}, plan=${plan}, endsAt=${subscriptionEndsAt.toISOString()}`
+          `🔄 Updating user subscription: userId=${userId}, plan=${plan}, endsAt=${subscriptionEndsAt.toISOString()}`
         );
       }
       // Determine if this is a trial subscription
@@ -401,7 +401,7 @@ export class WebhookService {
         ? SubscriptionStatus.TRIAL
         : SubscriptionStatus.ACTIVE;
       if (debugMode) {
-        console.log(`Subscription details:`, {
+        console.log(`📊 Subscription details:`, {
           stripeStatus: subscription.status,
           isTrialing: isTrialSubscription,
           trialEnd: subscription.trial_end,
@@ -438,7 +438,7 @@ export class WebhookService {
 
         if (user) {
           if (debugMode) {
-            console.log("Sending subscription confirmation email to user");
+            console.log("📧 Sending subscription confirmation email to user");
           }
           // Get subscription price from Stripe
           const priceId = subscription.items.data[0]?.price.id;
@@ -451,7 +451,7 @@ export class WebhookService {
             } catch (priceError) {
               if (debugMode) {
                 console.warn(
-                  "Could not retrieve price information:",
+                  "⚠️ Could not retrieve price information:",
                   priceError
                 );
               }
@@ -474,17 +474,17 @@ export class WebhookService {
       } catch (emailError) {
         if (debugMode) {
           console.error(
-            "Failed to send subscription confirmation email:",
+            "⚠️ Failed to send subscription confirmation email:",
             emailError
           );
         }
         // Don't throw - email failure shouldn't break webhook processing
       }
       if (debugMode) {
-        Subscription created for user ${userId}, plan ${plan}`);
+        console.log(` Subscription created for user ${userId}, plan ${plan}`);
       }
     } catch (error) {
-      console.error("Error handling subscription created:", error);
+      console.error("❌ Error handling subscription created:", error);
       throw error;
     }
   }
@@ -497,19 +497,19 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing subscription updated:", subscription.id);
+        console.log("🎯 Processing subscription updated:", subscription.id);
       }
       const customerId = subscription.customer as string;
       const customer = await stripe.customers.retrieve(customerId);
 
       if (customer.deleted) {
-        console.error("Customer is deleted");
+        console.error("❌ Customer is deleted");
         return;
       }
 
       const userId = customer.metadata?.userId;
       if (!userId) {
-        console.error("No userId found in customer metadata");
+        console.error("❌ No userId found in customer metadata");
         return;
       }
 
@@ -531,7 +531,7 @@ export class WebhookService {
       }
 
       if (debugMode) {
-        console.log(`Status update:`, {
+        console.log(`📊 Status update:`, {
           stripeStatus: subscription.status,
           ourStatus: status,
           isTrialTransition:
@@ -572,7 +572,7 @@ export class WebhookService {
         isNaN(subscriptionEndsAt.getTime()) ||
         isNaN(subscriptionStartsAt.getTime())
       ) {
-        console.error("Invalid subscription dates in update, skipping");
+        console.error("❌ Invalid subscription dates in update, skipping");
         return;
       }
 
@@ -609,7 +609,7 @@ export class WebhookService {
         );
       }
     } catch (error) {
-      console.error("Error handling subscription updated:", error);
+      console.error("❌ Error handling subscription updated:", error);
       throw error;
     }
   }
@@ -622,19 +622,19 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing subscription deleted:", subscription.id);
+        console.log("🎯 Processing subscription deleted:", subscription.id);
       }
       const customerId = subscription.customer as string;
       const customer = await stripe.customers.retrieve(customerId);
 
       if (customer.deleted) {
-        console.error("Customer is deleted");
+        console.error("❌ Customer is deleted");
         return;
       }
 
       const userId = customer.metadata?.userId;
       if (!userId) {
-        console.error("No userId found in customer metadata");
+        console.error("❌ No userId found in customer metadata");
         return;
       }
 
@@ -644,7 +644,7 @@ export class WebhookService {
         : new Date();
 
       if (debugMode) {
-        console.log("Cancellation date:", {
+        console.log("📅 Cancellation date:", {
           canceled_at: subscription.canceled_at,
           canceledAtDate: canceledAt.toISOString(),
         });
@@ -667,10 +667,10 @@ export class WebhookService {
       });
 
       if (debugMode) {
-        Subscription deleted for user ${userId}`);
+        console.log(` Subscription deleted for user ${userId}`);
       }
     } catch (error) {
-      console.error("Error handling subscription deleted:", error);
+      console.error("❌ Error handling subscription deleted:", error);
       throw error;
     }
   }
@@ -683,14 +683,14 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing invoice payment succeeded:", invoice.id);
+        console.log("🎯 Processing invoice payment succeeded:", invoice.id);
       }
       // Check for subscription ID in the correct location
       const invoiceParent = invoice.parent as InvoiceParentWithSubscription;
       const subscriptionId = invoiceParent?.subscription_details?.subscription;
 
       if (debugMode) {
-        console.log("Invoice parent data:", {
+        console.log("📊 Invoice parent data:", {
           parentType: invoiceParent?.type,
           hasSubscriptionDetails: !!invoiceParent?.subscription_details,
           subscriptionId: subscriptionId,
@@ -698,7 +698,7 @@ export class WebhookService {
       }
       if (!subscriptionId) {
         if (debugMode) {
-          console.log("⏭Skipping non-subscription invoice");
+          console.log("⏭️ Skipping non-subscription invoice");
         }
         return; // Skip non-subscription invoices
       }
@@ -708,13 +708,13 @@ export class WebhookService {
       const customer = await stripe.customers.retrieve(customerId);
 
       if (customer.deleted) {
-        console.error("Customer is deleted");
+        console.error("❌ Customer is deleted");
         return;
       }
 
       const userId = customer.metadata?.userId;
       if (!userId) {
-        console.error("No userId found in customer metadata");
+        console.error("❌ No userId found in customer metadata");
         return;
       }
 
@@ -735,7 +735,7 @@ export class WebhookService {
         );
       }
     } catch (error) {
-      console.error("Error handling invoice payment succeeded:", error);
+      console.error("❌ Error handling invoice payment succeeded:", error);
       throw error;
     }
   }
@@ -748,14 +748,14 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing invoice payment failed:", invoice.id);
+        console.log("🎯 Processing invoice payment failed:", invoice.id);
       }
       // Check for subscription ID in the correct location
       const invoiceParent = invoice.parent as InvoiceParentWithSubscription;
       const subscriptionId = invoiceParent?.subscription_details?.subscription;
 
       if (debugMode) {
-        console.log("Invoice parent data (failed):", {
+        console.log("📊 Invoice parent data (failed):", {
           parentType: invoiceParent?.type,
           hasSubscriptionDetails: !!invoiceParent?.subscription_details,
           subscriptionId: subscriptionId,
@@ -763,7 +763,7 @@ export class WebhookService {
       }
       if (!subscriptionId) {
         if (debugMode) {
-          console.log("⏭Skipping non-subscription invoice");
+          console.log("⏭️ Skipping non-subscription invoice");
         }
         return; // Skip non-subscription invoices
       }
@@ -773,13 +773,13 @@ export class WebhookService {
       const customer = await stripe.customers.retrieve(customerId);
 
       if (customer.deleted) {
-        console.error("Customer is deleted");
+        console.error("❌ Customer is deleted");
         return;
       }
 
       const userId = customer.metadata?.userId;
       if (!userId) {
-        console.error("No userId found in customer metadata");
+        console.error("❌ No userId found in customer metadata");
         return;
       }
 
@@ -803,7 +803,7 @@ export class WebhookService {
         );
       }
     } catch (error) {
-      console.error("Error handling invoice payment failed:", error);
+      console.error("❌ Error handling invoice payment failed:", error);
       throw error;
     }
   }
@@ -816,19 +816,19 @@ export class WebhookService {
   ): Promise<void> {
     try {
       if (debugMode) {
-        console.log("Processing trial will end:", subscription.id);
+        console.log("🎯 Processing trial will end:", subscription.id);
       }
       const customerId = subscription.customer as string;
       const customer = await stripe.customers.retrieve(customerId);
 
       if (customer.deleted) {
-        console.error("Customer is deleted");
+        console.error("❌ Customer is deleted");
         return;
       }
 
       const userId = customer.metadata?.userId;
       if (!userId) {
-        console.error("No userId found in customer metadata");
+        console.error("❌ No userId found in customer metadata");
         return;
       }
 
@@ -838,7 +838,7 @@ export class WebhookService {
         : null;
 
       if (debugMode) {
-        console.log("Trial ending soon:", {
+        console.log("📅 Trial ending soon:", {
           userId,
           trialEnd: trialEnd?.toISOString(),
           subscriptionId: subscription.id,
@@ -854,7 +854,7 @@ export class WebhookService {
         );
       }
     } catch (error) {
-      console.error("Error handling trial will end:", error);
+      console.error("❌ Error handling trial will end:", error);
       throw error;
     }
   }
