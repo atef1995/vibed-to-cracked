@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { signIn, useSession, getProviders } from "next-auth/react";
 import Link from "next/link";
 import type { ClientSafeProvider } from "next-auth/react";
-import { CheckCircle, Circle, Github } from "lucide-react";
+import { CheckCircle, Github } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { BUTTON_COLOR } from "@/types/button";
 import LinkButton from "@/components/ui/LinkButton";
@@ -189,7 +189,12 @@ function SignInContent() {
         )}
 
         <div className="space-y-4 flex flex-col items-center w-full">
-          {!providers && <Circle className="animate-pulse"></Circle>}
+          {!providers && (
+            <>
+              <div className="w-full h-12 bg-gray-100 rounded-lg animate-pulse" />
+              <div className="w-full h-12 bg-gray-100 rounded-lg animate-pulse" />
+            </>
+          )}
           {providers &&
             Object.values(providers).map((provider, index) => (
               <Button
