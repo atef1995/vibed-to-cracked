@@ -8,73 +8,62 @@ export async function DELETE() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { success: false, error: "Not authenticated" },
         { status: 401 }
       );
     }
 
-    // Get user ID first
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-      select: { id: true },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
+    const userId = session.user.id;
 
     // Delete all user-related data in the correct order (due to foreign key constraints)
     await prisma.$transaction(async (tx: unknown) => {
       const txClient = tx as typeof prisma;
       // Delete progress records first
       await txClient.tutorialProgress.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       await txClient.challengeProgress.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       await txClient.progress.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       // Delete attempts
       await txClient.challengeAttempt.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       await txClient.quizAttempt.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       // Delete payments and subscriptions
       await txClient.payment.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       await txClient.subscription.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       // Delete user sessions
       await txClient.session.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       // Delete accounts
       await txClient.account.deleteMany({
-        where: { userId: user.id },
+        where: { userId },
       });
 
       // Finally delete the user
       await txClient.user.delete({
-        where: { id: user.id },
+        where: { id: userId },
       });
     });
 

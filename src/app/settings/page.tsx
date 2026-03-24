@@ -167,29 +167,32 @@ export default function SettingsPage() {
         const response = await fetch("/api/user/settings");
         if (response.ok) {
           const data = await response.json();
-          const loadedSettings = {
-            name: session.user?.name || "",
-            email: session.user?.email || "",
-            preferredMood: currentMood.id,
+          const apiSettings = data.settings;
+          const loadedSettings: UserSettings = {
+            name: apiSettings.name || session.user?.name || "",
+            email: apiSettings.email || session.user?.email || "",
+            preferredMood: apiSettings.preferredMood || currentMood.id,
             notifications: {
-              email: true,
-              reminders: true,
-              achievements: true,
-              weeklyProgress: false,
+              email: apiSettings.notifications?.email ?? true,
+              reminders: apiSettings.notifications?.reminders ?? true,
+              achievements: apiSettings.notifications?.achievements ?? true,
+              weeklyProgress:
+                apiSettings.notifications?.weeklyProgress ?? false,
             },
             privacy: {
-              showProfile: true,
-              shareProgress: true,
-              allowAnalytics: true,
+              showProfile: apiSettings.privacy?.showProfile ?? true,
+              shareProgress: apiSettings.privacy?.shareProgress ?? true,
+              allowAnalytics: apiSettings.privacy?.allowAnalytics ?? true,
             },
             learning: {
-              dailyGoal: 30,
-              reminderTime: "18:00",
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-              difficulty: "medium" as const,
-              autoSubmit: false,
+              dailyGoal: apiSettings.learning?.dailyGoal ?? 30,
+              reminderTime: apiSettings.learning?.reminderTime ?? "18:00",
+              timezone:
+                apiSettings.learning?.timezone ||
+                Intl.DateTimeFormat().resolvedOptions().timeZone,
+              difficulty: apiSettings.learning?.difficulty ?? "medium",
+              autoSubmit: apiSettings.learning?.autoSubmit ?? false,
             },
-            ...data.settings,
           };
           setSettings(loadedSettings);
           setOriginalSettings(loadedSettings);
@@ -330,6 +333,7 @@ export default function SettingsPage() {
       }
     } catch (error) {
       console.error("Error deleting account:", error);
+      setShowDeleteConfirm(false);
       showError(
         "Deletion failed",
         "Unable to delete your account at this time"
@@ -354,6 +358,11 @@ export default function SettingsPage() {
     }
 
     return `Next reminder: ${reminderDate.toLocaleDateString()} at ${reminderTime} (${timezone})`;
+  };
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    setShowDeleteConfirm(false);
   };
 
   const tabs = [
@@ -442,7 +451,7 @@ export default function SettingsPage() {
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => handleTabChange(tab.id)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors ${
                         activeTab === tab.id
                           ? "bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-200"
@@ -551,7 +560,7 @@ export default function SettingsPage() {
                               <div className="absolute top-1/12 ">
                                 {(() => {
                                   const MoodIcon = getMoodIcon(mood.icon);
-                                  return <MoodIcon className="w-5 h-5"/>;
+                                  return <MoodIcon className="w-5 h-5" />;
                                 })()}
                               </div>
                               <div className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
@@ -582,9 +591,9 @@ export default function SettingsPage() {
                                     mood.quizSettings.difficulty === "easy"
                                       ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
                                       : mood.quizSettings.difficulty ===
-                                        "medium"
-                                      ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                      : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                                          "medium"
+                                        ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
                                   }`}
                                 >
                                   {mood.quizSettings.difficulty
@@ -632,7 +641,9 @@ export default function SettingsPage() {
 
                       {/* Current Mood Impact Summary */}
                       {settings.preferredMood && (
-                        <div className={`mt-6 p-4 bg-linear-to-r rounded-lg ${getMoodColors(MOODS[settings.preferredMood].id).gradient} ${getMoodColors(MOODS[settings.preferredMood].id)}`}>
+                        <div
+                          className={`mt-6 p-4 bg-linear-to-r rounded-lg ${getMoodColors(MOODS[settings.preferredMood].id).gradient} ${getMoodColors(MOODS[settings.preferredMood].id)}`}
+                        >
                           <h4 className="font-medium text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-2">
                             <span className="text-xl">
                               <Icon className="w-5 h-5" />

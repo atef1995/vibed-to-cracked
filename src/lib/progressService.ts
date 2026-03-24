@@ -3,8 +3,15 @@ import { ChallengeMoodAdaptation } from "../generated/client";
 import { AchievementService } from "./achievementService";
 import { CertificateService } from "./certificateService";
 import { StudyPlanService } from "./services/studyPlanService";
+import { awardXP, awardPerfectScoreBonusXP } from "./services/xpService";
 import { MoodId } from "@/types/mood";
 import { AchievementAction, AchievementMetadata } from "@/types/common";
+
+// XP amounts for learning activities
+const XP_QUIZ_COMPLETED = 50;
+const XP_TUTORIAL_COMPLETED = 25;
+const XP_CHALLENGE_COMPLETED = 75;
+const XP_EXERCISE_COMPLETED = 50;
 
 // Define the completion status enum locally until Prisma client is regenerated
 export enum CompletionStatus {
@@ -181,7 +188,7 @@ export class ProgressService {
       const quiz = await prisma.quiz.findUnique({
         where: { id: submission.quizId },
       });
-      
+
       if (quiz?.slug) {
         await StudyPlanService.updateStudyPlanProgressOnCompletion(
           userId,
@@ -245,6 +252,25 @@ export class ProgressService {
         submission.timeSpent,
         submission.ChallengeMoodAdaptation.mood
       );
+
+      // Award XP for quiz completion (idempotent — once per quiz per user)
+      const existingQuizXP = await prisma.xpTransaction.findFirst({
+        where: {
+          userId,
+          reason: "QUIZ_COMPLETED",
+          metadata: { path: ["quizId"], equals: submission.quizId },
+        },
+      });
+      if (!existingQuizXP) {
+        await awardXP(userId, XP_QUIZ_COMPLETED, "QUIZ_COMPLETED", {
+          quizId: submission.quizId,
+          tutorialId: submission.tutorialId,
+          score,
+        });
+        if (score === 100) {
+          await awardPerfectScoreBonusXP(userId, submission.quizId);
+        }
+      }
     }
 
     return {
@@ -341,7 +367,7 @@ export class ProgressService {
         where: { id: submission.challengeId },
         select: { slug: true },
       });
-      
+
       if (challenge?.slug) {
         await StudyPlanService.updateStudyPlanProgressOnCompletion(
           userId,
@@ -357,6 +383,20 @@ export class ProgressService {
         submission.timeSpent,
         submission.ChallengeMoodAdaptation.mood
       );
+
+      // Award XP for challenge completion (idempotent — once per challenge per user)
+      const existingChallengeXP = await prisma.xpTransaction.findFirst({
+        where: {
+          userId,
+          reason: "CHALLENGE_COMPLETED",
+          metadata: { path: ["challengeId"], equals: submission.challengeId },
+        },
+      });
+      if (!existingChallengeXP) {
+        await awardXP(userId, XP_CHALLENGE_COMPLETED, "CHALLENGE_COMPLETED", {
+          challengeId: submission.challengeId,
+        });
+      }
     }
 
     return {
@@ -490,6 +530,20 @@ export class ProgressService {
         submission.mood,
         submission.hintsUsed
       );
+
+      // Award XP for exercise completion (idempotent — once per exercise per user)
+      const existingExerciseXP = await prisma.xpTransaction.findFirst({
+        where: {
+          userId,
+          reason: "EXERCISE_COMPLETED",
+          metadata: { path: ["exerciseId"], equals: submission.exerciseId },
+        },
+      });
+      if (!existingExerciseXP) {
+        await awardXP(userId, XP_EXERCISE_COMPLETED, "EXERCISE_COMPLETED", {
+          exerciseId: submission.exerciseId,
+        });
+      }
     }
 
     return {
@@ -751,6 +805,20 @@ export class ProgressService {
       progressResult.tutorial.slug
     );
 
+    // Award XP for tutorial completion (idempotent — once per tutorial per user)
+    const existingTutorialXP = await prisma.xpTransaction.findFirst({
+      where: {
+        userId,
+        reason: "TUTORIAL_COMPLETED",
+        metadata: { path: ["tutorialId"], equals: tutorialId },
+      },
+    });
+    if (!existingTutorialXP) {
+      await awardXP(userId, XP_TUTORIAL_COMPLETED, "TUTORIAL_COMPLETED", {
+        tutorialId,
+      });
+    }
+
     return progressResult;
   }
 
@@ -864,7 +932,7 @@ export class ProgressService {
         where: { id: submission.projectId },
         select: { slug: true },
       });
-      
+
       if (project?.slug) {
         await StudyPlanService.updateStudyPlanProgressOnCompletion(
           userId,
