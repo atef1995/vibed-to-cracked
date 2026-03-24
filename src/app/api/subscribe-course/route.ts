@@ -1,89 +1,99 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { CourseService } from "@/lib/courseService";
 import { emailService } from "@/lib/services/emailService";
+import validator from "validator";
+import mailchecker from "mailchecker";
+
+const MAX_SUBSCRIPTIONS_PER_IP = 5;
+
+function getClientIp(req: NextRequest): string {
+  const forwarded = req.headers.get("x-forwarded-for");
+  if (forwarded) return forwarded.split(",")[0].trim();
+  return req.headers.get("x-real-ip")?.trim() || "unknown";
+}
 
 export async function POST(req: NextRequest) {
+  let body: { email?: string; name?: string };
   try {
-    const { email, name } = await req.json();
+    body = await req.json();
+  } catch {
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
-    if (!email || !email.includes("@")) {
+  const { email, name } = body;
+
+  if (!email || typeof email !== "string" || !validator.isEmail(email)) {
+    return NextResponse.json(
+      { error: "Valid email is required" },
+      { status: 400 }
+    );
+  }
+
+  if (!mailchecker.isValid(email)) {
+    return NextResponse.json(
+      { error: "Please use a real email address, not a disposable one." },
+      { status: 400 }
+    );
+  }
+
+  const sanitizedEmail = validator.normalizeEmail(email) || email;
+  const sanitizedName = name
+    ? validator.escape(validator.trim(name)).slice(0, 100)
+    : null;
+
+  try {
+    const ip = getClientIp(req);
+
+    // Rate limit: max subscriptions per IP in 24h
+    const recentCount = await CourseService.countRecentByIp(ip);
+    if (recentCount >= MAX_SUBSCRIPTIONS_PER_IP) {
       return NextResponse.json(
-        { error: "Valid email is required" },
-        { status: 400 }
+        { error: "Too many requests. Please try again later." },
+        { status: 429 }
       );
     }
 
-    // Get IP address for abuse prevention
-    const forwarded = req.headers.get("x-forwarded-for");
-    const ip = forwarded
-      ? forwarded.split(",")[0]
-      : req.headers.get("x-real-ip") || "unknown";
-
-    console.log(`📧 New course subscriber: ${email}`);
-
-    // Check if already subscribed
-    const existing = await prisma.courseSubscriber.findUnique({
-      where: { email },
-    });
+    const existing = await CourseService.findByEmail(sanitizedEmail);
 
     if (existing) {
       if (existing.status === "UNSUBSCRIBED") {
-        // Re-subscribe them
-        await prisma.courseSubscriber.update({
-          where: { email },
-          data: {
-            status: "ACTIVE",
-            unsubscribedAt: null,
-            emailsSent: [1], // Reset to Day 1
-            updatedAt: new Date(),
-          },
-        });
+        await CourseService.resubscribe(sanitizedEmail);
       } else {
-        // Already subscribed and active
-        return NextResponse.json(
-          {
-            success: true,
-            message:
-              "You're already subscribed! Check your email for the course content.",
-            alreadySubscribed: true,
-          },
-          { status: 200 }
-        );
+        return NextResponse.json({ alreadySubscribed: true }, { status: 200 });
       }
     } else {
-      // Create new subscriber
-      await prisma.courseSubscriber.create({
-        data: {
-          email,
-          name: name || null,
-          emailsSent: [1], // Mark Day 1 as sent
-          status: "ACTIVE",
-          ipAddress: ip,
-          source: req.headers.get("referer") || "direct",
-        },
+      const rawReferer = req.headers.get("referer");
+      const source = rawReferer
+        ? validator.escape(rawReferer.slice(0, 200))
+        : "direct";
+
+      await CourseService.create({
+        email: sanitizedEmail,
+        name: sanitizedName,
+        ipAddress: ip,
+        source,
       });
     }
 
-    // Send Day 1 email immediately
+    // Send Day 1 email — failures are non-blocking (cron retries)
     try {
-      const result = await emailService.sendFreeCourseEmail(email, 1, name);
-
+      const result = await emailService.sendFreeCourseEmail(
+        sanitizedEmail,
+        1,
+        sanitizedName || undefined
+      );
       if (!result.success) {
         console.error("Failed to send Day 1 email:", result.error);
-        // Continue anyway - cron job will retry
-      } else {
-        console.log(` Day 1 email sent to ${email}`);
       }
     } catch (emailError) {
       console.error("Error sending course email:", emailError);
-      // Continue - subscriber is saved, cron job will handle retries
     }
 
     return NextResponse.json(
-      {
-        success: true,
-        message: "Successfully subscribed! Check your email for Day 1.",
-      },
+      { message: "Subscribed. Check your email for Day 1." },
       { status: 200 }
     );
   } catch (error) {
