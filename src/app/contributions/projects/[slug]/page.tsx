@@ -7,7 +7,7 @@ import { ProjectHeader } from "@/components/contributions/ProjectHeader";
 import { FeatureList } from "@/components/contributions/FeatureList";
 import { SubmissionForm } from "@/components/contributions/SubmissionForm";
 import { ProjectDetailSkeleton } from "@/components/contributions/LoadingSkeleton";
-import { ArrowLeft, AlertCircle, RefreshCcw } from "lucide-react";
+import { ArrowLeft, AlertCircle, RefreshCcw, BookOpen } from "lucide-react";
 import Link from "next/link";
 import { ProjectApiResponse, SubmissionApiResponse } from "@/lib/types/api";
 
@@ -130,7 +130,29 @@ export default function ProjectDetailPage({
     <div className="min-h-screen bg-linear-to-br from-cyan-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
         <ProjectHeader project={project} />
-
+        {slug === "portfolio-site-template" && (
+          <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-5">
+            <div className="flex items-start gap-3">
+              <BookOpen className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                  New here? Start with the setup tutorial
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+                  Learn how to fork the repo, install dependencies, and get the
+                  project running locally before picking a feature.
+                </p>
+                <Link
+                  href="/tutorials/category/contribution-projects/portfolio-project-setup"
+                  className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Setting Up The Portfolio Project
+                  <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="space-y-8">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
