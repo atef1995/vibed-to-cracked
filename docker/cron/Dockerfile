@@ -18,10 +18,9 @@ RUN apk add --no-cache \
 
 WORKDIR /app
 
-# Install only the runtime dependency needed by the scripts
-COPY package.json ./
-RUN npm install --omit=dev --ignore-scripts 2>/dev/null || true \
-    && npm install dotenv --ignore-scripts 2>/dev/null || true
+# Cron scripts only use Node built-ins + dotenv. Install just that.
+RUN printf '{"type":"module"}\n' > package.json \
+    && npm install dotenv@17 --ignore-scripts
 
 COPY scripts/cron-study-reminders.js    ./scripts/
 COPY scripts/cron-send-course-emails.js ./scripts/
