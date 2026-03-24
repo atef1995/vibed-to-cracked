@@ -1037,19 +1037,19 @@ export default function HomePage() {
                 description:
                   "Pick your vibe and the entire experience adapts -- content tone, tutor personality, and UI feel.",
                 // Replace placeholder with: src="/showcase/mood-system.gif" or a video
-                mediaSrc: null as string | null,
+                mediaSrc: "/moods.mp4" as string | null,
               },
               {
                 title: "Interactive Code Editor",
                 description:
                   "Write and run JavaScript right in the browser. No setup, no installs, instant feedback.",
-                mediaSrc: null as string | null,
+                mediaSrc: "/task-interactive.mp4" as string | null,
               },
               {
                 title: "AI Tutor Conversations",
                 description:
                   "Highlight code, ask questions, get contextual answers on any tutorial or challenge.",
-                mediaSrc: null as string | null,
+                mediaSrc: "/ai-tutor.mp4" as string | null,
               },
             ].map((item, i) => (
               <motion.div
@@ -1065,9 +1065,12 @@ export default function HomePage() {
                 <div className="relative aspect-video bg-gray-100 dark:bg-gray-900">
                   {item.mediaSrc ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <video
                       src={item.mediaSrc}
-                      alt={item.title}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
                       className="w-full h-full object-cover"
                     />
                   ) : (
