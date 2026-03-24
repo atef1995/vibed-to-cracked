@@ -205,7 +205,10 @@ export async function POST(request: NextRequest) {
 
     if (!session.user.email) {
       return NextResponse.json(
-        { success: false, error: { message: "Email is required for checkout" } },
+        {
+          success: false,
+          error: { message: "Email is required for checkout" },
+        },
         { status: 400 }
       );
     }
