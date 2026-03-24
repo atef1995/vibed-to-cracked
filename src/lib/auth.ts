@@ -42,7 +42,8 @@ export const authOptions: NextAuthOptions = {
 
           // Fetch full subscription info once and cache in session
           // This eliminates the need for repeated subscription API calls
-          const subscriptionInfo = await SubscriptionService.getUserSubscription(user.id);
+          const subscriptionInfo =
+            await SubscriptionService.getUserSubscription(user.id);
 
           // Add mood, subscription, role, xp, and level to session
           const dbUser = await prisma.user.findUnique({
@@ -170,6 +171,10 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
+  // Behind Caddy reverse proxy: TLS terminates at Caddy, app sees HTTP.
+  // Force secure cookies when NEXTAUTH_URL is https so the state/CSRF
+  // cookie names stay consistent between the set and the callback.
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith("https://") ?? false,
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error",
