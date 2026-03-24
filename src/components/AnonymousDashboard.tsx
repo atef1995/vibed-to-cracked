@@ -19,232 +19,228 @@ import { PageLayout } from "./ui/PageLayout";
 export function AnonymousDashboard() {
   return (
     <PageLayout>
-      {/* Main Content */}
-      <div className="container">
-        {/* Hero Section */}
-        <div className="mb-8 text-center">
-          <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
-            <Sparkles className="h-4 w-4" />
-            Welcome to Vibed to Cracked
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4 capitalize">
-            Master full-stack web development Your Way
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
-            Choose your mood, pick your pace, and start your journey as a
-            full-stack web developer with interactive tutorials designed for
-            your vibe.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <SignupCTA variant="primary" message="Start Learning Free" />
-            <Link
-              href="/tutorials"
-              className="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              Browse Tutorials →
-            </Link>
-          </div>
+      {/* Hero Section */}
+      <div className="mb-8 text-center">
+        <div className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold mb-4 shadow-lg">
+          <Sparkles className="h-4 w-4" />
+          Welcome to Vibed to Cracked
         </div>
-
-        {/* Mood Selector */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-            How are you feeling today?
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
-            Your mood shapes your learning experience - choose what fits your
-            vibe
-          </p>
-          <MoodSelector showDescription={true} />
+        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4 capitalize">
+          Master full-stack web development Your Way
+        </h1>
+        <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6">
+          Choose your mood, pick your pace, and start your journey as a
+          full-stack web developer with interactive tutorials designed for your
+          vibe.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <SignupCTA variant="primary" message="Start Learning Free" />
+          <Link
+            href="/tutorials"
+            className="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            Browse Tutorials →
+          </Link>
         </div>
-
-        {/* Learning Paths */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
-            Choose Your Learning Path
-          </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <Link
-              href="/tutorials"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-400 dark:shadow-xl group"
-            >
-              <div className="mb-4 flex justify-center">
-                <BookOpen className="h-12 w-12 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Tutorials
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Interactive code lessons with live code examples
-              </p>
-              <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold text-center">
-                Start Learning →
-              </div>
-              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-center text-gray-500 dark:text-gray-500">
-                  <span className="font-semibold text-green-600 dark:text-green-400">
-                    5 free tutorials
-                  </span>{" "}
-                  without signup
-                </p>
-              </div>
-            </Link>
-
-            <Link
-              href="/exercises"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-indigo-200 dark:hover:border-indigo-400 dark:shadow-xl group"
-            >
-              <div className="mb-4 flex justify-center">
-                <Zap className="h-12 w-12 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Exercises
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Interactive coding exercises with test validation
-              </p>
-              <div className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold text-center">
-                Start Exercising →
-              </div>
-              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-center text-gray-500 dark:text-gray-500">
-                  <span className="font-semibold text-green-600 dark:text-green-400">
-                    Free access
-                  </span>{" "}
-                  without signup
-                </p>
-              </div>
-            </Link>
-
-            <Link
-              href="/practice"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-red-200 dark:hover:border-red-400 dark:shadow-xl group relative"
-            >
-              <div className="mb-4 flex justify-center">
-                <Code className="h-12 w-12 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Practice
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Algorithms challenges and exercises to improve your problem
-                solving ability
-              </p>
-              <div className="text-sm text-red-600 dark:text-red-400 font-semibold text-center">
-                Start Coding →
-              </div>
-            </Link>
-
-            <Link
-              href="/quizzes"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl group relative"
-            >
-              <div className="mb-4 flex justify-center">
-                <Brain className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Quizzes
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Test your knowledge with mood-adapted questions
-              </p>
-              <div className="text-sm text-green-600 dark:text-green-400 font-semibold text-center">
-                Take Quiz →
-              </div>
-            </Link>
-
-            <Link
-              href="/projects"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-orange-200 dark:hover:border-orange-400 dark:shadow-xl group relative"
-            >
-              <div className="mb-4 flex justify-center">
-                <Building className="h-12 w-12 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Projects
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Build real-world applications and get peer reviews
-              </p>
-              <div className="text-sm text-orange-600 dark:text-orange-400 font-semibold text-center">
-                Start Building →
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Additional Features */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
-            Additional Features
-          </h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <Link
-              href="/contributions"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-cyan-200 dark:hover:border-cyan-400 dark:shadow-xl group relative"
-            >
-              <div className="mb-4 flex justify-center">
-                <GitPullRequest className="h-12 w-12 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Contributions
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Contribute to real projects, earn XP, and build your portfolio
-              </p>
-              <div className="text-sm text-cyan-600 dark:text-cyan-400 font-semibold text-center">
-                Start Contributing →
-              </div>
-            </Link>
-            <Link
-              href="/quiz-challenge"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl group relative"
-            >
-              <div className="mb-4 flex justify-center">
-                <Gamepad className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Quiz game
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Test your knowledge in programming
-              </p>
-              <div className="text-sm text-green-600 dark:text-green-400 font-semibold text-center">
-                Start →
-              </div>
-            </Link>
-
-            <Link
-              href="/tools/complexity-visualizer"
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-red-200 dark:hover:border-red-400 dark:shadow-xl group"
-            >
-              <div className="mb-4 flex justify-center">
-                <ToolCase className="h-12 w-12 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
-                Algorithms Visualisation Tool
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
-                Take a look at our new algorithms time complexity visualiser
-              </p>
-              <div className="text-sm text-red-600 dark:text-red-400 font-semibold text-center">
-                Explore →
-              </div>
-              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-center text-gray-500 dark:text-gray-500">
-                  <span className="font-semibold text-green-600 dark:text-green-400">
-                    Free tool
-                  </span>{" "}
-                  - no signup needed
-                </p>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Signup Benefits Section */}
-        <SignupCTA variant="banner" showBenefits={true} className="mb-8" />
       </div>
+
+      {/* Mood Selector */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+          How are you feeling today?
+        </h2>
+        <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
+          Your mood shapes your learning experience - choose what fits your vibe
+        </p>
+        <MoodSelector showDescription={true} />
+      </div>
+
+      {/* Learning Paths */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
+          Choose Your Learning Path
+        </h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+          <Link
+            href="/tutorials"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-400 dark:shadow-xl group"
+          >
+            <div className="mb-4 flex justify-center">
+              <BookOpen className="h-12 w-12 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Tutorials
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Interactive code lessons with live code examples
+            </p>
+            <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold text-center">
+              Start Learning →
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-center text-gray-500 dark:text-gray-500">
+                <span className="font-semibold text-green-600 dark:text-green-400">
+                  5 free tutorials
+                </span>{" "}
+                without signup
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/exercises"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-indigo-200 dark:hover:border-indigo-400 dark:shadow-xl group"
+          >
+            <div className="mb-4 flex justify-center">
+              <Zap className="h-12 w-12 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Exercises
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Interactive coding exercises with test validation
+            </p>
+            <div className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold text-center">
+              Start Exercising →
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-center text-gray-500 dark:text-gray-500">
+                <span className="font-semibold text-green-600 dark:text-green-400">
+                  Free access
+                </span>{" "}
+                without signup
+              </p>
+            </div>
+          </Link>
+
+          <Link
+            href="/practice"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-red-200 dark:hover:border-red-400 dark:shadow-xl group relative"
+          >
+            <div className="mb-4 flex justify-center">
+              <Code className="h-12 w-12 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Practice
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Algorithms challenges and exercises to improve your problem
+              solving ability
+            </p>
+            <div className="text-sm text-red-600 dark:text-red-400 font-semibold text-center">
+              Start Coding →
+            </div>
+          </Link>
+
+          <Link
+            href="/quizzes"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl group relative"
+          >
+            <div className="mb-4 flex justify-center">
+              <Brain className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Quizzes
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Test your knowledge with mood-adapted questions
+            </p>
+            <div className="text-sm text-green-600 dark:text-green-400 font-semibold text-center">
+              Take Quiz →
+            </div>
+          </Link>
+
+          <Link
+            href="/projects"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-orange-200 dark:hover:border-orange-400 dark:shadow-xl group relative"
+          >
+            <div className="mb-4 flex justify-center">
+              <Building className="h-12 w-12 text-orange-600 dark:text-orange-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Projects
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Build real-world applications and get peer reviews
+            </p>
+            <div className="text-sm text-orange-600 dark:text-orange-400 font-semibold text-center">
+              Start Building →
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* Additional Features */}
+      <div className="mb-12">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
+          Additional Features
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Link
+            href="/contributions"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-cyan-200 dark:hover:border-cyan-400 dark:shadow-xl group relative"
+          >
+            <div className="mb-4 flex justify-center">
+              <GitPullRequest className="h-12 w-12 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Contributions
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Contribute to real projects, earn XP, and build your portfolio
+            </p>
+            <div className="text-sm text-cyan-600 dark:text-cyan-400 font-semibold text-center">
+              Start Contributing →
+            </div>
+          </Link>
+          <Link
+            href="/quiz-challenge"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl group relative"
+          >
+            <div className="mb-4 flex justify-center">
+              <Gamepad className="h-12 w-12 text-green-600 dark:text-green-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Quiz game
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Test your knowledge in programming
+            </p>
+            <div className="text-sm text-green-600 dark:text-green-400 font-semibold text-center">
+              Start →
+            </div>
+          </Link>
+
+          <Link
+            href="/tools/complexity-visualizer"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-red-200 dark:hover:border-red-400 dark:shadow-xl group"
+          >
+            <div className="mb-4 flex justify-center">
+              <ToolCase className="h-12 w-12 text-red-600 dark:text-red-400 group-hover:scale-110 transition-transform" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+              Algorithms Visualisation Tool
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4 text-center text-sm">
+              Take a look at our new algorithms time complexity visualiser
+            </p>
+            <div className="text-sm text-red-600 dark:text-red-400 font-semibold text-center">
+              Explore →
+            </div>
+            <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-xs text-center text-gray-500 dark:text-gray-500">
+                <span className="font-semibold text-green-600 dark:text-green-400">
+                  Free tool
+                </span>{" "}
+                - no signup needed
+              </p>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* Signup Benefits Section */}
+      <SignupCTA variant="banner" showBenefits={true} className="mb-8" />
     </PageLayout>
   );
 }
