@@ -1,15 +1,21 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { Eye, FileText, Loader, Search, Lock, Crown } from "lucide-react";
+import { Eye, FileText, Loader, Lock, Crown } from "lucide-react";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
 import Pagination from "@/components/ui/Pagination";
 import Card from "@/components/ui/Card";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
+import {
+  ContentFilterBar,
+  FilterDropdown,
+} from "@/components/ui/ContentFilterBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
 import { useMood } from "@/components/providers/MoodProvider";
 import { useMoodColors } from "@/hooks/useMoodColors";
 import {
@@ -17,6 +23,7 @@ import {
   QuickMoodSwitcher,
 } from "@/components/ui/MoodImpactIndicator";
 import { Plan } from "@/lib/subscriptionConstants";
+import { useContentFilters } from "@/hooks/useContentFilters";
 
 interface CheatSheet {
   id: string;
@@ -46,53 +53,35 @@ interface CheatSheetsResponse {
   };
 }
 
-function useDebounce(value: string, delay: number) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const id = setTimeout(() => setDebouncedValue(value), delay);
-    return () => clearTimeout(id);
-  }, [value, delay]);
-
-  return debouncedValue;
-}
-
 export default function CheatSheetsPage() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
   const moodColors = useMoodColors();
   const router = useRouter();
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(
-    null
-  );
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const {
+    search,
+    setSearch,
+    filters,
+    setFilter,
+    clearFilters,
+    hasActiveFilters,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    queryParams,
+  } = useContentFilters({
+    defaultPageSize: 6,
+    filterKeys: ["difficulty", "category"],
+  });
+
   const [premiumModalId, setPremiumModalId] = useState<string | null>(null);
 
-  const debouncedSearch = useDebounce(searchTerm, 350);
-
   const { data, isLoading, error } = useQuery<CheatSheetsResponse>({
-    queryKey: [
-      "cheat-sheets",
-      debouncedSearch,
-      selectedDifficulty,
-      selectedCategory,
-      currentPage,
-      itemsPerPage,
-    ],
+    queryKey: ["cheat-sheets", queryParams.toString()],
     queryFn: async () => {
-      const params = new URLSearchParams({
-        search: debouncedSearch,
-        category: selectedCategory || "",
-        difficulty: selectedDifficulty || "",
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      });
-
-      const response = await fetch(`/api/cheat-sheets?${params}`);
+      const response = await fetch(`/api/cheat-sheets?${queryParams}`);
       if (!response.ok) throw new Error("Failed to fetch cheat sheets");
       return response.json();
     },
@@ -101,14 +90,7 @@ export default function CheatSheetsPage() {
   const cheatSheets = data?.data ?? [];
   const categories = data?.categories ?? [];
   const totalItems = data?.pagination?.total ?? 0;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setSelectedDifficulty(null);
-    setSelectedCategory(null);
-    setCurrentPage(1);
-  };
+  const totalPages = Math.ceil(totalItems / pageSize);
 
   const premiumSheet = premiumModalId
     ? cheatSheets.find((s) => s.id === premiumModalId)
@@ -128,85 +110,34 @@ export default function CheatSheetsPage() {
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-4">
-        {/* Search Bar */}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search cheat sheets..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full rounded-lg border border-gray-300 bg-white py-2 pl-10 pr-4 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            />
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex flex-wrap gap-4">
-          {/* Difficulty Filter */}
-          <select
-            value={selectedDifficulty || ""}
-            onChange={(e) => {
-              setSelectedDifficulty(e.target.value || null);
-              setCurrentPage(1);
-            }}
+        <ContentSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search cheat sheets..."
+        />
+        <ContentFilterBar
+          hasActiveFilters={hasActiveFilters}
+          onClear={clearFilters}
+        >
+          <FilterDropdown
+            value={filters.difficulty || ""}
+            onChange={(val) => setFilter("difficulty", val)}
+            options={[
+              { value: "beginner", label: "Beginner" },
+              { value: "intermediate", label: "Intermediate" },
+              { value: "advanced", label: "Advanced" },
+            ]}
+            allLabel="All Difficulties"
             title="Filter by difficulty level"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          >
-            <option value="">All Difficulties</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-
-          {/* Category Filter */}
-          <select
-            value={selectedCategory || ""}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value || null);
-              setCurrentPage(1);
-            }}
+          />
+          <FilterDropdown
+            value={filters.category || ""}
+            onChange={(val) => setFilter("category", val)}
+            options={categories.map((cat) => ({ value: cat, label: cat }))}
+            allLabel="All Categories"
             title="Filter by category"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-
-          {/* Items Per Page */}
-          <select
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            title="Items per page"
-            className="rounded-lg border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          >
-            <option value={3}>3 per page</option>
-            <option value={6}>6 per page</option>
-            <option value={9}>9 per page</option>
-            <option value={12}>12 per page</option>
-          </select>
-
-          {/* Clear Filters Button */}
-          {(searchTerm || selectedDifficulty || selectedCategory) && (
-            <button
-              onClick={clearFilters}
-              className="rounded-lg bg-gray-100 px-4 py-2 font-medium text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-            >
-              Clear Filters
-            </button>
-          )}
-        </div>
+          />
+        </ContentFilterBar>
       </div>
 
       {/* Loading State */}
@@ -336,34 +267,26 @@ export default function CheatSheetsPage() {
 
           {/* Pagination */}
           <Pagination
-            currentPage={currentPage}
+            currentPage={page}
             totalPages={totalPages}
             totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            onPageChange={setCurrentPage}
+            itemsPerPage={pageSize}
+            onPageChange={setPage}
+            showSizeSelector={true}
+            sizeOptions={[3, 6, 9, 12]}
+            onSizeChange={setPageSize}
           />
         </>
       )}
 
       {/* Empty State */}
       {!isLoading && cheatSheets.length === 0 && !error && (
-        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 py-12 dark:border-gray-600">
-          <FileText className="mb-4 h-12 w-12 text-gray-400" />
-          <p className="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
-            No cheat sheets found
-          </p>
-          <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-            Try adjusting your filters or search term
-          </p>
-          {(searchTerm || selectedDifficulty || selectedCategory) && (
-            <button
-              onClick={clearFilters}
-              className="rounded-lg bg-blue-500 px-6 py-2 font-medium text-white hover:bg-blue-600"
-            >
-              Clear Filters
-            </button>
-          )}
-        </div>
+        <ContentEmptyState
+          icon={FileText}
+          title="No cheat sheets found"
+          hasFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
+        />
       )}
 
       {/* Premium Lock Modal */}

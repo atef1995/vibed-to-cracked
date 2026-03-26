@@ -18,12 +18,14 @@ import { PageLayout } from "@/components/ui/PageLayout";
 import { MoodInfoCard } from "@/components/ui/MoodInfoCard";
 import { ContentGrid } from "@/components/ui/ContentGrid";
 import { usePremiumContentHandler } from "@/hooks/usePremiumContentHandler";
-import { useQuizzes } from "@/hooks/useQuizzes";
 import { useTutorialProgress } from "@/hooks/useProgress";
-import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/ui/Pagination";
 import QuizCard from "@/components/quiz/QuizCard";
 import { SignupCTA } from "@/components/SignupCTA";
+import { useContentFilters } from "@/hooks/useContentFilters";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
+import { useQuery } from "@tanstack/react-query";
 
 // Types for database quiz data
 interface Question {
@@ -49,32 +51,46 @@ export default function QuizzesPage() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
 
-  // Use TanStack Query hooks
   const {
-    data: quizzes = [],
+    search,
+    setSearch,
+    debouncedSearch,
+    hasActiveFilters,
+    clearFilters,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    queryParams,
+  } = useContentFilters({ defaultPageSize: 9 });
+
+  // Use TanStack Query with server-side search/pagination
+  const {
+    data: quizzesData,
     isLoading: loadingQuizzes,
     error: quizzesError,
     isError: hasQuizzesError,
     refetch: refetchQuizzes,
-  } = useQuizzes();
+  } = useQuery({
+    queryKey: ["quizzes", queryParams.toString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/quizzes?${queryParams}`);
+      if (!response.ok)
+        throw new Error(`Failed to fetch quizzes: ${response.status}`);
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    retry: 2,
+    refetchOnWindowFocus: false,
+  });
+
+  const quizzes: Quiz[] = quizzesData?.quizzes ?? [];
+  const totalPages = quizzesData?.pagination?.pages ?? 1;
+  const totalItems = quizzesData?.pagination?.total ?? quizzes.length;
 
   const { data: tutorialProgress = {}, isLoading: loadingProgress } =
     useTutorialProgress(session?.user?.id);
-
-  // Pagination hook
-  const {
-    currentPage,
-    pageSize,
-    totalPages,
-    totalItems,
-    paginatedData: paginatedQuizzes,
-    goToPage,
-    setPageSize,
-  } = usePagination(quizzes, {
-    initialPage: 1,
-    initialPageSize: 9, // 3x3 grid
-    totalItems: quizzes.length,
-  });
 
   // Premium content handler at parent level
   const {
@@ -167,6 +183,16 @@ export default function QuizzesPage() {
       {/* Mood Info Card */}
       {session && <MoodInfoCard showQuizSettings={true} className="mb-12" />}
 
+      {/* Search */}
+      <div className="mb-8">
+        <ContentSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search quizzes..."
+          className="max-w-md"
+        />
+      </div>
+
       {/* Quizzes Grid */}
       {loadingProgress || loadingQuizzes ? (
         <div className="text-center py-12">
@@ -175,12 +201,22 @@ export default function QuizzesPage() {
             Loading quiz progress...
           </p>
         </div>
+      ) : quizzes.length === 0 ? (
+        <ContentEmptyState
+          title={hasActiveFilters ? "No quizzes found" : "No quizzes available"}
+          subtitle={
+            hasActiveFilters
+              ? "Try a different search term"
+              : "Check back soon!"
+          }
+          hasFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
+        />
       ) : (
         <>
           <ContentGrid columns="3" className="mb-8">
-            {paginatedQuizzes.map((quiz: Quiz, index: number) => {
-              // Calculate the actual index based on current page
-              const actualIndex = (currentPage - 1) * pageSize + index;
+            {quizzes.map((quiz: Quiz, index: number) => {
+              const actualIndex = (page - 1) * pageSize + index;
               // The tutorialId in progress matches the quiz's tutorialId
               const quizProgress = session
                 ? tutorialProgress[quiz.tutorialId.toString()]
@@ -203,11 +239,11 @@ export default function QuizzesPage() {
           {totalPages > 1 && (
             <div className="mb-12">
               <Pagination
-                currentPage={currentPage}
+                currentPage={page}
                 totalPages={totalPages}
                 totalItems={totalItems}
                 itemsPerPage={pageSize}
-                onPageChange={goToPage}
+                onPageChange={setPage}
                 showInfo={true}
                 showSizeSelector={true}
                 sizeOptions={[6, 9, 12, 18]}

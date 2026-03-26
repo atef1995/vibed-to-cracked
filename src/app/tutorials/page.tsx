@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState, Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   useCategoriesWithStats,
@@ -26,45 +26,116 @@ import {
 } from "@/components/tutorial/TutorialSkeleton";
 import CategoryLoading from "./category/loading";
 import { SignupCTA } from "@/components/SignupCTA";
+import { useContentFilters } from "@/hooks/useContentFilters";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
+import {
+  ContentFilterBar,
+  FilterPills,
+  FilterDropdown,
+} from "@/components/ui/ContentFilterBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
+import { useMemo } from "react";
 
 export default function TutorialsPage() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
   const router = useRouter();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
   const [loadingCategory, setLoadingCategory] = useState<string | null>(null);
+
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    filters,
+    setFilter,
+    hasActiveFilters,
+    clearFilters,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+  } = useContentFilters({
+    defaultPageSize: 6,
+    filterKeys: ["difficulty", "status", "topic"],
+  });
 
   // Detect anonymous user state
   const isAnonymous = !session;
 
   // Fetch optimized categories with stats (includes tutorial counts and user progress)
-  const { data, error, isLoading } = useCategoriesWithStats(
-    currentPage,
-    itemsPerPage
-  );
+  const { data, error, isLoading } = useCategoriesWithStats(page, pageSize);
 
   // Get categories data from paginated response
-  const categories = data?.data || [];
+  const allCategories = data?.data || [];
   const categoryPagination = data?.pagination;
   const overallStats = data?.overallStats;
 
-  // Use server-side pagination data instead of client-side calculations
-  const totalItems = categoryPagination?.totalCount || 0;
-  const totalPages = categoryPagination?.totalPages || 1;
+  // Collect unique topics from all categories for the dropdown
+  const topicOptions = useMemo(() => {
+    const topicSet = new Set<string>();
+    for (const cat of allCategories) {
+      if (cat.topics) {
+        for (const t of cat.topics) topicSet.add(t);
+      }
+    }
+    return Array.from(topicSet)
+      .sort()
+      .map((t) => ({ value: t, label: t }));
+  }, [allCategories]);
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    // Scroll to categories section
+  // Client-side filtering: search + difficulty + status + topic
+  const categories = useMemo(() => {
+    let result = allCategories;
+
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
+      result = result.filter(
+        (cat) =>
+          cat.title.toLowerCase().includes(q) ||
+          cat.description?.toLowerCase().includes(q) ||
+          cat.slug.toLowerCase().includes(q)
+      );
+    }
+
+    if (filters.difficulty) {
+      result = result.filter((cat) => cat.difficulty === filters.difficulty);
+    }
+
+    if (filters.status && session) {
+      result = result.filter((cat) => {
+        const completed = cat.tutorialStats?.completed ?? 0;
+        const total = cat.tutorialStats?.total ?? 0;
+        if (filters.status === "completed")
+          return completed > 0 && completed >= total;
+        if (filters.status === "in-progress")
+          return completed > 0 && completed < total;
+        if (filters.status === "not-started") return completed === 0;
+        return true;
+      });
+    }
+
+    if (filters.topic) {
+      result = result.filter((cat) => cat.topics?.includes(filters.topic));
+    }
+
+    return result;
+  }, [allCategories, debouncedSearch, filters, session]);
+
+  // When filters are active, pagination reflects the filtered list
+  const isFiltered = hasActiveFilters;
+  const totalItems = isFiltered
+    ? categories.length
+    : categoryPagination?.totalCount || 0;
+  const totalPages = isFiltered
+    ? Math.max(1, Math.ceil(categories.length / pageSize))
+    : categoryPagination?.totalPages || 1;
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
     const categoriesSection = document.getElementById("categories-section");
     if (categoriesSection) {
       categoriesSection.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page when changing items per page
   };
 
   const handleCategoryClick = (categorySlug: string) => {
@@ -154,37 +225,100 @@ export default function TutorialsPage() {
 
       {/* Categories Grid */}
       <div className="mb-8" id="categories-section">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-          Choose a Learning Path
-        </h2>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Choose a Learning Path
+          </h2>
+          <ContentSearchBar
+            value={search}
+            onChange={setSearch}
+            placeholder="Search categories..."
+            className="max-w-xs"
+          />
+        </div>
+        <ContentFilterBar
+          hasActiveFilters={hasActiveFilters}
+          onClear={clearFilters}
+          className="mb-6"
+        >
+          <FilterPills
+            options={[
+              { value: "beginner", label: "Beginner" },
+              { value: "intermediate", label: "Intermediate" },
+              { value: "advanced", label: "Advanced" },
+            ]}
+            value={filters.difficulty || ""}
+            onChange={(val) => setFilter("difficulty", val)}
+            allLabel="All Levels"
+          />
+          {session && (
+            <FilterDropdown
+              options={[
+                { value: "completed", label: "Completed" },
+                { value: "in-progress", label: "In Progress" },
+                { value: "not-started", label: "Not Started" },
+              ]}
+              value={filters.status || ""}
+              onChange={(val) => setFilter("status", val)}
+              allLabel="Any Status"
+              title="Filter by status"
+            />
+          )}
+          {topicOptions.length > 0 && (
+            <FilterDropdown
+              options={topicOptions}
+              value={filters.topic || ""}
+              onChange={(val) => setFilter("topic", val)}
+              allLabel="All Topics"
+              title="Filter by topic"
+            />
+          )}
+        </ContentFilterBar>
         <ErrorBoundary fallback={ComponentErrorFallback}>
           <Suspense fallback={<CategoriesGridSkeleton />}>
-            <ContentGrid>
-              {categories.map((category) => {
-                const stats = getCategoryStats(category);
+            {categories.length === 0 ? (
+              <ContentEmptyState
+                title={
+                  hasActiveFilters
+                    ? "No categories found"
+                    : "No categories available"
+                }
+                subtitle={
+                  hasActiveFilters
+                    ? "Try a different search term"
+                    : "Check back soon!"
+                }
+                hasFilters={hasActiveFilters}
+                onClearFilters={clearFilters}
+              />
+            ) : (
+              <ContentGrid>
+                {categories.map((category) => {
+                  const stats = getCategoryStats(category);
 
-                return (
-                  <CategoryCard
-                    key={category.id}
-                    category={category.slug}
-                    title={category.title}
-                    tutorialCount={stats.total}
-                    completedCount={stats.completed}
-                    totalDuration={category.duration}
-                    difficulty={
-                      category.difficulty as
-                        | "beginner"
-                        | "intermediate"
-                        | "advanced"
-                    }
-                    description={category.description}
-                    topics={category.topics}
-                    onClick={() => handleCategoryClick(category.slug)}
-                    isLoading={loadingCategory === category.slug}
-                  />
-                );
-              })}
-            </ContentGrid>
+                  return (
+                    <CategoryCard
+                      key={category.id}
+                      category={category.slug}
+                      title={category.title}
+                      tutorialCount={stats.total}
+                      completedCount={stats.completed}
+                      totalDuration={category.duration}
+                      difficulty={
+                        category.difficulty as
+                          | "beginner"
+                          | "intermediate"
+                          | "advanced"
+                      }
+                      description={category.description}
+                      topics={category.topics}
+                      onClick={() => handleCategoryClick(category.slug)}
+                      isLoading={loadingCategory === category.slug}
+                    />
+                  );
+                })}
+              </ContentGrid>
+            )}
           </Suspense>
         </ErrorBoundary>
 
@@ -193,15 +327,15 @@ export default function TutorialsPage() {
           <ErrorBoundary fallback={ComponentErrorFallback}>
             <div className="mt-6">
               <Pagination
-                currentPage={currentPage}
+                currentPage={page}
                 totalPages={totalPages}
                 totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
+                itemsPerPage={pageSize}
                 onPageChange={handlePageChange}
                 showInfo={true}
                 showSizeSelector={true}
                 sizeOptions={[3, 6, 9, 12]}
-                onSizeChange={handleItemsPerPageChange}
+                onSizeChange={setPageSize}
                 className="justify-center"
                 compact={false}
               />

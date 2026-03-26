@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
 import Link from "next/link";
 import { useProjects } from "@/hooks/useProjectQueries";
 import { useCategories } from "@/hooks/useTutorialQueries";
@@ -9,25 +8,64 @@ import ProjectCard from "@/components/ui/ProjectCard";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
 import { useMood } from "@/components/providers/MoodProvider";
+import { Code, BookOpen, Trophy, Users, Sparkles } from "lucide-react";
+import { useContentFilters } from "@/hooks/useContentFilters";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
 import {
-  Code,
-  Filter,
-  Grid,
-  List,
-  BookOpen,
-  Trophy,
-  Users,
-  Sparkles,
-} from "lucide-react";
+  ContentFilterBar,
+  FilterDropdown,
+} from "@/components/ui/ContentFilterBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
+import { useMemo } from "react";
 
 export default function ProjectsPage() {
   const { data: session } = useSession();
   const { currentMood } = useMood();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const projectsQuery = useProjects(selectedCategory || undefined);
-  const categoriesQuery = useCategories(1, 100); // Get all categories in one page
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    filters,
+    setFilter,
+    hasActiveFilters,
+    clearFilters,
+  } = useContentFilters({ filterKeys: ["category"] });
+
+  const projectsQuery = useProjects(filters.category || undefined);
+  const categoriesQuery = useCategories(1, 100);
+
+  const allProjects = projectsQuery.data || [];
+  const categoriesData = categoriesQuery.data?.data || [];
+
+  // Client-side search filtering
+  const projects = useMemo(() => {
+    if (!debouncedSearch) return allProjects;
+    const q = debouncedSearch.toLowerCase();
+    return allProjects.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        p.description?.toLowerCase().includes(q) ||
+        p.category?.toLowerCase().includes(q)
+    );
+  }, [allProjects, debouncedSearch]);
+
+  const categoryOptions = categoriesData.map((cat) => ({
+    value: cat.slug,
+    label: cat.title,
+  }));
+
+  // Group projects by category for stats
+  const projectsByCategory = projects.reduce(
+    (acc, project) => {
+      if (!acc[project.category]) {
+        acc[project.category] = [];
+      }
+      acc[project.category].push(project);
+      return acc;
+    },
+    {} as Record<string, typeof projects>
+  );
 
   if (projectsQuery.isLoading || categoriesQuery.isLoading) {
     return (
@@ -69,18 +107,6 @@ export default function ProjectsPage() {
       </PageLayout>
     );
   }
-
-  const projects = projectsQuery.data || [];
-  const categories = categoriesQuery.data?.data || [];
-
-  // Group projects by category for stats
-  const projectsByCategory = projects.reduce((acc, project) => {
-    if (!acc[project.category]) {
-      acc[project.category] = [];
-    }
-    acc[project.category].push(project);
-    return acc;
-  }, {} as Record<string, typeof projects>);
 
   return (
     <PageLayout
@@ -130,88 +156,50 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* Filters and View Controls */}
+      {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              Category:
-            </span>
-          </div>
-          <select
-            title={selectedCategory as string}
-            value={selectedCategory || ""}
-            onChange={(e) => {
-              e.preventDefault();
-              setSelectedCategory(e.target.value || null);
-            }}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
-              bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-              focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.slug} value={category.slug}>
-                {category.title}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 rounded-md transition-colors ${
-              viewMode === "grid"
-                ? "bg-white dark:bg-gray-700 shadow-sm"
-                : "hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-            title="Grid view"
-          >
-            <Grid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 rounded-md transition-colors ${
-              viewMode === "list"
-                ? "bg-white dark:bg-gray-700 shadow-sm"
-                : "hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-            title="List view"
-          >
-            <List className="w-4 h-4" />
-          </button>
-        </div> */}
+        <ContentSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search projects..."
+          className="max-w-md"
+        />
+        <ContentFilterBar
+          hasActiveFilters={hasActiveFilters}
+          onClear={clearFilters}
+        >
+          <FilterDropdown
+            options={categoryOptions}
+            value={filters.category || ""}
+            onChange={(val) => setFilter("category", val)}
+            allLabel="All Categories"
+            title="Category"
+          />
+        </ContentFilterBar>
       </div>
 
       {/* Projects Grid */}
       {projects.length === 0 ? (
-        <div className="text-center py-16">
-          <Code className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            No Projects Available
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {selectedCategory
-              ? `No projects found in the ${selectedCategory} category.`
-              : "Projects are coming soon! Complete tutorials to unlock project assignments."}
-          </p>
-          <Link
-            href="/tutorials"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <BookOpen className="w-4 h-4" />
-            Explore Tutorials
-          </Link>
-        </div>
+        <ContentEmptyState
+          icon={Code}
+          title={
+            hasActiveFilters ? "No projects found" : "No Projects Available"
+          }
+          subtitle={
+            hasActiveFilters
+              ? "Try adjusting your search or category filter"
+              : "Projects are coming soon! Complete tutorials to unlock project assignments."
+          }
+          hasFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
+        />
       ) : (
-        <ContentGrid className={viewMode === "list" ? "grid-cols-1" : ""}>
+        <ContentGrid>
           {projects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
-              showCategory={!selectedCategory}
+              showCategory={!filters.category}
             />
           ))}
         </ContentGrid>

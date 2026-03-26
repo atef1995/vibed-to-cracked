@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get("type") || "xp";
+    const type = searchParams.get("type") || "points";
     const scope = searchParams.get("scope") || "global";
     const period = searchParams.get("period") || "all";
 

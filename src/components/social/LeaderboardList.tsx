@@ -33,7 +33,7 @@ interface LeaderboardListProps {
 }
 
 export const LeaderboardList = ({ currentUserId }: LeaderboardListProps) => {
-  const [type, setType] = useState<"xp" | "points">("xp");
+  const [type, setType] = useState<"xp" | "points">("points");
   const [scope, setScope] = useState<"global" | "friends">("global");
   const [period, setPeriod] = useState<"all" | "weekly" | "monthly">("all");
   const [data, setData] = useState<LeaderboardResponse | null>(null);
@@ -175,6 +175,7 @@ export const LeaderboardList = ({ currentUserId }: LeaderboardListProps) => {
               onChange={(e) =>
                 setPeriod(e.target.value as "all" | "weekly" | "monthly")
               }
+              title="Select time period"
               className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             >
               <option value="all">All Time</option>
@@ -327,10 +328,10 @@ export const LeaderboardList = ({ currentUserId }: LeaderboardListProps) => {
               {scope === "friends"
                 ? "Add some friends to see how you compare!"
                 : period !== "all"
-                ? `No ${type === "xp" ? "XP" : "points"} earned this ${
-                    period === "weekly" ? "week" : "month"
-                  } yet.`
-                : "Start earning XP and unlock achievements to climb the leaderboard!"}
+                  ? `No ${type === "xp" ? "XP" : "points"} earned this ${
+                      period === "weekly" ? "week" : "month"
+                    } yet.`
+                  : "Start earning XP and unlock achievements to climb the leaderboard!"}
             </p>
           </div>
         )}

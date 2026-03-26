@@ -1,13 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
 import Pagination from "@/components/ui/Pagination";
-import { Search, Calendar, Clock, User, Tag } from "lucide-react";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
+import {
+  ContentFilterBar,
+  FilterPills,
+} from "@/components/ui/ContentFilterBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
+import { Calendar, Clock, User, Tag } from "lucide-react";
+import { useContentFilters } from "@/hooks/useContentFilters";
 
 interface BlogPost {
   id: string;
@@ -41,23 +48,25 @@ interface BlogCategory {
 }
 
 export default function BlogPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState(
-    searchParams.get("search") || ""
-  );
-  const [selectedCategory, setSelectedCategory] = useState(
-    searchParams.get("category") || ""
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 9;
+
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    filters,
+    setFilter,
+    clearFilters,
+    hasActiveFilters,
+    page,
+    setPage,
+    pageSize,
+    queryParams,
+  } = useContentFilters({
+    defaultPageSize: 9,
+    filterKeys: ["category"],
+  });
 
   // Fetch categories
   useEffect(() => {
@@ -91,54 +100,20 @@ export default function BlogPage() {
     fetchFeatured();
   }, []);
 
-  // Fetch posts with filters
-  useEffect(() => {
-    async function fetchPosts() {
-      setIsLoading(true);
-      try {
-        const params = new URLSearchParams();
-        params.set("page", currentPage.toString());
-        params.set("limit", itemsPerPage.toString());
-        if (searchQuery) params.set("search", searchQuery);
-        if (selectedCategory) params.set("category", selectedCategory);
+  // Fetch posts with filters via TanStack Query
+  const { data: postsData, isLoading } = useQuery({
+    queryKey: ["blog-posts", queryParams.toString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/blog?${queryParams}`);
+      const data = await response.json();
+      if (!data.success) throw new Error("Failed to fetch posts");
+      return data;
+    },
+  });
 
-        const response = await fetch(`/api/blog?${params.toString()}`);
-        const data = await response.json();
-
-        if (data.success) {
-          setPosts(data.data);
-          setTotalPages(data.pagination?.totalPages || 1);
-          setTotalItems(data.pagination?.totalCount || 0);
-        }
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchPosts();
-  }, [currentPage, searchQuery, selectedCategory]);
-
-  // Update URL params
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (selectedCategory) params.set("category", selectedCategory);
-    if (currentPage > 1) params.set("page", currentPage.toString());
-
-    const newUrl = params.toString() ? `?${params.toString()}` : "/blog";
-    router.replace(newUrl, { scroll: false });
-  }, [searchQuery, selectedCategory, currentPage, router]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1);
-  };
-
-  const handleCategorySelect = (categorySlug: string) => {
-    setSelectedCategory(categorySlug === selectedCategory ? "" : categorySlug);
-    setCurrentPage(1);
-  };
+  const posts: BlogPost[] = postsData?.data ?? [];
+  const totalPages = postsData?.pagination?.totalPages ?? 1;
+  const totalItems = postsData?.pagination?.totalCount ?? 0;
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "";
@@ -149,6 +124,11 @@ export default function BlogPage() {
     });
   };
 
+  const categoryOptions = categories.map((cat) => ({
+    value: cat.slug,
+    label: `${cat.name} (${cat._count.posts})`,
+  }));
+
   return (
     <PageLayout
       title="Blog"
@@ -157,9 +137,9 @@ export default function BlogPage() {
     >
       {/* Featured Posts */}
       {featuredPosts.length > 0 &&
-        !searchQuery &&
-        !selectedCategory &&
-        currentPage === 1 && (
+        !debouncedSearch &&
+        !filters.category &&
+        page === 1 && (
           <section>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               Featured Posts
@@ -249,46 +229,24 @@ export default function BlogPage() {
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-4">
-        <form onSubmit={handleSearch} className="flex gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-        </form>
-
-        {/* Category Pills */}
+        <ContentSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search articles..."
+          className="max-w-md"
+        />
         {categories.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => handleCategorySelect("")}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                !selectedCategory
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
-            >
-              All Posts
-            </button>
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategorySelect(category.slug)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === category.slug
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
-              >
-                {category.name} ({category._count.posts})
-              </button>
-            ))}
-          </div>
+          <ContentFilterBar
+            hasActiveFilters={hasActiveFilters}
+            onClear={clearFilters}
+          >
+            <FilterPills
+              options={categoryOptions}
+              value={filters.category || ""}
+              onChange={(val) => setFilter("category", val)}
+              allLabel="All Posts"
+            />
+          </ContentFilterBar>
         )}
       </div>
 
@@ -311,13 +269,16 @@ export default function BlogPage() {
           ))}
         </ContentGrid>
       ) : posts.length === 0 ? (
-        <div className="text-center py-16">
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            {searchQuery || selectedCategory
-              ? "No posts found matching your criteria."
-              : "No blog posts yet. Check back soon!"}
-          </p>
-        </div>
+        <ContentEmptyState
+          title={hasActiveFilters ? "No posts found" : "No blog posts yet"}
+          subtitle={
+            hasActiveFilters
+              ? "Try adjusting your filters or search term"
+              : "Check back soon!"
+          }
+          hasFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
+        />
       ) : (
         <>
           <ContentGrid columns="3">
@@ -408,11 +369,11 @@ export default function BlogPage() {
           {totalPages > 1 && (
             <div className="mt-8">
               <Pagination
-                currentPage={currentPage}
+                currentPage={page}
                 totalPages={totalPages}
                 totalItems={totalItems}
-                itemsPerPage={itemsPerPage}
-                onPageChange={setCurrentPage}
+                itemsPerPage={pageSize}
+                onPageChange={setPage}
               />
             </div>
           )}

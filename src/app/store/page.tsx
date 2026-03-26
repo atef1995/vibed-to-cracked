@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, Package, Search, Filter } from "lucide-react";
+import { ShoppingCart, Package } from "lucide-react";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
 import Pagination from "@/components/ui/Pagination";
@@ -14,6 +14,14 @@ import {
 import ProductCard from "@/components/store/ProductCard";
 import Button from "@/components/ui/Button";
 import { BUTTON_COLOR } from "@/types/button";
+import { useContentFilters } from "@/hooks/useContentFilters";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
+import {
+  ContentFilterBar,
+  FilterPills,
+} from "@/components/ui/ContentFilterBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
+import { useQuery } from "@tanstack/react-query";
 
 interface Product {
   id: string;
@@ -32,55 +40,51 @@ export default function StorePage() {
   const moodColors = useMoodColors();
   const router = useRouter();
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(6);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedType, setSelectedType] = useState<string | null>(null);
-  const [totalItems, setTotalItems] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
-  // Fetch products
-  useEffect(() => {
-    fetchProducts();
-    fetchCartCount();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, itemsPerPage, searchTerm, selectedType]);
+  const {
+    search,
+    setSearch,
+    debouncedSearch,
+    filters,
+    setFilter,
+    clearFilters,
+    hasActiveFilters,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    queryParams,
+  } = useContentFilters({
+    defaultPageSize: 6,
+    filterKeys: ["type"],
+  });
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      });
-
-      if (searchTerm) params.append("search", searchTerm);
-      if (selectedType) params.append("type", selectedType);
-
-      const response = await fetch(`/api/store/products?${params}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch products");
-      }
-
+  // Fetch products via TanStack Query
+  const {
+    data: productsData,
+    isLoading: loading,
+    error,
+    refetch: refetchProducts,
+  } = useQuery({
+    queryKey: ["store-products", queryParams.toString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/store/products?${queryParams}`);
+      if (!response.ok) throw new Error("Failed to fetch products");
       const data = await response.json();
-      const payload = data.data || {};
-      setProducts(payload.products || []);
-      setTotalItems(payload.total || 0);
-    } catch (err) {
-      console.error("Error fetching products:", err);
-      setError("Failed to load products. Please try again later.");
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return data.data || {};
+    },
+  });
+
+  const products: Product[] = productsData?.products ?? [];
+  const totalItems = productsData?.total ?? 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  // Fetch cart count
+  useEffect(() => {
+    fetchCartCount();
+  }, []);
 
   const fetchCartCount = async () => {
     try {
@@ -126,22 +130,10 @@ export default function StorePage() {
     router.push(`/store/${slug}`);
   };
 
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setCurrentPage(1);
-  };
-
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const typeOptions = [
+    { value: "PHYSICAL", label: "Physical" },
+    { value: "DIGITAL", label: "Digital" },
+  ];
 
   return (
     <PageLayout>
@@ -182,60 +174,23 @@ export default function StorePage() {
 
       {/* Search and Filters */}
       <div className="mb-6 space-y-4">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            className="px-6 py-2 rounded-lg font-medium transition-all duration-200"
-            style={{ backgroundColor: moodColors.gradient, color: "white" }}
-          >
-            Search
-          </button>
-        </form>
-
-        {/* Type Filter */}
-        <div className="flex gap-2 items-center">
-          <Filter className="w-5 h-5 text-gray-500" />
-          <button
-            onClick={() => setSelectedType(null)}
-            className={`px-4 py-1 rounded-full text-sm font-medium transition-all ${
-              selectedType === null
-                ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setSelectedType("PHYSICAL")}
-            className={`px-4 py-1 rounded-full text-sm font-medium transition-all ${
-              selectedType === "PHYSICAL"
-                ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-            }`}
-          >
-            Physical
-          </button>
-          <button
-            onClick={() => setSelectedType("DIGITAL")}
-            className={`px-4 py-1 rounded-full text-sm font-medium transition-all ${
-              selectedType === "DIGITAL"
-                ? "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
-            }`}
-          >
-            Digital
-          </button>
-        </div>
+        <ContentSearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search products..."
+          className="max-w-md"
+        />
+        <ContentFilterBar
+          hasActiveFilters={hasActiveFilters}
+          onClear={clearFilters}
+        >
+          <FilterPills
+            options={typeOptions}
+            value={filters.type || ""}
+            onChange={(val) => setFilter("type", val)}
+            allLabel="All"
+          />
+        </ContentFilterBar>
       </div>
 
       {/* Loading State */}
@@ -252,9 +207,11 @@ export default function StorePage() {
       {error && !loading && (
         <div className="text-center py-12">
           <Package className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <p className="text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-red-600 dark:text-red-400">
+            {error instanceof Error ? error.message : "Failed to load products"}
+          </p>
           <Button
-            onClick={fetchProducts}
+            onClick={() => refetchProducts()}
             className="mt-4 px-6 py-2 rounded-lg font-medium transition-all duration-200"
             color={BUTTON_COLOR.TRANSPARENT}
           >
@@ -281,13 +238,13 @@ export default function StorePage() {
           {/* Pagination */}
           <div className="mt-8">
             <Pagination
-              currentPage={currentPage}
+              currentPage={page}
               totalPages={totalPages}
               totalItems={totalItems}
-              onPageChange={handlePageChange}
-              itemsPerPage={itemsPerPage}
+              onPageChange={setPage}
+              itemsPerPage={pageSize}
               showSizeSelector
-              onSizeChange={handleItemsPerPageChange}
+              onSizeChange={setPageSize}
             />
           </div>
         </>
@@ -295,17 +252,17 @@ export default function StorePage() {
 
       {/* Empty State */}
       {!loading && !error && products.length === 0 && (
-        <div className="text-center py-12">
-          <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-            No products found
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            {searchTerm || selectedType
+        <ContentEmptyState
+          icon={Package}
+          title="No products found"
+          subtitle={
+            hasActiveFilters
               ? "Try adjusting your search or filters"
-              : "Check back soon for new products"}
-          </p>
-        </div>
+              : "Check back soon for new products"
+          }
+          hasFilters={hasActiveFilters}
+          onClearFilters={clearFilters}
+        />
       )}
     </PageLayout>
   );

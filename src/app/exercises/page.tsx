@@ -1,14 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { BookOpen, CheckCircle2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { BookOpen, CheckCircle2, Loader } from "lucide-react";
 import Card, { CardAction } from "@/components/ui/Card";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
-import { fetchExercises } from "@/lib/services/exercisesService";
+import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
+import {
+  ContentFilterBar,
+  FilterPills,
+  FilterDropdown,
+} from "@/components/ui/ContentFilterBar";
+import { ContentEmptyState } from "@/components/ui/ContentEmptyState";
+import Pagination from "@/components/ui/Pagination";
 import CardSkeleton from "@/components/ui/skeletons/CardSkeleton";
+import { useContentFilters } from "@/hooks/useContentFilters";
 
 interface Exercise {
   id: string;
@@ -23,6 +31,17 @@ interface Exercise {
   prerequisitesCompleted?: number | null;
 }
 
+interface ExercisesResponse {
+  data: Exercise[];
+  categories: string[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}
+
 const DIFFICULTY_COLORS = {
   beginner: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
   intermediate:
@@ -30,35 +49,45 @@ const DIFFICULTY_COLORS = {
   advanced: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
 };
 
+const DIFFICULTY_OPTIONS = [
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "Intermediate" },
+  { value: "advanced", label: "Advanced" },
+];
+
 export default function ExercisesPage() {
   const { data: session } = useSession();
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>("all");
-  const [search, setSearch] = useState<string>("");
 
-  useEffect(() => {
-    try {
-      setLoading(true);
-      const fetchData = async () => {
-        const data = await fetchExercises();
-        if (data) setExercises(data);
-      };
-      fetchData();
-    } catch (error) {
-      console.error("Error fetching exercises:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const filteredExercises = exercises.filter((exercise) => {
-    const matchesFilter = filter === "all" || exercise.difficulty === filter;
-    const matchesSearch =
-      exercise.title.toLowerCase().includes(search.toLowerCase()) ||
-      exercise.description.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+  const {
+    search,
+    setSearch,
+    filters,
+    setFilter,
+    clearFilters,
+    hasActiveFilters,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    queryParams,
+  } = useContentFilters({
+    defaultPageSize: 9,
+    filterKeys: ["difficulty", "category"],
   });
+
+  const { data, isLoading, error } = useQuery<ExercisesResponse>({
+    queryKey: ["exercises", queryParams.toString()],
+    queryFn: async () => {
+      const response = await fetch(`/api/exercises?${queryParams}`);
+      if (!response.ok) throw new Error("Failed to fetch exercises");
+      return response.json();
+    },
+  });
+
+  const exercises = data?.data ?? [];
+  const categories = data?.categories ?? [];
+  const totalItems = data?.pagination?.total ?? 0;
+  const totalPages = data?.pagination?.pages ?? 1;
 
   return (
     <PageLayout
@@ -80,142 +109,156 @@ export default function ExercisesPage() {
 
         {/* Search and Filter */}
         <div className="mb-8 space-y-4">
-          <input
-            type="text"
-            placeholder="Search exercises..."
+          <ContentSearchBar
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+            onChange={setSearch}
+            placeholder="Search exercises..."
           />
-          <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              All Levels
-            </button>
-            <button
-              onClick={() => setFilter("beginner")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "beginner"
-                  ? "bg-green-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Beginner
-            </button>
-            <button
-              onClick={() => setFilter("intermediate")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "intermediate"
-                  ? "bg-yellow-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Intermediate
-            </button>
-            <button
-              onClick={() => setFilter("advanced")}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filter === "advanced"
-                  ? "bg-red-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              Advanced
-            </button>
-          </div>
+          <ContentFilterBar
+            hasActiveFilters={hasActiveFilters}
+            onClear={clearFilters}
+          >
+            <FilterPills
+              options={DIFFICULTY_OPTIONS}
+              value={filters.difficulty || ""}
+              onChange={(val) => setFilter("difficulty", val)}
+              allLabel="All Levels"
+            />
+            {categories.length > 0 && (
+              <FilterDropdown
+                value={filters.category || ""}
+                onChange={(val) => setFilter("category", val)}
+                options={categories.map((c) => ({ value: c, label: c }))}
+                allLabel="All Categories"
+                title="Filter by category"
+              />
+            )}
+          </ContentFilterBar>
         </div>
 
+        {/* Loading State */}
+        {isLoading && (
+          <ContentGrid columns="3">
+            {[0, 1, 2, 3, 4].map((el) => (
+              <CardSkeleton key={el} />
+            ))}
+          </ContentGrid>
+        )}
+
+        {/* Error State */}
+        {error && (
+          <div className="mb-6 rounded-lg border border-red-300 bg-red-50 p-4 text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-200">
+            Failed to load exercises. Please try again later.
+          </div>
+        )}
+
         {/* Exercises Grid */}
-        <ContentGrid columns="3">
-          {loading && [0, 1, 2, 3, 4].map((el) => <CardSkeleton key={el} />)}
-          {filteredExercises.map((exercise) => {
-            return (
-              <Link
-                key={exercise.slug}
-                href={`${window.location.href}/${exercise.slug}`}
-              >
-                <Card
-                  loading={loading}
-                  onClick={() => {}}
-                  key={exercise.slug}
-                  title={exercise.title}
-                  description={exercise.description}
-                  footer={
-                    exercise.topics.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {exercise.topics.slice(0, 3).map((topic) => (
-                          <span
-                            key={topic}
-                            className="inline-block px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
-                          >
-                            {topic}
-                          </span>
-                        ))}
-                        {exercise.topics.length > 3 && (
-                          <span className="inline-block px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
-                            +{exercise.topics.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    )
-                  }
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                      {exercise.title}
-                    </h3>
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        DIFFICULTY_COLORS[exercise.difficulty]
-                      }`}
-                    >
-                      {exercise.difficulty.charAt(0).toUpperCase() +
-                        exercise.difficulty.slice(1)}
-                    </span>
-                  </div>
-                  <div className="flex flex-col space-y-5">
-                    <CardAction.Info>{exercise.description}</CardAction.Info>
-                    <CardAction.TimeInfo
-                      time={exercise.estimatedTime}
-                    ></CardAction.TimeInfo>
-                    {exercise.prerequisiteTutorialCount != null &&
-                      exercise.prerequisiteTutorialCount > 0 && (
-                        <div className="flex items-center gap-1.5 text-xs">
-                          {exercise.prerequisitesCompleted != null &&
-                          exercise.prerequisitesCompleted >=
-                            exercise.prerequisiteTutorialCount ? (
-                            <>
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
-                              <span className="text-green-600 dark:text-green-400 font-medium">
-                                Ready
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              <BookOpen className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
-                              <span className="text-gray-500 dark:text-gray-400">
-                                {exercise.prerequisiteTutorialCount} tutorial
-                                {exercise.prerequisiteTutorialCount > 1
-                                  ? "s"
-                                  : ""}{" "}
-                                recommended
-                              </span>
-                            </>
+        {!isLoading && exercises.length > 0 && (
+          <>
+            <ContentGrid columns="3">
+              {exercises.map((exercise) => (
+                <Link key={exercise.slug} href={`/exercises/${exercise.slug}`}>
+                  <Card
+                    onClick={() => {}}
+                    key={exercise.slug}
+                    title={exercise.title}
+                    description={exercise.description}
+                    footer={
+                      exercise.topics.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {exercise.topics.slice(0, 3).map((topic) => (
+                            <span
+                              key={topic}
+                              className="inline-block px-2 py-1 text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded"
+                            >
+                              {topic}
+                            </span>
+                          ))}
+                          {exercise.topics.length > 3 && (
+                            <span className="inline-block px-2 py-1 text-xs text-gray-500 dark:text-gray-400">
+                              +{exercise.topics.length - 3}
+                            </span>
                           )}
                         </div>
-                      )}
-                  </div>
-                </Card>
-              </Link>
-            );
-          })}
-        </ContentGrid>
+                      )
+                    }
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                        {exercise.title}
+                      </h3>
+                      <span
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          DIFFICULTY_COLORS[exercise.difficulty]
+                        }`}
+                      >
+                        {exercise.difficulty.charAt(0).toUpperCase() +
+                          exercise.difficulty.slice(1)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col space-y-5">
+                      <CardAction.Info>{exercise.description}</CardAction.Info>
+                      <CardAction.TimeInfo
+                        time={exercise.estimatedTime}
+                      ></CardAction.TimeInfo>
+                      {exercise.prerequisiteTutorialCount != null &&
+                        exercise.prerequisiteTutorialCount > 0 && (
+                          <div className="flex items-center gap-1.5 text-xs">
+                            {exercise.prerequisitesCompleted != null &&
+                            exercise.prerequisitesCompleted >=
+                              exercise.prerequisiteTutorialCount ? (
+                              <>
+                                <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                                <span className="text-green-600 dark:text-green-400 font-medium">
+                                  Ready
+                                </span>
+                              </>
+                            ) : (
+                              <>
+                                <BookOpen className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+                                <span className="text-gray-500 dark:text-gray-400">
+                                  {exercise.prerequisiteTutorialCount} tutorial
+                                  {exercise.prerequisiteTutorialCount > 1
+                                    ? "s"
+                                    : ""}{" "}
+                                  recommended
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        )}
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </ContentGrid>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  totalItems={totalItems}
+                  itemsPerPage={pageSize}
+                  onPageChange={setPage}
+                  showInfo={true}
+                  showSizeSelector={true}
+                  sizeOptions={[6, 9, 12]}
+                  onSizeChange={setPageSize}
+                />
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Empty State */}
+        {!isLoading && exercises.length === 0 && !error && (
+          <ContentEmptyState
+            hasFilters={hasActiveFilters}
+            onClearFilters={clearFilters}
+          />
+        )}
       </div>
     </PageLayout>
   );
