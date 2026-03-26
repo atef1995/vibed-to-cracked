@@ -198,6 +198,10 @@ export function useQuiz({ slug, currentMoodId }: UseQuizProps) {
             status: result.passed ? "COMPLETED" : "IN_PROGRESS",
           },
         }));
+
+        // Mark quiz attempted for onboarding checklist
+        localStorage.setItem("onboarding-quiz-attempted", "true");
+
         return;
       } else {
         const errorMsg = result.error || "Failed to submit quiz";

@@ -11,10 +11,13 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get("limit") || "3", 10);
 
-    // Get the exercise with its tutorialCategoryId
+    // Get the exercise with its tutorialCategoryId and prerequisites
     const exercise = await prisma.exercise.findUnique({
       where: { slug },
-      select: { tutorialCategoryId: true },
+      select: {
+        tutorialCategoryId: true,
+        prerequisiteTutorialIds: true,
+      },
     });
 
     if (!exercise) {
@@ -27,10 +30,16 @@ export async function GET(
     const tutorials =
       await TutorialService.getRecommendedTutorialsFromChallenge(
         exercise.tutorialCategoryId,
-        limit
+        limit + (exercise.prerequisiteTutorialIds?.length || 0)
       );
 
-    return NextResponse.json(tutorials);
+    // Exclude tutorials that are already shown as prerequisites
+    const prereqIds = new Set(exercise.prerequisiteTutorialIds || []);
+    const filtered = tutorials
+      .filter((t) => !prereqIds.has(t.id))
+      .slice(0, limit);
+
+    return NextResponse.json(filtered);
   } catch (error) {
     console.error("Error fetching tutorials for exercise:", error);
     return NextResponse.json(

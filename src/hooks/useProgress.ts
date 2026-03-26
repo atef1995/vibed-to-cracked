@@ -202,6 +202,38 @@ export const useProgressStats = (userId?: string) => {
   });
 };
 
+// Types for continue-learning items
+export interface ContinueItem {
+  type: "tutorial" | "challenge" | "exercise" | "project";
+  title: string;
+  slug: string;
+  href: string;
+  categoryTitle?: string;
+  updatedAt: string;
+}
+
+const fetchContinueItems = async (): Promise<ContinueItem[]> => {
+  const response = await fetch("/api/progress/continue");
+  if (!response.ok) {
+    throw new Error(`Failed to fetch continue items: ${response.status}`);
+  }
+  const data = await response.json();
+  return data.items || [];
+};
+
+// Hook for fetching in-progress items ("Continue where you left off")
+export const useContinueLearning = (userId?: string) => {
+  return useQuery({
+    queryKey: ["progress", "continue", userId],
+    queryFn: fetchContinueItems,
+    enabled: !!userId,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 5 * 60 * 1000,
+    retry: 1,
+    refetchOnWindowFocus: true,
+  });
+};
+
 export type {
   TutorialProgress,
   ChallengeProgress,

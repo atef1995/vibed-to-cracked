@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useStudyPlan } from "@/hooks/useStudyPlan";
@@ -123,6 +123,11 @@ export default function StudyPlanPage() {
 
   // TanStack Query hooks
   const { data, isLoading, error, refetch } = useStudyPlan();
+
+  // Mark study plan as visited for onboarding checklist
+  useEffect(() => {
+    localStorage.setItem("onboarding-study-plan-visited", "true");
+  }, []);
 
   // Redirect to signin if not authenticated
   if (status === "unauthenticated") {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { BookOpen, CheckCircle2 } from "lucide-react";
 import Card, { CardAction } from "@/components/ui/Card";
 import { PageLayout } from "@/components/ui/PageLayout";
 import { ContentGrid } from "@/components/ui/ContentGrid";
@@ -18,6 +19,8 @@ interface Exercise {
   category: string;
   estimatedTime: number;
   topics: string[];
+  prerequisiteTutorialCount?: number;
+  prerequisitesCompleted?: number | null;
 }
 
 const DIFFICULTY_COLORS = {
@@ -181,6 +184,32 @@ export default function ExercisesPage() {
                     <CardAction.TimeInfo
                       time={exercise.estimatedTime}
                     ></CardAction.TimeInfo>
+                    {exercise.prerequisiteTutorialCount != null &&
+                      exercise.prerequisiteTutorialCount > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs">
+                          {exercise.prerequisitesCompleted != null &&
+                          exercise.prerequisitesCompleted >=
+                            exercise.prerequisiteTutorialCount ? (
+                            <>
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                              <span className="text-green-600 dark:text-green-400 font-medium">
+                                Ready
+                              </span>
+                            </>
+                          ) : (
+                            <>
+                              <BookOpen className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+                              <span className="text-gray-500 dark:text-gray-400">
+                                {exercise.prerequisiteTutorialCount} tutorial
+                                {exercise.prerequisiteTutorialCount > 1
+                                  ? "s"
+                                  : ""}{" "}
+                                recommended
+                              </span>
+                            </>
+                          )}
+                        </div>
+                      )}
                   </div>
                 </Card>
               </Link>

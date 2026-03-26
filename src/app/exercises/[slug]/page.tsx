@@ -7,6 +7,7 @@ import { HelpCircle } from "lucide-react";
 import { ValidatedExercise } from "@/components/ui/ValidatedExercise";
 import { TutorialRecommendations } from "@/components/tutorial/TutorialRecommendations";
 import { ExerciseTour } from "@/components/exercises/ExerciseTour";
+import { PrerequisiteTutorials } from "@/components/exercises/PrerequisiteTutorials";
 import { useMood } from "@/components/providers/MoodProvider";
 import { useTutorChat } from "@/hooks/useTutorChat";
 import TutorFAB from "@/components/tutor/TutorFAB";
@@ -206,6 +207,9 @@ export default function ExercisePage({
 
         {/* Guided Tour for first exercise */}
         {isFirstExercise && <ExerciseTour onStartRef={handleStartRef} />}
+
+        {/* Prerequisite Tutorials */}
+        <PrerequisiteTutorials exerciseSlug={exercise.slug} />
 
         {/* Exercise Component */}
         <div

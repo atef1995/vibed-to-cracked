@@ -319,14 +319,17 @@ export class TutorialService {
   > {
     const tutorials = await this.getAllTutorials();
 
-    return tutorials.reduce((groups, tutorial) => {
-      const categorySlug = tutorial.category.slug;
-      if (!groups[categorySlug]) {
-        groups[categorySlug] = [];
-      }
-      groups[categorySlug].push(tutorial);
-      return groups;
-    }, {} as Record<string, TutorialWithAll[]>);
+    return tutorials.reduce(
+      (groups, tutorial) => {
+        const categorySlug = tutorial.category.slug;
+        if (!groups[categorySlug]) {
+          groups[categorySlug] = [];
+        }
+        groups[categorySlug].push(tutorial);
+        return groups;
+      },
+      {} as Record<string, TutorialWithAll[]>
+    );
   }
 
   /**
@@ -494,6 +497,100 @@ export class TutorialService {
       return tutorials.filter((t) => t.category !== null) as TutorialWithAll[];
     } catch (error) {
       console.error("Error in getRecommendedTutorialsFromChallenge:", error);
+      return [];
+    }
+  }
+
+  /**
+   * Get prerequisite tutorials for an exercise with user progress status.
+   * Falls back to category-based recommendations when no explicit prerequisites are set.
+   */
+  static async getPrerequisiteTutorialsWithProgress(
+    exerciseSlug: string,
+    userId?: string
+  ) {
+    try {
+      const exercise = await prisma.exercise.findUnique({
+        where: { slug: exerciseSlug },
+        select: {
+          prerequisiteTutorialIds: true,
+          tutorialCategoryId: true,
+        },
+      });
+
+      if (!exercise) return [];
+
+      let tutorials: TutorialWithAll[];
+
+      if (
+        exercise.prerequisiteTutorialIds &&
+        exercise.prerequisiteTutorialIds.length > 0
+      ) {
+        // Explicit prerequisites
+        const found = await prisma.tutorial.findMany({
+          where: {
+            id: { in: exercise.prerequisiteTutorialIds },
+            published: true,
+          },
+          include: {
+            quizzes: true,
+            category: true,
+          },
+          orderBy: { difficulty: "asc" },
+        });
+        tutorials = found.filter(
+          (t) => t.category !== null
+        ) as TutorialWithAll[];
+      } else if (exercise.tutorialCategoryId) {
+        // Fallback to category-based
+        tutorials = await this.getRecommendedTutorialsFromChallenge(
+          exercise.tutorialCategoryId,
+          3
+        );
+      } else {
+        return [];
+      }
+
+      if (!userId || tutorials.length === 0) {
+        return tutorials.map((tutorial) => ({
+          tutorial,
+          tutorialCompleted: false,
+          quizPassed: false,
+          quizBestScore: null as number | null,
+        }));
+      }
+
+      // Fetch progress for all prerequisite tutorials in one query
+      const tutorialIds = tutorials.map((t) => t.id);
+
+      const progressRecords = await prisma.tutorialProgress.findMany({
+        where: {
+          userId,
+          tutorialId: { in: tutorialIds },
+        },
+        select: {
+          tutorialId: true,
+          status: true,
+          quizPassed: true,
+          bestScore: true,
+        },
+      });
+
+      const progressMap = new Map(
+        progressRecords.map((p) => [p.tutorialId, p])
+      );
+
+      return tutorials.map((tutorial) => {
+        const progress = progressMap.get(tutorial.id);
+        return {
+          tutorial,
+          tutorialCompleted: progress?.status === "COMPLETED",
+          quizPassed: progress?.quizPassed ?? false,
+          quizBestScore: progress?.bestScore ?? null,
+        };
+      });
+    } catch (error) {
+      console.error("Error in getPrerequisiteTutorialsWithProgress:", error);
       return [];
     }
   }

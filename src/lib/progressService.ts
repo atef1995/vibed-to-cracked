@@ -1173,4 +1173,97 @@ export class ProgressService {
       console.error("Error sharing exercise completion:", error);
     }
   }
+
+  /**
+   * Get the user's most recently active in-progress items across all content types.
+   * Used by the "Continue Where You Left Off" dashboard section.
+   */
+  static async getInProgressItems(userId: string, limit = 3) {
+    const [tutorials, challenges, exercises, projects] = await Promise.all([
+      prisma.tutorialProgress.findMany({
+        where: { userId, status: CompletionStatus.IN_PROGRESS },
+        include: {
+          tutorial: {
+            select: {
+              title: true,
+              slug: true,
+              category: { select: { slug: true, title: true } },
+            },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: limit,
+      }),
+      prisma.challengeProgress.findMany({
+        where: { userId, status: CompletionStatus.IN_PROGRESS },
+        include: {
+          challenge: {
+            select: { title: true, slug: true },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: limit,
+      }),
+      prisma.exerciseProgress.findMany({
+        where: { userId, status: CompletionStatus.IN_PROGRESS },
+        include: {
+          exercise: {
+            select: { title: true, slug: true },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: limit,
+      }),
+      prisma.projectProgress.findMany({
+        where: { userId, status: CompletionStatus.IN_PROGRESS },
+        include: {
+          project: {
+            select: { title: true, slug: true },
+          },
+        },
+        orderBy: { updatedAt: "desc" },
+        take: limit,
+      }),
+    ]);
+
+    const items = [
+      ...tutorials.map((t) => ({
+        type: "tutorial" as const,
+        title: t.tutorial.title,
+        slug: t.tutorial.slug,
+        href: `/tutorials/category/${t.tutorial.category?.slug}/${t.tutorial.slug}`,
+        categoryTitle: t.tutorial.category?.title,
+        updatedAt: t.updatedAt.toISOString(),
+      })),
+      ...challenges.map((c) => ({
+        type: "challenge" as const,
+        title: c.challenge.title,
+        slug: c.challenge.slug,
+        href: `/practice/${c.challenge.slug}`,
+        updatedAt: c.updatedAt.toISOString(),
+      })),
+      ...exercises.map((e) => ({
+        type: "exercise" as const,
+        title: e.exercise.title,
+        slug: e.exercise.slug,
+        href: `/exercises/${e.exercise.slug}`,
+        updatedAt: e.updatedAt.toISOString(),
+      })),
+      ...projects.map((p) => ({
+        type: "project" as const,
+        title: p.project.title,
+        slug: p.project.slug,
+        href: `/projects/${p.project.slug}`,
+        updatedAt: p.updatedAt.toISOString(),
+      })),
+    ];
+
+    // Sort all items by updatedAt descending, take the top N
+    items.sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
+
+    return items.slice(0, limit);
+  }
 }

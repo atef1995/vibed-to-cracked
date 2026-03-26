@@ -1173,6 +1173,7 @@ model Exercise {
   category         String
   tutorialCategoryId String?
   tutorialCategory   Category?        @relation(fields: [tutorialCategoryId], references: [id])
+  prerequisiteTutorialIds String[]     @default([])
   estimatedTime    Int                @default(15) // in minutes
   instructions  String             @db.Text
   initialHtml    String?           @db.Text

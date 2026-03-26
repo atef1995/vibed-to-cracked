@@ -5,6 +5,9 @@ import { MoodSelector } from "@/components/MoodSelector";
 import { useProgressStats } from "@/hooks/useProgress";
 import { ProgressStats } from "@/components/ProgressComponents";
 import { AnonymousDashboard } from "@/components/AnonymousDashboard";
+import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector";
 import {
   BookOpen,
   Code,
@@ -16,11 +19,14 @@ import {
   Zap,
   Gamepad,
   Newspaper,
+  Star,
+  Map,
+  ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "@/components/ui/PageLayout";
 
-interface ProgressStats {
+interface ProgressStatsShape {
   tutorials: {
     completed: number;
     inProgress: number;
@@ -36,10 +42,80 @@ interface ProgressStats {
   };
 }
 
+function StatusBadge({
+  inProgress,
+  completed,
+  total,
+}: {
+  inProgress: number;
+  completed: number;
+  total: number;
+}) {
+  if (inProgress > 0) {
+    return (
+      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
+        In Progress
+      </span>
+    );
+  }
+  if (completed > 0 && completed < total) {
+    return (
+      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+        {completed}/{total}
+      </span>
+    );
+  }
+  if (completed === 0) {
+    return (
+      <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400">
+        New
+      </span>
+    );
+  }
+  return null;
+}
+
+const exploreLinks = [
+  {
+    href: "/blog",
+    icon: Newspaper,
+    label: "Blog",
+    color: "text-teal-600 dark:text-teal-400",
+    hoverBorder: "hover:border-teal-200 dark:hover:border-teal-500",
+  },
+  {
+    href: "/cheat-sheets",
+    icon: FileText,
+    label: "Cheat Sheets",
+    color: "text-yellow-600 dark:text-yellow-400",
+    hoverBorder: "hover:border-yellow-200 dark:hover:border-yellow-500",
+  },
+  {
+    href: "/contributions",
+    icon: GitPullRequest,
+    label: "Contributions",
+    color: "text-cyan-600 dark:text-cyan-400",
+    hoverBorder: "hover:border-cyan-200 dark:hover:border-cyan-500",
+  },
+  {
+    href: "/quiz-challenge",
+    icon: Gamepad,
+    label: "Quiz Challenge",
+    color: "text-green-600 dark:text-green-400",
+    hoverBorder: "hover:border-green-200 dark:hover:border-green-500",
+  },
+  {
+    href: "/tools/complexity-visualizer",
+    icon: ToolCase,
+    label: "Visualizer",
+    color: "text-red-600 dark:text-red-400",
+    hoverBorder: "hover:border-red-200 dark:hover:border-red-500",
+  },
+];
+
 export default function DashboardPage() {
   const { data: session, status } = useSession();
 
-  // Use TanStack Query hook for progress stats
   const {
     data: progressStats,
     isLoading: loadingProgress,
@@ -60,224 +136,303 @@ export default function DashboardPage() {
     );
   }
 
-  // Show anonymous dashboard for unauthenticated users
   if (status === "unauthenticated" || !session) {
     return <AnonymousDashboard />;
   }
 
-  // Authenticated dashboard
+  const isNewUser =
+    !loadingProgress &&
+    progressStats &&
+    progressStats.tutorials.completed === 0 &&
+    progressStats.challenges.completed === 0 &&
+    progressStats.projects.completed === 0;
+
+  const userLevel = (session.user as Record<string, unknown>).level as
+    | number
+    | undefined;
+  const userXp = (session.user as Record<string, unknown>).xp as
+    | number
+    | undefined;
+
+  // Build subtitle with stats for returning users
+  const statParts: string[] = [];
+  if (userLevel && userLevel > 1) statParts.push(`Level ${userLevel}`);
+  if (userXp) statParts.push(`${userXp.toLocaleString()} XP`);
+  const subtitle = statParts.length
+    ? statParts.join(" \u00B7 ")
+    : "Ready to continue your web development journey?";
+
   return (
     <PageLayout
-      subtitle="Ready to continue your web development journey? Choose your learning path below."
+      subtitle={subtitle}
       title={`Welcome back, ${session?.user.name?.split(" ")[0]}`}
     >
-      {/* Main Content */}
+      {/* 1. Continue where you left off (returning users) */}
+      <ContinueLearning userId={session.user.id} />
 
-      {/* Mood Selector */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
-          How are you feeling today?
+      {/* 2. Onboarding checklist — component self-hides when all steps done or dismissed */}
+      {!loadingProgress && progressStats && (
+        <OnboardingChecklist
+          hasMoodSet={
+            !!(session.user as Record<string, unknown>).mood &&
+            (session.user as Record<string, unknown>).mood !== "CHILL"
+          }
+          tutorialsCompleted={progressStats.tutorials.completed}
+          challengesCompleted={progressStats.challenges.completed}
+        />
+      )}
+
+      {/* 3. Mood selector — compact for returning users, full for new */}
+      {isNewUser ? (
+        <div className="mb-10">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
+            How are you feeling today?
+          </h2>
+          <MoodSelector showDescription={true} />
+        </div>
+      ) : (
+        <CompactMoodSelector />
+      )}
+
+      {/* Study Plan — clear shortcut */}
+      <Link
+        href="/study-plan"
+        className="mb-10 flex items-center gap-4 bg-linear-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl p-5 border border-indigo-100 dark:border-indigo-800/40 hover:border-indigo-200 dark:hover:border-indigo-700 shadow-sm hover:shadow-md transition-all group"
+      >
+        <div className="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-800/40 flex items-center justify-center">
+          <Map className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Your Study Plan
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            See the full roadmap, track phases, and pick your next step
+          </p>
+        </div>
+        <ArrowRight className="h-4 w-4 shrink-0 text-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors" />
+      </Link>
+
+      {/* 4. Core Learning — the main learning loop */}
+      <div className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Core Learning
         </h2>
-        <MoodSelector showDescription={true} />
+        <div className="grid md:grid-cols-3 gap-6 auto-rows-fr">
+          <Link
+            href="/tutorials"
+            className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-500"
+          >
+            <div className="grow">
+              <div className="flex items-center justify-between mb-4">
+                <BookOpen className="h-7 w-7 text-blue-600 dark:text-blue-400" />
+                {progressStats && (
+                  <StatusBadge
+                    inProgress={progressStats.tutorials.inProgress}
+                    completed={progressStats.tutorials.completed}
+                    total={progressStats.tutorials.total}
+                  />
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Tutorials
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                Interactive lessons with code examples
+              </p>
+            </div>
+
+            <div className="mt-auto">
+              {progressStats && progressStats.tutorials.total > 0 && (
+                <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mb-3">
+                  <div
+                    className="h-full bg-blue-500 rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (progressStats.tutorials.completed /
+                          progressStats.tutorials.total) *
+                          100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              )}
+              <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                Start Learning &rarr;
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/exercises"
+            className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-500"
+          >
+            <div className="grow">
+              <div className="flex items-center justify-between mb-4">
+                <Zap className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Exercises
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                Real-world coding with test validation
+              </p>
+            </div>
+
+            <div className="mt-auto">
+              <div className="text-sm text-indigo-600 dark:text-indigo-400 font-medium pt-3 border-t border-transparent">
+                Start Exercising &rarr;
+              </div>
+            </div>
+          </Link>
+
+          <Link
+            href="/practice"
+            className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-500"
+          >
+            <div className="grow">
+              <div className="flex items-center justify-between mb-4">
+                <Code className="h-7 w-7 text-purple-600 dark:text-purple-400" />
+                {progressStats && (
+                  <StatusBadge
+                    inProgress={progressStats.challenges.inProgress}
+                    completed={progressStats.challenges.completed}
+                    total={progressStats.challenges.total}
+                  />
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Problem Solving
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                Algorithm challenges to sharpen your skills
+              </p>
+            </div>
+
+            <div className="mt-auto">
+              {progressStats && progressStats.challenges.total > 0 && (
+                <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full mb-3">
+                  <div
+                    className="h-full bg-purple-500 rounded-full transition-all"
+                    style={{
+                      width: `${Math.min(
+                        100,
+                        (progressStats.challenges.completed /
+                          progressStats.challenges.total) *
+                          100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              )}
+              <div className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                Start Coding &rarr;
+              </div>
+            </div>
+          </Link>
+        </div>
       </div>
 
-      {/* Learning Paths */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
-        <Link
-          href="/tutorials"
-          className="bg-white min-h-full dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Tutorials
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Interactive Web Development lessons with code examples
-          </p>
-          <div className="text-sm text-blue-600 dark:text-blue-400 font-semibold">
-            Start Learning →
-          </div>
-        </Link>
+      {/* 5. Test Yourself */}
+      <div className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Test Yourself
+        </h2>
+        <div className="grid md:grid-cols-2 gap-6 auto-rows-fr">
+          <Link
+            href="/quizzes"
+            className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-500"
+          >
+            <div className="grow">
+              <div className="flex items-center justify-between mb-4">
+                <Brain className="h-7 w-7 text-green-600 dark:text-green-400" />
+                {isNewUser && (
+                  <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1">
+                    <Star className="h-3 w-3" /> Recommended
+                  </span>
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Quizzes
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                Mood-adapted questions to test your knowledge
+              </p>
+            </div>
 
-        <Link
-          href="/exercises"
-          className=" min-h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-indigo-200 dark:hover:border-indigo-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <Zap className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Exercises
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Interactive real-world coding exercises with test validation
-          </p>
-          <div className="text-sm text-indigo-600 dark:text-indigo-400 font-semibold">
-            Start Exercising →
-          </div>
-        </Link>
+            <div className="mt-auto">
+              <div className="text-sm text-green-600 dark:text-green-400 font-medium pt-3 border-t border-transparent">
+                Take Quiz &rarr;
+              </div>
+            </div>
+          </Link>
 
-        <Link
-          href="/practice"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-purple-200 dark:hover:border-purple-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <Code className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Problem Solving
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Algorithms challenges and exercises to improve your problem solving
-            ability
-          </p>
-          <div className="text-sm text-purple-600 dark:text-purple-400 font-semibold">
-            Start Coding →
-          </div>
-        </Link>
+          <Link
+            href="/projects"
+            className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-500"
+          >
+            <div className="grow">
+              <div className="flex items-center justify-between mb-4">
+                <Building className="h-7 w-7 text-orange-600 dark:text-orange-400" />
+                {progressStats && (
+                  <StatusBadge
+                    inProgress={progressStats.projects.inProgress}
+                    completed={progressStats.projects.completed}
+                    total={progressStats.projects.total}
+                  />
+                )}
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                Projects
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                Build real-world apps and get peer reviews
+              </p>
+            </div>
 
-        <Link
-          href="/quizzes"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <Brain className="h-8 w-8 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Quizzes
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Test your knowledge with mood-adapted questions
-          </p>
-          <div className="text-sm text-green-600 dark:text-green-400 font-semibold">
-            Take Quiz →
-          </div>
-        </Link>
-
-        <Link
-          href="/projects"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-orange-200 dark:hover:border-orange-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <Building className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Projects
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Build real-world applications and get peer reviews
-          </p>
-          <div className="text-sm text-orange-600 dark:text-orange-400 font-semibold">
-            Start Building →
-          </div>
-        </Link>
+            <div className="mt-auto">
+              <div className="text-sm text-orange-600 dark:text-orange-400 font-medium pt-3 border-t border-transparent">
+                Start Building &rarr;
+              </div>
+            </div>
+          </Link>
+        </div>
       </div>
 
-      {/* Additional Features */}
-      <div className="grid md:grid-cols-5 gap-6">
-        <Link
-          href="/blog"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-teal-200 dark:hover:border-teal-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <Newspaper className="h-8 w-8 text-teal-600 dark:text-teal-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Blog
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Latest articles, tips, and insights on web development
-          </p>
-          <div className="text-sm text-teal-600 dark:text-teal-400 font-semibold">
-            Read Articles →
-          </div>
-        </Link>
-
-        <Link
-          href="/cheat-sheets"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-yellow-200 dark:hover:border-yellow-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <FileText className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Cheat Sheets
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Quick reference guides and complexity cheat sheets for coding
-            interviews
-          </p>
-          <div className="text-sm text-yellow-600 dark:text-yellow-400 font-semibold">
-            View Sheets →
-          </div>
-        </Link>
-
-        <Link
-          href="/contributions"
-          className=" min-h-full flex flex-col justify-between bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-cyan-200 dark:hover:border-cyan-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <GitPullRequest className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Contributions
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Contribute to real projects, earn XP, and build your portfolio
-          </p>
-          <div className="text-sm text-cyan-600 dark:text-cyan-400 font-semibold">
-            Start Contributing →
-          </div>
-        </Link>
-        <Link
-          href="/quiz-challenge"
-          className=" min-h-full flex flex-col justify-between bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-green-200 dark:hover:border-green-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <Gamepad className="h-8 w-8 text-green-600 dark:text-green-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Quiz Challenge Game
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Test Your knowledge in programming
-          </p>
-          <div className="text-sm text-green-600 dark:text-green-400 font-semibold">
-            Start Playing →
-          </div>
-        </Link>
-
-        <Link
-          href="/tools/complexity-visualizer"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all border-2 border-transparent hover:border-red-200 dark:hover:border-red-400 dark:shadow-xl"
-        >
-          <div className="mb-4 flex justify-center">
-            <ToolCase className="h-8 w-8 text-red-600 dark:text-red-400" />
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Algorithms Visualisation Tool
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Take a look at our new algorithms time complexity visualiser
-          </p>
-          <div className="text-sm text-red-600 dark:text-red-400 font-semibold">
-            Explore →
-          </div>
-        </Link>
+      {/* 6. Explore More — compact links */}
+      <div className="mb-10">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          Explore More
+        </h2>
+        <div className="flex flex-wrap gap-3">
+          {exploreLinks.map((link) => {
+            const Icon = link.icon;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-gray-800 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 ${link.hoverBorder} hover:shadow-sm transition-all`}
+              >
+                <Icon className={`h-4 w-4 ${link.color}`} />
+                {link.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
-      {/* Progress Section */}
-      <div className="mt-12">
+
+      {/* 7. Progress Section */}
+      <div>
         {loadingProgress ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg dark:shadow-xl text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>
             <p className="text-gray-600 dark:text-gray-400">
               Loading your progress...
             </p>
           </div>
         ) : hasProgressError ? (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg dark:shadow-xl text-center">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm text-center">
             <p className="text-red-600 dark:text-red-400 mb-4">
               Error loading progress:{" "}
               {progressError?.message || "Unknown error"}
@@ -296,7 +451,7 @@ export default function DashboardPage() {
             projectStats={progressStats.projects}
           />
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg dark:shadow-xl">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               Your Progress
             </h2>
