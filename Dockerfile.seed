@@ -3,12 +3,12 @@ WORKDIR /app
 
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma
+COPY prisma.config.ts ./
 COPY fix-prisma-imports.js ./
 
 RUN npm ci --legacy-peer-deps
 RUN npx prisma generate && node fix-prisma-imports.js
 
 COPY scripts ./scripts
-COPY .env ./
 
 ENTRYPOINT ["npx", "tsx"]
