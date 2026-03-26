@@ -70,7 +70,7 @@ services:
       dockerfile: Dockerfile.seed
     container_name: vibed-to-cracked-seed
     env_file:
-      - .env.production
+      - .env
     volumes:
       - ./scripts:/app/scripts
       - ./prisma:/app/prisma
