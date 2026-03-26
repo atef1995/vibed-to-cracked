@@ -62,6 +62,25 @@ services:
       - app
       - db
 
+  # One-off seed runner: docker compose run --rm seed <script>
+  # Example: docker compose run --rm seed scripts/dbSeeds/seeds/exercises/seedExercises.ts
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.seed
+    container_name: vibed-to-cracked-seed
+    env_file:
+      - .env.production
+    volumes:
+      - ./scripts:/app/scripts
+      - ./prisma:/app/prisma
+    networks:
+      - app-network
+    depends_on:
+      - db
+    profiles:
+      - seed
+
 volumes:
   postgres_data:
   cron_logs:

@@ -28,6 +28,7 @@
     "deploy:down": "docker-compose down",
     "deploy:logs": "docker-compose logs -f",
     "deploy:backup": "docker-compose exec db pg_dump -U postgres vibed_to_cracked > backup_$(date +%Y%m%d_%H%M%S).sql",
+    "deploy:seed": "docker compose run --rm seed",
     "data:validate": "node scripts/validate-data.js",
     "data:migrate": "node scripts/migrate-data.js",
     "data:fix": "npm run data:migrate && npm run data:validate"
