@@ -9,7 +9,7 @@ import {
   FileText,
   Sparkles,
   GitPullRequest,
-  ToolCase,
+  Wrench,
   Zap,
   Gamepad,
   ChevronDown,
@@ -42,7 +42,7 @@ const moreLinks = [
   },
   {
     href: "/tools/complexity-visualizer",
-    icon: ToolCase,
+    icon: Wrench,
     label: "Visualizer",
     color: "text-red-600 dark:text-red-400",
     hoverBorder: "hover:border-red-200 dark:hover:border-red-500",

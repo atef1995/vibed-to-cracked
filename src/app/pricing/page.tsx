@@ -114,7 +114,7 @@ export default function PricingPage() {
         { text: "5 Quizzes per month", included: true },
         { text: "Advanced Projects & Tutorials", included: false },
         { text: "Job-Ready Portfolio", included: false },
-        { text: "Code Review & Mentorship", included: false },
+        { text: "1-on-1 Code Reviews (4/month)", included: false },
       ],
       cta: "Start Free",
     },
@@ -144,8 +144,8 @@ export default function PricingPage() {
         { text: "Advanced Analytics Dashboard", included: true },
         { text: "Priority Email Support", included: true },
         { text: "All Future Content Updates", included: true },
-        { text: "1-on-1 Code Reviews", included: false },
-        { text: "Personalized Mentorship", included: false },
+        { text: "1-on-1 Code Reviews (4/month)", included: false },
+        { text: "Personalized Career Mentorship", included: false },
       ],
       cta: "Get Vibed",
     },
@@ -160,7 +160,7 @@ export default function PricingPage() {
       features: [
         { text: "Everything in Vibed, plus:", included: true },
         {
-          text: "Weekly 1-on-1 Code Reviews",
+          text: "Weekly 1-on-1 Code Reviews (4/month)",
           included: true,
           highlight: true,
         },
@@ -464,10 +464,10 @@ export default function PricingPage() {
                   plan.id === currentPlan
                     ? "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                     : plan.popular || plan.id === "VIBED"
-                    ? `${moodColors.button} text-white`
-                    : plan.id === "FREE"
-                    ? "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    : "border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-400/10 cursor-pointer"
+                      ? `${moodColors.button} text-white`
+                      : plan.id === "FREE"
+                        ? "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+                        : "border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-400/10 cursor-pointer"
                 }`}
               >
                 {loading === plan.id ? (
@@ -477,8 +477,8 @@ export default function PricingPage() {
                     {plan.id === currentPlan
                       ? "Current Plan"
                       : currentPlan === "VIBED" && plan.id === "CRACKED"
-                      ? "Upgrade to Cracked"
-                      : plan.cta}
+                        ? "Upgrade to Cracked"
+                        : plan.cta}
                     {plan.id !== "FREE" && plan.id !== currentPlan && (
                       <ArrowRight className="w-4 h-4" />
                     )}

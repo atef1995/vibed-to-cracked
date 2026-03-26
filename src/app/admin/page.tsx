@@ -10,6 +10,7 @@ import CronJobMonitor from "@/components/admin/CronJobMonitor";
 import PeerReviewDashboard from "@/components/admin/PeerReviewDashboard";
 import BroadcastEmailForm from "@/components/admin/BroadcastEmailForm";
 import UserStatsDashboard from "@/components/admin/UserStatsDashboard";
+import MentorshipDashboard from "@/components/admin/MentorshipDashboard";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -50,6 +51,11 @@ export default function AdminPage() {
       id: "broadcast",
       label: "Broadcast Emails",
       component: BroadcastEmailForm,
+    },
+    {
+      id: "mentorship",
+      label: "Mentorship",
+      component: MentorshipDashboard,
     },
   ];
 

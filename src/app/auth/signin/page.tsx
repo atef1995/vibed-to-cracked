@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { signIn, useSession, getProviders } from "next-auth/react";
 import Link from "next/link";
 import type { ClientSafeProvider } from "next-auth/react";
-import { CheckCircle, Github } from "lucide-react";
+import { BookOpen, CheckCircle, Github } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { BUTTON_COLOR } from "@/types/button";
 import LinkButton from "@/components/ui/LinkButton";
@@ -16,6 +16,8 @@ function SignInContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const error = searchParams.get("error");
+  const reason = searchParams.get("reason");
+  const message = searchParams.get("message");
   const [loading, setLoading] = useState(false);
 
   const [providers, setProviders] = useState<Record<
@@ -131,6 +133,21 @@ function SignInContent() {
             Sign in to start your mood-driven Web Development learning journey
           </p>
         </div>
+
+        {/* Anonymous limit message */}
+        {reason === "anonymous_limit" && message && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-3">
+              <BookOpen className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-blue-900">{message}</p>
+                <p className="text-sm text-blue-700 mt-1">
+                  Create a free account to pick up right where you left off.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Error Display */}
         {error && (

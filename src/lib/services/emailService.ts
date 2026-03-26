@@ -1676,6 +1676,215 @@ document.querySelector('#increment').addEventListener('click', () => {
       </html>
     `;
   }
+
+  async sendMentorshipBookingConfirmation(
+    user: User,
+    session: {
+      type: string;
+      scheduledAt: Date | null;
+      description: string | null;
+    }
+  ) {
+    const subject = "Mentorship Session Booked - Vibed to Cracked";
+    const html = this.generateMentorshipBookingTemplate(user, session);
+    return await this.sendEmail(user.email, subject, html);
+  }
+
+  async sendMentorshipFeedbackReady(
+    user: User,
+    session: { type: string; feedback: string | null; completedAt: Date | null }
+  ) {
+    const subject = "Your Mentorship Feedback is Ready";
+    const html = this.generateMentorshipFeedbackTemplate(user, session);
+    return await this.sendEmail(user.email, subject, html);
+  }
+
+  async sendMentorshipNewRequest(session: {
+    type: string;
+    description: string | null;
+    codeLink: string | null;
+    user: { name: string | null; username: string | null; email: string };
+  }) {
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER || "";
+    if (!adminEmail)
+      return { success: false, error: "No admin email configured" };
+
+    const subject = `New Mentorship Request from ${session.user.name || session.user.username || "a user"}`;
+    const html = this.generateMentorshipAdminNotifyTemplate(session);
+    return await this.sendEmail(adminEmail, subject, html);
+  }
+
+  private generateMentorshipBookingTemplate(
+    user: User,
+    session: {
+      type: string;
+      scheduledAt: Date | null;
+      description: string | null;
+    }
+  ): string {
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const displayName = escapeHtml(user.name || user.username) || "there";
+    const isLive = session.type === "LIVE";
+    const dateStr = session.scheduledAt
+      ? new Intl.DateTimeFormat("en-US", {
+          dateStyle: "full",
+          timeStyle: "short",
+        }).format(new Date(session.scheduledAt))
+      : "To be scheduled";
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Mentorship Session Booked</title>
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; }
+            .header { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: white; padding: 30px; border: 1px solid #ddd; }
+            .detail-box { background: #f8f5ff; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #7c3aed; }
+            .cta-button { display: inline-block; background: #7c3aed; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0; }
+            .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Session Booked!</h1>
+              <p>Your 1-on-1 mentorship session is confirmed</p>
+            </div>
+            <div class="content">
+              <h2>Hey ${displayName}!</h2>
+              <p>Your <strong>${isLive ? "Live Code Review" : "Async Code Review"}</strong> session has been booked successfully.</p>
+              <div class="detail-box">
+                <p><strong>Type:</strong> ${isLive ? "Live (via Calendly)" : "Async Review"}</p>
+                ${isLive ? `<p><strong>Scheduled:</strong> ${escapeHtml(dateStr)}</p>` : ""}
+                ${session.description ? `<p><strong>Description:</strong> ${escapeHtml(session.description)}</p>` : ""}
+              </div>
+              ${
+                isLive
+                  ? "<p>You'll receive a calendar invite with meeting details from Calendly.</p>"
+                  : "<p>Your submission has been received. You'll get an email once feedback is ready.</p>"
+              }
+              <a href="${baseUrl}/mentorship" class="cta-button">View Your Sessions</a>
+            </div>
+            <div class="footer">
+              <p>Vibed to Cracked - CRACKED Mentorship</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  private generateMentorshipFeedbackTemplate(
+    user: User,
+    session: { type: string; feedback: string | null; completedAt: Date | null }
+  ): string {
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const displayName = escapeHtml(user.name || user.username) || "there";
+    const completedStr = session.completedAt
+      ? new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(
+          new Date(session.completedAt)
+        )
+      : "Recently";
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Mentorship Feedback Ready</title>
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; }
+            .header { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: white; padding: 30px; border: 1px solid #ddd; }
+            .feedback-box { background: #f0fdf4; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #22c55e; }
+            .cta-button { display: inline-block; background: #7c3aed; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0; }
+            .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Feedback Ready!</h1>
+              <p>Your code review feedback has been posted</p>
+            </div>
+            <div class="content">
+              <h2>Hey ${displayName}!</h2>
+              <p>Your <strong>${session.type === "LIVE" ? "Live" : "Async"} Code Review</strong> completed on ${escapeHtml(completedStr)} now has feedback.</p>
+              ${
+                session.feedback
+                  ? `
+                <div class="feedback-box">
+                  <p style="margin: 0; white-space: pre-wrap;">${escapeHtml(session.feedback)}</p>
+                </div>
+              `
+                  : ""
+              }
+              <a href="${baseUrl}/mentorship" class="cta-button">View Full Feedback</a>
+            </div>
+            <div class="footer">
+              <p>Vibed to Cracked - CRACKED Mentorship</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  private generateMentorshipAdminNotifyTemplate(session: {
+    type: string;
+    description: string | null;
+    codeLink: string | null;
+    user: { name: string | null; username: string | null; email: string };
+  }): string {
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const userName =
+      escapeHtml(session.user.name || session.user.username) || "Unknown";
+
+    return `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="utf-8">
+          <title>New Mentorship Request</title>
+          <style>
+            body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; }
+            .container { max-width: 600px; margin: 0 auto; }
+            .header { background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: white; padding: 30px; border: 1px solid #ddd; }
+            .detail-box { background: #fef3c7; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #f59e0b; }
+            .cta-button { display: inline-block; background: #7c3aed; color: white; padding: 12px 30px; text-decoration: none; border-radius: 25px; margin: 20px 0; }
+            .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 10px 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>New Mentorship Request</h1>
+              <p>Action required</p>
+            </div>
+            <div class="content">
+              <h2>New ${session.type === "LIVE" ? "Live" : "Async"} Session Request</h2>
+              <div class="detail-box">
+                <p><strong>Student:</strong> ${userName} (${escapeHtml(session.user.email)})</p>
+                <p><strong>Type:</strong> ${session.type === "LIVE" ? "Live Code Review" : "Async Code Review"}</p>
+                ${session.description ? `<p><strong>Description:</strong> ${escapeHtml(session.description)}</p>` : ""}
+                ${session.codeLink ? `<p><strong>Code Link:</strong> <a href="${escapeHtml(session.codeLink)}">${escapeHtml(session.codeLink)}</a></p>` : ""}
+              </div>
+              <a href="${baseUrl}/admin" class="cta-button">Go to Admin Dashboard</a>
+            </div>
+            <div class="footer">
+              <p>Vibed to Cracked - Admin Notification</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `;
+  }
 }
 
 export const emailService = new EmailService();

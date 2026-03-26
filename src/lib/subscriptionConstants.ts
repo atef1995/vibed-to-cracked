@@ -14,9 +14,28 @@ export const SubscriptionStatus = {
   EXPIRED: "EXPIRED",
 } as const;
 
+export const MentorshipSessionType = {
+  LIVE: "LIVE",
+  ASYNC: "ASYNC",
+} as const;
+
+export const MentorshipSessionStatus = {
+  PENDING: "PENDING",
+  SCHEDULED: "SCHEDULED",
+  COMPLETED: "COMPLETED",
+  CANCELLED: "CANCELLED",
+  NO_SHOW: "NO_SHOW",
+} as const;
+
 export type Plan = (typeof Plan)[keyof typeof Plan];
 export type SubscriptionStatus =
   (typeof SubscriptionStatus)[keyof typeof SubscriptionStatus];
+export type MentorshipSessionType =
+  (typeof MentorshipSessionType)[keyof typeof MentorshipSessionType];
+export type MentorshipSessionStatus =
+  (typeof MentorshipSessionStatus)[keyof typeof MentorshipSessionStatus];
+
+export const MENTORSHIP_MONTHLY_LIMIT = 4;
 
 // Plan configurations
 export const PLAN_CONFIGS = {
@@ -29,6 +48,7 @@ export const PLAN_CONFIGS = {
     quizzesPerMonth: 2,
     storageGB: 0.5,
     aiTutorMessagesPerDay: 5,
+    mentorshipSessionsPerMonth: 0,
     features: [
       "Limited tutorials (5/month)",
       "Limited challenges (3/month)",
@@ -46,6 +66,7 @@ export const PLAN_CONFIGS = {
     quizzesPerMonth: null,
     storageGB: 10,
     aiTutorMessagesPerDay: 50,
+    mentorshipSessionsPerMonth: 0,
     features: [
       "Unlimited tutorials",
       "Unlimited challenges",
@@ -66,10 +87,11 @@ export const PLAN_CONFIGS = {
     quizzesPerMonth: null,
     storageGB: 50,
     aiTutorMessagesPerDay: null, // Unlimited
+    mentorshipSessionsPerMonth: 4,
     features: [
       "All Vibed features",
       "50GB storage",
-      "1-on-1 mentoring",
+      "Weekly 1-on-1 Code Reviews (4/month)",
       "Custom learning paths",
       "API access",
       "Team collaboration",

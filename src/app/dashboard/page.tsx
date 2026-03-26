@@ -13,7 +13,6 @@ import {
   Code,
   Brain,
   Building,
-  ToolCase,
   GitPullRequest,
   FileText,
   Zap,
@@ -22,6 +21,9 @@ import {
   Star,
   Map,
   ArrowRight,
+  MessageSquare,
+  Wrench,
+  Lock,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "@/components/ui/PageLayout";
@@ -106,7 +108,7 @@ const exploreLinks = [
   },
   {
     href: "/tools/complexity-visualizer",
-    icon: ToolCase,
+    icon: Wrench,
     label: "Visualizer",
     color: "text-red-600 dark:text-red-400",
     hoverBorder: "hover:border-red-200 dark:hover:border-red-500",
@@ -399,6 +401,64 @@ export default function DashboardPage() {
           </Link>
         </div>
       </div>
+
+      {/* Mentorship */}
+      <Link
+        href={
+          session.user.subscription === "CRACKED"
+            ? "/mentorship"
+            : "/pricing?feature=mentorship"
+        }
+        className={`mb-10 flex items-center gap-4 rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all group ${
+          session.user.subscription === "CRACKED"
+            ? "bg-linear-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-100 dark:border-violet-800/40 hover:border-violet-200 dark:hover:border-violet-700"
+            : "bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-800/30 border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 opacity-80 hover:opacity-100"
+        }`}
+      >
+        <div
+          className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${
+            session.user.subscription === "CRACKED"
+              ? "bg-violet-100 dark:bg-violet-800/40"
+              : "bg-gray-200 dark:bg-gray-700"
+          }`}
+        >
+          {session.user.subscription === "CRACKED" ? (
+            <MessageSquare className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+          ) : (
+            <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3
+              className={`text-sm font-semibold ${
+                session.user.subscription === "CRACKED"
+                  ? "text-gray-900 dark:text-gray-100"
+                  : "text-gray-500 dark:text-gray-400"
+              }`}
+            >
+              1-on-1 Code Reviews
+            </h3>
+            {session.user.subscription !== "CRACKED" && (
+              <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300">
+                Cracked
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {session.user.subscription === "CRACKED"
+              ? "Book a live session or submit code for async feedback"
+              : "Upgrade to Cracked for weekly 1-on-1 code reviews"}
+          </p>
+        </div>
+        <ArrowRight
+          className={`h-4 w-4 shrink-0 transition-colors ${
+            session.user.subscription === "CRACKED"
+              ? "text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300"
+              : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
+          }`}
+        />
+      </Link>
 
       {/* 6. Explore More — compact links */}
       <div className="mb-10">
