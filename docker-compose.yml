@@ -70,7 +70,9 @@ services:
       dockerfile: Dockerfile.seed
     container_name: vibed-to-cracked-seed
     env_file:
-      - .env
+      - .env.production
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - ./scripts:/app/scripts
       - ./prisma:/app/prisma
