@@ -9,7 +9,7 @@ services:
     env_file:
       - .env.local
     ports:
-      - "3002:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
     volumes:

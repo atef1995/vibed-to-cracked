@@ -8,7 +8,9 @@ const nextConfig: NextConfig = {
     mdxRs: true,
   },
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg"],
-  // Add headers required for WebContainer (SharedArrayBuffer support)
+  // Headers for WebContainer (SharedArrayBuffer support)
+  // Using "credentialless" instead of "require-corp" so third-party embeds
+  // (e.g. Calendly on /mentorship) still load while crossOriginIsolated is true
   async headers() {
     return [
       {
@@ -16,7 +18,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cross-Origin-Embedder-Policy",
-            value: "require-corp",
+            value: "credentialless",
           },
           {
             key: "Cross-Origin-Opener-Policy",

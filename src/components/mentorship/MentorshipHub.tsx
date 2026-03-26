@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import {
@@ -298,6 +298,26 @@ function SessionCard({ session }: { session: MentorshipSession }) {
   );
 }
 
+function CalendlyWidget({ url }: { url: string }) {
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://assets.calendly.com/assets/external/widget.js";
+    script.async = true;
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  return (
+    <div
+      className="calendly-inline-widget rounded-lg overflow-hidden"
+      data-url={`${url}?hide_gdpr_banner=1&background_color=1a1a2e&text_color=e2e8f0&primary_color=7c3aed`}
+      style={{ minWidth: "320px", height: "700px" }}
+    />
+  );
+}
+
 export function MentorshipHub({ calendlyUrl }: { calendlyUrl?: string }) {
   const { data: session } = useSession();
   const queryClient = useQueryClient();
@@ -395,16 +415,7 @@ export function MentorshipHub({ calendlyUrl }: { calendlyUrl?: string }) {
                   works for you.
                 </p>
                 {calendlyUrl ? (
-                  <div className="rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600">
-                    <iframe
-                      src={`${calendlyUrl}?hide_gdpr_banner=1&background_color=0f172a&text_color=e2e8f0&primary_color=7c3aed`}
-                      width="100%"
-                      height="630"
-                      frameBorder="0"
-                      title="Schedule a code review"
-                      className="dark:bg-gray-900"
-                    />
-                  </div>
+                  <CalendlyWidget url={calendlyUrl} />
                 ) : (
                   <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                     <Calendar className="h-10 w-10 mx-auto mb-3 text-gray-300 dark:text-gray-600" />

@@ -26,6 +26,7 @@ declare global {
 }
 
 let webcontainerInstance: WebContainer | null = null;
+let webcontainerBooting: Promise<WebContainer> | null = null;
 
 // Execute code with specific tutorial context (automatically includes relevant packages)
 export async function executeCodeForTutorial(
@@ -107,13 +108,24 @@ export async function initWebContainer() {
     return webcontainerInstance;
   }
 
-  try {
-    webcontainerInstance = await WebContainer.boot();
-    return webcontainerInstance;
-  } catch (error) {
-    console.error("Failed to initialize WebContainer:", error);
-    throw new Error("Failed to initialize code execution environment");
+  // Prevent multiple concurrent boot attempts
+  if (webcontainerBooting) {
+    return webcontainerBooting;
   }
+
+  webcontainerBooting = WebContainer.boot()
+    .then((instance) => {
+      webcontainerInstance = instance;
+      webcontainerBooting = null;
+      return instance;
+    })
+    .catch((error) => {
+      webcontainerBooting = null;
+      console.error("Failed to initialize WebContainer:", error);
+      throw new Error("Failed to initialize code execution environment");
+    });
+
+  return webcontainerBooting;
 }
 
 // Enhanced streaming version with dynamic package detection
@@ -171,8 +183,9 @@ export async function executeJavaScriptStream(
     await webcontainer.mount(files);
 
     // Install dependencies first - only if there are non-default packages
-    const hasAdditionalPackages = detectedPackages.length > 0 || Object.keys(customPackages).length > 0;
-    
+    const hasAdditionalPackages =
+      detectedPackages.length > 0 || Object.keys(customPackages).length > 0;
+
     if (hasAdditionalPackages) {
       onOutput("📦 Installing dependencies...");
       const installProcess = await webcontainer.spawn("npm", ["install"]);
@@ -1128,7 +1141,12 @@ export async function executeJavaScriptAsync(code: string): Promise<{
       `;
 
       // Create function with mocked globals
-      const func = new Function("console", "setTimeout", "Promise", wrappedCode);
+      const func = new Function(
+        "console",
+        "setTimeout",
+        "Promise",
+        wrappedCode
+      );
 
       // Execute the code with native Promise support
       func(mockConsole, mockSetTimeout, Promise);
@@ -1158,8 +1176,9 @@ export async function executeJavaScriptAsync(code: string): Promise<{
       }
     } catch (error) {
       // Capture error with details
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      const errorName = error instanceof Error ? error.name : 'Error';
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      const errorName = error instanceof Error ? error.name : "Error";
       errors.push(`❌ ${errorName}: ${errorMessage}`);
 
       resolve({
@@ -1246,7 +1265,8 @@ export function executeJavaScriptSimple(code: string) {
       errors,
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     const errorName = error instanceof Error ? error.name : "Error";
     const formattedError = `❌ ${errorName}: ${errorMessage}`;
 
