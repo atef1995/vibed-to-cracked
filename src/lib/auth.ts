@@ -55,6 +55,7 @@ export const authOptions: NextAuthOptions = {
               role: true,
               xp: true,
               level: true,
+              lastActiveAt: true,
             },
           });
 
@@ -63,6 +64,18 @@ export const authOptions: NextAuthOptions = {
           session.user.role = dbUser?.role || "USER";
           session.user.xp = dbUser?.xp || 0;
           session.user.level = dbUser?.level || 1;
+
+          // Throttled activity tracking: update at most once per hour
+          const ONE_HOUR = 60 * 60 * 1000;
+          const lastActive = dbUser?.lastActiveAt;
+          if (!lastActive || Date.now() - lastActive.getTime() > ONE_HOUR) {
+            prisma.user
+              .update({
+                where: { id: user.id },
+                data: { lastActiveAt: new Date() },
+              })
+              .catch(() => {});
+          }
 
           // Store full subscription info in session to prevent repeated DB queries
           session.user.subscriptionInfo = subscriptionInfo;

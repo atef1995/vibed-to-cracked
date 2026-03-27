@@ -1,0 +1,3 @@
+-- This migration was applied directly to the database and is already
+-- covered by 20260323150000_catch_up_schema. This placeholder keeps
+-- the local migration history in sync.

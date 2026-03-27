@@ -57,6 +57,8 @@ export async function POST(req: NextRequest) {
           reminderNotifications: true,
           emailNotifications: true,
         },
+        // Exclude users who were recently active on the platform
+        OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: cutoffDate } }],
         AND: [
           {
             progress: {
@@ -142,11 +144,22 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // Filter by timezone-aware reminder window
+    // Filter by timezone-aware reminder window and skip users already reminded recently
+    const COOLDOWN_HOURS = 23;
+    const cooldownCutoff = new Date(
+      now.getTime() - COOLDOWN_HOURS * 60 * 60 * 1000
+    );
+
     const inactiveUsers = candidates.filter((user) => {
       const tz = user.userSettings?.timezone ?? "UTC";
       const rt = user.userSettings?.reminderTime ?? "18:00";
-      return isInReminderWindow(now, tz, rt);
+      if (!isInReminderWindow(now, tz, rt, 15)) return false;
+
+      // Skip if a reminder was already sent within the cooldown period
+      const lastSent = user.userSettings?.lastReminderSentAt;
+      if (lastSent && lastSent > cooldownCutoff) return false;
+
+      return true;
     });
 
     console.log(
@@ -175,21 +188,24 @@ export async function POST(req: NextRequest) {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const userIds = inactiveUsers.map((u) => u.id);
 
-    const [allProgressActivities, allTutorialActivities, allChallengeActivities] =
-      await Promise.all([
-        prisma.progress.findMany({
-          where: { userId: { in: userIds }, updatedAt: { gte: thirtyDaysAgo } },
-          select: { userId: true, updatedAt: true },
-        }),
-        prisma.tutorialProgress.findMany({
-          where: { userId: { in: userIds }, updatedAt: { gte: thirtyDaysAgo } },
-          select: { userId: true, updatedAt: true },
-        }),
-        prisma.challengeAttempt.findMany({
-          where: { userId: { in: userIds }, createdAt: { gte: thirtyDaysAgo } },
-          select: { userId: true, createdAt: true },
-        }),
-      ]);
+    const [
+      allProgressActivities,
+      allTutorialActivities,
+      allChallengeActivities,
+    ] = await Promise.all([
+      prisma.progress.findMany({
+        where: { userId: { in: userIds }, updatedAt: { gte: thirtyDaysAgo } },
+        select: { userId: true, updatedAt: true },
+      }),
+      prisma.tutorialProgress.findMany({
+        where: { userId: { in: userIds }, updatedAt: { gte: thirtyDaysAgo } },
+        select: { userId: true, updatedAt: true },
+      }),
+      prisma.challengeAttempt.findMany({
+        where: { userId: { in: userIds }, createdAt: { gte: thirtyDaysAgo } },
+        select: { userId: true, createdAt: true },
+      }),
+    ]);
 
     // Build a map of userId -> Set of active days
     const streakMap = new Map<string, Set<string>>();
@@ -264,6 +280,14 @@ export async function POST(req: NextRequest) {
         if (result.success) {
           emailsSent++;
           console.log(` Reminder sent to ${user.email}`);
+
+          // Record the send time to prevent duplicate reminders
+          if (user.userSettings) {
+            await prisma.userSettings.update({
+              where: { id: user.userSettings.id },
+              data: { lastReminderSentAt: new Date() },
+            });
+          }
         } else {
           errors++;
           console.error(
@@ -380,6 +404,7 @@ export async function GET(req: NextRequest) {
         userSettings: {
           reminderNotifications: true,
         },
+        OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: cutoffDate } }],
         AND: [
           {
             progress: {

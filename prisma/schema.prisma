@@ -71,6 +71,9 @@ model User {
   emailUnsubscribed   Boolean   @default(false)
   emailUnsubscribedAt DateTime?
 
+  // Activity tracking for reminders
+  lastActiveAt DateTime?
+
   accounts                 Account[]
   certificates             Certificate[]
   challengeAttempts        ChallengeAttempt[]
@@ -105,6 +108,7 @@ model User {
   // Exercises system relations
   exerciseAttempts ExerciseAttempt[]
   exerciseProgress ExerciseProgress[]
+  stepProgress     TutorialStepProgress[]
 
   // Blog system relations
   blogPosts BlogPost[]
@@ -174,16 +178,59 @@ model Tutorial {
   updatedAt        DateTime           @updatedAt
   estimatedTime    Float              @default(60.0)
   categoryId       String
+  exerciseSlug    String?
   progress         Progress[]
   quizzes          Quiz[]
   feedback         TutorialFeedback[]
   tutorialProgress TutorialProgress[]
+  steps            TutorialStep[]
   category             Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@index([categoryId, published, order])
   @@index([published, order])
   @@index([categoryId])
   @@map("tutorials")
+}
+
+model TutorialStep {
+  id               String                 @id @default(cuid())
+  slug             String
+  tutorialId       String
+  order            Int
+  title            String
+  description      String?
+  mdxFile          String?
+  validationType   String                 @default("both") // "output" | "pattern" | "both"
+  validationConfig Json?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  tutorial         Tutorial               @relation(fields: [tutorialId], references: [id], onDelete: Cascade)
+  progress         TutorialStepProgress[]
+
+  @@unique([tutorialId, slug])
+  @@unique([tutorialId, order])
+  @@index([tutorialId, order])
+  @@map("tutorial_steps")
+}
+
+model TutorialStepProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  stepId      String
+  status      String    @default("NOT_STARTED") // "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED"
+  passed      Boolean   @default(false)
+  userCode    String?
+  attempts    Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  step        TutorialStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stepId])
+  @@index([userId])
+  @@index([stepId])
+  @@map("tutorial_step_progress")
 }
 
 model Quiz {
@@ -569,6 +616,7 @@ model UserSettings {
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
   timezone                 String   @default("UTC")
+  lastReminderSentAt       DateTime?
   user                     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_settings")

@@ -23,6 +23,8 @@ export async function POST(req: NextRequest) {
         userSettings: {
           reminderNotifications: true,
         },
+        // Exclude users who were recently active on the platform
+        OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: cutoffDate } }],
         // Users who haven't had recent progress in ANY category
         AND: [
           {
@@ -120,6 +122,14 @@ export async function POST(req: NextRequest) {
           reminderData
         );
 
+        // Record the send time to prevent duplicate reminders
+        if (result.success && user.userSettings) {
+          await prisma.userSettings.update({
+            where: { id: user.userSettings.id },
+            data: { lastReminderSentAt: new Date() },
+          });
+        }
+
         results.push({
           userId: user.id,
           email: user.email,
@@ -171,6 +181,7 @@ export async function GET(req: NextRequest) {
         userSettings: {
           reminderNotifications: true,
         },
+        OR: [{ lastActiveAt: null }, { lastActiveAt: { lt: cutoffDate } }],
         AND: [
           {
             progress: {
