@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { contentType, contentSlug, message, highlightedText } =
+    const { contentType, contentSlug, message, highlightedText, context } =
       await request.json();
 
     if (!contentType || !contentSlug || !message) {
@@ -132,7 +132,8 @@ export async function POST(request: NextRequest) {
           session.user.mood || "CHILL",
           contentType,
           title,
-          contentBody
+          contentBody,
+          context
         ),
       },
       ...recentMessages.map((msg) => ({

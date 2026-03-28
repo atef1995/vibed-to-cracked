@@ -258,8 +258,8 @@ const Console: React.FC<ConsoleProps> = ({
                         line.startsWith("❌")
                           ? "text-red-400"
                           : line.startsWith("⚠️")
-                          ? "text-yellow-400"
-                          : "text-green-400"
+                            ? "text-yellow-400"
+                            : "text-green-400"
                       }`}
                       style={{
                         animationDelay: `${index * 0.1}s`,

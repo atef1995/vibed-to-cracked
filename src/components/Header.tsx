@@ -71,39 +71,6 @@ export function Header() {
       },
     },
     {
-      href: "/cheat-sheets",
-      label: "Cheat Sheets",
-      icon: FileText,
-      colors: {
-        desktop:
-          "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
-        mobile:
-          "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
-      },
-    },
-    {
-      href: "/practice",
-      label: "Practice",
-      icon: Code,
-      colors: {
-        desktop:
-          "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
-        mobile:
-          "text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20",
-      },
-    },
-    {
-      href: "/quizzes",
-      label: "Quizzes",
-      icon: Brain,
-      colors: {
-        desktop:
-          "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20",
-        mobile:
-          "text-gray-600 dark:text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20",
-      },
-    },
-    {
       href: "/study-plan",
       label: "Study Plan",
       icon: Map,
@@ -156,17 +123,6 @@ export function Header() {
           "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
         mobile:
           "text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20",
-      },
-    },
-    {
-      href: "/projects",
-      label: "Projects",
-      icon: Building,
-      colors: {
-        desktop:
-          "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
-        mobile:
-          "text-gray-600 dark:text-gray-400 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20",
       },
     },
     {

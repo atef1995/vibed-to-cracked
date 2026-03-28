@@ -15,22 +15,37 @@ interface UsageInfo {
   remaining: number | null;
 }
 
+export interface TutorContext {
+  userCode?: string;
+  consoleOutput?: string;
+  stepTitle?: string;
+  stepDescription?: string;
+  taskInstructions?: string;
+  validationResult?: { passed: boolean; feedback: string } | null;
+  stepOrder?: number;
+  totalSteps?: number;
+}
+
 interface UseTutorChatOptions {
   contentType: string;
   contentSlug: string;
   enabled?: boolean;
+  context?: TutorContext;
 }
 
 export function useTutorChat({
   contentType,
   contentSlug,
   enabled = true,
+  context,
 }: UseTutorChatOptions) {
   const [messages, setMessages] = useState<TutorMessage[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [highlightedText, setHighlightedText] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const contextRef = useRef(context);
+  contextRef.current = context;
   const queryClient = useQueryClient();
 
   // Fetch conversation history
@@ -103,6 +118,7 @@ export function useTutorChat({
             contentSlug,
             message: text,
             highlightedText: selectedText || highlightedText,
+            context: contextRef.current,
           }),
           signal: abortControllerRef.current.signal,
         });

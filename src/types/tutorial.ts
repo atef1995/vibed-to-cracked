@@ -46,10 +46,20 @@ export type TutorialWithQuiz = Tutorial & {
   quizzes: Quiz[];
 };
 
+export interface TutorialStepSummary {
+  id: string;
+  slug: string;
+  order: number;
+  title: string;
+  description: string | null;
+  validationType: string;
+}
+
 /**
  * Tutorial with all related data
  */
 export type TutorialWithAll = Tutorial & {
   category: Category;
   quizzes: Quiz[];
+  steps?: TutorialStepSummary[];
 };

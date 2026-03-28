@@ -22,6 +22,7 @@ import AccessWarningBanner from "@/components/tutorial/AccessWarningBanner";
 import TutorialErrorState from "@/components/tutorial/TutorialErrorState";
 import AnonymousProgressBanner from "@/components/tutorial/AnonymousProgressBanner";
 import AnonymousLimitReached from "@/components/tutorial/AnonymousLimitReached";
+import TutorialOverview from "@/components/tutorial/TutorialOverview";
 import TutorFAB from "@/components/tutor/TutorFAB";
 import TutorChatPanel from "@/components/tutor/TutorChatPanel";
 import SelectionTooltip from "@/components/tutor/SelectionTooltip";
@@ -254,6 +255,9 @@ export default function TutorialClient({
     );
   }
 
+  // Determine if this is a step-based tutorial
+  const hasSteps = tutorial.steps && tutorial.steps.length > 0;
+
   // Main render
   return (
     <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
@@ -268,19 +272,26 @@ export default function TutorialClient({
           {/* Access Warning Banner */}
           <AccessWarningBanner accessCheck={accessCheck} />
 
-          {/* Tutorial Content (wrapped for text selection) */}
-          <div ref={contentRef}>
-            <TutorialContent
-              tutorial={tutorial}
-              contentLoaded={contentLoaded}
-            />
-          </div>
+          {hasSteps ? (
+            /* Step-based tutorial: show overview with step list */
+            <TutorialOverview tutorial={tutorial} category={category} />
+          ) : (
+            /* Classic tutorial: show full MDX content */
+            <>
+              <div ref={contentRef}>
+                <TutorialContent
+                  tutorial={tutorial}
+                  contentLoaded={contentLoaded}
+                />
+              </div>
 
-          {/* Quiz Section */}
-          <TutorialQuizSection
-            tutorial={tutorial}
-            contentLoaded={contentLoaded}
-          />
+              {/* Quiz Section */}
+              <TutorialQuizSection
+                tutorial={tutorial}
+                contentLoaded={contentLoaded}
+              />
+            </>
+          )}
 
           {/* Tutorial Navigation */}
           <TutorialNavigation

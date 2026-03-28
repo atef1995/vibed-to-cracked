@@ -175,7 +175,7 @@ const mdxComponents = {
       const codeContent =
         typeof props.children === "string" ? props.children : "";
       return (
-        <InteractiveCodeBlock height={"300px"} language={props.className}>
+        <InteractiveCodeBlock language={props.className}>
           {codeContent}
         </InteractiveCodeBlock>
       );

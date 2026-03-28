@@ -291,7 +291,7 @@ const MultiFileCodeEditor: React.FC<MultiFileCodeEditorProps> = ({
   return (
     <div className="rounded-lg overflow-hidden bg-white border border-blue-200 dark:border-transparent dark:bg-gray-800">
       {/* File Tabs */}
-      <div className="flex items-center bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+      <div className="flex flex-col sm:flex-row space-y-1 items-center bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
         <div className="flex items-center flex-1 min-w-0">
           {effectiveFiles.map((file, index) => (
             <button

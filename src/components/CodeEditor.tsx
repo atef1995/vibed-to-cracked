@@ -44,6 +44,7 @@ interface CodeEditorProps {
   canRun?: boolean;
   language?: string;
   useWebContainer?: boolean; // WebContainer execution (has CORS issues)
+  onRunComplete?: (output: string[], errors: string[]) => void;
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -55,6 +56,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   canRun = true,
   language = "javascript",
   useWebContainer = false, // WebContainer has CORS issues
+  onRunComplete,
 }) => {
   const [code, setCode] = useState(initialCode);
   const [result, setResult] = useState<ExecutionResult | null>(null);
@@ -140,6 +142,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                 });
                 setIsRunning(false);
                 setForceUpdateCounter((prev) => prev + 1);
+                onRunComplete?.(finalResult.logs, finalResult.errors);
               }
             );
           } catch (streamingError) {
@@ -151,21 +154,24 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             const executionResult = await executeJavaScript(code, language);
             if (executionResult) {
               const executionTime = Date.now() - startTime;
+              const output = executionResult.output
+                ? executionResult.output
+                    .split("\n")
+                    .filter((line: string) => line.trim())
+                : [];
+              const errors = executionResult.error
+                ? executionResult.error
+                    .split("\n")
+                    .filter((line: string) => line.trim())
+                : [];
               setResult({
-                output: executionResult.output
-                  ? executionResult.output
-                      .split("\n")
-                      .filter((line: string) => line.trim())
-                  : [],
-                errors: executionResult.error
-                  ? executionResult.error
-                      .split("\n")
-                      .filter((line: string) => line.trim())
-                  : [],
+                output,
+                errors,
                 executionTime,
                 isComplete: true,
               });
               setForceUpdateCounter((prev) => prev + 1);
+              onRunComplete?.(output, errors);
             }
             setIsRunning(false);
           }
@@ -173,21 +179,24 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           const executionResult = await executeTypeScript(code);
           if (executionResult) {
             const executionTime = Date.now() - startTime;
+            const output = executionResult.output
+              ? executionResult.output
+                  .split("\n")
+                  .filter((line: string) => line.trim())
+              : [];
+            const errors = executionResult.error
+              ? executionResult.error
+                  .split("\n")
+                  .filter((line: string) => line.trim())
+              : [];
             setResult({
-              output: executionResult.output
-                ? executionResult.output
-                    .split("\n")
-                    .filter((line: string) => line.trim())
-                : [],
-              errors: executionResult.error
-                ? executionResult.error
-                    .split("\n")
-                    .filter((line: string) => line.trim())
-                : [],
+              output,
+              errors,
               executionTime,
               isComplete: true,
             });
             setForceUpdateCounter((prev) => prev + 1);
+            onRunComplete?.(output, errors);
           }
           setIsRunning(false);
         }
@@ -203,12 +212,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
         if (executionResult) {
           const executionTime = Date.now() - startTime;
+          const output = executionResult.logs || [];
+          const errors = executionResult.errors || [];
           setResult({
-            output: executionResult.logs || [],
-            errors: executionResult.errors || [],
+            output,
+            errors,
             executionTime,
             isComplete: true,
           });
+          onRunComplete?.(output, errors);
         }
         setIsRunning(false);
       }

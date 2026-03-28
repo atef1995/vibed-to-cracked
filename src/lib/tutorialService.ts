@@ -83,6 +83,17 @@ export class TutorialService {
         include: {
           quizzes: true,
           category: true,
+          steps: {
+            select: {
+              id: true,
+              slug: true,
+              order: true,
+              title: true,
+              description: true,
+              validationType: true,
+            },
+            orderBy: { order: "asc" },
+          },
         },
       });
 

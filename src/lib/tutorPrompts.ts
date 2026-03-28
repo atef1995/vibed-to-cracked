@@ -26,6 +26,56 @@ const MOOD_PROMPTS: Record<string, string> = {
   GRIND: `Your tone is structured and methodical. Push the student to think deeper. Ask follow-up questions that build on their answer. Use phrases like "good, now think about...", "what happens if you change...", "can you explain why that works?". Encourage them to reason through problems thoroughly.`,
 };
 
+interface StepContext {
+  userCode?: string;
+  consoleOutput?: string;
+  stepTitle?: string;
+  stepDescription?: string;
+  taskInstructions?: string;
+  validationResult?: { passed: boolean; feedback: string } | null;
+  stepOrder?: number;
+  totalSteps?: number;
+}
+
+function buildStepContextBlock(ctx: StepContext): string {
+  const parts: string[] = [];
+
+  if (ctx.stepTitle) {
+    const progress =
+      ctx.stepOrder && ctx.totalSteps
+        ? ` (step ${ctx.stepOrder} of ${ctx.totalSteps})`
+        : "";
+    parts.push(`Current step: "${ctx.stepTitle}"${progress}`);
+  }
+
+  if (ctx.taskInstructions) {
+    parts.push(`Task the student needs to complete: ${ctx.taskInstructions}`);
+  }
+
+  if (ctx.userCode) {
+    const code =
+      ctx.userCode.length > 3000
+        ? ctx.userCode.slice(0, 3000) + "\n// ...truncated"
+        : ctx.userCode;
+    parts.push(`Student's current code:\n\`\`\`js\n${code}\n\`\`\``);
+  }
+
+  if (ctx.consoleOutput) {
+    const output =
+      ctx.consoleOutput.length > 1000
+        ? ctx.consoleOutput.slice(0, 1000) + "\n...truncated"
+        : ctx.consoleOutput;
+    parts.push(`Console output from running their code:\n${output}`);
+  }
+
+  if (ctx.validationResult) {
+    const status = ctx.validationResult.passed ? "PASSED" : "FAILED";
+    parts.push(`Last validation: ${status} — ${ctx.validationResult.feedback}`);
+  }
+
+  return parts.length > 0 ? "\n\n" + parts.join("\n\n") : "";
+}
+
 /**
  * Build the system prompt for the AI tutor
  */
@@ -33,7 +83,8 @@ export function buildSystemPrompt(
   mood: string,
   contentType: string,
   title: string,
-  content: string
+  content: string,
+  context?: StepContext
 ): string {
   const moodPrompt = MOOD_PROMPTS[mood] || MOOD_PROMPTS.CHILL;
   const contentPrompt =
@@ -53,6 +104,8 @@ export function buildSystemPrompt(
         ? "coding challenge"
         : "exercise";
 
+  const stepBlock = context ? buildStepContextBlock(context) : "";
+
   return `${BASE_PROMPT}
 
 ${contentPrompt}
@@ -64,7 +117,7 @@ The student is currently working on this ${contentLabel}: "${title}"
 Here is the ${contentLabel} content for context (use this to give relevant, specific guidance):
 ---
 ${trimmedContent}
----`;
+---${stepBlock}`;
 }
 
 /**

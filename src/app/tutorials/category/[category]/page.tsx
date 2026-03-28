@@ -225,7 +225,7 @@ export default function CategoryPage() {
           </div>
 
           {/* View Toggle */}
-          <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 ml-6">
+          {/* <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-lg p-1 ml-6">
             <button
               onClick={() => setViewMode("grid")}
               className={`p-2 rounded-md transition-colors ${
@@ -248,7 +248,7 @@ export default function CategoryPage() {
             >
               <List className="w-4 h-4" />
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Progress Stats */}

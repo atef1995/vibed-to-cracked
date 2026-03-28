@@ -36,12 +36,21 @@ export interface TutorialData {
   mdxSource: MDXRemoteSerializeResult;
   isPremium: boolean;
   requiredPlan?: "FREE" | "VIBED" | "CRACKED";
+  exerciseSlug?: string | null;
   quiz?: {
     id: string;
     title: string;
     slug: string;
     questions: QuizQuestion[];
   };
+  steps?: {
+    id: string;
+    slug: string;
+    order: number;
+    title: string;
+    description: string | null;
+    validationType: string;
+  }[];
 }
 
 // Fetch function for tutorial data
@@ -107,9 +116,15 @@ const fetchTutorial = async (slug: string): Promise<TutorialData> => {
     meta: frontmatter as TutorialMeta,
     content: finalContent,
     mdxSource,
-    quiz: tutorialInfo.quizzes && tutorialInfo.quizzes.length > 0 ? tutorialInfo.quizzes[0] : undefined,
+    quiz:
+      tutorialInfo.quizzes && tutorialInfo.quizzes.length > 0
+        ? tutorialInfo.quizzes[0]
+        : undefined,
     isPremium: tutorialInfo.isPremium,
-    requiredPlan: tutorialInfo.requiredPlan || (frontmatter as TutorialMeta).requiredPlan,
+    requiredPlan:
+      tutorialInfo.requiredPlan || (frontmatter as TutorialMeta).requiredPlan,
+    exerciseSlug: tutorialInfo.exerciseSlug || null,
+    steps: tutorialInfo.steps || [],
   };
 };
 

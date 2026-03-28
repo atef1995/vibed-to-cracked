@@ -36,12 +36,13 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
   initialCode,
   editable = true,
   title,
-  height = "300px",
+  height,
   description,
   language = "javascript",
   files,
 }) => {
   language = language?.replace(/language-/, "") || "javascript";
+  if (language === "js") language = "javascript";
 
   // Keep nodejs/node as separate language for proper module system selection
   // but normalize for Monaco editor display
@@ -100,6 +101,13 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
   }, [children]);
 
   const code = initialCode || codeFromChildren;
+
+  const effectiveHeight = useMemo(() => {
+    if (height) return height;
+    const lines = code.split("\n").length;
+    const editorLines = Math.max(lines + 2, 4);
+    return `${Math.min(editorLines * 21, 420)}px`;
+  }, [height, code]);
 
   // Detect if code uses CommonJS (module.exports, require)
   const usesCommonJS = useMemo(() => {
@@ -176,7 +184,7 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
         <MultiFileCodeEditor
           files={effectiveFiles}
           readOnly={!editable}
-          height={height}
+          height={effectiveHeight}
           canRun={editable}
         />
       ) : (
@@ -184,7 +192,7 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
           language={language}
           initialCode={code}
           readOnly={!editable}
-          height={height}
+          height={effectiveHeight}
           useWebContainer={
             language === "javascript" ||
             language === "nodejs" ||

@@ -163,10 +163,6 @@ export async function executeJavaScriptStream(
       customPackages
     );
 
-    onOutput(
-      "🔍 Detected packages: " + detectedPackages.map((p) => p.name).join(", ")
-    );
-
     const files = {
       "script.js": {
         file: {
@@ -191,8 +187,6 @@ export async function executeJavaScriptStream(
       const installProcess = await webcontainer.spawn("npm", ["install"]);
       await installProcess.exit;
       onOutput(" Dependencies installed");
-    } else {
-      onOutput("ℹ️ No additional dependencies to install, using defaults");
     }
 
     const process = await webcontainer.spawn("node", ["script.js"]);
