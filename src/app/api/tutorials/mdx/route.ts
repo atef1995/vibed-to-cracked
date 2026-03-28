@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { TutorialService } from "@/lib/tutorialService";
 import { SubscriptionService, Plan } from "@/lib/subscriptionService";
+import { StepService } from "@/lib/stepService";
 
 export async function GET(request: NextRequest) {
   try {
@@ -105,7 +106,27 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // PRIORITY 2: Fall back to file system (for local development)
+    // PRIORITY 2: Try step content from database
+    const stepContent = await StepService.getStepContentByMdxFile(fileName);
+    if (stepContent && stepContent.length > 50) {
+      const { data: frontmatter, content } = matter(stepContent);
+
+      const cleanContent = content
+        .trim()
+        .replace(/\r\n/g, "\n")
+        .replace(/\n{3,}/g, "\n\n");
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          frontmatter,
+          content: cleanContent,
+          source: "database",
+        },
+      });
+    }
+
+    // PRIORITY 3: Fall back to file system (for local development)
     const tutorialsDir = path.resolve(
       path.join(process.cwd(), "src", "content", "tutorials")
     );

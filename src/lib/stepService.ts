@@ -173,6 +173,16 @@ export class StepService {
     });
   }
 
+  static async getStepContentByMdxFile(
+    mdxFile: string
+  ): Promise<string | null> {
+    const step = await prisma.tutorialStep.findFirst({
+      where: { mdxFile },
+      select: { content: true },
+    });
+    return step?.content ?? null;
+  }
+
   static async getTutorialBySlugWithSteps(slug: string) {
     return prisma.tutorial.findUnique({
       where: { slug },

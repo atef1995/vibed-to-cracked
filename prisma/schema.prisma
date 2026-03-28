@@ -199,6 +199,7 @@ model TutorialStep {
   order            Int
   title            String
   description      String?
+  content          String?
   mdxFile          String?
   validationType   String                 @default("both") // "output" | "pattern" | "both"
   validationConfig Json?
