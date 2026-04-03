@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   Lock,
   CheckCircle,
+  Shield,
   Share2,
   Twitter,
   Facebook,
@@ -68,6 +69,7 @@ function AchievementsPageContent() {
     { id: "challenge", label: "Challenges", icon: Award },
     { id: "speed", label: "Speed", icon: Zap },
     { id: "streak", label: "Streaks", icon: Star },
+    { id: "persistence", label: "Persistence", icon: Shield },
     { id: "social", label: "Social", icon: Users },
   ];
 

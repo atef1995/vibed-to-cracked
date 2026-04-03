@@ -8,6 +8,7 @@ import { AnonymousDashboard } from "@/components/AnonymousDashboard";
 import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector";
+import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import {
   BookOpen,
   Code,
@@ -481,6 +482,9 @@ export default function DashboardPage() {
           })}
         </div>
       </div>
+
+      {/* Recent Achievements */}
+      <RecentAchievements userId={session.user.id} />
 
       {/* 7. Progress Section */}
       <div>
