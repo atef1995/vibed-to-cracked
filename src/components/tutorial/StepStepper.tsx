@@ -19,6 +19,10 @@ export default function StepStepper({
   tutorialSlug,
 }: StepStepperProps) {
   const currentIndex = steps.findIndex((s) => s.slug === currentStepSlug);
+  const completedCount = steps.filter((s) => s.passed).length;
+  const totalCount = steps.length;
+  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const allComplete = completedCount === totalCount;
 
   return (
     <>
@@ -28,9 +32,18 @@ export default function StepStepper({
         aria-label="Tutorial steps"
       >
         <div className="sticky top-24 space-y-1">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3 px-2">
-            Steps
-          </h4>
+          <div className="px-2 mb-4">
+            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
+              <span className="font-semibold uppercase tracking-wider">Steps</span>
+              <span>{completedCount}/{totalCount}</span>
+            </div>
+            <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${allComplete ? "bg-emerald-500" : "bg-blue-500"}`}
+                style={{ width: `${progressPercent}%` }}
+              />
+            </div>
+          </div>
           {steps.map((step, i) => {
             const isCurrent = step.slug === currentStepSlug;
             const isComplete = step.passed;
@@ -56,9 +69,20 @@ export default function StepStepper({
 
       {/* Mobile — horizontal scrolling bar */}
       <nav
-        className="lg:hidden overflow-x-auto scrollbar-none -mx-4 px-4 mb-6"
+        className="lg:hidden -mx-4 px-4 mb-6"
         aria-label="Tutorial steps"
       >
+        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
+          <span className="font-medium">{completedCount}/{totalCount} steps</span>
+          <span>{progressPercent}%</span>
+        </div>
+        <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${allComplete ? "bg-emerald-500" : "bg-blue-500"}`}
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <div className="overflow-x-auto scrollbar-none">
         <div className="flex items-center gap-2 min-w-max">
           {steps.map((step, i) => {
             const isCurrent = step.slug === currentStepSlug;
@@ -118,6 +142,7 @@ export default function StepStepper({
               </Link>
             );
           })}
+        </div>
         </div>
       </nav>
     </>

@@ -334,6 +334,8 @@ export default function StepClient({
 
   const isPassed = stepPassed || step.progress?.passed || false;
   const totalSteps = stepList?.steps.length || 0;
+  const completedSteps = stepList?.steps.filter((s) => s.passed).length || 0;
+  const allStepsComplete = totalSteps > 0 && (completedSteps === totalSteps || (completedSteps === totalSteps - 1 && isPassed));
   const canAdvance = isPassed;
   const initialCode =
     step.validationConfig?.initialCode || "// Write your code here\n";
@@ -438,6 +440,33 @@ export default function StepClient({
                 totalSteps={totalSteps}
                 canAdvance={canAdvance}
               />
+
+              {allStepsComplete && (
+                <div className="mt-6 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 p-6 text-center">
+                  <p className="text-lg font-semibold text-emerald-800 dark:text-emerald-300 mb-1">
+                    All steps completed
+                  </p>
+                  <p className="text-sm text-emerald-600 dark:text-emerald-400 mb-4">
+                    You&apos;ve finished every step in this tutorial.
+                  </p>
+                  <div className="flex items-center justify-center gap-3">
+                    {step.exerciseSlug && (
+                      <Link
+                        href={`/exercises/${step.exerciseSlug}`}
+                        className="px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors"
+                      >
+                        Practice with Exercise
+                      </Link>
+                    )}
+                    <Link
+                      href={`/tutorials/category/${category}/${tutorialSlug}`}
+                      className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      Back to Tutorial
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
