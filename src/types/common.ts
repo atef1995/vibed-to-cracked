@@ -41,6 +41,7 @@ export type AchievementAction =
   | "EXERCISE_COMPLETED"
   | "PROJECT_COMPLETED"
   | "TUTORIAL_STARTED"
+  | "STEP_COMPLETED"
   | "STREAK_UPDATED"
   | "POINTS_EARNED"
   | "TUTORIAL_COMPLETED";
@@ -79,6 +80,7 @@ export interface AchievementMetadata {
   challengeId?: string;
   exerciseId?: string;
   projectId?: string;
+  stepId?: string;
   hintsUsed?: boolean;
   attempts?: number;
   category?: string;

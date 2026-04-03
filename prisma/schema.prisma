@@ -222,6 +222,7 @@ model TutorialStepProgress {
   passed      Boolean   @default(false)
   userCode    String?
   attempts    Int       @default(0)
+  timeSpent   Int?
   completedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt

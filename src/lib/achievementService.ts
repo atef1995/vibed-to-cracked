@@ -332,6 +332,139 @@ export class AchievementService {
             metadata.exerciseId === "form-validation",
           points: 30,
         },
+
+        // Tutorial Step Achievements - Milestones
+        {
+          key: "FIRST_STEP",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.stepsCompleted >= 1,
+          points: 10,
+        },
+        {
+          key: "STEP_APPRENTICE",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.stepsCompleted >= 5,
+          points: 20,
+        },
+        {
+          key: "STEP_ADEPT",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.stepsCompleted >= 10,
+          points: 30,
+        },
+        {
+          key: "STEP_EXPERT",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.stepsCompleted >= 25,
+          points: 50,
+        },
+        {
+          key: "STEP_MASTER",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.stepsCompleted >= 50,
+          points: 100,
+        },
+        {
+          key: "STEP_LEGEND",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.stepsCompleted >= 100,
+          points: 200,
+        },
+
+        // Tutorial Step Achievements - Tutorial Completion
+        {
+          key: "TUTORIAL_FINISHER",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 1,
+          points: 25,
+        },
+        {
+          key: "TUTORIAL_EXPLORER",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 3,
+          points: 30,
+        },
+        {
+          key: "TUTORIAL_SCHOLAR",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 5,
+          points: 50,
+        },
+        {
+          key: "TUTORIAL_GRANDMASTER",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 10,
+          points: 100,
+        },
+
+        // Tutorial Step Achievements - First-Try Streaks
+        {
+          key: "PERFECT_STREAK_3",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.firstTryStepStreak >= 3,
+          points: 15,
+        },
+        {
+          key: "PERFECT_STREAK_5",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.firstTryStepStreak >= 5,
+          points: 30,
+        },
+        {
+          key: "PERFECT_STREAK_10",
+          condition:
+            action === "STEP_COMPLETED" &&
+            userStats.firstTryStepStreak >= 10,
+          points: 75,
+        },
+
+        // Tutorial Step Achievements - Speed
+        {
+          key: "QUICK_LEARNER",
+          condition:
+            action === "STEP_COMPLETED" &&
+            metadata.timeSpent != null &&
+            metadata.timeSpent > 0 &&
+            metadata.timeSpent < 60,
+          points: 25,
+        },
+        {
+          key: "SPEED_CODER",
+          condition:
+            action === "STEP_COMPLETED" &&
+            metadata.timeSpent != null &&
+            metadata.timeSpent > 0 &&
+            metadata.timeSpent < 30,
+          points: 50,
+        },
+
+        // Tutorial Step Achievements - Persistence
+        {
+          key: "NEVER_GIVE_UP",
+          condition:
+            action === "STEP_COMPLETED" &&
+            (metadata.attempts || 0) >= 5,
+          points: 30,
+        },
+        {
+          key: "TENACIOUS",
+          condition:
+            action === "STEP_COMPLETED" &&
+            (metadata.attempts || 0) >= 10,
+          points: 50,
+        },
       ];
 
       // Check each achievement
@@ -381,6 +514,7 @@ export class AchievementService {
       exerciseProgress,
       exerciseAttempts,
       allExercises,
+      stepProgress,
     ] = await Promise.all([
       prisma.tutorialProgress.findMany({
         where: { userId, quizPassed: true },
@@ -399,6 +533,11 @@ export class AchievementService {
       prisma.exercise.findMany({
         where: { published: true },
         select: { category: true, id: true },
+      }),
+      prisma.tutorialStepProgress.findMany({
+        where: { userId, passed: true },
+        orderBy: { completedAt: "desc" },
+        select: { stepId: true, attempts: true, completedAt: true, step: { select: { tutorialId: true } } },
       }),
     ]);
 
@@ -475,6 +614,45 @@ export class AchievementService {
       completedCategories[category] = completedInCategory >= totalInCategory && totalInCategory > 0;
     }
 
+    // Calculate tutorial step stats
+    const stepsCompleted = stepProgress.length;
+
+    // Calculate first-try streak: consecutive steps with attempts === 1, most recent first
+    let firstTryStepStreak = 0;
+    for (const sp of stepProgress) {
+      if (sp.attempts === 1) {
+        firstTryStepStreak++;
+      } else {
+        break;
+      }
+    }
+
+    // Calculate tutorials where all steps are completed
+    const stepsByTutorial = stepProgress.reduce((acc, sp) => {
+      const tid = sp.step.tutorialId;
+      if (!acc[tid]) acc[tid] = 0;
+      acc[tid]++;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Get total step counts per tutorial for tutorials that have any completed steps
+    const tutorialIds = Object.keys(stepsByTutorial);
+    let tutorialsFullyCompleted = 0;
+    if (tutorialIds.length > 0) {
+      const totalStepCounts = await prisma.tutorialStep.groupBy({
+        by: ["tutorialId"],
+        where: { tutorialId: { in: tutorialIds } },
+        _count: { id: true },
+      });
+
+      for (const tsc of totalStepCounts) {
+        const completed = stepsByTutorial[tsc.tutorialId] || 0;
+        if (completed >= tsc._count.id) {
+          tutorialsFullyCompleted++;
+        }
+      }
+    }
+
     return {
       tutorialsStarted: allTutorialProgress.length,
       quizzesCompleted: tutorialProgress.length,
@@ -490,6 +668,9 @@ export class AchievementService {
       chillQuizzes: moodCounts.CHILL || 0,
       focusedQuizzes: moodCounts.FOCUSED || 0,
       crackedQuizzes: moodCounts.CRACKED || 0,
+      stepsCompleted,
+      firstTryStepStreak,
+      tutorialsFullyCompleted,
     };
   }
 

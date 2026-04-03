@@ -51,6 +51,8 @@ export interface ValidationResponse {
   patternResults: { pattern: string; passed: boolean; message: string }[];
   canAdvance: boolean;
   nextStep: StepNav | null;
+  achievements: { icon: string; title: string; description: string }[];
+  xpAwarded: number;
 }
 
 async function fetchStep(
@@ -105,14 +107,15 @@ async function validateStepCode(
   tutorialSlug: string,
   stepSlug: string,
   code: string,
-  output: string
+  output: string,
+  timeSpent?: number
 ): Promise<ValidationResponse> {
   const res = await fetch(
     `/api/tutorials/${encodeURIComponent(tutorialSlug)}/steps/${encodeURIComponent(stepSlug)}/validate`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, output }),
+      body: JSON.stringify({ code, output, timeSpent }),
     }
   );
 
@@ -141,8 +144,8 @@ export function useStep(tutorialSlug: string, stepSlug: string) {
   });
 
   const validate = useMutation({
-    mutationFn: ({ code, output }: { code: string; output: string }) =>
-      validateStepCode(tutorialSlug, stepSlug, code, output),
+    mutationFn: ({ code, output, timeSpent }: { code: string; output: string; timeSpent?: number }) =>
+      validateStepCode(tutorialSlug, stepSlug, code, output, timeSpent),
     onSuccess: (result) => {
       if (result.passed) {
         // Invalidate step data to refresh progress

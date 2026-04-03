@@ -13,7 +13,7 @@ export async function POST(
     const { slug, stepSlug } = await params;
 
     const body = await request.json();
-    const { code, output } = body;
+    const { code, output, timeSpent } = body;
 
     if (typeof code !== "string") {
       return NextResponse.json(
@@ -66,9 +66,19 @@ export async function POST(
     );
 
     // Persist progress for authenticated users
+    let achievements: { icon: string; title: string; description: string }[] = [];
+    let xpAwarded = 0;
+
     if (session?.user?.id) {
       if (result.passed) {
-        await StepService.completeStep(session.user.id, step.id, code);
+        const parsedTime = typeof timeSpent === "number" && timeSpent > 0 ? Math.round(timeSpent) : undefined;
+        const completion = await StepService.completeStep(session.user.id, step.id, code, parsedTime);
+        achievements = completion.achievements.map((ua) => ({
+          icon: ua.achievement.icon,
+          title: ua.achievement.title,
+          description: ua.achievement.description,
+        }));
+        xpAwarded = completion.xpResult.xpAwarded;
       } else {
         await StepService.recordFailedAttempt(session.user.id, step.id, code);
       }
@@ -81,6 +91,8 @@ export async function POST(
       patternResults: result.patternResults,
       canAdvance: result.passed,
       nextStep: result.passed ? step.nextStep : null,
+      achievements: result.passed ? achievements : [],
+      xpAwarded: result.passed ? xpAwarded : 0,
     });
   } catch (error) {
     console.error("Error validating step code:", error);

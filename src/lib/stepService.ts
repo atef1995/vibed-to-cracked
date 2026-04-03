@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { AchievementService } from "@/lib/achievementService";
+import { awardXP, XPAwardResult } from "@/lib/services/xpService";
+import { UserAchievement, Achievement } from "@/generated/client";
 
 export interface StepWithNav {
   id: string;
@@ -128,14 +131,24 @@ export class StepService {
     return previousSteps.every((step) => step.progress[0]?.passed === true);
   }
 
-  static async completeStep(userId: string, stepId: string, userCode: string) {
-    return prisma.tutorialStepProgress.upsert({
+  static async completeStep(
+    userId: string,
+    stepId: string,
+    userCode: string,
+    timeSpent?: number
+  ): Promise<{
+    progress: Awaited<ReturnType<typeof prisma.tutorialStepProgress.upsert>>;
+    achievements: (UserAchievement & { achievement: Achievement })[];
+    xpResult: XPAwardResult;
+  }> {
+    const progress = await prisma.tutorialStepProgress.upsert({
       where: { userId_stepId: { userId, stepId } },
       update: {
         status: "COMPLETED",
         passed: true,
         userCode,
         attempts: { increment: 1 },
+        timeSpent: timeSpent ?? undefined,
         completedAt: new Date(),
       },
       create: {
@@ -145,9 +158,34 @@ export class StepService {
         passed: true,
         userCode,
         attempts: 1,
+        timeSpent: timeSpent ?? undefined,
         completedAt: new Date(),
       },
     });
+
+    // Get the step to find the tutorialId
+    const step = await prisma.tutorialStep.findUnique({
+      where: { id: stepId },
+      select: { tutorialId: true },
+    });
+
+    const achievements = await AchievementService.checkAndUnlockAchievements({
+      userId,
+      action: "STEP_COMPLETED",
+      metadata: {
+        stepId,
+        tutorialId: step?.tutorialId,
+        timeSpent,
+        attempts: progress.attempts,
+      },
+    });
+
+    const xpResult = await awardXP(userId, 10, "STEP_COMPLETED", {
+      stepId,
+      tutorialId: step?.tutorialId,
+    });
+
+    return { progress, achievements, xpResult };
   }
 
   static async recordFailedAttempt(

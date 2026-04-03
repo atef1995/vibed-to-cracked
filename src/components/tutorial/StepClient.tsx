@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { MDXRemote } from "next-mdx-remote";
 import { useMood } from "@/components/providers/MoodProvider";
 import { useStep, useStepList } from "@/hooks/useStep";
 import { useStepProgress } from "@/hooks/useStepProgress";
+import { useToast } from "@/hooks/useToast";
 import getMoodColors from "@/lib/getMoodColors";
 import StepCodeEditor from "@/components/tutorial/StepCodeEditor";
 import StepStepper from "@/components/tutorial/StepStepper";
@@ -146,10 +147,12 @@ export default function StepClient({
   const { currentMood } = useMood();
   const { data: session } = useSession();
   const moodColors = getMoodColors(currentMood.id);
+  const toast = useToast();
   const [stepPassed, setStepPassed] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
   const contentRef = React.useRef<HTMLDivElement>(null);
   const isAuthenticated = !!session?.user?.id;
+  const stepStartTime = useRef(Date.now());
 
   const {
     data: step,
@@ -238,10 +241,27 @@ export default function StepClient({
   // Handle validation
   const handleValidate = useCallback(
     async (code: string, output: string) => {
-      const result = await validate.mutateAsync({ code, output });
+      const elapsedSeconds = Math.round((Date.now() - stepStartTime.current) / 1000);
+      const result = await validate.mutateAsync({
+        code,
+        output,
+        timeSpent: elapsedSeconds > 0 ? elapsedSeconds : undefined,
+      });
+
+      if (result.passed) {
+        if (result.xpAwarded > 0) {
+          toast.success("Step Complete", `+${result.xpAwarded} XP`);
+        }
+        if (result.achievements?.length) {
+          for (const a of result.achievements) {
+            toast.achievement(`${a.icon} ${a.title}`, a.description);
+          }
+        }
+      }
+
       return result;
     },
-    [validate]
+    [validate, toast]
   );
 
   // Loading
