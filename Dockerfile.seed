@@ -10,6 +10,6 @@ RUN npm ci --legacy-peer-deps --ignore-scripts
 RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" npx prisma generate && node fix-prisma-imports.js
 
 COPY scripts ./scripts
-COPY src/content/tutorials/fundamentals ./src/content/tutorials/fundamentals
+COPY src/content/tutorials ./src/content/tutorials
 
 ENTRYPOINT ["npx", "tsx"]
