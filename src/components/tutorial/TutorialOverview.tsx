@@ -203,7 +203,16 @@ export default function TutorialOverview({
                     {tutorial.quiz.questions?.length || 0} questions
                   </p>
                 </div>
-                <Lock className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
+                {allStepsComplete ? (
+                  <Link
+                    href={`/quiz/${tutorial.quiz.slug}`}
+                    className="text-xs font-medium text-purple-600 dark:text-purple-400 hover:underline"
+                  >
+                    Start
+                  </Link>
+                ) : (
+                  <Lock className="w-4 h-4 text-gray-400 dark:text-gray-600 shrink-0" />
+                )}
               </div>
             )}
           </div>

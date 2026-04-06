@@ -91,6 +91,7 @@ export function DOMInteractiveBlock({
         height={height}
         forceUpdateTrigger={executeCount}
         blockId={blockId}
+        showCode={false}
       />
     );
   }, [html, css, executed, currentCode, height, executeCount, blockId]);

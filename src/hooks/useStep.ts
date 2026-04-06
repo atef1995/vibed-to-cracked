@@ -144,8 +144,15 @@ export function useStep(tutorialSlug: string, stepSlug: string) {
   });
 
   const validate = useMutation({
-    mutationFn: ({ code, output, timeSpent }: { code: string; output: string; timeSpent?: number }) =>
-      validateStepCode(tutorialSlug, stepSlug, code, output, timeSpent),
+    mutationFn: ({
+      code,
+      output,
+      timeSpent,
+    }: {
+      code: string;
+      output: string;
+      timeSpent?: number;
+    }) => validateStepCode(tutorialSlug, stepSlug, code, output, timeSpent),
     onSuccess: (result) => {
       if (result.passed) {
         // Invalidate step data to refresh progress

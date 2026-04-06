@@ -1,11 +1,13 @@
 import type { MDXComponents } from "mdx/types";
 import { DOMInteractiveBlock } from "./src/components/ui/DOMInteractiveBlock";
+import { AlgorithmExercise } from "./src/components/ui/AlgorithmExercise";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
     // Allows customizing built-in components, e.g. to add styling.
     // h1: ({ children }) => <h1 style={{ fontSize: "100px" }}>{children}</h1>,
     DOMInteractiveBlock,
+    AlgorithmExercise,
     ...components,
   };
 }

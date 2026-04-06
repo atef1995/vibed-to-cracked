@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { AchievementService } from "@/lib/achievementService";
 import { awardXP, XPAwardResult } from "@/lib/services/xpService";
 import { UserAchievement, Achievement } from "@/generated/client";
+import { ProgressService } from "@/lib/progressService";
 
 export interface StepWithNav {
   id: string;
@@ -185,7 +186,67 @@ export class StepService {
       tutorialId: step?.tutorialId,
     });
 
+    // Check if all steps for this tutorial are now complete
+    if (step?.tutorialId) {
+      await StepService.checkTutorialCompletion(userId, step.tutorialId);
+    }
+
     return { progress, achievements, xpResult };
+  }
+
+  /**
+   * After all steps pass, mark the tutorial complete (or IN_PROGRESS if a quiz remains).
+   */
+  static async checkTutorialCompletion(
+    userId: string,
+    tutorialId: string
+  ): Promise<void> {
+    const allSteps = await prisma.tutorialStep.findMany({
+      where: { tutorialId },
+      select: {
+        id: true,
+        progress: {
+          where: { userId },
+          select: { passed: true },
+        },
+      },
+    });
+
+    const allPassed =
+      allSteps.length > 0 &&
+      allSteps.every((s) => s.progress[0]?.passed === true);
+    if (!allPassed) return;
+
+    // Check whether this tutorial has a quiz
+    const quiz = await prisma.quiz.findFirst({
+      where: { tutorialId },
+      select: { id: true },
+    });
+
+    if (quiz) {
+      // Steps done but quiz still required — ensure progress exists as IN_PROGRESS
+      // (don't overwrite COMPLETED if quiz was already passed)
+      const existing = await prisma.tutorialProgress.findUnique({
+        where: { userId_tutorialId: { userId, tutorialId } },
+        select: { status: true },
+      });
+      if (!existing || existing.status === "NOT_STARTED") {
+        await prisma.tutorialProgress.upsert({
+          where: { userId_tutorialId: { userId, tutorialId } },
+          update: { status: "IN_PROGRESS", updatedAt: new Date() },
+          create: { userId, tutorialId, status: "IN_PROGRESS" },
+        });
+      }
+    } else {
+      // No quiz — completing all steps finishes the tutorial
+      await ProgressService.markTutorialCompleted(userId, tutorialId);
+      // Fire tutorial-completion achievements
+      await AchievementService.checkAndUnlockAchievements({
+        userId,
+        action: "TUTORIAL_COMPLETED",
+        metadata: { tutorialId },
+      });
+    }
   }
 
   static async recordFailedAttempt(

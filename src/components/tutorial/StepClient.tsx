@@ -21,7 +21,9 @@ import DualPaneEditor from "@/components/DualPaneEditor";
 import { ComparisonTable } from "@/components/tutorial/ComparisonTable";
 import { StepFlow } from "@/components/tutorial/StepFlow";
 import { UpgradeCTA } from "@/components/tutorial/UpgradeCTA";
-import { Lock, ArrowLeft } from "lucide-react";
+import { ValidatedExercise } from "@/components/ui/ValidatedExercise";
+import { AlgorithmExercise } from "@/components/ui/AlgorithmExercise";
+import { Lock, ArrowLeft, Trophy, ArrowRight, X } from "lucide-react";
 import Link from "next/link";
 import TutorFAB from "@/components/tutor/TutorFAB";
 import TutorChatPanel from "@/components/tutor/TutorChatPanel";
@@ -74,9 +76,17 @@ const mdxComponents = {
   code: (props: React.HTMLAttributes<HTMLElement>) => {
     const isInline = !props.className;
     if (isInline) {
+      const text = typeof props.children === "string" ? props.children : "";
+      const isHtmlTag = /^<\/?[a-zA-Z]/.test(text);
+      const isCssProp = /^[a-z-]+\s*:/.test(text);
+      const colorClass = isHtmlTag
+        ? "text-orange-600 dark:text-orange-300"
+        : isCssProp
+          ? "text-teal-600 dark:text-teal-300"
+          : "text-violet-600 dark:text-violet-300";
       return (
         <code
-          className="bg-gray-100 dark:bg-gray-800 text-red-600 dark:text-red-300 text-pretty font-semibold px-3 py-1 my-1 rounded text-sm font-mono border border-gray-200 dark:border-gray-700"
+          className={`bg-slate-100 dark:bg-slate-800/80 ${colorClass} text-pretty font-semibold px-2 py-0.5 my-0.5 rounded text-sm font-mono border border-slate-200/80 dark:border-slate-700`}
           {...props}
         />
       );
@@ -149,6 +159,7 @@ export default function StepClient({
   const moodColors = getMoodColors(currentMood.id);
   const toast = useToast();
   const [stepPassed, setStepPassed] = useState(false);
+  const [showPassedModal, setShowPassedModal] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
   const contentRef = React.useRef<HTMLDivElement>(null);
   const isAuthenticated = !!session?.user?.id;
@@ -233,6 +244,7 @@ export default function StepClient({
   // Handle step pass — update local progress for anon users
   const handlePass = useCallback(() => {
     setStepPassed(true);
+    setShowPassedModal(true);
     if (!session?.user?.id) {
       completeStepLocally(stepSlug, currentCode);
     }
@@ -241,7 +253,9 @@ export default function StepClient({
   // Handle validation
   const handleValidate = useCallback(
     async (code: string, output: string) => {
-      const elapsedSeconds = Math.round((Date.now() - stepStartTime.current) / 1000);
+      const elapsedSeconds = Math.round(
+        (Date.now() - stepStartTime.current) / 1000
+      );
       const result = await validate.mutateAsync({
         code,
         output,
@@ -262,6 +276,36 @@ export default function StepClient({
       return result;
     },
     [validate, toast]
+  );
+
+  // Handle exercise-type step completion (ValidatedExercise in MDX passed all tests)
+  const handleExerciseComplete = useCallback(
+    async (code: string) => {
+      const elapsedSeconds = Math.round(
+        (Date.now() - stepStartTime.current) / 1000
+      );
+      try {
+        const result = await validate.mutateAsync({
+          code,
+          output: "",
+          timeSpent: elapsedSeconds > 0 ? elapsedSeconds : undefined,
+        });
+        if (result.passed) {
+          if (result.xpAwarded > 0) {
+            toast.success("Step Complete", `+${result.xpAwarded} XP`);
+          }
+          if (result.achievements?.length) {
+            for (const a of result.achievements) {
+              toast.achievement(`${a.icon} ${a.title}`, a.description);
+            }
+          }
+        }
+      } catch {
+        // Validation failed server-side — still mark locally
+      }
+      handlePass();
+    },
+    [validate, toast, handlePass]
   );
 
   // Loading
@@ -335,10 +379,42 @@ export default function StepClient({
   const isPassed = stepPassed || step.progress?.passed || false;
   const totalSteps = stepList?.steps.length || 0;
   const completedSteps = stepList?.steps.filter((s) => s.passed).length || 0;
-  const allStepsComplete = totalSteps > 0 && (completedSteps === totalSteps || (completedSteps === totalSteps - 1 && isPassed));
+  const allStepsComplete =
+    totalSteps > 0 &&
+    (completedSteps === totalSteps ||
+      (completedSteps === totalSteps - 1 && isPassed));
   const canAdvance = isPassed;
   const initialCode =
     step.validationConfig?.initialCode || "// Write your code here\n";
+
+  // Extend mdxComponents with ValidatedExercise wired to step completion
+  const nextStepHref = step.nextStep
+    ? `/tutorials/category/${category}/${tutorialSlug}/step/${step.nextStep.slug}`
+    : undefined;
+
+  const stepMdxComponents = {
+    ...mdxComponents,
+    ValidatedExercise: (
+      props: React.ComponentProps<typeof ValidatedExercise>
+    ) => (
+      <ValidatedExercise
+        {...props}
+        onAllPassed={handleExerciseComplete}
+        passed={isPassed}
+        nextStepHref={nextStepHref}
+      />
+    ),
+    AlgorithmExercise: (
+      props: React.ComponentProps<typeof AlgorithmExercise>
+    ) => (
+      <AlgorithmExercise
+        {...props}
+        onAllPassed={handleExerciseComplete}
+        passed={isPassed}
+        nextStepHref={nextStepHref}
+      />
+    ),
+  };
 
   return (
     <div className={`min-h-screen bg-linear-to-br ${moodColors.gradient}`}>
@@ -397,37 +473,41 @@ export default function StepClient({
                   className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg dark:shadow-xl mb-6"
                 >
                   <div className="prose dark:prose-invert max-w-none">
-                    <MDXRemote {...step.mdxSource} components={mdxComponents} />
+                    <MDXRemote
+                      {...step.mdxSource}
+                      components={stepMdxComponents}
+                    />
                   </div>
                 </div>
               )}
 
-              {/* Code validation section */}
-              {step.validationType !== "none" && (
-                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg dark:shadow-xl">
-                  {step.validationConfig?.taskInstructions && (
-                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg px-4 py-3 mb-4">
-                      <h4 className="text-blue-800 dark:text-blue-300 font-semibold text-sm mb-1">
-                        Your Task
-                      </h4>
-                      <p className="text-blue-700 dark:text-blue-200 text-sm">
-                        {step.validationConfig.taskInstructions}
-                      </p>
-                    </div>
-                  )}
-                  <StepCodeEditor
-                    initialCode={initialCode}
-                    validationType={step.validationType}
-                    onValidate={handleValidate}
-                    onPass={handlePass}
-                    passed={isPassed}
-                    lastSavedCode={step.progress?.userCode}
-                    onCodeChange={setCurrentCode}
-                    onOutputChange={setCurrentOutput}
-                    onValidationResult={setLastValidationResult}
-                  />
-                </div>
-              )}
+              {/* Code validation section — hidden for exercise type (ValidatedExercise in MDX handles it) */}
+              {step.validationType !== "none" &&
+                step.validationType !== "exercise" && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 sm:p-8 shadow-lg dark:shadow-xl">
+                    {step.validationConfig?.taskInstructions && (
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg px-4 py-3 mb-4">
+                        <h4 className="text-blue-800 dark:text-blue-300 font-semibold text-sm mb-1">
+                          Your Task
+                        </h4>
+                        <p className="text-blue-700 dark:text-blue-200 text-sm">
+                          {step.validationConfig.taskInstructions}
+                        </p>
+                      </div>
+                    )}
+                    <StepCodeEditor
+                      initialCode={initialCode}
+                      validationType={step.validationType}
+                      onValidate={handleValidate}
+                      onPass={handlePass}
+                      passed={isPassed}
+                      lastSavedCode={step.progress?.userCode}
+                      onCodeChange={setCurrentCode}
+                      onOutputChange={setCurrentOutput}
+                      onValidationResult={setLastValidationResult}
+                    />
+                  </div>
+                )}
 
               {/* Bottom navigation */}
               <StepNavigation
@@ -471,6 +551,52 @@ export default function StepClient({
           </div>
         </div>
       </div>
+
+      {/* Step Passed Modal */}
+      {showPassedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setShowPassedModal(false)}
+          />
+          <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl dark:shadow-black/40 p-6 w-full max-w-sm text-center animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setShowPassedModal(false)}
+              aria-label="Close"
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-3">
+              <Trophy className="w-6 h-6 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+              Step Complete
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-5">
+              {step.nextStep
+                ? `Up next: ${step.nextStep.title}`
+                : "You finished the last step!"}
+            </p>
+            {step.nextStep ? (
+              <Link
+                href={`/tutorials/category/${category}/${tutorialSlug}/step/${step.nextStep.slug}`}
+                className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+              >
+                Continue
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            ) : (
+              <Link
+                href={`/tutorials/category/${category}/${tutorialSlug}`}
+                className="inline-flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+              >
+                Back to Tutorial
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* AI Tutor */}
       <TutorFAB

@@ -25,7 +25,10 @@ export class AchievementService {
   /**
    * Generate cache key for achievement checks
    */
-  private static getCacheKey(userId: string, action: AchievementAction): string {
+  private static getCacheKey(
+    userId: string,
+    action: AchievementAction
+  ): string {
     return `${userId}:${action}`;
   }
 
@@ -250,14 +253,19 @@ export class AchievementService {
           condition:
             action === "EXERCISE_COMPLETED" &&
             metadata.timeSpent &&
-            metadata.timeSpent <= (metadata.difficulty === "beginner" ? 7.5 : metadata.difficulty === "intermediate" ? 10 : 12.5) * 60,
+            metadata.timeSpent <=
+              (metadata.difficulty === "beginner"
+                ? 7.5
+                : metadata.difficulty === "intermediate"
+                  ? 10
+                  : 12.5) *
+                60,
           points: 120,
         },
         {
           key: "CLEAN_CODE_CHAMPION",
           condition:
-            action === "EXERCISE_COMPLETED" &&
-            userStats.firstTryPasses >= 3,
+            action === "EXERCISE_COMPLETED" && userStats.firstTryPasses >= 3,
           points: 80,
         },
 
@@ -306,16 +314,13 @@ export class AchievementService {
         // Exercise Achievements - Learning & Progress
         {
           key: "PROBLEM_SOLVER",
-          condition:
-            action === "EXERCISE_COMPLETED" &&
-            metadata.attempts === 2,
+          condition: action === "EXERCISE_COMPLETED" && metadata.attempts === 2,
           points: 40,
         },
         {
           key: "PERSISTENT_LEARNER",
           condition:
-            action === "EXERCISE_COMPLETED" &&
-            (metadata.attempts || 0) >= 3,
+            action === "EXERCISE_COMPLETED" && (metadata.attempts || 0) >= 3,
           points: 60,
         },
         {
@@ -337,96 +342,57 @@ export class AchievementService {
         {
           key: "FIRST_STEP",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.stepsCompleted >= 1,
+            action === "STEP_COMPLETED" && userStats.stepsCompleted >= 1,
           points: 10,
         },
         {
           key: "STEP_APPRENTICE",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.stepsCompleted >= 5,
+            action === "STEP_COMPLETED" && userStats.stepsCompleted >= 5,
           points: 20,
         },
         {
           key: "STEP_ADEPT",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.stepsCompleted >= 10,
+            action === "STEP_COMPLETED" && userStats.stepsCompleted >= 10,
           points: 30,
         },
         {
           key: "STEP_EXPERT",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.stepsCompleted >= 25,
+            action === "STEP_COMPLETED" && userStats.stepsCompleted >= 25,
           points: 50,
         },
         {
           key: "STEP_MASTER",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.stepsCompleted >= 50,
+            action === "STEP_COMPLETED" && userStats.stepsCompleted >= 50,
           points: 100,
         },
         {
           key: "STEP_LEGEND",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.stepsCompleted >= 100,
+            action === "STEP_COMPLETED" && userStats.stepsCompleted >= 100,
           points: 200,
-        },
-
-        // Tutorial Step Achievements - Tutorial Completion
-        {
-          key: "TUTORIAL_FINISHER",
-          condition:
-            action === "STEP_COMPLETED" &&
-            userStats.tutorialsFullyCompleted >= 1,
-          points: 25,
-        },
-        {
-          key: "TUTORIAL_EXPLORER",
-          condition:
-            action === "STEP_COMPLETED" &&
-            userStats.tutorialsFullyCompleted >= 3,
-          points: 30,
-        },
-        {
-          key: "TUTORIAL_SCHOLAR",
-          condition:
-            action === "STEP_COMPLETED" &&
-            userStats.tutorialsFullyCompleted >= 5,
-          points: 50,
-        },
-        {
-          key: "TUTORIAL_GRANDMASTER",
-          condition:
-            action === "STEP_COMPLETED" &&
-            userStats.tutorialsFullyCompleted >= 10,
-          points: 100,
         },
 
         // Tutorial Step Achievements - First-Try Streaks
         {
           key: "PERFECT_STREAK_3",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.firstTryStepStreak >= 3,
+            action === "STEP_COMPLETED" && userStats.firstTryStepStreak >= 3,
           points: 15,
         },
         {
           key: "PERFECT_STREAK_5",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.firstTryStepStreak >= 5,
+            action === "STEP_COMPLETED" && userStats.firstTryStepStreak >= 5,
           points: 30,
         },
         {
           key: "PERFECT_STREAK_10",
           condition:
-            action === "STEP_COMPLETED" &&
-            userStats.firstTryStepStreak >= 10,
+            action === "STEP_COMPLETED" && userStats.firstTryStepStreak >= 10,
           points: 75,
         },
 
@@ -454,16 +420,44 @@ export class AchievementService {
         {
           key: "NEVER_GIVE_UP",
           condition:
-            action === "STEP_COMPLETED" &&
-            (metadata.attempts || 0) >= 5,
+            action === "STEP_COMPLETED" && (metadata.attempts || 0) >= 5,
           points: 30,
         },
         {
           key: "TENACIOUS",
           condition:
-            action === "STEP_COMPLETED" &&
-            (metadata.attempts || 0) >= 10,
+            action === "STEP_COMPLETED" && (metadata.attempts || 0) >= 10,
           points: 50,
+        },
+
+        // Tutorial Completion Achievements (fired from quiz pass or last-step-no-quiz)
+        {
+          key: "TUTORIAL_FINISHER",
+          condition:
+            action === "TUTORIAL_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 1,
+          points: 25,
+        },
+        {
+          key: "TUTORIAL_EXPLORER",
+          condition:
+            action === "TUTORIAL_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 3,
+          points: 30,
+        },
+        {
+          key: "TUTORIAL_SCHOLAR",
+          condition:
+            action === "TUTORIAL_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 5,
+          points: 50,
+        },
+        {
+          key: "TUTORIAL_GRANDMASTER",
+          condition:
+            action === "TUTORIAL_COMPLETED" &&
+            userStats.tutorialsFullyCompleted >= 10,
+          points: 100,
         },
       ];
 
@@ -490,6 +484,16 @@ export class AchievementService {
 
             // Share achievement unlock if user has social sharing enabled
             await this.shareAchievementUnlock(userId, achievement);
+          }
+        }
+      }
+
+      // If new achievements were unlocked, invalidate all cache entries for this user
+      // because stats (points, counts) have changed across all action types
+      if (unlockedAchievements.length > 0) {
+        for (const key of this.cache.keys()) {
+          if (key.startsWith(`${userId}:`)) {
+            this.cache.delete(key);
           }
         }
       }
@@ -537,7 +541,12 @@ export class AchievementService {
       prisma.tutorialStepProgress.findMany({
         where: { userId, passed: true },
         orderBy: { completedAt: "desc" },
-        select: { stepId: true, attempts: true, completedAt: true, step: { select: { tutorialId: true } } },
+        select: {
+          stepId: true,
+          attempts: true,
+          completedAt: true,
+          step: { select: { tutorialId: true } },
+        },
       }),
     ]);
 
@@ -562,11 +571,14 @@ export class AchievementService {
       where: { userId },
     });
 
-    const moodCounts = quizAttempts.reduce((counts, attempt) => {
-      const mood = attempt.mood || "CHILL";
-      counts[mood] = (counts[mood] || 0) + 1;
-      return counts;
-    }, {} as Record<string, number>);
+    const moodCounts = quizAttempts.reduce(
+      (counts, attempt) => {
+        const mood = attempt.mood || "CHILL";
+        counts[mood] = (counts[mood] || 0) + 1;
+        return counts;
+      },
+      {} as Record<string, number>
+    );
 
     // Calculate exercise stats
     const exercisesCompleted = exerciseProgress.length;
@@ -575,20 +587,26 @@ export class AchievementService {
     ).length;
 
     // Group exercises by category
-    const exercisesByCategory = exerciseProgress.reduce((acc, progress) => {
-      const category = progress.exercise.category;
-      if (!acc[category]) acc[category] = [];
-      acc[category].push(progress.exerciseId);
-      return acc;
-    }, {} as Record<string, string[]>);
+    const exercisesByCategory = exerciseProgress.reduce(
+      (acc, progress) => {
+        const category = progress.exercise.category;
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(progress.exerciseId);
+        return acc;
+      },
+      {} as Record<string, string[]>
+    );
 
     // Group exercises by difficulty
-    const exercisesByDifficulty = exerciseProgress.reduce((acc, progress) => {
-      const difficulty = progress.exercise.difficulty;
-      if (!acc[difficulty]) acc[difficulty] = 0;
-      acc[difficulty]++;
-      return acc;
-    }, {} as Record<string, number>);
+    const exercisesByDifficulty = exerciseProgress.reduce(
+      (acc, progress) => {
+        const difficulty = progress.exercise.difficulty;
+        if (!acc[difficulty]) acc[difficulty] = 0;
+        acc[difficulty]++;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // Count first-try passes (passed on first attempt)
     const firstTryPasses = exerciseProgress.filter(
@@ -601,17 +619,21 @@ export class AchievementService {
     ).length;
 
     // Calculate category completion status
-    const totalExercisesByCategory = allExercises.reduce((acc, exercise) => {
-      if (!acc[exercise.category]) acc[exercise.category] = 0;
-      acc[exercise.category]++;
-      return acc;
-    }, {} as Record<string, number>);
+    const totalExercisesByCategory = allExercises.reduce(
+      (acc, exercise) => {
+        if (!acc[exercise.category]) acc[exercise.category] = 0;
+        acc[exercise.category]++;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     const completedCategories: Record<string, boolean> = {};
     for (const category in exercisesByCategory) {
       const totalInCategory = totalExercisesByCategory[category] || 0;
       const completedInCategory = exercisesByCategory[category].length;
-      completedCategories[category] = completedInCategory >= totalInCategory && totalInCategory > 0;
+      completedCategories[category] =
+        completedInCategory >= totalInCategory && totalInCategory > 0;
     }
 
     // Calculate tutorial step stats
@@ -628,12 +650,15 @@ export class AchievementService {
     }
 
     // Calculate tutorials where all steps are completed
-    const stepsByTutorial = stepProgress.reduce((acc, sp) => {
-      const tid = sp.step.tutorialId;
-      if (!acc[tid]) acc[tid] = 0;
-      acc[tid]++;
-      return acc;
-    }, {} as Record<string, number>);
+    const stepsByTutorial = stepProgress.reduce(
+      (acc, sp) => {
+        const tid = sp.step.tutorialId;
+        if (!acc[tid]) acc[tid] = 0;
+        acc[tid]++;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // Get total step counts per tutorial for tutorials that have any completed steps
     const tutorialIds = Object.keys(stepsByTutorial);

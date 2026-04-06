@@ -242,33 +242,31 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const lang = language.replace(firstLetter, firstLetter.toUpperCase());
 
   return (
-    <div className="rounded-lg overflow-hidden bg-white border border-blue-200 dark:border-transparent dark:bg-gray-800">
+    <div
+      className={`rounded-lg overflow-hidden bg-white border border-blue-200 dark:border-transparent dark:bg-gray-800${readOnly ? " select-none" : ""}`}
+      onCopy={readOnly ? (e) => e.preventDefault() : undefined}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between p-2 sm:p-3 bg-blue-200 dark:bg-gray-700">
-        <div className="flex items-center space-x-1.5 sm:space-x-2">
-          <div className="hidden sm:flex space-x-1.5">
-            <div className="w-3 h-3 rounded-full bg-red-400"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
-            <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          </div>
-          <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
-            {lang}
-          </span>
-        </div>
+      <div className="flex items-center justify-between p-2 sm:p-3 bg-blue-200 dark:bg-gray-700 h-10">
+        <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300">
+          {lang}
+        </span>
 
         <div className="flex items-center space-x-1.5 sm:space-x-2 sm:overflow-hidden">
-          <Button
-            className="absolute w-fit h-fit"
-            color={BUTTON_COLOR.TRANSPARENT}
-            title="Copy"
-            onClick={async () => {
-              await navigator.clipboard.writeText(initialCode);
-              setIsCopied(true);
-              window.setInterval(() => setIsCopied(false), 4000);
-            }}
-          >
-            {isCopied ? <Check className="w-3" /> : <Copy className="w-3" />}
-          </Button>
+          {!readOnly && (
+            <Button
+              className="absolute w-fit h-fit"
+              color={BUTTON_COLOR.TRANSPARENT}
+              title="Copy"
+              onClick={async () => {
+                await navigator.clipboard.writeText(initialCode);
+                setIsCopied(true);
+                window.setInterval(() => setIsCopied(false), 4000);
+              }}
+            >
+              {isCopied ? <Check className="w-3" /> : <Copy className="w-3" />}
+            </Button>
+          )}
           <Button
             onClick={() => setIsExpanded(!isExpanded)}
             className="w-fit h-fit"
@@ -343,6 +341,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             roundedSelection: false,
             scrollBeyondLastLine: false,
             readOnly: readOnly,
+            domReadOnly: readOnly,
+            contextmenu: !readOnly,
             automaticLayout: true,
             tabSize: 2,
             insertSpaces: true,
@@ -381,6 +381,36 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           onMount={(editor, monaco) => {
             // Store editor reference
             editorRef.current = editor;
+
+            // Disable copy/cut when read-only to prevent solution copying
+            if (readOnly) {
+              editor.addCommand(
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC,
+                () => {}
+              );
+              editor.addCommand(
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX,
+                () => {}
+              );
+              editor.addCommand(
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA,
+                () => {}
+              );
+              // Clear any text selection to prevent mouse-based copying
+              editor.onDidChangeCursorSelection(() => {
+                const sel = editor.getSelection();
+                if (sel && !sel.isEmpty()) {
+                  editor.setSelection(
+                    new monaco.Selection(
+                      sel.positionLineNumber,
+                      sel.positionColumn,
+                      sel.positionLineNumber,
+                      sel.positionColumn
+                    )
+                  );
+                }
+              });
+            }
 
             // Format initial code when editor mounts
             if (code.trim()) {

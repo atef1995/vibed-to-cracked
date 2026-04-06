@@ -56,6 +56,7 @@ export default function TutorialClient({
   const [contentLoaded, setContentLoaded] = useState(false);
   const [anonymousLimitReached, setAnonymousLimitReached] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"steps" | "full">("steps");
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Get session directly instead of making API call
@@ -272,11 +273,22 @@ export default function TutorialClient({
           {/* Access Warning Banner */}
           <AccessWarningBanner accessCheck={accessCheck} />
 
-          {hasSteps ? (
-            /* Step-based tutorial: show overview with step list */
+          {hasSteps && (
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() =>
+                  setViewMode(viewMode === "steps" ? "full" : "steps")
+                }
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors underline underline-offset-2"
+              >
+                {viewMode === "steps" ? "View full tutorial" : "Back to steps"}
+              </button>
+            </div>
+          )}
+
+          {hasSteps && viewMode === "steps" ? (
             <TutorialOverview tutorial={tutorial} category={category} />
           ) : (
-            /* Classic tutorial: show full MDX content */
             <>
               <div ref={contentRef}>
                 <TutorialContent

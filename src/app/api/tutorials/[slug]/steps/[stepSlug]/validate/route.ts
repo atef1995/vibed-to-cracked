@@ -66,13 +66,22 @@ export async function POST(
     );
 
     // Persist progress for authenticated users
-    let achievements: { icon: string; title: string; description: string }[] = [];
+    let achievements: { icon: string; title: string; description: string }[] =
+      [];
     let xpAwarded = 0;
 
     if (session?.user?.id) {
       if (result.passed) {
-        const parsedTime = typeof timeSpent === "number" && timeSpent > 0 ? Math.round(timeSpent) : undefined;
-        const completion = await StepService.completeStep(session.user.id, step.id, code, parsedTime);
+        const parsedTime =
+          typeof timeSpent === "number" && timeSpent > 0
+            ? Math.round(timeSpent)
+            : undefined;
+        const completion = await StepService.completeStep(
+          session.user.id,
+          step.id,
+          code,
+          parsedTime
+        );
         achievements = completion.achievements.map((ua) => ({
           icon: ua.achievement.icon,
           title: ua.achievement.title,

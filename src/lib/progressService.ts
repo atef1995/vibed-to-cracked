@@ -211,6 +211,16 @@ export class ProgressService {
         },
       });
 
+      // Quiz pass completes the tutorial — check tutorial-completion achievements
+      const tutorialAchievements =
+        await AchievementService.checkAndUnlockAchievements({
+          userId,
+          action: "TUTORIAL_COMPLETED",
+          metadata: { tutorialId: submission.tutorialId },
+        });
+
+      achievements = [...achievements, ...tutorialAchievements];
+
       // Generate tutorial certificate
       await CertificateService.generateTutorialCertificate(
         userId,

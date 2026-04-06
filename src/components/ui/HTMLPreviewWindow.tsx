@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Eye, EyeOff, RotateCcw } from "lucide-react";
+import CodeEditor from "@/components/CodeEditor";
 
 interface HTMLPreviewWindowProps {
   html: string;
@@ -12,6 +13,7 @@ interface HTMLPreviewWindowProps {
   forceUpdateTrigger?: number;
   onConsoleOutput?: (message: string, type: "log" | "error") => void;
   blockId?: string;
+  showCode?: boolean;
 }
 
 export function HTMLPreviewWindow({
@@ -23,6 +25,7 @@ export function HTMLPreviewWindow({
   forceUpdateTrigger = 0,
   onConsoleOutput,
   blockId = "default",
+  showCode = true,
 }: HTMLPreviewWindowProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [srcDoc, setSrcDoc] = useState("");
@@ -260,14 +263,33 @@ export function HTMLPreviewWindow({
         </div>
       </div>
 
-      {/* Preview Content */}
+      {/* Code + Preview */}
       {isVisible && (
-        <div className="relative">
+        <div
+          className={
+            showCode
+              ? "grid grid-cols-1 lg:grid-cols-2 items-center h-full"
+              : ""
+          }
+        >
+          {/* Read-only code panel */}
+          {showCode && (
+            <div className="m-3">
+              <CodeEditor
+                language="html"
+                initialCode={html}
+                height={`${height}px`}
+                readOnly={true}
+                canRun={false}
+              />
+            </div>
+          )}
+
+          {/* Preview iframe */}
           {isMounted ? (
             <iframe
               ref={iframeRef}
-              className="w-full border-none"
-              style={{ height: `${height}px` }}
+              className="w-full h-full border-none rounded-sm"
               title="HTML Preview"
               sandbox="allow-scripts allow-same-origin"
               srcDoc={srcDoc}

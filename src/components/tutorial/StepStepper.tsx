@@ -21,7 +21,8 @@ export default function StepStepper({
   const currentIndex = steps.findIndex((s) => s.slug === currentStepSlug);
   const completedCount = steps.filter((s) => s.passed).length;
   const totalCount = steps.length;
-  const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const progressPercent =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const allComplete = completedCount === totalCount;
 
   return (
@@ -34,8 +35,12 @@ export default function StepStepper({
         <div className="sticky top-24 space-y-1">
           <div className="px-2 mb-4">
             <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1.5">
-              <span className="font-semibold uppercase tracking-wider">Steps</span>
-              <span>{completedCount}/{totalCount}</span>
+              <span className="font-semibold uppercase tracking-wider">
+                Steps
+              </span>
+              <span>
+                {completedCount}/{totalCount}
+              </span>
             </div>
             <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
               <div
@@ -68,12 +73,11 @@ export default function StepStepper({
       </nav>
 
       {/* Mobile — horizontal scrolling bar */}
-      <nav
-        className="lg:hidden -mx-4 px-4 mb-6"
-        aria-label="Tutorial steps"
-      >
+      <nav className="lg:hidden -mx-4 px-4 mb-6" aria-label="Tutorial steps">
         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-2">
-          <span className="font-medium">{completedCount}/{totalCount} steps</span>
+          <span className="font-medium">
+            {completedCount}/{totalCount} steps
+          </span>
           <span>{progressPercent}%</span>
         </div>
         <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
@@ -83,66 +87,66 @@ export default function StepStepper({
           />
         </div>
         <div className="overflow-x-auto scrollbar-none">
-        <div className="flex items-center gap-2 min-w-max">
-          {steps.map((step, i) => {
-            const isCurrent = step.slug === currentStepSlug;
-            const isComplete = step.passed;
-            const isLocked =
-              !isComplete && i > 0 && !steps[i - 1]?.passed && !isCurrent;
+          <div className="flex items-center gap-2 min-w-max">
+            {steps.map((step, i) => {
+              const isCurrent = step.slug === currentStepSlug;
+              const isComplete = step.passed;
+              const isLocked =
+                !isComplete && i > 0 && !steps[i - 1]?.passed && !isCurrent;
 
-            const baseClasses =
-              "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors";
+              const baseClasses =
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors";
 
-            if (isCurrent) {
-              return (
-                <span
-                  key={step.id}
-                  className={`${baseClasses} bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-400/50`}
-                >
-                  <Circle className="w-3 h-3 fill-current" />
-                  {step.order}. {step.title}
-                </span>
-              );
-            }
+              if (isCurrent) {
+                return (
+                  <span
+                    key={step.id}
+                    className={`${baseClasses} bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-400/50`}
+                  >
+                    <Circle className="w-3 h-3 fill-current" />
+                    {step.order}. {step.title}
+                  </span>
+                );
+              }
 
-            if (isComplete) {
+              if (isComplete) {
+                return (
+                  <Link
+                    key={step.id}
+                    href={`/tutorials/category/${category}/${tutorialSlug}/step/${step.slug}`}
+                    className={`${baseClasses} bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50`}
+                  >
+                    <CheckCircle2 className="w-3 h-3" />
+                    {step.order}
+                  </Link>
+                );
+              }
+
+              if (isLocked) {
+                return (
+                  <span
+                    key={step.id}
+                    className={`${baseClasses} bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed`}
+                  >
+                    <Lock className="w-3 h-3" />
+                    {step.order}
+                  </span>
+                );
+              }
+
+              // Unlocked but not started
               return (
                 <Link
                   key={step.id}
                   href={`/tutorials/category/${category}/${tutorialSlug}/step/${step.slug}`}
-                  className={`${baseClasses} bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50`}
+                  className={`${baseClasses} bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700`}
                 >
-                  <CheckCircle2 className="w-3 h-3" />
+                  <Circle className="w-3 h-3" />
                   {step.order}
                 </Link>
               );
-            }
-
-            if (isLocked) {
-              return (
-                <span
-                  key={step.id}
-                  className={`${baseClasses} bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 cursor-not-allowed`}
-                >
-                  <Lock className="w-3 h-3" />
-                  {step.order}
-                </span>
-              );
-            }
-
-            // Unlocked but not started
-            return (
-              <Link
-                key={step.id}
-                href={`/tutorials/category/${category}/${tutorialSlug}/step/${step.slug}`}
-                className={`${baseClasses} bg-gray-50 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700`}
-              >
-                <Circle className="w-3 h-3" />
-                {step.order}
-              </Link>
-            );
-          })}
-        </div>
+            })}
+          </div>
         </div>
       </nav>
     </>

@@ -42,6 +42,17 @@ export function validateStepCode(
   userCode: string,
   capturedOutput: string
 ): ValidationResult {
+  // Exercise-type steps are validated client-side via iframe (ValidatedExercise).
+  // The API call just records completion.
+  if (validationType === "exercise") {
+    return {
+      passed: true,
+      feedback: "Nice work! Your code passes all checks.",
+      outputMatch: null,
+      patternResults: [],
+    };
+  }
+
   const patternResults: PatternResult[] = [];
   let outputMatch: boolean | null = null;
 
