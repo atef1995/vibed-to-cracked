@@ -72,6 +72,8 @@ export default function StepCodeEditor({
         patternResults: [],
         canAdvance: false,
         nextStep: null,
+        achievements: [],
+        xpAwarded: 0,
       });
       return;
     }
@@ -92,6 +94,8 @@ export default function StepCodeEditor({
         patternResults: [],
         canAdvance: false,
         nextStep: null,
+        achievements: [],
+        xpAwarded: 0,
       });
     } finally {
       setIsValidating(false);
