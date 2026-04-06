@@ -133,6 +133,12 @@ export class EmailService {
     return expected === token;
   }
 
+  private static generateUnsubscribeFooter(email: string): string {
+    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+    const token = EmailService.generateUnsubscribeToken(email);
+    return `<a href="${baseUrl}/api/email/unsubscribe?email=${encodeURIComponent(email)}&token=${token}">Unsubscribe</a>`;
+  }
+
   async sendStudyReminderEmail(
     user: User,
     reminderData: {
@@ -367,7 +373,7 @@ export class EmailService {
             <p>Happy coding!<br>The Vibed to Cracked Team</p>
             <p><a href="${
               process.env.NEXTAUTH_URL
-            }/settings">Update email preferences</a></p>
+            }/settings">Update email preferences</a> | ${EmailService.generateUnsubscribeFooter(user.email)}</p>
           </div>
         </body>
       </html>
@@ -428,9 +434,7 @@ export class EmailService {
             <p>Happy coding!<br>The Vibed to Cracked Team</p>
             <p><a href="${
               process.env.NEXTAUTH_URL
-            }/settings">Update email preferences</a> | <a href="${
-              process.env.NEXTAUTH_URL
-            }/api/email/unsubscribe?email=${encodeURIComponent(user.email)}&token=${EmailService.generateUnsubscribeToken(user.email)}">Unsubscribe</a></p>
+            }/settings">Update email preferences</a> | ${EmailService.generateUnsubscribeFooter(user.email)}</p>
           </div>
         </body>
       </html>
@@ -519,7 +523,7 @@ export class EmailService {
             <p>Keep coding, keep growing!<br>The Vibed to Cracked Team</p>
             <p><a href="${
               process.env.NEXTAUTH_URL
-            }/settings">Update reminder preferences</a></p>
+            }/settings">Update reminder preferences</a> | ${EmailService.generateUnsubscribeFooter(user.email)}</p>
           </div>
         </body>
       </html>
@@ -884,7 +888,8 @@ export class EmailService {
               <a href="${
                 process.env.NEXTAUTH_URL
               }/settings">Manage Subscription</a> | 
-              <a href="${process.env.NEXTAUTH_URL}/contact">Get Support</a>
+              <a href="${process.env.NEXTAUTH_URL}/contact">Get Support</a> |
+              ${EmailService.generateUnsubscribeFooter(user.email)}
             </p>
             <p><small>If you have any questions, don't hesitate to reach out. We're here to help you succeed!</small></p>
           </div>
@@ -1388,7 +1393,7 @@ document.querySelector('#increment').addEventListener('click', () => {
 
           <div class="footer">
             <p>Happy coding!<br>The Vibed to Cracked Team</p>
-            <p><a href="${baseUrl}">Visit Our Platform</a> | <a href="${baseUrl}/pricing">View Pricing</a></p>
+            <p><a href="${baseUrl}">Visit Our Platform</a> | <a href="${baseUrl}/pricing">View Pricing</a> | ${EmailService.generateUnsubscribeFooter(email)}</p>
           </div>
         </body>
       </html>
@@ -1467,9 +1472,7 @@ document.querySelector('#increment').addEventListener('click', () => {
                 ? `
               <div class="unsubscribe">
                 <p>Don't want to receive emails like this?</p>
-                <p><a href="${baseUrl}/api/email/unsubscribe?email=${encodeURIComponent(
-                  recipient.email
-                )}&token=${EmailService.generateUnsubscribeToken(recipient.email)}">Unsubscribe from promotional emails</a></p>
+                <p>${EmailService.generateUnsubscribeFooter(recipient.email).replace("Unsubscribe", "Unsubscribe from promotional emails")}</p>
               </div>
             `
                 : ""
@@ -1669,7 +1672,7 @@ document.querySelector('#increment').addEventListener('click', () => {
             
             <div class="footer">
               <p>Thank you for supporting Vibed to Cracked!<br/>The Vibed to Cracked Team</p>
-              <p>Need help? Contact us at support@vibed-to-cracked.com</p>
+              <p>Need help? Contact us at support@vibed-to-cracked.com | ${EmailService.generateUnsubscribeFooter(email)}</p>
             </div>
           </div>
         </body>
@@ -1771,6 +1774,7 @@ document.querySelector('#increment').addEventListener('click', () => {
             </div>
             <div class="footer">
               <p>Vibed to Cracked - CRACKED Mentorship</p>
+              <p>${EmailService.generateUnsubscribeFooter(user.email)}</p>
             </div>
           </div>
         </body>
@@ -1828,6 +1832,7 @@ document.querySelector('#increment').addEventListener('click', () => {
             </div>
             <div class="footer">
               <p>Vibed to Cracked - CRACKED Mentorship</p>
+              <p>${EmailService.generateUnsubscribeFooter(user.email)}</p>
             </div>
           </div>
         </body>
