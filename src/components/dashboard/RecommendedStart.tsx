@@ -4,51 +4,16 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
 
-const GOAL_TO_SLUG: Record<string, string> = {
-  "web-fundamentals": "html-basics",
-  frontend: "what-is-react",
-  backend: "variables-and-data-types",
-  dsa: "arrays-and-objects",
-  "career-switch": "html-basics",
-  "side-projects": "variables-and-data-types",
-};
-
-const EXPERIENCE_TO_SLUG: Record<string, string> = {
-  intermediate: "functions-fundamentals",
-  advanced: "javascript-modules-deep-dive",
-};
-
-const DEFAULT_SLUG = "variables-and-data-types";
-
-function pickSlug(experienceLevel: string, learningGoals: string[]): string {
-  if (EXPERIENCE_TO_SLUG[experienceLevel]) {
-    return EXPERIENCE_TO_SLUG[experienceLevel];
-  }
-  for (const goal of learningGoals) {
-    if (GOAL_TO_SLUG[goal]) return GOAL_TO_SLUG[goal];
-  }
-  return DEFAULT_SLUG;
-}
-
 async function fetchRecommendation() {
-  const settingsRes = await fetch("/api/user/settings");
-  if (!settingsRes.ok) return null;
-  const { settings } = await settingsRes.json();
-
-  const slug = pickSlug(
-    settings?.experienceLevel ?? "beginner",
-    settings?.learningGoals ?? []
-  );
-
-  const tutorialRes = await fetch(`/api/tutorials?slug=${encodeURIComponent(slug)}`);
-  if (!tutorialRes.ok) return null;
-  const { data: tutorial } = await tutorialRes.json();
-  if (!tutorial) return null;
+  const res = await fetch("/api/tutorials/recommend");
+  if (!res.ok) return null;
+  const { data } = await res.json();
+  if (!data) return null;
 
   return {
-    title: tutorial.title as string,
-    description: tutorial.description as string,
-    href: `/tutorials/category/${tutorial.category?.slug ?? "fundamentals"}/${tutorial.slug}`,
+    title: data.title as string,
+    description: data.description as string,
+    href: `/tutorials/category/${data.categorySlug}/${data.slug}`,
   };
 }
 

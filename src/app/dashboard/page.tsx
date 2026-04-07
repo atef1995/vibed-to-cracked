@@ -12,9 +12,7 @@ import { RecommendedStart } from "@/components/dashboard/RecommendedStart";
 import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import { TourProvider } from "@/components/onboarding/TourProvider";
-import {
-  dashboardTourSteps,
-} from "@/lib/tours/dashboardTour";
+import { dashboardTourSteps } from "@/lib/tours/dashboardTour";
 import {
   BookOpen,
   Code,
@@ -126,9 +124,11 @@ export default function DashboardPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
   const [tourRunning, setTourRunning] = useState(false);
+  const [tourDismissed, setTourDismissed] = useState(false);
 
   const completeTour = useCallback(async () => {
     setTourRunning(false);
+    setTourDismissed(true);
     try {
       await fetch("/api/onboarding/tour-complete", { method: "POST" });
       await update();
@@ -153,12 +153,13 @@ export default function DashboardPage() {
     if (
       status === "authenticated" &&
       session?.user?.onboardingCompleted &&
-      !session?.user?.dashboardTourCompleted
+      !session?.user?.dashboardTourCompleted &&
+      !tourDismissed
     ) {
       const timer = setTimeout(() => setTourRunning(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [status, session]);
+  }, [status, session, tourDismissed]);
 
   const {
     data: progressStats,
@@ -329,6 +330,7 @@ export default function DashboardPage() {
 
           <Link
             href="/practice"
+            data-tour="problem-solving"
             className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-purple-200 dark:hover:border-purple-500"
           >
             <div className="grow">
@@ -411,6 +413,7 @@ export default function DashboardPage() {
 
           <Link
             href="/projects"
+            data-tour="projects-section"
             className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-orange-200 dark:hover:border-orange-500"
           >
             <div className="grow">
@@ -448,6 +451,7 @@ export default function DashboardPage() {
             ? "/mentorship"
             : "/pricing?feature=mentorship"
         }
+        data-tour="mentorship-section"
         className={`mb-10 flex items-center gap-4 rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all group ${
           session.user.subscription === "CRACKED"
             ? "bg-linear-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-violet-100 dark:border-violet-800/40 hover:border-violet-200 dark:hover:border-violet-700"
@@ -500,7 +504,7 @@ export default function DashboardPage() {
       </Link>
 
       {/* 6. Explore More — compact links */}
-      <div className="mb-10">
+      <div className="mb-10" data-tour="explore-more">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
           Explore More
         </h2>
@@ -522,7 +526,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent Achievements */}
-      <RecentAchievements userId={session.user.id} />
+      <div data-tour="achievements-section">
+        <RecentAchievements userId={session.user.id} />
+      </div>
 
       {/* Dashboard Tour */}
       <TourProvider
@@ -532,7 +538,7 @@ export default function DashboardPage() {
       />
 
       {/* 7. Progress Section */}
-      <div>
+      <div data-tour="progress-section">
         {loadingProgress ? (
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 dark:border-blue-400 mx-auto mb-4"></div>

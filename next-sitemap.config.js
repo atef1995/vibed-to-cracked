@@ -34,6 +34,13 @@ export default {
 
     const paths = [];
 
+    // Static tool pages
+    paths.push({
+      loc: "/tools/complexity-visualizer",
+      changefreq: "monthly",
+      priority: 0.8,
+    });
+
     try {
       const res = await fetch(`${baseUrl}/api/tutorials`);
       if (res.ok) {

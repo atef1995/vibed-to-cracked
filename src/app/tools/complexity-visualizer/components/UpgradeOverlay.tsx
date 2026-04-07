@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Lock, Sparkles, TrendingUp, Zap, X } from "lucide-react";
+import { Lock, Sparkles, Zap, X } from "lucide-react";
 
 /**
  * UpgradeOverlay Component
@@ -108,19 +108,13 @@ export function UpgradeOverlay({
             ))}
           </div>
 
-          {/* Social Proof */}
-          <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6">
-            <div className="flex items-center gap-2 text-sm text-purple-900 dark:text-purple-200">
-              <TrendingUp className="w-4 h-4" />
-              <span className="font-semibold">1,247 developers upgraded this month</span>
-            </div>
-          </div>
-
           {/* Pricing */}
           <div className="text-center mb-6">
             <div className="text-3xl font-bold text-gray-900 dark:text-white">
               {upgradePrice}
-              <span className="text-lg text-gray-500 dark:text-gray-400">/month</span>
+              <span className="text-lg text-gray-500 dark:text-gray-400">
+                /month
+              </span>
             </div>
             {currentPlan === "FREE" && (
               <div className="text-sm text-gray-500 dark:text-gray-400 line-through">

@@ -659,9 +659,9 @@ export function ValidatedExercise({
                 }`}
               >
                 {result.passed ? (
-                  <Check className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <Check className="w-4 h-4 mt-0.5 shrink" />
                 ) : (
-                  <X className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <X className="w-4 h-4 mt-0.5 shrink" />
                 )}
                 <span className="text-sm">{result.description}</span>
               </div>

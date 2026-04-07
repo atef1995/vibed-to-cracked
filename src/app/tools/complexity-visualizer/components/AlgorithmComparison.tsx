@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -58,7 +58,8 @@ const ALGORITHMS: Algorithm[] = [
     timeComplexity: "O(n²)",
     spaceComplexity: "O(1)",
     category: "sorting",
-    description: "Simple comparison-based sort. Good for teaching, bad for production.",
+    description:
+      "Simple comparison-based sort. Good for teaching, bad for production.",
     codeSnippet: `function bubbleSort(arr) {
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < arr.length - i - 1; j++) {
@@ -173,7 +174,9 @@ export function AlgorithmComparison({
 
   // State for algorithm selection (CRACKED only)
   const [selectedAlgorithms, setSelectedAlgorithms] = useState<string[]>(
-    isCracked ? ["bubble-sort", "quick-sort"] : ["linear-search", "binary-search"]
+    isCracked
+      ? ["bubble-sort", "quick-sort"]
+      : ["linear-search", "binary-search"]
   );
   const [inputSize, setInputSize] = useState(1000);
   const [showCode, setShowCode] = useState(false);
@@ -189,22 +192,29 @@ export function AlgorithmComparison({
   /**
    * Generate comparison data
    */
-  const comparisonData = algorithms.map((algo) => ({
-    name: algo.name,
-    runtime: simulateRuntime(algo.timeComplexity, inputSize),
-    complexity: algo.timeComplexity,
-  }));
+  const comparisonData = useMemo(
+    () =>
+      algorithms.map((algo) => ({
+        name: algo.name,
+        runtime: simulateRuntime(algo.timeComplexity, inputSize),
+        complexity: algo.timeComplexity,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selectedAlgorithms, inputSize]
+  );
 
   /**
    * Detect large performance variance (auto-suggest log scale)
    */
-  const maxRuntime = comparisonData.length > 0
-    ? Math.max(...comparisonData.map((d) => d.runtime))
-    : 0;
-  const minRuntime = comparisonData.length > 0
-    ? Math.min(...comparisonData.map((d) => d.runtime))
-    : 0;
-  const hasLargeVariance = minRuntime > 0 && (maxRuntime / minRuntime) > 10;
+  const maxRuntime =
+    comparisonData.length > 0
+      ? Math.max(...comparisonData.map((d) => d.runtime))
+      : 0;
+  const minRuntime =
+    comparisonData.length > 0
+      ? Math.min(...comparisonData.map((d) => d.runtime))
+      : 0;
+  const hasLargeVariance = minRuntime > 0 && maxRuntime / minRuntime > 10;
 
   /**
    * Get bar color based on complexity
@@ -212,7 +222,8 @@ export function AlgorithmComparison({
   const getComplexityColor = (complexity: string) => {
     if (complexity.includes("O(1)")) return "#10b981";
     if (complexity.includes("O(log n)")) return "#3b82f6";
-    if (complexity.includes("O(n)") && !complexity.includes("²")) return "#8b5cf6";
+    if (complexity.includes("O(n)") && !complexity.includes("²"))
+      return "#8b5cf6";
     if (complexity.includes("O(n log n)")) return "#f59e0b";
     if (complexity.includes("O(n²)")) return "#ef4444";
     return "#6b7280";
@@ -299,7 +310,7 @@ export function AlgorithmComparison({
 
             {/* Input Size Slider */}
             <div>
-              <label 
+              <label
                 htmlFor="input-size-slider"
                 className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
               >
@@ -345,7 +356,8 @@ export function AlgorithmComparison({
               <div className="flex items-center justify-between gap-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
-                    ⚠️ Large performance difference detected! ({(maxRuntime / minRuntime).toFixed(0)}x)
+                    ⚠️ Large performance difference detected! (
+                    {(maxRuntime / minRuntime).toFixed(0)}x)
                   </span>
                 </div>
                 <button
@@ -398,7 +410,8 @@ export function AlgorithmComparison({
                   }}
                   formatter={(value: number | undefined) => {
                     if (value === undefined) return ["N/A", "Runtime"];
-                    const ratio = minRuntime > 0 ? (value / minRuntime).toFixed(1) : "1.0";
+                    const ratio =
+                      minRuntime > 0 ? (value / minRuntime).toFixed(1) : "1.0";
                     return [
                       `${value.toFixed(3)}ms (${ratio}x ${ratio === "1.0" ? "fastest" : "slower"})`,
                       "Runtime",
@@ -453,7 +466,11 @@ export function AlgorithmComparison({
                   <td className="px-4 py-3">
                     <span
                       className={`inline-block px-2 py-1 rounded text-xs font-mono font-semibold text-white`}
-                      style={{ backgroundColor: getComplexityColor(algo.timeComplexity) }}
+                      style={{
+                        backgroundColor: getComplexityColor(
+                          algo.timeComplexity
+                        ),
+                      }}
                     >
                       {algo.timeComplexity}
                     </span>
@@ -470,7 +487,11 @@ export function AlgorithmComparison({
                       </span>
                       {comparisonData.length > 1 && minRuntime > 0 && (
                         <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
-                          {(simulateRuntime(algo.timeComplexity, inputSize) / minRuntime).toFixed(1)}x
+                          {(
+                            simulateRuntime(algo.timeComplexity, inputSize) /
+                            minRuntime
+                          ).toFixed(1)}
+                          x
                         </span>
                       )}
                     </div>
@@ -514,14 +535,19 @@ export function AlgorithmComparison({
               </h4>
               <p className="text-sm text-green-800 dark:text-green-300">
                 <span className="font-bold">
-                  {comparisonData.reduce((prev, curr) =>
-                    curr.runtime < prev.runtime ? curr : prev
-                  ).name}
+                  {
+                    comparisonData.reduce((prev, curr) =>
+                      curr.runtime < prev.runtime ? curr : prev
+                    ).name
+                  }
                 </span>{" "}
-                is the most efficient choice for n={inputSize.toLocaleString()} with{" "}
-                {comparisonData.reduce((prev, curr) =>
-                  curr.runtime < prev.runtime ? curr : prev
-                ).runtime}
+                is the most efficient choice for n={inputSize.toLocaleString()}{" "}
+                with{" "}
+                {
+                  comparisonData.reduce((prev, curr) =>
+                    curr.runtime < prev.runtime ? curr : prev
+                  ).runtime
+                }
                 ms runtime.
               </p>
             </div>

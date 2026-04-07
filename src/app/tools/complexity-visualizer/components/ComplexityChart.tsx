@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -100,10 +100,10 @@ export function ComplexityChart({
     "O(n²)": true,
     "O(2ⁿ)": false, // Hidden by default (grows too fast)
   });
-  // Generate chart data
-  const chartData = generateChartData(
-    isCracked ? maxN : 50,
-    isCracked ? step : 10
+  // Generate chart data (memoized — can be up to 10k items when step=1)
+  const chartData = useMemo(
+    () => generateChartData(isCracked ? maxN : 50, isCracked ? step : 10),
+    [isCracked, maxN, step]
   );
 
   /**
@@ -155,7 +155,7 @@ export function ComplexityChart({
             "Compare multiple algorithms side-by-side",
           ]}
           currentPlan={plan}
-          className="min-h-[500px]"
+          className="min-h-125"
         />
       )}
 
@@ -183,10 +183,14 @@ export function ComplexityChart({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Max N Slider */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="max-n-slider"
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Maximum Input Size (n): {maxN}
                 </label>
                 <input
+                  id="max-n-slider"
                   type="range"
                   min="10"
                   max="10000"
@@ -204,10 +208,14 @@ export function ComplexityChart({
 
               {/* Step Size */}
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="step-size-slider"
+                  className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Step Size: {step}
                 </label>
                 <input
+                  id="step-size-slider"
                   type="range"
                   min="1"
                   max="100"
@@ -273,7 +281,7 @@ export function ComplexityChart({
         )}
 
         {/* Chart */}
-        <div className="w-full h-[400px]">
+        <div className="w-full h-100">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={chartData}
@@ -339,7 +347,7 @@ export function ComplexityChart({
               • O(1) and O(log n) stay flat - these are the most efficient!
             </li>
             <li>• O(n) grows linearly - still very manageable</li>
-            <li>• O(n²) grows exponentially - avoid for large inputs</li>
+            <li>• O(n²) grows quadratically - avoid for large inputs</li>
             <li>• O(2ⁿ) explodes quickly - only use for tiny inputs</li>
           </ul>
         </div>

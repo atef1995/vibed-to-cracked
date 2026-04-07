@@ -314,7 +314,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             </span>
             <button
               onClick={() => setIsExpanded(false)}
-              className="px-3 py-1 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-xs sm:text-sm rounded border border-gray-300 dark:border-gray-500 transition-colors flex items-center justify-center gap-1 cursor-pointer touch-manipulation flex-shrink-0"
+              className="px-3 py-1 min-w-11 min-h-11 sm:min-w-0 sm:min-h-0 bg-gray-200 hover:bg-gray-300 active:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 text-xs sm:text-sm rounded border border-gray-300 dark:border-gray-500 transition-colors flex items-center justify-center gap-1 cursor-pointer touch-manipulation shrink-0"
               title="Exit fullscreen (ESC)"
             >
               <span>✕</span>

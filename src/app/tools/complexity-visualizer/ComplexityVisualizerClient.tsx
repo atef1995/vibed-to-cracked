@@ -250,7 +250,7 @@ export function ComplexityVisualizerClient({
           <div className="grid md:grid-cols-1 gap-4">
             <TutorialRecommendations
               title="Related Learning Resources"
-              currentTutorialSlug="02-why-sorting-matters"
+              currentTutorialSlug="04-time-complexity-big-o"
               limit={4}
             />
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { UpgradeOverlay } from "./UpgradeOverlay";
 import { Play, Clock, TrendingUp, Download } from "lucide-react";
 import {
@@ -61,35 +61,102 @@ const EXAMPLE_BENCHMARKS: Record<string, BenchmarkResult[]> = {
 };
 
 /**
- * Run a benchmark on user code (simplified simulation)
+ * Extract a callable function from user code using new Function.
+ * Expects the code to define a function (declaration or expression).
  */
-function runBenchmark(code: string, inputSizes: number[]): BenchmarkResult[] {
-  // In production, this would actually execute the code
-  // For now, we simulate based on code characteristics
+function extractUserFunction(
+  code: string
+): ((...args: unknown[]) => unknown) | null {
+  // Try as expression (arrow function or function expression)
+  try {
+    const fn = new Function("return " + code)();
+    if (typeof fn === "function") return fn;
+  } catch {
+    /* not an expression */
+  }
 
-  const hasNestedLoops = /for.*for/s.test(code);
+  // Try wrapping in an object to capture function declarations
+  try {
+    const fnMatch = code.match(/function\s+(\w+)/);
+    if (fnMatch) {
+      const fn = new Function(code + "\nreturn " + fnMatch[1] + ";")();
+      if (typeof fn === "function") return fn;
+    }
+  } catch {
+    /* declaration extraction failed */
+  }
 
+  return null;
+}
+
+/**
+ * Generate a random integer array of length n
+ */
+function generateTestArray(n: number): number[] {
+  const arr = new Array(n);
+  for (let i = 0; i < n; i++) arr[i] = Math.floor(Math.random() * n);
+  return arr;
+}
+
+/**
+ * Run a real benchmark by executing user code with different input sizes.
+ * Returns results with actual measured timings.
+ */
+/** Max wall-clock time (ms) we allow per single input size */
+const PER_SIZE_TIME_CAP = 5_000;
+
+function runBenchmark(
+  fn: (...args: unknown[]) => unknown,
+  inputSizes: number[]
+): BenchmarkResult[] {
   return inputSizes.map((n) => {
-    let runtime: number;
-    let iterations: number;
-
-    if (hasNestedLoops) {
-      // Simulate O(n²) performance
-      runtime = (n * n) / 500;
-      iterations = Math.max(1, Math.floor(10000 / ((n * n) / 100)));
-    } else {
-      // Simulate O(n) performance
-      runtime = n / 1000;
-      iterations = Math.max(1, Math.floor(100000 / n));
+    const targetMs = 200;
+    // Warm-up run
+    const warmArr = generateTestArray(Math.min(n, 100));
+    try {
+      fn([...warmArr]);
+    } catch {
+      /* ignore warm-up errors */
     }
 
-    // Add some random variation
-    runtime *= 0.9 + Math.random() * 0.2;
+    // Single probe to estimate iteration count
+    const probeArr = generateTestArray(n);
+    const probeStart = performance.now();
+    fn([...probeArr]);
+    const probeTime = performance.now() - probeStart;
+
+    // If a single call already exceeds the cap, return just the probe
+    if (probeTime > PER_SIZE_TIME_CAP) {
+      return {
+        inputSize: n,
+        runtime: Number(probeTime.toFixed(2)),
+        iterations: 1,
+      };
+    }
+
+    const iterations = Math.max(
+      1,
+      Math.min(1000, Math.ceil(targetMs / Math.max(probeTime, 0.01)))
+    );
+
+    // Timed runs with wall-clock budget
+    let total = 0;
+    let completed = 0;
+    const deadline = performance.now() + PER_SIZE_TIME_CAP;
+    for (let i = 0; i < iterations; i++) {
+      if (performance.now() > deadline) break;
+      const arr = generateTestArray(n);
+      const start = performance.now();
+      fn([...arr]);
+      const end = performance.now();
+      total += end - start;
+      completed++;
+    }
 
     return {
       inputSize: n,
-      runtime: Number(runtime.toFixed(2)),
-      iterations: Math.min(iterations, 10000),
+      runtime: Number((total / Math.max(completed, 1)).toFixed(2)),
+      iterations: completed,
     };
   });
 }
@@ -107,26 +174,53 @@ export function PerformanceBenchmark({
   const [inputSizes, setInputSizes] = useState<string>("100,1000,10000");
   const [results, setResults] = useState<BenchmarkResult[] | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   /**
    * Handle benchmark execution (CRACKED only)
    */
-  const handleRunBenchmark = () => {
+  const handleRunBenchmark = useCallback(() => {
     if (!isCracked || !customCode.trim()) return;
 
+    setError(null);
     setIsRunning(true);
-    // Simulate benchmark execution with delay
-    setTimeout(() => {
-      const sizes = inputSizes
-        .split(",")
-        .map((s) => parseInt(s.trim()))
-        .filter((n) => !isNaN(n) && n > 0);
 
-      const benchmarkResults = runBenchmark(customCode, sizes);
-      setResults(benchmarkResults);
-      setIsRunning(false);
-    }, 2000);
-  };
+    // Use setTimeout to yield to the UI before blocking with benchmark runs
+    setTimeout(() => {
+      try {
+        const fn = extractUserFunction(customCode);
+        if (!fn) {
+          setError(
+            "Could not find a callable function in your code. Make sure you define a function that accepts an array parameter."
+          );
+          setIsRunning(false);
+          return;
+        }
+
+        const sizes = inputSizes
+          .split(",")
+          .map((s) => parseInt(s.trim()))
+          .filter((n) => !isNaN(n) && n > 0 && n <= 1_000_000);
+
+        if (sizes.length === 0) {
+          setError("Enter at least one valid input size (1 - 1,000,000).");
+          setIsRunning(false);
+          return;
+        }
+
+        const benchmarkResults = runBenchmark(fn, sizes);
+        setResults(benchmarkResults);
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "An error occurred while running the benchmark."
+        );
+      } finally {
+        setIsRunning(false);
+      }
+    }, 50);
+  }, [isCracked, customCode, inputSizes]);
 
   /**
    * Export results as CSV (CRACKED only)
@@ -166,11 +260,14 @@ export function PerformanceBenchmark({
     const sizeRatio = lastResult.inputSize / firstResult.inputSize;
     const timeRatio = lastResult.runtime / firstResult.runtime;
 
-    // If time grows linearly with size: O(n)
-    if (timeRatio / sizeRatio < 2) return "Excellent (O(n) or better)";
-    // If time grows quadratically: O(n²)
-    if (timeRatio / sizeRatio < 10) return "Good (O(n log n))";
-    if (timeRatio / sizeRatio < 50) return "Fair (O(n²))";
+    if (sizeRatio <= 1 || timeRatio <= 0 || !isFinite(timeRatio)) return "N/A";
+
+    // Compute growth exponent: time ∝ n^k → k = log(timeRatio) / log(sizeRatio)
+    const k = Math.log(timeRatio) / Math.log(sizeRatio);
+
+    if (k < 1.3) return "Excellent (O(n) or better)";
+    if (k < 1.8) return "Good (O(n log n))";
+    if (k < 2.5) return "Fair (O(n²))";
     return "Poor (O(n³) or worse)";
   };
 
@@ -182,7 +279,7 @@ export function PerformanceBenchmark({
           featureName="Real-Time Performance Benchmark"
           valueProp="Run your code with different input sizes and measure actual performance"
           benefits={[
-            "Execute your code in a sandboxed environment",
+            "Run your code and measure real performance",
             "Test with custom input sizes (10 to 1,000,000)",
             "See real runtime measurements (not theoretical)",
             "Visual performance graphs and trends",
@@ -193,31 +290,23 @@ export function PerformanceBenchmark({
         />
       )}
 
-      {/* Content */}
-      <div
-        className={`bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${
-          !isCracked ? "pointer-events-none select-none" : ""
-        }`}
-      >
-        {/* Header */}
-        <div className="mb-6">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-            <TrendingUp className="w-7 h-7" />
-            Performance Benchmark
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {isCracked
-              ? "Measure real-world performance of your code"
-              : "Preview: View example benchmark results"}
-          </p>
-        </div>
-
-        {/* Controls */}
-        {!isCracked ? (
+      {/* Example Selector (FREE mode) — outside pointer-events-none so controls work */}
+      {!isCracked && (
+        <div className="bg-white dark:bg-gray-900 rounded-t-lg border border-b-0 border-gray-200 dark:border-gray-700 p-6 pb-0">
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              <TrendingUp className="w-7 h-7" />
+              Performance Benchmark
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Preview: View example benchmark results
+            </p>
+          </div>
           <div className="mb-6">
             <label
-            htmlFor="example-selection"
-            className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              htmlFor="example-selection"
+              className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2"
+            >
               Example Benchmark:
             </label>
             <select
@@ -233,7 +322,32 @@ export function PerformanceBenchmark({
               ))}
             </select>
           </div>
-        ) : (
+        </div>
+      )}
+
+      {/* Content */}
+      <div
+        className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 ${
+          !isCracked
+            ? "pointer-events-none select-none rounded-b-lg"
+            : "rounded-lg"
+        }`}
+      >
+        {/* Header (CRACKED only — FREE header is above) */}
+        {isCracked && (
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              <TrendingUp className="w-7 h-7" />
+              Performance Benchmark
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Measure real-world performance of your code
+            </p>
+          </div>
+        )}
+
+        {/* Controls */}
+        {isCracked && (
           <div className="mb-6 space-y-4">
             {/* Code Input */}
             <div>
@@ -305,6 +419,18 @@ export function PerformanceBenchmark({
             </p>
             <p className="text-xs text-purple-700 dark:text-purple-300 mt-1">
               This may take a few seconds
+            </p>
+          </div>
+        )}
+
+        {/* Error State */}
+        {error && !isRunning && (
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
+            <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+              Benchmark Error
+            </p>
+            <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+              {error}
             </p>
           </div>
         )}
@@ -397,7 +523,7 @@ export function PerformanceBenchmark({
                       Iterations
                     </th>
                     <th className="px-4 py-3 text-left text-sm font-semibold rounded-tr-lg">
-                      Avg per Operation
+                      Total Time
                     </th>
                   </tr>
                 </thead>
@@ -421,7 +547,7 @@ export function PerformanceBenchmark({
                         {result.iterations.toLocaleString()}
                       </td>
                       <td className="px-4 py-3 font-mono text-sm text-gray-700 dark:text-gray-300">
-                        {(result.runtime / result.iterations).toFixed(4)}ms
+                        {(result.runtime * result.iterations).toFixed(2)}ms
                       </td>
                     </tr>
                   ))}
@@ -436,15 +562,17 @@ export function PerformanceBenchmark({
               </h4>
               <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1">
                 <li>
-                  • When input size increases{" "}
-                  {displayData[displayData.length - 1].inputSize /
-                    displayData[0].inputSize}
-                  x, runtime increases{" "}
-                  {(
-                    displayData[displayData.length - 1].runtime /
-                    displayData[0].runtime
-                  ).toFixed(1)}
-                  x
+                  {(() => {
+                    const first = displayData[0].runtime;
+                    const last = displayData[displayData.length - 1].runtime;
+                    const sizeGrowth =
+                      displayData[displayData.length - 1].inputSize /
+                      displayData[0].inputSize;
+                    if (!first || !last || !isFinite(last / first)) {
+                      return `• Input size spans ${sizeGrowth.toLocaleString()}x`;
+                    }
+                    return `• When input size increases ${sizeGrowth.toLocaleString()}x, runtime increases ${(last / first).toFixed(1)}x`;
+                  })()}
                 </li>
                 <li>
                   • Faster execution means fewer iterations needed for reliable

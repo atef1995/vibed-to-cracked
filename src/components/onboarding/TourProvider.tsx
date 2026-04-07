@@ -90,22 +90,15 @@ export function TourProvider({
   });
 
   useEffect(() => {
-    const unsubComplete = on("tour:end", (data: EventData) => {
-      if (data.action === "next" || data.action === "close") {
+    const unsub = on("tour:end", (data: EventData) => {
+      if (data.status === "skipped") {
+        (onSkipRef.current ?? onCompleteRef.current)();
+      } else {
         onCompleteRef.current();
       }
     });
 
-    const unsubSkip = on("tour:end", (data: EventData) => {
-      if (data.action === "skip") {
-        (onSkipRef.current ?? onCompleteRef.current)();
-      }
-    });
-
-    return () => {
-      unsubComplete();
-      unsubSkip();
-    };
+    return unsub;
   }, [on]);
 
   return Tour;

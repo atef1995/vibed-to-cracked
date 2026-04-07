@@ -95,56 +95,146 @@ const EXAMPLE_ANALYSES: CodeExample[] = [
 /**
  * Analyze code complexity (simplified simulation for demo)
  */
+/**
+ * Strip string literals and comments so keywords inside them
+ * don't trigger false positives.
+ */
+function stripNoise(code: string): string {
+  return code
+    .replace(/\/\/.*$/gm, "") // line comments
+    .replace(/\/\*[\s\S]*?\*\//g, "") // block comments
+    .replace(/(['"`])(?:(?!\1)[\s\S])*?\1/g, ""); // string literals
+}
+
 function analyzeCode(code: string): CodeExample {
-  // This is a simplified simulation
-  // In production, you'd use an AI API or AST parser
+  const clean = stripNoise(code);
 
-  const hasNestedLoops = /for.*for/s.test(code) || /while.*for/s.test(code);
-  const hasRecursion = code.includes("function") && new RegExp(`${code.match(/function\s+(\w+)/)?.[1]}\\(`).test(code);
-  const hasSingleLoop = /for|while/.test(code) && !hasNestedLoops;
+  // Loop keywords that look like real loops (followed by `(`)
+  const loopPattern = /\b(for|while)\s*\(/g;
+  const loopCount = (clean.match(loopPattern) || []).length;
 
-  let timeComplexity = "O(n)";
+  const hasNestedLoops = loopCount >= 2;
+  const hasSingleLoop = loopCount === 1;
+
+  // Halving pattern: common in binary search / divide-and-conquer loops
+  const hasHalving =
+    hasSingleLoop &&
+    (/\/\s*2\b/.test(clean) ||
+      />>\s*1\b/.test(clean) ||
+      /Math\.floor\s*\([^)]*\/\s*2/.test(clean));
+
+  // Recursion detection
+  const fnNameMatch = clean.match(/function\s+(\w+)/);
+  let recursionCalls = 0;
+  if (fnNameMatch) {
+    const afterDecl = clean.slice(
+      clean.indexOf(fnNameMatch[0]) + fnNameMatch[0].length
+    );
+    const callPattern = new RegExp(`\\b${fnNameMatch[1]}\\s*\\(`, "g");
+    recursionCalls = (afterDecl.match(callPattern) || []).length;
+  }
+  const hasRecursion = recursionCalls > 0;
+  const hasBranchingRecursion = recursionCalls >= 2;
+
+  // Array method iteration: .map, .filter, .forEach, .reduce, .find, .some, .every
+  const iteratorMethods =
+    /\.(map|filter|forEach|reduce|find|some|every|flatMap)\s*\(/;
+  const hasArrayIteration = iteratorMethods.test(clean);
+
+  // .sort() is O(n log n)
+  const hasSort = /\.sort\s*\(/.test(clean);
+
+  // Accumulation: pushing/concatenating results inside loops implies growing output
+  const hasAccumulation =
+    /\.push\s*\(/.test(clean) || /\.concat\s*\(/.test(clean);
+
+  let timeComplexity = "O(1)";
   let spaceComplexity = "O(1)";
   let breakdown: string[] = [];
   let explanation = "";
 
   if (hasNestedLoops) {
     timeComplexity = "O(n²)";
+    spaceComplexity = hasAccumulation ? "O(n²)" : "O(1)";
     breakdown = [
       "Detected nested loops",
       "Outer loop: O(n)",
       "Inner loop: O(n)",
       "Combined: O(n) × O(n) = O(n²)",
+      ...(hasAccumulation
+        ? ["Results accumulated inside nested loop: O(n²) space"]
+        : []),
     ];
-    explanation =
-      "This code has nested loops, where each loop iterates over the input. This results in quadratic time complexity O(n²).";
-  } else if (hasRecursion) {
+    explanation = hasAccumulation
+      ? "This code has nested loops with results collected each iteration, giving O(n²) time and O(n²) space complexity."
+      : "This code has nested loops, where each loop iterates over the input. This results in quadratic time complexity O(n²).";
+  } else if (hasBranchingRecursion) {
     timeComplexity = "O(2ⁿ)";
     spaceComplexity = "O(n)";
     breakdown = [
-      "Detected recursion",
-      "Each call branches into multiple calls",
+      "Detected branching recursion",
+      "Each call branches into multiple recursive calls",
       "Creates exponential growth",
       "Stack space needed for recursion depth",
     ];
     explanation =
-      "This recursive function appears to have exponential complexity due to multiple recursive calls.";
-  } else if (hasSingleLoop) {
+      "This recursive function has exponential complexity because each call makes multiple recursive calls, doubling the work at each level.";
+  } else if (hasRecursion) {
     timeComplexity = "O(n)";
+    spaceComplexity = "O(n)";
     breakdown = [
-      "Single loop detected",
+      "Detected linear recursion",
+      "Each call makes one recursive call",
+      "Runs n times before reaching the base case",
+      "Stack space grows with recursion depth",
+    ];
+    explanation =
+      "This recursive function has linear O(n) complexity because each call makes exactly one recursive call, processing one element at a time.";
+  } else if (hasSort) {
+    timeComplexity = "O(n log n)";
+    spaceComplexity = hasArrayIteration || hasSingleLoop ? "O(n)" : "O(1)";
+    breakdown = [
+      "Detected .sort() call",
+      "JavaScript's Array.sort uses TimSort: O(n log n)",
+      ...(hasArrayIteration || hasSingleLoop
+        ? ["Additional iteration adds O(n), dominated by sort"]
+        : []),
+    ];
+    explanation =
+      "The .sort() method uses an O(n log n) comparison sort. Any additional linear passes don't change the overall complexity.";
+  } else if (hasHalving) {
+    timeComplexity = "O(log n)";
+    breakdown = [
+      "Loop detected with halving pattern",
+      "Search space is divided by 2 each iteration",
+      "Pattern: log₂(n) iterations",
+    ];
+    explanation =
+      "The loop halves the search space each iteration, resulting in O(log n) time complexity.";
+  } else if (hasSingleLoop || hasArrayIteration) {
+    timeComplexity = "O(n)";
+    spaceComplexity = hasArrayIteration || hasAccumulation ? "O(n)" : "O(1)";
+    breakdown = [
+      hasSingleLoop
+        ? "Single loop detected"
+        : "Array iteration method detected (.map, .filter, etc.)",
       "Iterates through input once",
       "Linear time complexity",
+      ...(hasArrayIteration
+        ? ["Array methods typically create a new array: O(n) space"]
+        : []),
     ];
-    explanation = "Single loop iterating through input results in linear O(n) complexity.";
+    explanation = hasSingleLoop
+      ? "Single loop iterating through input results in linear O(n) complexity."
+      : "Array methods like .map/.filter iterate over all elements, resulting in linear O(n) complexity.";
   } else {
-    timeComplexity = "O(1)";
     breakdown = [
-      "No loops or recursion detected",
+      "No loops, recursion, or iteration detected",
       "Constant number of operations",
       "Time complexity is constant",
     ];
-    explanation = "Simple operations with no loops result in constant O(1) complexity.";
+    explanation =
+      "Simple operations with no loops result in constant O(1) complexity.";
   }
 
   return {
@@ -167,7 +257,6 @@ export function ComplexityCalculator({
   const [selectedExample, setSelectedExample] = useState(0);
   const [customCode, setCustomCode] = useState("");
   const [analysis, setAnalysis] = useState<CodeExample | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   /**
    * Handle code analysis (CRACKED only)
@@ -175,13 +264,8 @@ export function ComplexityCalculator({
   const handleAnalyze = () => {
     if (!isCracked || !customCode.trim()) return;
 
-    setIsAnalyzing(true);
-    // Simulate API delay
-    setTimeout(() => {
-      const result = analyzeCode(customCode);
-      setAnalysis(result);
-      setIsAnalyzing(false);
-    }, 1000);
+    const result = analyzeCode(customCode);
+    setAnalysis(result);
   };
 
   /**
@@ -204,31 +288,22 @@ export function ComplexityCalculator({
             "Save and compare multiple analyses",
           ]}
           currentPlan={plan}
-          className="min-h-[600px]"
+          className="min-h-150"
         />
       )}
 
-      {/* Content */}
-      <div
-        className={`bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 p-6 ${
-          !isCracked ? "pointer-events-none select-none" : ""
-        }`}
-      >
-        {/* Header */}
-        <div className="mb-6">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-            <Calculator className="w-7 h-7" />
-            Complexity Calculator
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            {isCracked
-              ? "Paste your code below to analyze its time and space complexity"
-              : "Preview: View pre-analyzed examples"}
-          </p>
-        </div>
-
-        {/* Example Selector (FREE mode) or Code Input (CRACKED mode) */}
-        {!isCracked ? (
+      {/* Example Selector (FREE mode) — outside pointer-events-none so buttons work */}
+      {!isCracked && (
+        <div className="bg-white dark:bg-gray-900 rounded-t-lg border border-b-0 border-gray-200 dark:border-gray-700 p-6 pb-0">
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              <Calculator className="w-7 h-7" />
+              Complexity Calculator
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Preview: View pre-analyzed examples
+            </p>
+          </div>
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               Select Example:
@@ -252,7 +327,32 @@ export function ComplexityCalculator({
               ))}
             </div>
           </div>
-        ) : (
+        </div>
+      )}
+
+      {/* Content */}
+      <div
+        className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-6 ${
+          !isCracked
+            ? "pointer-events-none select-none rounded-b-lg"
+            : "rounded-lg"
+        }`}
+      >
+        {/* Header (CRACKED only — FREE header is above) */}
+        {isCracked && (
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+              <Calculator className="w-7 h-7" />
+              Complexity Calculator
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Paste your code below to analyze its time and space complexity
+            </p>
+          </div>
+        )}
+
+        {/* Code Input (CRACKED mode) */}
+        {isCracked && (
           <div className="mb-6">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
               <Code className="inline w-4 h-4 mr-1" />
@@ -267,17 +367,17 @@ export function ComplexityCalculator({
             <div className="flex gap-2 mt-2">
               <button
                 onClick={handleAnalyze}
-                disabled={!customCode.trim() || isAnalyzing}
+                disabled={!customCode.trim()}
                 className={`
                   px-6 py-2 rounded-lg font-semibold transition-all
                   ${
-                    customCode.trim() && !isAnalyzing
+                    customCode.trim()
                       ? "bg-purple-600 hover:bg-purple-700 text-white"
                       : "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                   }
                 `}
               >
-                {isAnalyzing ? "Analyzing..." : "Analyze Complexity"}
+                Analyze Complexity
               </button>
               <button
                 onClick={() => {
@@ -347,10 +447,12 @@ export function ComplexityCalculator({
                 key={index}
                 className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
               >
-                <div className="flex-shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                <div className="shrink-0 w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                   {index + 1}
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300">{step}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  {step}
+                </p>
               </div>
             ))}
           </div>

@@ -6,7 +6,9 @@ async function main() {
   const result = await prisma.user.updateMany({
     data: { onboardingCompleted: true },
   });
-  console.log(`Set onboardingCompleted=true for ${result.count} existing users`);
+  console.log(
+    `Set onboardingCompleted=true for ${result.count} existing users`
+  );
 }
 
 main()

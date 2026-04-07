@@ -430,6 +430,79 @@ export class TutorialService {
     }
   }
 
+  private static readonly GOAL_TO_CATEGORY: Record<string, string[]> = {
+    "web-fundamentals": ["html", "fundamentals"],
+    frontend: ["react", "css"],
+    backend: ["nodejs"],
+    dsa: ["data-structures-algorithms"],
+    "career-switch": ["html", "fundamentals"],
+    "side-projects": ["dom", "react"],
+  };
+
+  private static readonly EXPERIENCE_MAX_DIFFICULTY: Record<string, number> = {
+    "complete-beginner": 1,
+    "some-basics": 2,
+    intermediate: 3,
+    advanced: 4,
+  };
+
+  /**
+   * Get a recommended tutorial for a user based on their experience level and learning goals.
+   * Queries the DB directly — no hardcoded slugs.
+   */
+  static async getRecommendedForUser(
+    experienceLevel: string,
+    learningGoals: string[]
+  ): Promise<TutorialWithAll | null> {
+    try {
+      const maxDifficulty =
+        this.EXPERIENCE_MAX_DIFFICULTY[experienceLevel] ?? 2;
+
+      // Collect category slugs from goals in priority order
+      const categorySlugs: string[] = [];
+      for (const goal of learningGoals) {
+        const slugs = this.GOAL_TO_CATEGORY[goal];
+        if (slugs) {
+          for (const s of slugs) {
+            if (!categorySlugs.includes(s)) categorySlugs.push(s);
+          }
+        }
+      }
+
+      // Try each preferred category — return the easiest FREE tutorial that fits
+      for (const catSlug of categorySlugs) {
+        const tutorial = await prisma.tutorial.findFirst({
+          where: {
+            published: true,
+            requiredPlan: "FREE",
+            difficulty: { lte: maxDifficulty },
+            category: { slug: catSlug },
+          },
+          include: { category: true, quizzes: true },
+          orderBy: [{ difficulty: "asc" }, { order: "asc" }],
+        });
+        if (tutorial?.category) return tutorial as TutorialWithAll;
+      }
+
+      // Fallback: easiest FREE tutorial across the whole platform
+      const fallback = await prisma.tutorial.findFirst({
+        where: {
+          published: true,
+          requiredPlan: "FREE",
+          difficulty: { lte: maxDifficulty },
+        },
+        include: { category: true, quizzes: true },
+        orderBy: [{ difficulty: "asc" }, { order: "asc" }],
+      });
+      if (fallback?.category) return fallback as TutorialWithAll;
+
+      return null;
+    } catch (error) {
+      console.error("Error in getRecommendedForUser:", error);
+      return null;
+    }
+  }
+
   /**
    * Get recommended tutorials based on current tutorial
    * Uses topics, category, prerequisites, and difficulty for smart matching

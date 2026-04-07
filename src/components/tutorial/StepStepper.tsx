@@ -82,8 +82,7 @@ export default function StepStepper({
         </div>
         <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${allComplete ? "bg-emerald-500" : "bg-blue-500"}`}
-            style={{ width: `${progressPercent}%` }}
+            className={`h-full rounded-full transition-all duration-500 ${allComplete ? "bg-emerald-500" : "bg-blue-500"} w-[${progressPercent}%]`}
           />
         </div>
         <div className="overflow-x-auto scrollbar-none">
