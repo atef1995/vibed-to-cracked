@@ -8,7 +8,7 @@ import { useProgressStats } from "@/hooks/useProgress";
 import { ProgressStats } from "@/components/ProgressComponents";
 import { AnonymousDashboard } from "@/components/AnonymousDashboard";
 import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
-import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
+import { RecommendedStart } from "@/components/dashboard/RecommendedStart";
 import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import { TourProvider } from "@/components/onboarding/TourProvider";
@@ -200,17 +200,8 @@ export default function DashboardPage() {
       {/* 1. Continue where you left off (returning users) */}
       <ContinueLearning userId={session.user.id} />
 
-      {/* 2. Onboarding checklist — component self-hides when all steps done or dismissed */}
-      {!loadingProgress && progressStats && (
-        <OnboardingChecklist
-          hasMoodSet={
-            !!(session.user as Record<string, unknown>).mood &&
-            (session.user as Record<string, unknown>).mood !== "CHILL"
-          }
-          tutorialsCompleted={progressStats.tutorials.completed}
-          challengesCompleted={progressStats.challenges.completed}
-        />
-      )}
+      {/* 2. Recommended start — shown for new users */}
+      {isNewUser && <RecommendedStart />}
 
       {/* 3. Mood selector — compact for returning users, full for new */}
       {isNewUser ? (

@@ -131,6 +131,8 @@ export async function getUserSettings(userId: string) {
       difficulty: s?.difficulty?.toLowerCase() ?? "medium",
       autoSubmit: s?.autoSubmit ?? false,
     },
+    experienceLevel: s?.experienceLevel ?? "beginner",
+    learningGoals: s?.learningGoals ?? [],
   };
 }
 
