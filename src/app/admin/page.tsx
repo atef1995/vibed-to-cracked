@@ -11,6 +11,8 @@ import PeerReviewDashboard from "@/components/admin/PeerReviewDashboard";
 import BroadcastEmailForm from "@/components/admin/BroadcastEmailForm";
 import UserStatsDashboard from "@/components/admin/UserStatsDashboard";
 import MentorshipDashboard from "@/components/admin/MentorshipDashboard";
+import BlogDashboard from "@/components/admin/BlogDashboard";
+import AnonymousMetrics from "@/components/admin/AnonymousMetrics";
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -56,6 +58,16 @@ export default function AdminPage() {
       id: "mentorship",
       label: "Mentorship",
       component: MentorshipDashboard,
+    },
+    {
+      id: "blog",
+      label: "Blog",
+      component: BlogDashboard,
+    },
+    {
+      id: "visitors",
+      label: "Visitors",
+      component: AnonymousMetrics,
     },
   ];
 

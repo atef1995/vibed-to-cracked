@@ -152,7 +152,7 @@ export default function BlogPage() {
                   className="group relative block rounded-2xl overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow lg:row-span-2 lg:p-32"
                 >
                   {featuredPosts[0].coverImage && (
-                    <div className="relative h-64 lg:h-full">
+                    <div className="h-64 lg:h-full">
                       <Image
                         src={featuredPosts[0].coverImage}
                         alt={featuredPosts[0].title}
