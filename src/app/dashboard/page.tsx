@@ -139,11 +139,12 @@ export default function DashboardPage() {
     if (
       status === "authenticated" &&
       session?.user &&
-      session.user.onboardingCompleted === false
+      session.user.onboardingCompleted === false &&
+      searchParams.get("onboarded") !== "true"
     ) {
       router.push("/onboarding");
     }
-  }, [status, session, router]);
+  }, [status, session, router, searchParams]);
 
   // Start tour after onboarding redirect
   useEffect(() => {
