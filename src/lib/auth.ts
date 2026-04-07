@@ -112,9 +112,59 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     },
-    signIn: async ({ user, account }) => {
+    signIn: async ({ user, account, profile }) => {
       if (debugMode) {
         console.log("SignIn callback - user:", user, "account:", account);
+      }
+
+      // Auto-link OAuth accounts when the email is already in the DB under
+      // a different provider. This is safe because both Google and GitHub
+      // verify email ownership before returning it.
+      if (account && user.email) {
+        const emailVerified =
+          (profile as { email_verified?: boolean })?.email_verified === true;
+
+        if (emailVerified) {
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+
+          if (existingUser) {
+            const existingAccount = await prisma.account.findUnique({
+              where: {
+                provider_providerAccountId: {
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                },
+              },
+            });
+
+            if (!existingAccount) {
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  access_token: account.access_token,
+                  refresh_token: account.refresh_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                },
+              });
+
+              if (debugMode) {
+                console.log(
+                  `Linked ${account.provider} account to existing user ${existingUser.email}`
+                );
+              }
+
+              return true;
+            }
+          }
+        }
       }
 
       // Capture GitHub access token and username for contribution system

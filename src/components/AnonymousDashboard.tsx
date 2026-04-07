@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
 import { SignupCTA } from "@/components/SignupCTA";
 import {
@@ -20,6 +20,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "./ui/PageLayout";
+import { TourProvider } from "@/components/onboarding/TourProvider";
+import {
+  anonymousDashboardTourSteps,
+  ANONYMOUS_TOUR_ID,
+} from "@/lib/tours/anonymousDashboardTour";
+import { useTourState } from "@/hooks/useTourState";
 
 const moreLinks = [
   {
@@ -55,6 +61,15 @@ const moreLinks = [
 
 export function AnonymousDashboard() {
   const [showMore, setShowMore] = useState(false);
+  const { isRunning, setIsRunning, isTourCompleted, completeTour } =
+    useTourState(ANONYMOUS_TOUR_ID);
+
+  useEffect(() => {
+    if (!isTourCompleted) {
+      const timer = setTimeout(() => setIsRunning(true), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [isTourCompleted, setIsRunning]);
 
   return (
     <PageLayout>
@@ -84,7 +99,7 @@ export function AnonymousDashboard() {
       </div>
 
       {/* Mood Selector */}
-      <div className="mb-10">
+      <div className="mb-10" data-tour="anon-mood-selector">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 text-center">
           How are you feeling today?
         </h2>
@@ -102,6 +117,7 @@ export function AnonymousDashboard() {
         <div className="grid md:grid-cols-3 gap-5">
           <Link
             href="/tutorials"
+            data-tour="anon-tutorials"
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-500 group"
           >
             <div className="flex items-center justify-between mb-3">
@@ -123,6 +139,7 @@ export function AnonymousDashboard() {
 
           <Link
             href="/quizzes"
+            data-tour="anon-quizzes"
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-500 group"
           >
             <div className="flex items-center justify-between mb-3">
@@ -144,6 +161,7 @@ export function AnonymousDashboard() {
 
           <Link
             href="/cheat-sheets"
+            data-tour="anon-cheat-sheets"
             className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-yellow-200 dark:hover:border-yellow-500 group"
           >
             <div className="flex items-center justify-between mb-3">
@@ -166,7 +184,7 @@ export function AnonymousDashboard() {
       </div>
 
       {/* What you unlock with an account */}
-      <div className="mb-8">
+      <div className="mb-8" data-tour="anon-benefits">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
           What you get with a free account
         </h2>
@@ -240,6 +258,12 @@ export function AnonymousDashboard() {
           </div>
         )}
       </div>
+
+      <TourProvider
+        steps={anonymousDashboardTourSteps}
+        run={isRunning}
+        onComplete={completeTour}
+      />
     </PageLayout>
   );
 }
