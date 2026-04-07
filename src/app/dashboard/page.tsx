@@ -13,7 +13,10 @@ import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector"
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import { TourProvider } from "@/components/onboarding/TourProvider";
 import { useTourState } from "@/hooks/useTourState";
-import { dashboardTourSteps, DASHBOARD_TOUR_ID } from "@/lib/tours/dashboardTour";
+import {
+  dashboardTourSteps,
+  DASHBOARD_TOUR_ID,
+} from "@/lib/tours/dashboardTour";
 import {
   BookOpen,
   Code,
@@ -125,7 +128,11 @@ export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isRunning: tourRunning, startTour, completeTour } = useTourState(DASHBOARD_TOUR_ID);
+  const {
+    isRunning: tourRunning,
+    startTour,
+    completeTour,
+  } = useTourState(DASHBOARD_TOUR_ID);
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -140,11 +147,14 @@ export default function DashboardPage() {
 
   // Start tour after onboarding redirect
   useEffect(() => {
-    if (searchParams.get("onboarded") === "true") {
-      const timer = setTimeout(() => startTour(), 800);
+    if (
+      status === "authenticated" &&
+      searchParams.get("onboarded") === "true"
+    ) {
+      const timer = setTimeout(() => startTour(), 500);
       return () => clearTimeout(timer);
     }
-  }, [searchParams, startTour]);
+  }, [status, searchParams, startTour]);
 
   const {
     data: progressStats,

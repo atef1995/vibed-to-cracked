@@ -79,22 +79,15 @@ export function TourProvider({
   onCompleteRef.current = onComplete;
   onSkipRef.current = onSkip;
 
-  const { Tour, on, controls } = useJoyride({
+  const { Tour, on } = useJoyride({
     steps,
+    run,
     continuous: true,
     tooltipComponent: CustomTooltip,
     options: {
       buttons: ["back", "close", "primary", "skip"],
     },
   });
-
-  useEffect(() => {
-    if (run) {
-      controls.start();
-    } else {
-      controls.stop();
-    }
-  }, [run, controls]);
 
   useEffect(() => {
     const unsubComplete = on("tour:end", (data: EventData) => {
