@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
 import { useProgressStats } from "@/hooks/useProgress";
 import { ProgressStats } from "@/components/ProgressComponents";
@@ -134,30 +134,29 @@ export default function DashboardPage() {
     completeTour,
   } = useTourState(DASHBOARD_TOUR_ID);
 
+  const justOnboarded = useRef(searchParams.get("onboarded") === "true");
+
   // Redirect to onboarding if not completed
   useEffect(() => {
     if (
       status === "authenticated" &&
       session?.user &&
       session.user.onboardingCompleted === false &&
-      searchParams.get("onboarded") !== "true"
+      !justOnboarded.current
     ) {
       router.push("/onboarding");
     }
-  }, [status, session, router, searchParams]);
+  }, [status, session, router]);
 
   // Start tour after onboarding redirect
   useEffect(() => {
-    if (
-      status === "authenticated" &&
-      searchParams.get("onboarded") === "true"
-    ) {
-      // Remove the query param so it doesn't re-trigger on back navigation
+    if (status === "authenticated" && justOnboarded.current) {
+      justOnboarded.current = false;
       router.replace("/dashboard", { scroll: false });
       const timer = setTimeout(() => startTour(), 500);
       return () => clearTimeout(timer);
     }
-  }, [status, searchParams, startTour, router]);
+  }, [status, startTour, router]);
 
   const {
     data: progressStats,
