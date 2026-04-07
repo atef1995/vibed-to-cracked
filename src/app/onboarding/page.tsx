@@ -121,10 +121,10 @@ export default function OnboardingPage() {
     if (status === "unauthenticated") {
       router.push("/auth/signin?callbackUrl=/onboarding");
     }
-    if (session?.user?.onboardingCompleted) {
+    if (session?.user?.onboardingCompleted && !isSubmitting) {
       router.push("/dashboard");
     }
-  }, [status, session, router]);
+  }, [status, session, router, isSubmitting]);
 
   if (status === "loading" || !session) {
     return (
@@ -187,6 +187,7 @@ export default function OnboardingPage() {
       if (!res.ok) {
         const data = await res.json();
         console.error("Onboarding failed:", data.error);
+        setIsSubmitting(false);
         return;
       }
 
@@ -194,7 +195,6 @@ export default function OnboardingPage() {
       router.push("/dashboard?onboarded=true");
     } catch (error) {
       console.error("Onboarding failed:", error);
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -329,8 +329,7 @@ export default function OnboardingPage() {
                 {LEARNING_GOALS.map((goal) => {
                   const Icon = goal.icon;
                   const isSelected = learningGoals.includes(goal.id);
-                  const isDisabled =
-                    !isSelected && learningGoals.length >= 3;
+                  const isDisabled = !isSelected && learningGoals.length >= 3;
                   return (
                     <button
                       key={goal.id}
