@@ -62,10 +62,10 @@ const EXPERIENCE_OVERRIDES: Record<string, RecommendedTutorial> = {
     category: "fundamentals",
   },
   advanced: {
-    slug: "advanced-functions-scope",
-    title: "Advanced Functions & Scope",
-    description: "Deep dive into closures, hoisting, and execution context",
-    category: "advanced",
+    slug: "javascript-modules-deep-dive",
+    title: "JavaScript Modules Deep Dive",
+    description: "ES modules, dynamic imports, and advanced patterns",
+    category: "advanced-javascript",
   },
 };
 
