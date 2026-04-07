@@ -14,6 +14,9 @@ import {
   Gamepad,
   ChevronDown,
   ChevronUp,
+  Target,
+  TrendingUp,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "./ui/PageLayout";
@@ -62,14 +65,15 @@ export function AnonymousDashboard() {
           Welcome to Vibed to Cracked
         </div>
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-gray-100 mb-4 capitalize">
-          Master full-stack web development Your Way
+          Learn web dev at your own pace
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto mb-6">
-          Pick your mood, learn at your pace. Interactive tutorials, quizzes,
-          and hands-on exercises designed for how you feel today.
+          Tell us your goals and experience level, and we build a personalized
+          learning path. Interactive tutorials, mood-adapted quizzes, and
+          hands-on exercises.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <SignupCTA variant="primary" message="Start Learning Free" />
+          <SignupCTA variant="primary" message="Get Your Learning Path" />
           <Link
             href="/tutorials"
             className="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -161,7 +165,43 @@ export function AnonymousDashboard() {
         </div>
       </div>
 
-      {/* Sign up CTA — placed right after start cards */}
+      {/* What you unlock with an account */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 text-center">
+          What you get with a free account
+        </h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 text-center">
+            <Target className="h-6 w-6 text-blue-600 dark:text-blue-400 mx-auto mb-2" />
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              Personalized study plan
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Matched to your goals and skill level
+            </p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 text-center">
+            <TrendingUp className="h-6 w-6 text-green-600 dark:text-green-400 mx-auto mb-2" />
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              Progress tracking
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              XP, levels, and achievements as you learn
+            </p>
+          </div>
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 text-center">
+            <Settings className="h-6 w-6 text-purple-600 dark:text-purple-400 mx-auto mb-2" />
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              Mood-adaptive learning
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Difficulty and pacing adjust to your energy
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Sign up CTA — placed right after preview cards */}
       <SignupCTA variant="banner" showBenefits={true} className="mb-8" />
 
       {/* Explore more — collapsible */}

@@ -286,8 +286,8 @@ export default function HomePage() {
             transition={{ duration: 0.8, delay: 0.4 }}
           >
             Become a full-stack web developer and build 10 real portfolio
-            projects in 12 weeks. Mood-adaptive learning that fits YOUR energy
-            level - no burnout, just results.
+            projects in 12 weeks. Tell us your goals and we build a learning
+            path that fits your energy level.
           </motion.p>
           <motion.div
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
