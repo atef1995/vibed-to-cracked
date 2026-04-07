@@ -365,6 +365,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               verticalScrollbarSize: 10,
               horizontalScrollbarSize: 10,
             },
+            fixedOverflowWidgets: true,
             overviewRulerLanes: 0,
             hideCursorInOverviewRuler: true,
             lineNumbersMinChars: 3,
