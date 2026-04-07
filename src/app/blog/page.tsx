@@ -141,7 +141,7 @@ export default function BlogPage() {
         !filters.category &&
         page === 1 && (
           <section>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+            <h2 className="text-2xl font-bold text-gray-400 dark:text-gray-100 mb-6">
               Featured Posts
             </h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
@@ -149,7 +149,7 @@ export default function BlogPage() {
               {featuredPosts[0] && (
                 <Link
                   href={`/blog/${featuredPosts[0].slug}`}
-                  className="group relative block rounded-2xl overflow-hidden bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow lg:row-span-2 lg:p-32"
+                  className="group relative block rounded-2xl overflow-hidden bg-gray-700 dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow lg:row-span-2 lg:p-32"
                 >
                   {featuredPosts[0].coverImage && (
                     <div className="h-64 lg:h-full">
@@ -194,7 +194,7 @@ export default function BlogPage() {
                   <Link
                     key={post.id}
                     href={`/blog/${post.slug}`}
-                    className="group flex gap-4 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow"
+                    className="group flex gap-4 bg-gray-700 dark:bg-gray-800 rounded-xl p-4 shadow-lg hover:shadow-xl transition-shadow"
                   >
                     {post.coverImage && (
                       <div className="relative w-32 h-24 shrink-0 rounded-lg overflow-hidden">
@@ -212,7 +212,7 @@ export default function BlogPage() {
                           {post.category.name}
                         </span>
                       )}
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                      <h3 className="font-semibold text-gray-400 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                         {post.title}
                       </h3>
                       <div className="flex items-center gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
@@ -256,7 +256,7 @@ export default function BlogPage() {
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg animate-pulse"
+              className="bg-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg animate-pulse"
             >
               <div className="h-48 bg-gray-200 dark:bg-gray-700" />
               <div className="p-6 space-y-3">
@@ -286,7 +286,7 @@ export default function BlogPage() {
               <Link
                 key={post.id}
                 href={`/blog/${post.slug}`}
-                className="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col"
+                className="group bg-gray-700 dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col"
               >
                 {post.coverImage ? (
                   <div className="relative h-48 overflow-hidden">
@@ -310,11 +310,11 @@ export default function BlogPage() {
                       {post.category.name}
                     </span>
                   )}
-                  <h3 className="font-bold text-xl text-gray-900 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
+                  <h3 className="font-bold text-xl text-gray-400 dark:text-gray-100 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2">
                     {post.title}
                   </h3>
                   {post.excerpt && (
-                    <p className="text-gray-600 dark:text-gray-400 line-clamp-3 mb-4 flex-1">
+                    <p className="text-gray-300 dark:text-gray-400 line-clamp-3 mb-4 flex-1">
                       {post.excerpt}
                     </p>
                   )}
@@ -325,7 +325,7 @@ export default function BlogPage() {
                       {post.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-600 dark:text-gray-400"
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs text-gray-300 dark:text-gray-400"
                         >
                           <Tag className="h-3 w-3" />
                           {tag}
@@ -349,7 +349,7 @@ export default function BlogPage() {
                           <User className="h-4 w-4 text-gray-500" />
                         </div>
                       )}
-                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                      <span className="text-sm text-gray-300 dark:text-gray-400">
                         {post.author.name || "Anonymous"}
                       </span>
                     </div>

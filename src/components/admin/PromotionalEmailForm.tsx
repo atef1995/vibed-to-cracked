@@ -121,10 +121,10 @@ export default function PromotionalEmailForm() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-400 mb-2">
           Promotional Email Campaign
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-400">
           Create and send promotional emails to your users
         </p>
       </div>
@@ -133,7 +133,7 @@ export default function PromotionalEmailForm() {
         {/* Form Section */}
         <div className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Campaign Title *
             </label>
             <input
@@ -146,7 +146,7 @@ export default function PromotionalEmailForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Description *
             </label>
             <textarea
@@ -159,7 +159,7 @@ export default function PromotionalEmailForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Call-to-Action Text *
             </label>
             <input
@@ -172,7 +172,7 @@ export default function PromotionalEmailForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Call-to-Action URL *
             </label>
             <input
@@ -185,7 +185,7 @@ export default function PromotionalEmailForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-400 mb-2">
               Target User IDs (Optional)
             </label>
             <textarea
@@ -221,11 +221,11 @@ export default function PromotionalEmailForm() {
         {/* Preview Section */}
         <div className="space-y-6">
           <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <h3 className="text-lg font-medium text-gray-400 mb-4">
               Email Preview
             </h3>
-            <div className="border border-gray-300 rounded-md p-4 bg-gray-50">
-              <div className="bg-white rounded-md p-4 shadow-sm">
+            <div className="border border-gray-300 rounded-md p-4 bg-gray-700">
+              <div className="bg-gray-700 rounded-md p-4 shadow-sm">
                 <div className="bg-linear-to-r from-pink-400 to-red-400 text-white p-4 rounded-t-md">
                   <h2 className="text-xl font-bold">
                     {promotion.title || "Campaign Title"} 🎉
@@ -253,7 +253,7 @@ export default function PromotionalEmailForm() {
                   {promotion.ctaText && promotion.ctaUrl && (
                     <a
                       href={promotion.ctaUrl}
-                      className="inline-block bg-red-500 text-white px-6 py-3 rounded-full font-semibold text-center"
+                      className="inline-block bg-gray-6000 text-white px-6 py-3 rounded-full font-semibold text-center"
                     >
                       {promotion.ctaText}
                     </a>
@@ -269,22 +269,22 @@ export default function PromotionalEmailForm() {
           {/* Results Section */}
           {stats && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-gray-400 mb-4">
                 Campaign Results
               </h3>
-              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+              <div className="bg-gray-600 border border-green-200 rounded-md p-4">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-green-600">
                       {stats.emailsSent}
                     </div>
-                    <div className="text-sm text-gray-600">Emails Sent</div>
+                    <div className="text-sm text-gray-400">Emails Sent</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-blue-600">
                       {stats.totalUsers}
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-400">
                       Total Recipients
                     </div>
                   </div>
@@ -295,7 +295,7 @@ export default function PromotionalEmailForm() {
 
           {results.length > 0 && (
             <div>
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
+              <h3 className="text-lg font-medium text-gray-400 mb-4">
                 Detailed Results
               </h3>
               <div className="max-h-64 overflow-y-auto border border-gray-300 rounded-md">
@@ -303,7 +303,7 @@ export default function PromotionalEmailForm() {
                   <div
                     key={index}
                     className={`p-3 border-b ${
-                      result.success ? "bg-green-50" : "bg-red-50"
+                      result.success ? "bg-gray-600" : "bg-gray-600"
                     }`}
                   >
                     <div className="flex items-center justify-between">

@@ -170,27 +170,27 @@ export default function BlogDashboard() {
     <div className="p-6 space-y-6">
       {/* Stats Row */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-blue-50 rounded-lg p-4 flex items-center gap-3">
+        <div className="bg-gray-600 rounded-lg p-4 flex items-center gap-3">
           <FileText className="w-8 h-8 text-blue-600" />
           <div>
-            <p className="text-2xl font-bold text-gray-900">{posts.length}</p>
-            <p className="text-sm text-gray-600">Total Posts</p>
+            <p className="text-2xl font-bold text-gray-400">{posts.length}</p>
+            <p className="text-sm text-gray-400">Total Posts</p>
           </div>
         </div>
-        <div className="bg-green-50 rounded-lg p-4 flex items-center gap-3">
+        <div className="bg-gray-600 rounded-lg p-4 flex items-center gap-3">
           <Globe className="w-8 h-8 text-green-600" />
           <div>
-            <p className="text-2xl font-bold text-gray-900">{publishedCount}</p>
-            <p className="text-sm text-gray-600">Published</p>
+            <p className="text-2xl font-bold text-gray-400">{publishedCount}</p>
+            <p className="text-sm text-gray-400">Published</p>
           </div>
         </div>
-        <div className="bg-purple-50 rounded-lg p-4 flex items-center gap-3">
+        <div className="bg-gray-600 rounded-lg p-4 flex items-center gap-3">
           <TrendingUp className="w-8 h-8 text-purple-600" />
           <div>
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-400">
               {totalViews.toLocaleString()}
             </p>
-            <p className="text-sm text-gray-600">Total Views</p>
+            <p className="text-sm text-gray-400">Total Views</p>
           </div>
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function BlogDashboard() {
       <div className="overflow-x-auto">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-gray-200">
+            <tr className="border-b border-gray-600">
               <th className="py-3 px-4 text-xs font-medium text-gray-500 uppercase">
                 Post
               </th>
@@ -224,11 +224,11 @@ export default function BlogDashboard() {
             {posts.map((post) => (
               <tr
                 key={post.id}
-                className="border-b border-gray-100 hover:bg-gray-50"
+                className="border-b border-gray-100 hover:bg-gray-6000"
               >
                 <td className="py-3 px-4">
                   <div>
-                    <p className="font-medium text-gray-900 text-sm">
+                    <p className="font-medium text-gray-400 text-sm">
                       {post.title}
                     </p>
                     <p className="text-xs text-gray-500">/blog/{post.slug}</p>
@@ -240,7 +240,7 @@ export default function BlogDashboard() {
                   </div>
                 </td>
                 <td className="py-3 px-4">
-                  <div className="flex items-center gap-1 text-sm text-gray-700">
+                  <div className="flex items-center gap-1 text-sm text-gray-400">
                     <Eye className="w-4 h-4 text-gray-400" />
                     {post.viewCount.toLocaleString()}
                   </div>
@@ -251,7 +251,7 @@ export default function BlogDashboard() {
                     className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium cursor-pointer ${
                       post.published
                         ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-600"
+                        : "bg-gray-100 text-gray-400"
                     }`}
                   >
                     {post.published ? (
@@ -283,7 +283,7 @@ export default function BlogDashboard() {
                 <td className="py-3 px-4">
                   <button
                     onClick={() => openEditor(post)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium cursor-pointer"
+                    className="text-blue-600 hover:text-gray-400 text-sm font-medium cursor-pointer"
                   >
                     Edit
                   </button>
@@ -307,9 +307,9 @@ export default function BlogDashboard() {
       {/* Edit Modal */}
       {editingPost && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">Edit Post</h3>
+          <div className="bg-gray-700 rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b border-gray-600">
+              <h3 className="text-lg font-semibold text-gray-400">Edit Post</h3>
               <button
                 onClick={closeEditor}
                 aria-label="Close editor"
@@ -324,8 +324,8 @@ export default function BlogDashboard() {
                 <div
                   className={`text-sm px-3 py-2 rounded ${
                     message.type === "success"
-                      ? "bg-green-50 text-green-700"
-                      : "bg-red-50 text-red-700"
+                      ? "bg-gray-600 text-green-700"
+                      : "bg-gray-600 text-red-700"
                   }`}
                 >
                   {message.text}
@@ -333,7 +333,7 @@ export default function BlogDashboard() {
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-400 mb-1">
                   Title
                 </label>
                 <input
@@ -348,7 +348,7 @@ export default function BlogDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-400 mb-1">
                   Excerpt
                 </label>
                 <textarea
@@ -363,7 +363,7 @@ export default function BlogDashboard() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-400 mb-1">
                   Content (Markdown)
                 </label>
                 <textarea
@@ -379,7 +379,7 @@ export default function BlogDashboard() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
                     Tags (comma-separated)
                   </label>
                   <input
@@ -393,7 +393,7 @@ export default function BlogDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-400 mb-1">
                     Reading Time (min)
                   </label>
                   <input
@@ -413,7 +413,7 @@ export default function BlogDashboard() {
               </div>
 
               <div className="flex items-center gap-6">
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-gray-400">
                   <input
                     type="checkbox"
                     checked={editForm.published}
@@ -427,7 +427,7 @@ export default function BlogDashboard() {
                   />
                   Published
                 </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700">
+                <label className="flex items-center gap-2 text-sm text-gray-400">
                   <input
                     type="checkbox"
                     checked={editForm.featured}
@@ -444,10 +444,10 @@ export default function BlogDashboard() {
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 p-4 border-t border-gray-200">
+            <div className="flex justify-end gap-3 p-4 border-t border-gray-600">
               <button
                 onClick={closeEditor}
-                className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg cursor-pointer"
+                className="px-4 py-2 text-sm text-gray-400 hover:bg-gray-100 rounded-lg cursor-pointer"
               >
                 Cancel
               </button>

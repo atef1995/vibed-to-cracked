@@ -99,10 +99,10 @@ export default function EmailStatsDashboard() {
     return (
       <div className="p-6">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+          <div className="h-8 bg-gray-7000 rounded w-1/3"></div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded"></div>
+              <div key={i} className="h-32 bg-gray-7000 rounded"></div>
             ))}
           </div>
         </div>
@@ -126,17 +126,17 @@ export default function EmailStatsDashboard() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-400 mb-2">
           Email System Dashboard
         </h2>
-        <p className="text-gray-600">
+        <p className="text-gray-300">
           Overview of your email campaigns and user engagement
         </p>
       </div>
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="bg-gray-6000 border border-blue-200 rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="text-3xl">👥</div>
@@ -145,51 +145,51 @@ export default function EmailStatsDashboard() {
               <div className="text-2xl font-bold text-blue-600">
                 {emailStats?.totalUsers || 0}
               </div>
-              <div className="text-sm text-blue-800">Total Users</div>
+              <div className="text-sm text-gray-400">Total Users</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <div className="bg-green-700 border border-green-200 rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="text-3xl">📧</div>
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-200">
                 {emailStats?.usersWithEmailEnabled || 0}
               </div>
-              <div className="text-sm text-green-800">Email Subscribers</div>
+              <div className="text-sm text-green-200">Email Subscribers</div>
             </div>
           </div>
         </div>
 
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+        <div className="bg-orange-700 border border-orange-200 rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="text-3xl">⏰</div>
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-orange-600">
+              <div className="text-2xl font-bold text-orange-200">
                 {reminderStats?.inactiveUsersCount || 0}
               </div>
-              <div className="text-sm text-orange-800">
+              <div className="text-sm text-orange-200">
                 Inactive Users (3+ days)
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+        <div className="bg-purple-700 border border-purple-200 rounded-lg p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
               <div className="text-3xl"></div>
             </div>
             <div className="ml-4">
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-purple-200">
                 {engagementRate}%
               </div>
-              <div className="text-sm text-purple-800">Engagement Rate</div>
+              <div className="text-sm text-purple-200">Engagement Rate</div>
             </div>
           </div>
         </div>
@@ -198,21 +198,21 @@ export default function EmailStatsDashboard() {
       {/* Detailed Analytics */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Email Campaign Health */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="bg-gray-700 border border-gray-600 rounded-lg p-6">
+          <h3 className="text-lg font-medium text-gray-400 mb-4">
             📊 Campaign Health
           </h3>
           <div className="space-y-4">
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-300">
                   Email Subscription Rate
                 </span>
                 <span className="text-sm font-medium">{engagementRate}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-700 rounded-full h-2">
                 <div
-                  className="bg-green-500 h-2 rounded-full"
+                  className="bg-green-700 h-2 rounded-full"
                   style={{ width: `${engagementRate}%` }}
                 ></div>
               </div>
@@ -220,14 +220,14 @@ export default function EmailStatsDashboard() {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-300">
                   User Inactivity Rate
                 </span>
                 <span className="text-sm font-medium">{inactiveRate}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-7000 rounded-full h-2">
                 <div
-                  className="bg-orange-500 h-2 rounded-full"
+                  className="bg-gray-6000 h-2 rounded-full"
                   style={{ width: `${inactiveRate}%` }}
                 ></div>
               </div>
@@ -235,7 +235,7 @@ export default function EmailStatsDashboard() {
 
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-300">
                   Reminder Opt-in Rate
                 </span>
                 <span className="text-sm font-medium">
@@ -249,9 +249,9 @@ export default function EmailStatsDashboard() {
                   %
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-7000 rounded-full h-2">
                 <div
-                  className="bg-blue-500 h-2 rounded-full"
+                  className="bg-gray-6000 h-2 rounded-full"
                   style={{
                     width: `${
                       reminderStats && emailStats
@@ -270,12 +270,12 @@ export default function EmailStatsDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="bg-gray-700 border border-gray-600 rounded-lg p-6">
+          <h3 className="text-lg font-medium text-gray-400 mb-4">
             🚀 Quick Actions
           </h3>
           <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-gray-6000 rounded-lg">
               <div>
                 <div className="font-medium text-blue-900">
                   Promotional Campaign
@@ -293,7 +293,7 @@ export default function EmailStatsDashboard() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-gray-600 rounded-lg">
               <div>
                 <div className="font-medium text-orange-900">
                   Study Reminders
@@ -311,7 +311,7 @@ export default function EmailStatsDashboard() {
               </button>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+            <div className="flex items-center justify-between p-3 bg-gray-6000 rounded-lg">
               <div>
                 <div className="font-medium text-green-900">
                   Email Preferences
@@ -332,9 +332,9 @@ export default function EmailStatsDashboard() {
       </div>
 
       {/* System Status */}
-      <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6">
+      <div className="mt-8 bg-gray-700 border border-gray-600 rounded-lg p-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-medium text-gray-900">
+          <h3 className="text-lg font-medium text-gray-400">
             🔧 System Status
           </h3>
           <button
@@ -351,7 +351,7 @@ export default function EmailStatsDashboard() {
             <div className="text-2xl mb-2">
               {connectionStatus?.isConnected ? "" : "❌"}
             </div>
-            <div className="font-medium text-gray-900">Zoho Mail SMTP</div>
+            <div className="font-medium text-gray-400">Zoho Mail SMTP</div>
             <div
               className={`text-sm ${
                 connectionStatus?.isConnected
@@ -376,7 +376,7 @@ export default function EmailStatsDashboard() {
 
           <div className="text-center">
             <div className="text-2xl mb-2">🔄</div>
-            <div className="font-medium text-gray-900">Auto Reminders</div>
+            <div className="font-medium text-gray-400">Auto Reminders</div>
             <div className="text-sm text-blue-600">
               {reminderStats?.usersWithRemindersEnabled
                 ? "Active"
@@ -386,26 +386,26 @@ export default function EmailStatsDashboard() {
 
           <div className="text-center">
             <div className="text-2xl mb-2">📨</div>
-            <div className="font-medium text-gray-900">Template System</div>
+            <div className="font-medium text-gray-400">Template System</div>
             <div className="text-sm text-green-600">Active</div>
           </div>
         </div>
       </div>
 
       {/* Tips and Recommendations */}
-      <div className="mt-8 bg-linear-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
+      <div className="mt-8 bg-gray-700 border border-blue-200 rounded-lg p-6">
+        <h3 className="text-lg font-medium text-gray-400 mb-4">
           💡 Recommendations
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white rounded-lg p-4">
+          <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex items-start">
               <div className="text-xl mr-3">🎯</div>
               <div>
-                <div className="font-medium text-gray-900">
+                <div className="font-medium text-gray-400">
                   Improve Engagement
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   {engagementRate < 70
                     ? "Consider surveying users about their email preferences to increase opt-in rates."
                     : "Great engagement! Keep providing valuable content to maintain high opt-in rates."}
@@ -414,12 +414,12 @@ export default function EmailStatsDashboard() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg p-4">
+          <div className="bg-gray-700 rounded-lg p-4">
             <div className="flex items-start">
               <div className="text-xl mr-3">📅</div>
               <div>
-                <div className="font-medium text-gray-900">Optimize Timing</div>
-                <div className="text-sm text-gray-600">
+                <div className="font-medium text-gray-400">Optimize Timing</div>
+                <div className="text-sm text-gray-300">
                   {inactiveRate > 20
                     ? "High inactivity detected. Consider more frequent, personalized reminders."
                     : "Good user retention! Current reminder frequency seems effective."}

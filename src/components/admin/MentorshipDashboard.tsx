@@ -77,7 +77,7 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
     session.status === MentorshipSessionStatus.SCHEDULED;
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700">
+    <div className="bg-gray-700 dark:bg-gray-800 rounded-xl p-5 border border-gray-600 dark:border-gray-700">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
@@ -93,7 +93,7 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
             </div>
           )}
           <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <p className="text-sm font-medium text-gray-400 dark:text-gray-100">
               {session.user.name || session.user.email}
             </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -111,7 +111,7 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
           <span
             className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
               session.type === "LIVE"
-                ? "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"
+                ? "bg-gray-400 dark:bg-blue-900/30 text-gray-400dark:text-blue-300"
                 : "bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300"
             }`}
           >
@@ -144,7 +144,7 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
       </div>
 
       {/* Description */}
-      <p className="text-sm text-gray-700 dark:text-gray-300 mb-3">
+      <p className="text-sm text-gray-400 dark:text-gray-300 mb-3">
         {session.description}
       </p>
 
@@ -162,11 +162,11 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
 
       {/* Existing feedback */}
       {session.feedback && (
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 mb-3">
+        <div className="p-3 bg-gray-600 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800 mb-3">
           <p className="text-xs font-medium text-green-700 dark:text-green-300 mb-1">
             Feedback
           </p>
-          <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+          <p className="text-sm text-gray-400 dark:text-gray-300 whitespace-pre-wrap">
             {session.feedback}
           </p>
         </div>
@@ -191,7 +191,7 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
                   })
                 }
                 disabled={updateMutation.isPending}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-medium rounded-lg transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-gray-600 dark:hover:bg-red-900/20 text-xs font-medium rounded-lg transition-colors"
               >
                 <XCircle className="h-3 w-3" />
                 Cancel
@@ -204,7 +204,7 @@ function AdminSessionCard({ session }: { session: MentorshipSession }) {
                 onChange={(e) => setFeedbackText(e.target.value)}
                 placeholder="Write your feedback here..."
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 rounded-lg border border-gray-600 dark:border-gray-600 bg-gray-700 dark:bg-gray-700 text-gray-400 dark:text-gray-100 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
               />
               <div className="flex items-center gap-2">
                 <button
@@ -279,7 +279,7 @@ export default function MentorshipDashboard() {
   return (
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h2 className="text-lg font-semibold text-gray-400 dark:text-gray-100">
           Mentorship Sessions ({total})
         </h2>
         <div className="flex items-center gap-2">
@@ -304,7 +304,7 @@ export default function MentorshipDashboard() {
 
       {sessions.length === 0 ? (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <Clock className="h-10 w-10 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+          <Clock className="h-10 w-10 mx-auto mb-3 text-gray-300 dark:text-gray-400" />
           <p className="text-sm">No sessions found.</p>
         </div>
       ) : (
@@ -321,17 +321,17 @@ export default function MentorshipDashboard() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="px-3 py-1.5 text-sm rounded-lg border border-gray-600 dark:border-gray-700 disabled:opacity-50 hover:bg-gray-6000 dark:hover:bg-gray-700 transition-colors"
           >
             Previous
           </button>
-          <span className="text-sm text-gray-600 dark:text-gray-400">
+          <span className="text-sm text-gray-400 dark:text-gray-400">
             Page {page} of {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            className="px-3 py-1.5 text-sm rounded-lg border border-gray-600 dark:border-gray-700 disabled:opacity-50 hover:bg-gray-6000 dark:hover:bg-gray-700 transition-colors"
           >
             Next
           </button>

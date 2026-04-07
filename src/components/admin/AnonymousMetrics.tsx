@@ -148,25 +148,25 @@ export default function AnonymousMetrics() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<Users className="w-8 h-8 text-blue-600" />}
-          bg="bg-blue-50"
+          bg="bg-gray-600"
           value={stats.totalSessions.toLocaleString()}
           label="Total Anonymous Sessions"
         />
         <StatCard
           icon={<TrendingUp className="w-8 h-8 text-green-600" />}
-          bg="bg-green-50"
+          bg="bg-gray-600"
           value={`${stats.conversionRate}%`}
           label={`${stats.convertedSessions} Conversions`}
         />
         <StatCard
           icon={<Eye className="w-8 h-8 text-purple-600" />}
-          bg="bg-purple-50"
+          bg="bg-gray-600"
           value={stats.avgTutorialsViewed.toFixed(1)}
           label="Avg Tutorials Viewed"
         />
         <StatCard
           icon={<Users className="w-8 h-8 text-orange-600" />}
-          bg="bg-orange-50"
+          bg="bg-gray-600"
           value={stats.unconvertedSessions.toLocaleString()}
           label="Active Anonymous"
         />
@@ -175,7 +175,7 @@ export default function AnonymousMetrics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Conversion Funnel */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">
             Conversion Funnel
           </h3>
           <div className="space-y-2">
@@ -186,15 +186,15 @@ export default function AnonymousMetrics() {
                   : 0;
               return (
                 <div key={step.bucket} className="flex items-center gap-3">
-                  <span className="text-xs text-gray-600 w-28 shrink-0">
+                  <span className="text-xs text-gray-300 w-28 shrink-0">
                     {formatBucket(step.bucket)}
                   </span>
                   <div className="flex-1 h-7 bg-gray-100 rounded-full overflow-hidden relative">
                     <div
-                      className="h-full bg-blue-500 rounded-full transition-all"
+                      className="h-full bg-gray-6000 rounded-full transition-all"
                       style={{ width: `${Math.max(pct, 1)}%` }}
                     />
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700">
+                    <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-400">
                       {step.total} ({step.conversionRate}% converted)
                     </span>
                   </div>
@@ -206,7 +206,7 @@ export default function AnonymousMetrics() {
 
         {/* Top Converting Tutorials */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">
             Top Converting Tutorials
           </h3>
           {topTutorials.length === 0 ? (
@@ -216,7 +216,7 @@ export default function AnonymousMetrics() {
               {topTutorials.map((t, i) => (
                 <div
                   key={t.tutorialId}
-                  className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between px-3 py-2 bg-gray-700 rounded-lg"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-medium text-gray-400 w-5">
@@ -240,7 +240,7 @@ export default function AnonymousMetrics() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Device Breakdown */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Devices</h3>
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">Devices</h3>
           <div className="space-y-2">
             {deviceBreakdown.map((d) => {
               const pct = totalDevices > 0 ? (d.count / totalDevices) * 100 : 0;
@@ -249,7 +249,7 @@ export default function AnonymousMetrics() {
               return (
                 <div key={d.device} className="flex items-center gap-3">
                   <Icon className="w-4 h-4 text-gray-400 shrink-0" />
-                  <span className="text-sm text-gray-700 w-20 shrink-0">
+                  <span className="text-sm text-gray-400 w-20 shrink-0">
                     {d.device}
                   </span>
                   <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
@@ -269,7 +269,7 @@ export default function AnonymousMetrics() {
 
         {/* Traffic Sources */}
         <div>
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">
             Traffic Sources
           </h3>
           <div className="space-y-2">
@@ -278,7 +278,7 @@ export default function AnonymousMetrics() {
               return (
                 <div key={s.source} className="flex items-center gap-3">
                   <Globe className="w-4 h-4 text-gray-400 shrink-0" />
-                  <span className="text-sm text-gray-700 w-20 shrink-0 truncate">
+                  <span className="text-sm text-gray-400 w-20 shrink-0 truncate">
                     {s.source}
                   </span>
                   <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden">
@@ -299,13 +299,13 @@ export default function AnonymousMetrics() {
 
       {/* Recent Sessions Table */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+        <h3 className="text-sm font-semibold text-gray-400 mb-3">
           Recent Visitors
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="border-b border-gray-200">
+              <tr className="border-b border-gray-600">
                 <th className="py-2 px-3 text-xs font-medium text-gray-500 uppercase">
                   Visitor
                 </th>
@@ -340,7 +340,7 @@ export default function AnonymousMetrics() {
                 return (
                   <tr
                     key={s.id}
-                    className="border-b border-gray-100 hover:bg-gray-50"
+                    className="border-b border-gray-100 hover:bg-gray-700"
                   >
                     <td className="py-2 px-3">
                       <span
@@ -350,11 +350,11 @@ export default function AnonymousMetrics() {
                         {s.anonymousId.slice(0, 16)}...
                       </span>
                     </td>
-                    <td className="py-2 px-3 text-sm text-gray-700">
+                    <td className="py-2 px-3 text-sm text-gray-400">
                       {s.pagesViewed}
                     </td>
                     <td className="py-2 px-3">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-400">
                         {tutorials.length}
                       </span>
                       {tutorials.length > 0 && (
@@ -368,18 +368,18 @@ export default function AnonymousMetrics() {
                         </span>
                       )}
                     </td>
-                    <td className="py-2 px-3 text-sm text-gray-700">
+                    <td className="py-2 px-3 text-sm text-gray-400">
                       <div className="flex items-center gap-1">
                         <Clock className="w-3 h-3 text-gray-400" />
                         {formatTime(s.totalTimeSpent)}
                       </div>
                     </td>
-                    <td className="py-2 px-3 text-xs text-gray-600">
+                    <td className="py-2 px-3 text-xs text-gray-300">
                       {[s.device, s.browser, s.os]
                         .filter(Boolean)
                         .join(" / ") || "—"}
                     </td>
-                    <td className="py-2 px-3 text-xs text-gray-600">
+                    <td className="py-2 px-3 text-xs text-gray-300">
                       {s.source || "Direct"}
                     </td>
                     <td className="py-2 px-3">
@@ -388,7 +388,7 @@ export default function AnonymousMetrics() {
                           Converted
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-300">
                           Anonymous
                         </span>
                       )}
@@ -432,8 +432,8 @@ function StatCard({
     <div className={`${bg} rounded-lg p-4 flex items-center gap-3`}>
       {icon}
       <div>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
-        <p className="text-sm text-gray-600">{label}</p>
+        <p className="text-2xl font-bold text-gray-400">{value}</p>
+        <p className="text-sm text-gray-300">{label}</p>
       </div>
     </div>
   );
