@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
 import { useProgressStats } from "@/hooks/useProgress";
 import { ProgressStats } from "@/components/ProgressComponents";
@@ -12,10 +12,8 @@ import { RecommendedStart } from "@/components/dashboard/RecommendedStart";
 import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
 import { TourProvider } from "@/components/onboarding/TourProvider";
-import { useTourState } from "@/hooks/useTourState";
 import {
   dashboardTourSteps,
-  DASHBOARD_TOUR_ID,
 } from "@/lib/tours/dashboardTour";
 import {
   BookOpen,
@@ -125,14 +123,19 @@ const exploreLinks = [
 ];
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
-  const {
-    isRunning: tourRunning,
-    isTourCompleted,
-    startTour,
-    completeTour,
-  } = useTourState(DASHBOARD_TOUR_ID);
+  const [tourRunning, setTourRunning] = useState(false);
+
+  const completeTour = useCallback(async () => {
+    setTourRunning(false);
+    try {
+      await fetch("/api/onboarding/tour-complete", { method: "POST" });
+      await update();
+    } catch (error) {
+      console.error("Failed to mark tour complete:", error);
+    }
+  }, [update]);
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -150,12 +153,12 @@ export default function DashboardPage() {
     if (
       status === "authenticated" &&
       session?.user?.onboardingCompleted &&
-      !isTourCompleted
+      !session?.user?.dashboardTourCompleted
     ) {
-      const timer = setTimeout(() => startTour(), 500);
+      const timer = setTimeout(() => setTourRunning(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [status, session, isTourCompleted, startTour]);
+  }, [status, session]);
 
   const {
     data: progressStats,

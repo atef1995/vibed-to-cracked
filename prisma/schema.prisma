@@ -72,7 +72,8 @@ model User {
   emailUnsubscribedAt DateTime?
 
   // Onboarding
-  onboardingCompleted Boolean @default(false)
+  onboardingCompleted      Boolean @default(false)
+  dashboardTourCompleted   Boolean @default(false)
 
   // Activity tracking for reminders
   lastActiveAt DateTime?
