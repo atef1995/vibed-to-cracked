@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { BlogService } from "@/lib/blogService";
 
+export const revalidate = 3600;
+
 export async function generateMetadata(): Promise<Metadata> {
   try {
     const postCount = await BlogService.getPostsCount();

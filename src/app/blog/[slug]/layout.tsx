@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { BlogService } from "@/lib/blogService";
 
+export const revalidate = 3600;
+
 interface BlogPostLayoutProps {
   children: React.ReactNode;
   params: Promise<{ slug: string }>;
@@ -59,6 +61,55 @@ export async function generateMetadata({
   }
 }
 
-export default function BlogPostLayout({ children }: BlogPostLayoutProps) {
-  return children;
+export default async function BlogPostLayout({
+  children,
+  params,
+}: BlogPostLayoutProps) {
+  const { slug } = await params;
+
+  let jsonLd = null;
+  try {
+    const post = await BlogService.getPostBySlug(slug);
+    if (post) {
+      const siteUrl =
+        process.env.NEXT_PUBLIC_API_URL || "https://vibed-to-cracked.com";
+      jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        headline: post.title,
+        description:
+          post.excerpt || `Read ${post.title} on Vibed to Cracked blog.`,
+        url: `${siteUrl}/blog/${slug}`,
+        ...(post.coverImage && { image: post.coverImage }),
+        ...(post.publishedAt && {
+          datePublished: post.publishedAt.toISOString(),
+        }),
+        ...(post.updatedAt && {
+          dateModified: post.updatedAt.toISOString(),
+        }),
+        author: {
+          "@type": "Person",
+          name: post.author.name || "Vibed to Cracked",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Vibed to Cracked",
+        },
+      };
+    }
+  } catch {
+    // JSON-LD is non-critical — page still renders
+  }
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {children}
+    </>
+  );
 }

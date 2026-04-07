@@ -60,6 +60,25 @@ export default {
       // non-fatal — sitemap still generates for static routes
     }
 
+    try {
+      const res = await fetch(`${baseUrl}/api/blog?limit=500`);
+      if (res.ok) {
+        const data = await res.json();
+        const posts = data.data ?? [];
+        for (const post of posts) {
+          if (post.slug) {
+            paths.push({
+              loc: `/blog/${post.slug}`,
+              changefreq: "weekly",
+              priority: 0.6,
+            });
+          }
+        }
+      }
+    } catch {
+      // non-fatal
+    }
+
     return paths;
   },
 };
