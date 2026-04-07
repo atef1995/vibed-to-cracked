@@ -4,117 +4,63 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, ArrowRight, Sparkles } from "lucide-react";
 
-interface RecommendedTutorial {
-  slug: string;
-  title: string;
-  description: string;
-  category: string;
-}
-
-/**
- * Map learning goals + experience level to a starter tutorial.
- * Falls back to JS fundamentals for beginners, or first matching goal.
- */
-const GOAL_TO_TUTORIAL: Record<string, RecommendedTutorial> = {
-  "web-fundamentals": {
-    slug: "html-basics",
-    title: "HTML Fundamentals",
-    description: "Build your first web page from scratch",
-    category: "html",
-  },
-  frontend: {
-    slug: "what-is-react",
-    title: "What is React?",
-    description: "Understand modern frontend development",
-    category: "react",
-  },
-  backend: {
-    slug: "variables-and-data-types",
-    title: "JavaScript Basics",
-    description: "The foundation for Node.js and backend development",
-    category: "fundamentals",
-  },
-  dsa: {
-    slug: "arrays-and-objects",
-    title: "Arrays and Objects",
-    description: "Core data structures you'll use everywhere",
-    category: "fundamentals",
-  },
-  "career-switch": {
-    slug: "html-basics",
-    title: "HTML Fundamentals",
-    description: "The starting point for every web developer",
-    category: "html",
-  },
-  "side-projects": {
-    slug: "variables-and-data-types",
-    title: "JavaScript Basics",
-    description: "Get comfortable with JS before building anything",
-    category: "fundamentals",
-  },
+const GOAL_TO_SLUG: Record<string, string> = {
+  "web-fundamentals": "html-basics",
+  frontend: "what-is-react",
+  backend: "variables-and-data-types",
+  dsa: "arrays-and-objects",
+  "career-switch": "html-basics",
+  "side-projects": "variables-and-data-types",
 };
 
-const EXPERIENCE_OVERRIDES: Record<string, RecommendedTutorial> = {
-  intermediate: {
-    slug: "functions-fundamentals",
-    title: "Functions Fundamentals",
-    description: "Level up your JavaScript function skills",
-    category: "fundamentals",
-  },
-  advanced: {
-    slug: "javascript-modules-deep-dive",
-    title: "JavaScript Modules Deep Dive",
-    description: "ES modules, dynamic imports, and advanced patterns",
-    category: "advanced-javascript",
-  },
+const EXPERIENCE_TO_SLUG: Record<string, string> = {
+  intermediate: "functions-fundamentals",
+  advanced: "javascript-modules-deep-dive",
 };
 
-const DEFAULT_TUTORIAL: RecommendedTutorial = {
-  slug: "variables-and-data-types",
-  title: "Variables and Data Types",
-  description: "Start with the building blocks of JavaScript",
-  category: "fundamentals",
-};
+const DEFAULT_SLUG = "variables-and-data-types";
 
-function getRecommendation(
-  experienceLevel: string,
-  learningGoals: string[]
-): RecommendedTutorial {
-  // Advanced or intermediate users skip the basics
-  if (experienceLevel === "advanced" || experienceLevel === "intermediate") {
-    return EXPERIENCE_OVERRIDES[experienceLevel] ?? DEFAULT_TUTORIAL;
+function pickSlug(experienceLevel: string, learningGoals: string[]): string {
+  if (EXPERIENCE_TO_SLUG[experienceLevel]) {
+    return EXPERIENCE_TO_SLUG[experienceLevel];
   }
-
-  // Match first learning goal
   for (const goal of learningGoals) {
-    if (GOAL_TO_TUTORIAL[goal]) return GOAL_TO_TUTORIAL[goal];
+    if (GOAL_TO_SLUG[goal]) return GOAL_TO_SLUG[goal];
   }
-
-  return DEFAULT_TUTORIAL;
+  return DEFAULT_SLUG;
 }
 
-async function fetchSettings() {
-  const res = await fetch("/api/user/settings");
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.settings as {
-    experienceLevel: string;
-    learningGoals: string[];
-  } | null;
+async function fetchRecommendation() {
+  const settingsRes = await fetch("/api/user/settings");
+  if (!settingsRes.ok) return null;
+  const { settings } = await settingsRes.json();
+
+  const slug = pickSlug(
+    settings?.experienceLevel ?? "beginner",
+    settings?.learningGoals ?? []
+  );
+
+  const tutorialRes = await fetch(`/api/tutorials?slug=${encodeURIComponent(slug)}`);
+  if (!tutorialRes.ok) return null;
+  const { data: tutorial } = await tutorialRes.json();
+  if (!tutorial) return null;
+
+  return {
+    title: tutorial.title as string,
+    description: tutorial.description as string,
+    href: `/tutorials/category/${tutorial.category?.slug ?? "fundamentals"}/${tutorial.slug}`,
+  };
 }
 
 export function RecommendedStart() {
-  const { data: settings } = useQuery({
-    queryKey: ["user-settings-onboarding"],
-    queryFn: fetchSettings,
+  const { data: recommendation } = useQuery({
+    queryKey: ["recommended-tutorial"],
+    queryFn: fetchRecommendation,
     staleTime: 10 * 60 * 1000,
     retry: 1,
   });
 
-  const recommendation = getRecommendation(
-    settings?.experienceLevel ?? "beginner",
-    settings?.learningGoals ?? []
-  );
+  if (!recommendation) return null;
 
   return (
     <div className="mb-10">
@@ -132,7 +78,7 @@ export function RecommendedStart() {
             </p>
 
             <Link
-              href={`/tutorials/${recommendation.slug}`}
+              href={recommendation.href}
               className="flex items-center gap-4 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-600 shadow-sm hover:shadow-md transition-all group"
             >
               <div className="shrink-0">
