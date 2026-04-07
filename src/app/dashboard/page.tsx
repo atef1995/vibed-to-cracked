@@ -152,10 +152,12 @@ export default function DashboardPage() {
       status === "authenticated" &&
       searchParams.get("onboarded") === "true"
     ) {
+      // Remove the query param so it doesn't re-trigger on back navigation
+      router.replace("/dashboard", { scroll: false });
       const timer = setTimeout(() => startTour(), 500);
       return () => clearTimeout(timer);
     }
-  }, [status, searchParams, startTour]);
+  }, [status, searchParams, startTour, router]);
 
   const {
     data: progressStats,
