@@ -103,7 +103,7 @@ const TIME_OPTIONS = [
 const TOTAL_STEPS = 5;
 
 export default function OnboardingPage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const { currentMood, setMood } = useMood();
   const moodColors = getMoodColors(currentMood.id);
@@ -190,6 +190,7 @@ export default function OnboardingPage() {
         return;
       }
 
+      await update();
       router.push("/dashboard?onboarded=true");
     } catch (error) {
       console.error("Onboarding failed:", error);
