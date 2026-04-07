@@ -2,6 +2,20 @@ import { prisma } from "@/lib/prisma";
 
 const VALID_MOODS = ["CHILL", "RUSH", "GRIND"];
 const VALID_DIFFICULTIES = ["EASY", "MEDIUM", "HARD"];
+const VALID_EXPERIENCE_LEVELS = [
+  "complete-beginner",
+  "some-basics",
+  "intermediate",
+  "advanced",
+];
+const VALID_LEARNING_GOALS = [
+  "web-fundamentals",
+  "frontend",
+  "backend",
+  "dsa",
+  "career-switch",
+  "side-projects",
+];
 const REMINDER_TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export interface SettingsInput {
@@ -158,4 +172,98 @@ export async function updateUserSettings(userId: string, input: SettingsInput) {
   ]);
 
   return updatedUser;
+}
+
+export interface OnboardingInput {
+  mood: string;
+  experienceLevel: string;
+  learningGoals: string[];
+  dailyGoalMinutes: number;
+}
+
+const EXPERIENCE_TO_DIFFICULTY: Record<string, string> = {
+  "complete-beginner": "EASY",
+  "some-basics": "EASY",
+  intermediate: "MEDIUM",
+  advanced: "HARD",
+};
+
+export function validateOnboardingInput(
+  input: OnboardingInput
+): ValidationError | null {
+  const normalizedMood = input.mood?.toUpperCase();
+  if (!normalizedMood || !VALID_MOODS.includes(normalizedMood)) {
+    return { field: "mood", message: "Invalid mood" };
+  }
+
+  if (!VALID_EXPERIENCE_LEVELS.includes(input.experienceLevel)) {
+    return { field: "experienceLevel", message: "Invalid experience level" };
+  }
+
+  if (
+    !Array.isArray(input.learningGoals) ||
+    input.learningGoals.length === 0 ||
+    input.learningGoals.length > 3
+  ) {
+    return {
+      field: "learningGoals",
+      message: "Select between 1 and 3 learning goals",
+    };
+  }
+
+  for (const goal of input.learningGoals) {
+    if (!VALID_LEARNING_GOALS.includes(goal)) {
+      return { field: "learningGoals", message: `Invalid goal: ${goal}` };
+    }
+  }
+
+  if (
+    typeof input.dailyGoalMinutes !== "number" ||
+    input.dailyGoalMinutes < 5 ||
+    input.dailyGoalMinutes > 480
+  ) {
+    return {
+      field: "dailyGoalMinutes",
+      message: "Daily goal must be between 5 and 480 minutes",
+    };
+  }
+
+  return null;
+}
+
+export async function completeOnboarding(
+  userId: string,
+  input: OnboardingInput
+) {
+  const normalizedMood = input.mood.toUpperCase();
+  const difficulty =
+    EXPERIENCE_TO_DIFFICULTY[input.experienceLevel] ?? "MEDIUM";
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: userId },
+      data: {
+        mood: normalizedMood,
+        onboardingCompleted: true,
+      },
+    }),
+    prisma.userSettings.upsert({
+      where: { userId },
+      update: {
+        preferredMood: normalizedMood,
+        difficulty,
+        dailyGoalMinutes: input.dailyGoalMinutes,
+        experienceLevel: input.experienceLevel,
+        learningGoals: input.learningGoals,
+      },
+      create: {
+        userId,
+        preferredMood: normalizedMood,
+        difficulty,
+        dailyGoalMinutes: input.dailyGoalMinutes,
+        experienceLevel: input.experienceLevel,
+        learningGoals: input.learningGoals,
+      },
+    }),
+  ]);
 }

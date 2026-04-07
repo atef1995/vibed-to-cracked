@@ -56,6 +56,7 @@ export const authOptions: NextAuthOptions = {
               xp: true,
               level: true,
               lastActiveAt: true,
+              onboardingCompleted: true,
             },
           });
 
@@ -64,6 +65,7 @@ export const authOptions: NextAuthOptions = {
           session.user.role = dbUser?.role || "USER";
           session.user.xp = dbUser?.xp || 0;
           session.user.level = dbUser?.level || 1;
+          session.user.onboardingCompleted = dbUser?.onboardingCompleted ?? false;
 
           // Throttled activity tracking: update at most once per hour
           const ONE_HOUR = 60 * 60 * 1000;

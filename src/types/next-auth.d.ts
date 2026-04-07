@@ -15,6 +15,7 @@ declare module "next-auth" {
       role: string;
       xp?: number;
       level?: number;
+      onboardingCompleted?: boolean;
       /** Full subscription info cached in session to prevent repeated DB queries */
       subscriptionInfo?: SubscriptionInfo;
     };

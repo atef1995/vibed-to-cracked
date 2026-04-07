@@ -1,6 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
 import { useProgressStats } from "@/hooks/useProgress";
 import { ProgressStats } from "@/components/ProgressComponents";
@@ -9,6 +11,9 @@ import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
 import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { CompactMoodSelector } from "@/components/dashboard/CompactMoodSelector";
 import { RecentAchievements } from "@/components/dashboard/RecentAchievements";
+import { TourProvider } from "@/components/onboarding/TourProvider";
+import { useTourState } from "@/hooks/useTourState";
+import { dashboardTourSteps, DASHBOARD_TOUR_ID } from "@/lib/tours/dashboardTour";
 import {
   BookOpen,
   Code,
@@ -118,6 +123,28 @@ const exploreLinks = [
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { isRunning: tourRunning, startTour, completeTour } = useTourState(DASHBOARD_TOUR_ID);
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (
+      status === "authenticated" &&
+      session?.user &&
+      session.user.onboardingCompleted === false
+    ) {
+      router.push("/onboarding");
+    }
+  }, [status, session, router]);
+
+  // Start tour after onboarding redirect
+  useEffect(() => {
+    if (searchParams.get("onboarded") === "true") {
+      const timer = setTimeout(() => startTour(), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, startTour]);
 
   const {
     data: progressStats,
@@ -187,19 +214,22 @@ export default function DashboardPage() {
 
       {/* 3. Mood selector — compact for returning users, full for new */}
       {isNewUser ? (
-        <div className="mb-10">
+        <div className="mb-10" data-tour="mood-selector">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">
             How are you feeling today?
           </h2>
           <MoodSelector showDescription={true} />
         </div>
       ) : (
-        <CompactMoodSelector />
+        <div data-tour="mood-selector">
+          <CompactMoodSelector />
+        </div>
       )}
 
       {/* Study Plan — clear shortcut */}
       <Link
         href="/study-plan"
+        data-tour="study-plan"
         className="mb-10 flex items-center gap-4 bg-linear-to-r from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-2xl p-5 border border-indigo-100 dark:border-indigo-800/40 hover:border-indigo-200 dark:hover:border-indigo-700 shadow-sm hover:shadow-md transition-all group"
       >
         <div className="shrink-0 w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-800/40 flex items-center justify-center">
@@ -224,6 +254,7 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-3 gap-6 auto-rows-fr">
           <Link
             href="/tutorials"
+            data-tour="tutorials-section"
             className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-500"
           >
             <div className="grow">
@@ -269,6 +300,7 @@ export default function DashboardPage() {
 
           <Link
             href="/exercises"
+            data-tour="exercises-section"
             className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-500"
           >
             <div className="grow">
@@ -345,6 +377,7 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-2 gap-6 auto-rows-fr">
           <Link
             href="/quizzes"
+            data-tour="quizzes-section"
             className="flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all border border-gray-200 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-500"
           >
             <div className="grow">
@@ -485,6 +518,13 @@ export default function DashboardPage() {
 
       {/* Recent Achievements */}
       <RecentAchievements userId={session.user.id} />
+
+      {/* Dashboard Tour */}
+      <TourProvider
+        steps={dashboardTourSteps}
+        run={tourRunning}
+        onComplete={completeTour}
+      />
 
       {/* 7. Progress Section */}
       <div>

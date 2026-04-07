@@ -71,6 +71,9 @@ model User {
   emailUnsubscribed   Boolean   @default(false)
   emailUnsubscribedAt DateTime?
 
+  // Onboarding
+  onboardingCompleted Boolean @default(false)
+
   // Activity tracking for reminders
   lastActiveAt DateTime?
 
@@ -615,6 +618,8 @@ model UserSettings {
   reminderTime             String   @default("18:00")
   difficulty               String   @default("MEDIUM")
   autoSubmit               Boolean  @default(false)
+  experienceLevel          String   @default("beginner")
+  learningGoals            String[]
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
   timezone                 String   @default("UTC")
