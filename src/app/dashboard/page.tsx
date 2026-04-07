@@ -1,8 +1,8 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
 import { useProgressStats } from "@/hooks/useProgress";
 import { ProgressStats } from "@/components/ProgressComponents";
@@ -127,36 +127,35 @@ const exploreLinks = [
 export default function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
   const {
     isRunning: tourRunning,
+    isTourCompleted,
     startTour,
     completeTour,
   } = useTourState(DASHBOARD_TOUR_ID);
-
-  const justOnboarded = useRef(searchParams.get("onboarded") === "true");
 
   // Redirect to onboarding if not completed
   useEffect(() => {
     if (
       status === "authenticated" &&
       session?.user &&
-      session.user.onboardingCompleted === false &&
-      !justOnboarded.current
+      session.user.onboardingCompleted === false
     ) {
       router.push("/onboarding");
     }
   }, [status, session, router]);
 
-  // Start tour after onboarding redirect
+  // Auto-start tour for newly onboarded users
   useEffect(() => {
-    if (status === "authenticated" && justOnboarded.current) {
-      justOnboarded.current = false;
-      router.replace("/dashboard", { scroll: false });
+    if (
+      status === "authenticated" &&
+      session?.user?.onboardingCompleted &&
+      !isTourCompleted
+    ) {
       const timer = setTimeout(() => startTour(), 500);
       return () => clearTimeout(timer);
     }
-  }, [status, startTour, router]);
+  }, [status, session, isTourCompleted, startTour]);
 
   const {
     data: progressStats,

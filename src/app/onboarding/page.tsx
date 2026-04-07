@@ -192,7 +192,7 @@ export default function OnboardingPage() {
       }
 
       await update();
-      router.push("/dashboard?onboarded=true");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Onboarding failed:", error);
       setIsSubmitting(false);
