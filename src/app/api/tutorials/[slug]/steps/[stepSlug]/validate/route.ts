@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { StepService } from "@/lib/stepService";
-import { validateStepCode, type ValidationConfig } from "@/lib/stepValidator";
+import { validateStepCode, type ValidationConfig, type DomSnapshotEntry } from "@/lib/stepValidator";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(
@@ -13,7 +13,7 @@ export async function POST(
     const { slug, stepSlug } = await params;
 
     const body = await request.json();
-    const { code, output, timeSpent } = body;
+    const { code, output, timeSpent, domSnapshot } = body;
 
     if (typeof code !== "string") {
       return NextResponse.json(
@@ -58,11 +58,15 @@ export async function POST(
 
     // Run validation
     const config = (step.validationConfig as ValidationConfig) ?? {};
+    const snapshot = Array.isArray(domSnapshot)
+      ? (domSnapshot as DomSnapshotEntry[])
+      : undefined;
     const result = validateStepCode(
       step.validationType,
       config,
       code,
-      typeof output === "string" ? output : ""
+      typeof output === "string" ? output : "",
+      snapshot
     );
 
     // Persist progress for authenticated users
@@ -98,6 +102,7 @@ export async function POST(
       feedback: result.feedback,
       outputMatch: result.outputMatch,
       patternResults: result.patternResults,
+      domCheckResults: result.domCheckResults ?? [],
       canAdvance: result.passed,
       nextStep: result.passed ? step.nextStep : null,
       achievements: result.passed ? achievements : [],

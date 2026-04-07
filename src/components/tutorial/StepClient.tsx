@@ -9,6 +9,7 @@ import { useStepProgress } from "@/hooks/useStepProgress";
 import { useToast } from "@/hooks/useToast";
 import getMoodColors from "@/lib/getMoodColors";
 import StepCodeEditor from "@/components/tutorial/StepCodeEditor";
+import ReactStepCodeEditor from "@/components/tutorial/ReactStepCodeEditor";
 import StepStepper from "@/components/tutorial/StepStepper";
 import StepNavigation from "@/components/tutorial/StepNavigation";
 import InteractiveCodeBlock from "@/components/InteractiveCodeBlock";
@@ -278,6 +279,35 @@ export default function StepClient({
     [validate, toast]
   );
 
+  // Handle JSX validation (includes domSnapshot)
+  const handleJsxValidate = useCallback(
+    async (code: string, output: string, domSnapshot: unknown[]) => {
+      const elapsedSeconds = Math.round(
+        (Date.now() - stepStartTime.current) / 1000
+      );
+      const result = await validate.mutateAsync({
+        code,
+        output,
+        timeSpent: elapsedSeconds > 0 ? elapsedSeconds : undefined,
+        domSnapshot,
+      });
+
+      if (result.passed) {
+        if (result.xpAwarded > 0) {
+          toast.success("Step Complete", `+${result.xpAwarded} XP`);
+        }
+        if (result.achievements?.length) {
+          for (const a of result.achievements) {
+            toast.achievement(`${a.icon} ${a.title}`, a.description);
+          }
+        }
+      }
+
+      return result;
+    },
+    [validate, toast]
+  );
+
   // Handle exercise-type step completion (ValidatedExercise in MDX passed all tests)
   const handleExerciseComplete = useCallback(
     async (code: string) => {
@@ -495,17 +525,34 @@ export default function StepClient({
                         </p>
                       </div>
                     )}
-                    <StepCodeEditor
-                      initialCode={initialCode}
-                      validationType={step.validationType}
-                      onValidate={handleValidate}
-                      onPass={handlePass}
-                      passed={isPassed}
-                      lastSavedCode={step.progress?.userCode}
-                      onCodeChange={setCurrentCode}
-                      onOutputChange={setCurrentOutput}
-                      onValidationResult={setLastValidationResult}
-                    />
+                    {step.validationType === "jsx" ? (
+                      <ReactStepCodeEditor
+                        starterCode={
+                          step.validationConfig?.starterCode ||
+                          step.validationConfig?.initialCode ||
+                          "function App() {\n  return <div>Hello</div>;\n}"
+                        }
+                        onValidate={handleJsxValidate}
+                        onPass={handlePass}
+                        passed={isPassed}
+                        lastSavedCode={step.progress?.userCode}
+                        domChecks={step.validationConfig?.domChecks}
+                        onCodeChange={setCurrentCode}
+                        onValidationResult={setLastValidationResult}
+                      />
+                    ) : (
+                      <StepCodeEditor
+                        initialCode={initialCode}
+                        validationType={step.validationType}
+                        onValidate={handleValidate}
+                        onPass={handlePass}
+                        passed={isPassed}
+                        lastSavedCode={step.progress?.userCode}
+                        onCodeChange={setCurrentCode}
+                        onOutputChange={setCurrentOutput}
+                        onValidationResult={setLastValidationResult}
+                      />
+                    )}
                   </div>
                 )}
 

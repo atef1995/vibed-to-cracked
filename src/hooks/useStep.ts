@@ -29,6 +29,14 @@ export interface StepData {
     hints?: string[];
     initialCode?: string;
     taskInstructions?: string;
+    starterCode?: string;
+    domChecks?: {
+      selector: string;
+      property: "textContent" | "exists" | "count" | "attribute";
+      expected: string | number | boolean;
+      attribute?: string;
+      message: string;
+    }[];
   } | null;
   prevStep: StepNav | null;
   nextStep: StepNav | null;
@@ -108,14 +116,15 @@ async function validateStepCode(
   stepSlug: string,
   code: string,
   output: string,
-  timeSpent?: number
+  timeSpent?: number,
+  domSnapshot?: unknown[]
 ): Promise<ValidationResponse> {
   const res = await fetch(
     `/api/tutorials/${encodeURIComponent(tutorialSlug)}/steps/${encodeURIComponent(stepSlug)}/validate`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code, output, timeSpent }),
+      body: JSON.stringify({ code, output, timeSpent, domSnapshot }),
     }
   );
 
@@ -148,11 +157,13 @@ export function useStep(tutorialSlug: string, stepSlug: string) {
       code,
       output,
       timeSpent,
+      domSnapshot,
     }: {
       code: string;
       output: string;
       timeSpent?: number;
-    }) => validateStepCode(tutorialSlug, stepSlug, code, output, timeSpent),
+      domSnapshot?: unknown[];
+    }) => validateStepCode(tutorialSlug, stepSlug, code, output, timeSpent, domSnapshot),
     onSuccess: (result) => {
       if (result.passed) {
         // Invalidate step data to refresh progress
