@@ -89,7 +89,17 @@ export async function GET(request: NextRequest) {
 
     // PRIORITY 1: Try to get content from database (secure for premium content)
     if (tutorial?.content && tutorial.content.length > 100) {
-      const { data: frontmatter, content } = matter(tutorial.content);
+      // Normalize: if content starts with frontmatter fields but lacks the
+      // opening "---" delimiter, gray-matter cannot parse it. Prepend "---\n"
+      // so the parser finds the expected fences.
+      let raw = tutorial.content;
+      if (
+        !raw.trimStart().startsWith("---") &&
+        /^[a-zA-Z_]+\s*:/.test(raw.trimStart())
+      ) {
+        raw = "---\n" + raw;
+      }
+      const { data: frontmatter, content } = matter(raw);
 
       const cleanContent = content
         .trim()
@@ -109,7 +119,14 @@ export async function GET(request: NextRequest) {
     // PRIORITY 2: Try step content from database
     const stepContent = await StepService.getStepContentByMdxFile(fileName);
     if (stepContent && stepContent.length > 50) {
-      const { data: frontmatter, content } = matter(stepContent);
+      let rawStep = stepContent;
+      if (
+        !rawStep.trimStart().startsWith("---") &&
+        /^[a-zA-Z_]+\s*:/.test(rawStep.trimStart())
+      ) {
+        rawStep = "---\n" + rawStep;
+      }
+      const { data: frontmatter, content } = matter(rawStep);
 
       const cleanContent = content
         .trim()

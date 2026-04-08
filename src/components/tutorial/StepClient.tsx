@@ -32,6 +32,7 @@ import SelectionTooltip from "@/components/tutor/SelectionTooltip";
 import { useTutorChat } from "@/hooks/useTutorChat";
 import type { TutorContext } from "@/hooks/useTutorChat";
 import type { ValidationResponse } from "@/hooks/useStep";
+import { SignupNudge } from "@/components/auth/SignupNudge";
 
 const MultiFileCodeEditor = dynamic(
   () => import("@/components/MultiFileCodeEditor"),
@@ -641,6 +642,11 @@ export default function StepClient({
               >
                 Back to Tutorial
               </Link>
+            )}
+            {!isAuthenticated && (
+              <SignupNudge
+                callbackUrl={`/tutorials/category/${category}/${tutorialSlug}/step/${stepSlug}`}
+              />
             )}
           </div>
         </div>

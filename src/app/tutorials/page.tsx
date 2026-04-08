@@ -25,7 +25,6 @@ import {
   StatsCardSkeleton,
 } from "@/components/tutorial/TutorialSkeleton";
 import CategoryLoading from "./category/loading";
-import { SignupCTA } from "@/components/SignupCTA";
 import { useContentFilters } from "@/hooks/useContentFilters";
 import { ContentSearchBar } from "@/components/ui/ContentSearchBar";
 import {
@@ -212,15 +211,17 @@ export default function TutorialsPage() {
         </ErrorBoundary>
       </div>
 
-      {/* Anonymous User Signup Banner */}
+      {/* Anonymous user nudge */}
       {isAnonymous && (
-        <div className="mb-8">
-          <SignupCTA
-            variant="banner"
-            message="Create your free account to save progress and unlock all features"
-            showBenefits={true}
-          />
-        </div>
+        <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-8">
+          Want to save your progress?{" "}
+          <a
+            href="/auth/signin"
+            className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
+          >
+            Create a free account
+          </a>
+        </p>
       )}
 
       {/* Categories Grid */}
@@ -349,19 +350,20 @@ export default function TutorialsPage() {
         <ErrorBoundary fallback={ComponentErrorFallback}>
           <Suspense fallback={<StatsCardSkeleton />}>
             {isAnonymous ? (
-              // Anonymous user - show signup CTA
-              <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg text-center">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              // Anonymous user - subtle nudge
+              <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg text-center">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">
                   Track Your Learning Progress
                 </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Sign up to save your progress, earn achievements, and unlock
-                  your full learning potential
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <a
+                    href="/auth/signin"
+                    className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
+                  >
+                    Sign up free
+                  </a>{" "}
+                  to save progress and earn achievements
                 </p>
-                <SignupCTA
-                  variant="primary"
-                  message="Start Tracking Progress Free"
-                />
               </div>
             ) : (
               // Authenticated user - show actual stats

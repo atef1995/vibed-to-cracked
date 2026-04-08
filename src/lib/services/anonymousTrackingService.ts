@@ -5,8 +5,10 @@
  * Handles anonymous session creation, tracking, and conversion to user accounts.
  */
 
-import { prisma } from '@/lib/prisma';
-import { Prisma } from '../../generated/client';
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "../../generated/client";
+import { StepService } from "@/lib/stepService";
+import { awardXP } from "@/lib/services/xpService";
 
 interface TutorialView {
   tutorialId: string;
@@ -15,11 +17,19 @@ interface TutorialView {
   timeSpent: number;
 }
 
+interface LocalStepProgress {
+  passed: boolean;
+  userCode: string | null;
+  completedAt: string | null;
+}
+
+type StepProgressPayload = Record<string, Record<string, LocalStepProgress>>;
+
 export interface AnonymousTrackingData {
   anonymousId: string;
   tutorialId?: string;
   tutorialSlug?: string;
-  action: 'VIEW' | 'TIME_UPDATE' | 'LIMIT_REACHED' | 'PAGE_VIEW';
+  action: "VIEW" | "TIME_UPDATE" | "LIMIT_REACHED" | "PAGE_VIEW";
   timeSpent?: number;
   source?: string;
   medium?: string;
@@ -60,7 +70,9 @@ export class AnonymousTrackingService {
             device: data.device,
             browser: data.browser,
             os: data.os,
-            ipAddress: data.ipAddress ? await this.hashIp(data.ipAddress) : null,
+            ipAddress: data.ipAddress
+              ? await this.hashIp(data.ipAddress)
+              : null,
             tutorialsViewed: [],
             pagesViewed: 1,
           },
@@ -68,17 +80,17 @@ export class AnonymousTrackingService {
       }
 
       // Update session based on action
-      if (action === 'VIEW' && tutorialId) {
+      if (action === "VIEW" && tutorialId) {
         await this.trackTutorialView(session.id, tutorialId, tutorialSlug);
-      } else if (action === 'TIME_UPDATE' && tutorialId && timeSpent) {
+      } else if (action === "TIME_UPDATE" && tutorialId && timeSpent) {
         await this.updateTutorialTime(session.id, tutorialId, timeSpent);
-      } else if (action === 'PAGE_VIEW') {
+      } else if (action === "PAGE_VIEW") {
         await this.incrementPageViews(session.id);
       }
 
       return session;
     } catch (error) {
-      console.error('Error tracking anonymous session:', error);
+      console.error("Error tracking anonymous session:", error);
       throw error;
     }
   }
@@ -172,7 +184,7 @@ export class AnonymousTrackingService {
         where: { anonymousId },
       });
     } catch (error) {
-      console.error('Error getting anonymous session:', error);
+      console.error("Error getting anonymous session:", error);
       return null;
     }
   }
@@ -180,15 +192,19 @@ export class AnonymousTrackingService {
   /**
    * Check if anonymous user has reached tutorial limit
    */
-  static async hasReachedLimit(anonymousId: string, limit: number = 5): Promise<boolean> {
+  static async hasReachedLimit(
+    anonymousId: string,
+    limit: number = 5
+  ): Promise<boolean> {
     try {
       const session = await this.getAnonymousSession(anonymousId);
       if (!session) return false;
 
-      const tutorialsViewed = (session.tutorialsViewed as unknown as TutorialView[]) || [];
+      const tutorialsViewed =
+        (session.tutorialsViewed as unknown as TutorialView[]) || [];
       return tutorialsViewed.length >= limit;
     } catch (error) {
-      console.error('Error checking anonymous limit:', error);
+      console.error("Error checking anonymous limit:", error);
       return false; // Fail open to not block users
     }
   }
@@ -201,10 +217,11 @@ export class AnonymousTrackingService {
       const session = await this.getAnonymousSession(anonymousId);
       if (!session) return 0;
 
-      const tutorialsViewed = (session.tutorialsViewed as unknown as TutorialView[]) || [];
+      const tutorialsViewed =
+        (session.tutorialsViewed as unknown as TutorialView[]) || [];
       return tutorialsViewed.length;
     } catch (error) {
-      console.error('Error getting tutorial count:', error);
+      console.error("Error getting tutorial count:", error);
       return 0;
     }
   }
@@ -215,80 +232,170 @@ export class AnonymousTrackingService {
    * This is called after a user signs up. It:
    * 1. Marks the anonymous session as converted
    * 2. Migrates tutorial progress to the new user account
-   * 3. Updates user with attribution data
+   * 3. Migrates step-level progress from localStorage
+   * 4. Updates user with attribution data
    */
   static async convertAnonymousToUser(
-    anonymousId: string,
-    userId: string
+    anonymousId: string | undefined,
+    userId: string,
+    stepProgress?: StepProgressPayload
   ) {
     try {
-      const session = await prisma.anonymousSession.findUnique({
-        where: { anonymousId },
-      });
+      const session = anonymousId
+        ? await prisma.anonymousSession.findUnique({ where: { anonymousId } })
+        : null;
 
-      if (!session) {
-        console.warn(`No anonymous session found for ${anonymousId}`);
+      if (!session && !stepProgress) {
+        console.warn(
+          `No anonymous session found for ${anonymousId} and no step progress`
+        );
         return null;
       }
 
       // Use transaction to ensure atomicity
       const result = await prisma.$transaction(async (tx) => {
-        // Mark session as converted
-        await tx.anonymousSession.update({
-          where: { id: session.id },
-          data: {
-            convertedToUserId: userId,
-            convertedAt: new Date(),
-          },
-        });
+        let tutorialsMigrated = 0;
 
-        // Create TutorialProgress entries for viewed tutorials
-        const viewed = (session.tutorialsViewed as unknown as TutorialView[]) || [];
-        let migrated = 0;
+        if (session) {
+          // Mark session as converted
+          await tx.anonymousSession.update({
+            where: { id: session.id },
+            data: {
+              convertedToUserId: userId,
+              convertedAt: new Date(),
+            },
+          });
 
-        for (const tutorial of viewed) {
-          try {
-            await tx.tutorialProgress.create({
-              data: {
-                userId,
-                tutorialId: tutorial.tutorialId,
-                status: 'IN_PROGRESS',
-                timeSpent: tutorial.timeSpent || 0,
-              },
+          // Create TutorialProgress entries for viewed tutorials
+          const viewed =
+            (session.tutorialsViewed as unknown as TutorialView[]) || [];
+
+          for (const tutorial of viewed) {
+            try {
+              await tx.tutorialProgress.create({
+                data: {
+                  userId,
+                  tutorialId: tutorial.tutorialId,
+                  status: "IN_PROGRESS",
+                  timeSpent: tutorial.timeSpent || 0,
+                },
+              });
+              tutorialsMigrated++;
+            } catch {
+              console.warn(
+                "Tutorial progress already exists:",
+                tutorial.tutorialId
+              );
+            }
+          }
+
+          // Update user with attribution data
+          await tx.user.update({
+            where: { id: userId },
+            data: {
+              conversionSource: session.source,
+              conversionMedium: session.medium,
+              conversionCampaign: session.campaign,
+              firstLandingPage: session.landingPage,
+              anonymousSessionId: session.id,
+            },
+          });
+        }
+
+        // Migrate step-level progress from localStorage
+        let stepsMigrated = 0;
+        const migratedTutorialIds = new Set<string>();
+
+        if (stepProgress && typeof stepProgress === "object") {
+          for (const [tutorialSlug, stepsMap] of Object.entries(stepProgress)) {
+            if (!stepsMap || typeof stepsMap !== "object") continue;
+
+            const tutorial = await tx.tutorial.findFirst({
+              where: { slug: tutorialSlug },
+              select: { id: true },
             });
-            migrated++;
-          } catch {
-            // Ignore duplicates - user may have already started this tutorial
-            console.warn('Tutorial progress already exists:', tutorial.tutorialId);
+            if (!tutorial) continue;
+
+            // Ensure TutorialProgress exists for this tutorial
+            await tx.tutorialProgress.upsert({
+              where: { userId_tutorialId: { userId, tutorialId: tutorial.id } },
+              create: {
+                userId,
+                tutorialId: tutorial.id,
+                status: "IN_PROGRESS",
+              },
+              update: {},
+            });
+
+            for (const [stepSlug, progress] of Object.entries(stepsMap)) {
+              if (!progress?.passed) continue;
+
+              const step = await tx.tutorialStep.findFirst({
+                where: { tutorialId: tutorial.id, slug: stepSlug },
+                select: { id: true },
+              });
+              if (!step) continue;
+
+              try {
+                await tx.tutorialStepProgress.upsert({
+                  where: { userId_stepId: { userId, stepId: step.id } },
+                  create: {
+                    userId,
+                    stepId: step.id,
+                    status: "COMPLETED",
+                    passed: true,
+                    userCode: progress.userCode,
+                    attempts: 1,
+                    completedAt: progress.completedAt
+                      ? new Date(progress.completedAt)
+                      : new Date(),
+                  },
+                  update: {},
+                });
+                stepsMigrated++;
+                migratedTutorialIds.add(tutorial.id);
+              } catch {
+                console.warn("Failed to migrate step progress:", stepSlug);
+              }
+            }
           }
         }
 
-        // Update user with attribution data
-        await tx.user.update({
-          where: { id: userId },
-          data: {
-            conversionSource: session.source,
-            conversionMedium: session.medium,
-            conversionCampaign: session.campaign,
-            firstLandingPage: session.landingPage,
-            anonymousSessionId: session.id,
-          },
-        });
-
         return {
           session,
-          tutorialsMigrated: migrated,
+          tutorialsMigrated,
+          stepsMigrated,
+          migratedTutorialIds,
         };
       });
 
+      // Outside the transaction: award XP and check tutorial completions
+      if (result.stepsMigrated > 0) {
+        // Award XP for migrated steps (batch)
+        for (let i = 0; i < result.stepsMigrated; i++) {
+          await awardXP(userId, 10, "STEP_COMPLETED", {
+            source: "anonymous_migration",
+          });
+        }
+
+        // Check tutorial completions for each affected tutorial
+        for (const tutorialId of result.migratedTutorialIds) {
+          await StepService.checkTutorialCompletion(userId, tutorialId);
+        }
+      }
+
       console.log(
-        `Successfully converted anonymous session ${anonymousId} to user ${userId}. ` +
-        `Migrated ${result.tutorialsMigrated} tutorials.`
+        `Converted anonymous session for user ${userId}. ` +
+          `Migrated ${result.tutorialsMigrated} tutorials, ${result.stepsMigrated} steps.`
       );
 
-      return result;
+      return {
+        session: result.session,
+        tutorialsMigrated: result.tutorialsMigrated,
+        stepsMigrated: result.stepsMigrated,
+      };
     } catch (error) {
-      console.error('Error converting anonymous session:', error);
+      console.error("Error converting anonymous session:", error);
       throw error;
     }
   }
@@ -299,15 +406,15 @@ export class AnonymousTrackingService {
   private static async hashIp(ip: string): Promise<string> {
     try {
       // For Node.js environment
-      const cryptoModule = await import('crypto');
-      return cryptoModule.createHash('sha256').update(ip).digest('hex');
+      const cryptoModule = await import("crypto");
+      return cryptoModule.createHash("sha256").update(ip).digest("hex");
     } catch {
       // Fallback for edge/serverless environments
       const encoder = new TextEncoder();
       const data = encoder.encode(ip);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     }
   }
 
@@ -337,7 +444,7 @@ export class AnonymousTrackingService {
 
       return deleted;
     } catch (error) {
-      console.error('Error cleaning up old sessions:', error);
+      console.error("Error cleaning up old sessions:", error);
       throw error;
     }
   }
@@ -360,33 +467,38 @@ export class AnonymousTrackingService {
         if (endDate) where.createdAt.lte = endDate;
       }
 
-      const [totalSessions, convertedSessions, avgTutorialsViewed] = await Promise.all([
-        // Total anonymous sessions
-        prisma.anonymousSession.count({ where }),
+      const [totalSessions, convertedSessions, avgTutorialsViewed] =
+        await Promise.all([
+          // Total anonymous sessions
+          prisma.anonymousSession.count({ where }),
 
-        // Converted sessions
-        prisma.anonymousSession.count({
-          where: {
-            ...where,
-            convertedToUserId: { not: null },
-          },
-        }),
+          // Converted sessions
+          prisma.anonymousSession.count({
+            where: {
+              ...where,
+              convertedToUserId: { not: null },
+            },
+          }),
 
-        // Average tutorials viewed (requires raw query or aggregation)
-        prisma.anonymousSession.findMany({ where, select: { tutorialsViewed: true } }),
-      ]);
+          // Average tutorials viewed (requires raw query or aggregation)
+          prisma.anonymousSession.findMany({
+            where,
+            select: { tutorialsViewed: true },
+          }),
+        ]);
 
       // Calculate average tutorials viewed
       const totalTutorials = avgTutorialsViewed.reduce((sum, session) => {
-        const viewed = (session.tutorialsViewed as unknown as TutorialView[]) || [];
+        const viewed =
+          (session.tutorialsViewed as unknown as TutorialView[]) || [];
         return sum + viewed.length;
       }, 0);
 
-      const avgTutorials = totalSessions > 0 ? totalTutorials / totalSessions : 0;
+      const avgTutorials =
+        totalSessions > 0 ? totalTutorials / totalSessions : 0;
 
-      const conversionRate = totalSessions > 0
-        ? (convertedSessions / totalSessions) * 100
-        : 0;
+      const conversionRate =
+        totalSessions > 0 ? (convertedSessions / totalSessions) * 100 : 0;
 
       return {
         totalSessions,
@@ -396,7 +508,7 @@ export class AnonymousTrackingService {
         avgTutorialsViewed: Math.round(avgTutorials * 100) / 100,
       };
     } catch (error) {
-      console.error('Error getting session stats:', error);
+      console.error("Error getting session stats:", error);
       throw error;
     }
   }
@@ -416,14 +528,16 @@ export class AnonymousTrackingService {
       });
 
       // Count tutorial views that led to conversion
-      const tutorialCounts: { [key: string]: { count: number; slug: string } } = {};
+      const tutorialCounts: { [key: string]: { count: number; slug: string } } =
+        {};
 
-      sessions.forEach(session => {
-        const viewed = (session.tutorialsViewed as unknown as TutorialView[]) || [];
+      sessions.forEach((session) => {
+        const viewed =
+          (session.tutorialsViewed as unknown as TutorialView[]) || [];
         viewed.forEach((tutorial) => {
           const id = tutorial.tutorialId;
           if (!tutorialCounts[id]) {
-            tutorialCounts[id] = { count: 0, slug: tutorial.slug || '' };
+            tutorialCounts[id] = { count: 0, slug: tutorial.slug || "" };
           }
           tutorialCounts[id].count++;
         });
@@ -439,7 +553,7 @@ export class AnonymousTrackingService {
         .sort((a, b) => b.conversions - a.conversions)
         .slice(0, limit);
     } catch (error) {
-      console.error('Error getting top converting tutorials:', error);
+      console.error("Error getting top converting tutorials:", error);
       throw error;
     }
   }
@@ -460,24 +574,25 @@ export class AnonymousTrackingService {
       });
 
       const funnel = {
-        '0_tutorials': { total: 0, converted: 0 },
-        '1_tutorial': { total: 0, converted: 0 },
-        '2-3_tutorials': { total: 0, converted: 0 },
-        '4-5_tutorials': { total: 0, converted: 0 },
-        '5+_tutorials': { total: 0, converted: 0 },
+        "0_tutorials": { total: 0, converted: 0 },
+        "1_tutorial": { total: 0, converted: 0 },
+        "2-3_tutorials": { total: 0, converted: 0 },
+        "4-5_tutorials": { total: 0, converted: 0 },
+        "5+_tutorials": { total: 0, converted: 0 },
       };
 
-      sessions.forEach(session => {
-        const viewed = (session.tutorialsViewed as unknown as TutorialView[]) || [];
+      sessions.forEach((session) => {
+        const viewed =
+          (session.tutorialsViewed as unknown as TutorialView[]) || [];
         const count = viewed.length;
         const converted = !!session.convertedToUserId;
 
-        let bucket: keyof typeof funnel = '0_tutorials';
-        if (count === 0) bucket = '0_tutorials';
-        else if (count === 1) bucket = '1_tutorial';
-        else if (count <= 3) bucket = '2-3_tutorials';
-        else if (count <= 5) bucket = '4-5_tutorials';
-        else bucket = '5+_tutorials';
+        let bucket: keyof typeof funnel = "0_tutorials";
+        if (count === 0) bucket = "0_tutorials";
+        else if (count === 1) bucket = "1_tutorial";
+        else if (count <= 3) bucket = "2-3_tutorials";
+        else if (count <= 5) bucket = "4-5_tutorials";
+        else bucket = "5+_tutorials";
 
         funnel[bucket].total++;
         if (converted) funnel[bucket].converted++;
@@ -488,9 +603,10 @@ export class AnonymousTrackingService {
         bucket,
         total: data.total,
         converted: data.converted,
-        conversionRate: data.total > 0
-          ? Math.round((data.converted / data.total) * 10000) / 100
-          : 0,
+        conversionRate:
+          data.total > 0
+            ? Math.round((data.converted / data.total) * 10000) / 100
+            : 0,
       }));
 
       return {
@@ -498,7 +614,7 @@ export class AnonymousTrackingService {
         funnel: funnelWithRates,
       };
     } catch (error) {
-      console.error('Error getting conversion funnel:', error);
+      console.error("Error getting conversion funnel:", error);
       throw error;
     }
   }

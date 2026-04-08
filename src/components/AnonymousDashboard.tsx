@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { MoodSelector } from "@/components/MoodSelector";
-import { SignupCTA } from "@/components/SignupCTA";
 import {
   BookOpen,
   Brain,
@@ -20,6 +19,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "./ui/PageLayout";
+import { RecommendedTutorials } from "./dashboard/RecommendedTutorials";
 import { TourProvider } from "@/components/onboarding/TourProvider";
 import {
   anonymousDashboardTourSteps,
@@ -88,12 +88,17 @@ export function AnonymousDashboard() {
           hands-on exercises.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-          <SignupCTA variant="primary" message="Get Your Learning Path" />
           <Link
             href="/tutorials"
-            className="inline-flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-red-600 text-white px-6 py-3 rounded-full font-bold text-lg hover:from-blue-700 hover:to-red-700 transition-all hover:scale-105 shadow-lg"
           >
-            Browse Tutorials →
+            Browse Tutorials
+          </Link>
+          <Link
+            href="/auth/signin"
+            className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            or sign up to save progress
           </Link>
         </div>
       </div>
@@ -108,6 +113,9 @@ export function AnonymousDashboard() {
         </p>
         <MoodSelector showDescription={true} />
       </div>
+
+      {/* Recommended Tutorials — quick start */}
+      <RecommendedTutorials />
 
       {/* Start Here — 3 focused cards */}
       <div className="mb-8">
@@ -219,8 +227,16 @@ export function AnonymousDashboard() {
         </div>
       </div>
 
-      {/* Sign up CTA — placed right after preview cards */}
-      <SignupCTA variant="banner" showBenefits={true} className="mb-8" />
+      {/* Subtle sign-up nudge */}
+      <p className="text-center text-sm text-gray-500 dark:text-gray-400 mb-8">
+        Want to save progress and unlock everything?{" "}
+        <Link
+          href="/auth/signin"
+          className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
+        >
+          Create a free account
+        </Link>
+      </p>
 
       {/* Explore more — collapsible */}
       <div className="mb-8">

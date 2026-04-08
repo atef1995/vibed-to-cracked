@@ -40,11 +40,44 @@ function SignInContent() {
       const convertAnonymousSession = async () => {
         try {
           const anonymousId = localStorage.getItem("vibed_anonymous_id");
-          if (anonymousId) {
+
+          // Collect step progress from localStorage
+          const stepProgress: Record<
+            string,
+            Record<
+              string,
+              {
+                passed: boolean;
+                userCode: string | null;
+                completedAt: string | null;
+              }
+            >
+          > = {};
+          const prefix = "vtc-step-progress:";
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key?.startsWith(prefix)) {
+              const tutorialSlug = key.slice(prefix.length);
+              try {
+                stepProgress[tutorialSlug] = JSON.parse(
+                  localStorage.getItem(key) || "{}"
+                );
+              } catch {
+                // Skip malformed entries
+              }
+            }
+          }
+
+          const hasStepProgress = Object.keys(stepProgress).length > 0;
+
+          if (anonymousId || hasStepProgress) {
             const response = await fetch("/api/auth/convert-anonymous", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ anonymousId }),
+              body: JSON.stringify({
+                anonymousId: anonymousId || undefined,
+                stepProgress: hasStepProgress ? stepProgress : undefined,
+              }),
             });
 
             if (response.ok) {
@@ -52,6 +85,13 @@ function SignInContent() {
               // Clear anonymous data from localStorage
               localStorage.removeItem("vibed_anonymous_id");
               localStorage.removeItem("vibed_anonymous_session");
+              // Clear step progress keys
+              const keysToRemove: string[] = [];
+              for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key?.startsWith(prefix)) keysToRemove.push(key);
+              }
+              keysToRemove.forEach((k) => localStorage.removeItem(k));
             }
           }
         } catch (error) {
