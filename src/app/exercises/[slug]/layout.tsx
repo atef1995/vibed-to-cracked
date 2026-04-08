@@ -80,10 +80,58 @@ export async function generateMetadata({
   }
 }
 
-export default function ExerciseLayout({
+export default async function ExerciseLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
-  return children;
+  const { slug } = await params;
+
+  let exerciseTitle = slug.replace(/-/g, " ");
+  try {
+    const exercise = await prisma.exercise.findUnique({
+      where: { slug },
+      select: { title: true },
+    });
+    if (exercise) exerciseTitle = exercise.title;
+  } catch {}
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://vibed-to-cracked.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Exercises",
+        item: "https://vibed-to-cracked.com/exercises",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: exerciseTitle,
+        item: `https://vibed-to-cracked.com/exercises/${slug}`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbLd).replace(/</g, "\u003c"),
+        }}
+      />
+      {children}
+    </>
+  );
 }

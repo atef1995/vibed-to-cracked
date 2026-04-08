@@ -30,7 +30,8 @@ export async function generateMetadata({
       2: "Intermediate",
       3: "Advanced",
     };
-    const difficultyLabel = difficultyLabels[project.difficulty] ?? "Intermediate";
+    const difficultyLabel =
+      difficultyLabels[project.difficulty] ?? "Intermediate";
 
     return {
       title: `${project.title} - ${difficultyLabel} Project | Vibed to Cracked`,
@@ -58,8 +59,7 @@ export async function generateMetadata({
   } catch {
     return {
       title: "Guided Project | Vibed to Cracked",
-      description:
-        "Build real-world applications with guided coding projects.",
+      description: "Build real-world applications with guided coding projects.",
       alternates: {
         canonical: `/projects/${slug}`,
       },
@@ -67,10 +67,58 @@ export async function generateMetadata({
   }
 }
 
-export default function ProjectSlugLayout({
+export default async function ProjectSlugLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
-  return children;
+  const { slug } = await params;
+
+  let projectTitle = slug.replace(/-/g, " ");
+  try {
+    const project = await prisma.project.findUnique({
+      where: { slug },
+      select: { title: true },
+    });
+    if (project) projectTitle = project.title;
+  } catch {}
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://vibed-to-cracked.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Projects",
+        item: "https://vibed-to-cracked.com/projects",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: projectTitle,
+        item: `https://vibed-to-cracked.com/projects/${slug}`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbLd).replace(/</g, "\u003c"),
+        }}
+      />
+      {children}
+    </>
+  );
 }

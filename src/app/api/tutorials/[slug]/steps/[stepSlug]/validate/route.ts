@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { StepService } from "@/lib/stepService";
-import { validateStepCode, type ValidationConfig, type DomSnapshotEntry } from "@/lib/stepValidator";
+import {
+  validateStepCode,
+  type ValidationConfig,
+  type DomSnapshotEntry,
+} from "@/lib/stepValidator";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(

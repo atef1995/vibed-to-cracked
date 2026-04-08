@@ -64,9 +64,24 @@ export default async function CheatSheetPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://vibed-to-cracked.com" },
-      { "@type": "ListItem", position: 2, name: "Cheat Sheets", item: "https://vibed-to-cracked.com/cheat-sheets" },
-      { "@type": "ListItem", position: 3, name: sheet.title, item: `https://vibed-to-cracked.com/cheat-sheets/${slug}` },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://vibed-to-cracked.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Cheat Sheets",
+        item: "https://vibed-to-cracked.com/cheat-sheets",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: sheet.title,
+        item: `https://vibed-to-cracked.com/cheat-sheets/${slug}`,
+      },
     ],
   };
 
@@ -74,11 +89,15 @@ export default async function CheatSheetPage({ params }: Props) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\u003c"),
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbLd).replace(/</g, "\u003c"),
+        }}
       />
       <div className="max-w-2xl mx-auto">
         <Link

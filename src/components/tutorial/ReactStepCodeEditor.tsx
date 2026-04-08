@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useId } from "react";
-import {
-  LiveProvider,
-  LiveEditor,
-  LiveError,
-  LivePreview,
-} from "react-live";
+import React, {
+  useState,
+  useEffect,
+  useRef as useReactRef,
+  useMemo,
+  useCallback,
+  useRef,
+  useId,
+} from "react";
+import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
 import {
   CheckCircle2,
   XCircle,
@@ -17,7 +20,11 @@ import {
   AppWindowIcon,
 } from "lucide-react";
 import type { ValidationResponse } from "@/hooks/useStep";
-import type { DomSnapshotEntry, DomCheck } from "@/lib/stepValidator";
+import type {
+  DomSnapshotEntry,
+  DomCheck,
+  PreAction,
+} from "@/lib/stepValidator";
 
 interface ReactStepCodeEditorProps {
   starterCode: string;
@@ -30,6 +37,7 @@ interface ReactStepCodeEditorProps {
   passed?: boolean;
   lastSavedCode?: string | null;
   domChecks?: DomCheck[];
+  preActions?: PreAction[];
   onCodeChange?: (code: string) => void;
   onValidationResult?: (result: ValidationResponse) => void;
 }
@@ -43,9 +51,10 @@ function prepareForLive(code: string): string {
     .trim();
 
   if (!cleaned.includes("render(")) {
-    const match = cleaned.match(/function\s+(\w+)\s*\(/);
-    if (match) {
-      cleaned += `\n\nrender(<${match[1]} />);`;
+    const matches = [...cleaned.matchAll(/function\s+(\w+)\s*\(/g)];
+    const last = matches[matches.length - 1];
+    if (last) {
+      cleaned += `\n\nrender(<${last[1]} />);`;
     }
   }
   return cleaned;
@@ -79,6 +88,46 @@ function captureSnapshot(
   });
 }
 
+/**
+ * Simulates user interactions on the rendered preview before snapshotting.
+ * Supports click and input actions. Waits briefly after each for React to re-render.
+ */
+async function executePreActions(
+  container: HTMLElement,
+  actions: PreAction[]
+): Promise<void> {
+  for (const action of actions) {
+    const el = container.querySelector(action.selector);
+    if (!el) continue;
+
+    if (action.type === "click") {
+      (el as HTMLElement).click();
+    } else if (action.type === "input" && action.value !== undefined) {
+      const nativeInputValueSetter =
+        Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")
+          ?.set ??
+        Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")
+          ?.set;
+      nativeInputValueSetter?.call(el, action.value);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+
+    // Let React process the state update
+    await new Promise((r) => setTimeout(r, 50));
+  }
+}
+
+/** Scope passed to react-live so user code can use hooks. */
+const liveScope = {
+  React,
+  useState,
+  useEffect,
+  useRef: useReactRef,
+  useMemo,
+  useCallback,
+};
+
 export default function ReactStepCodeEditor({
   starterCode,
   onValidate,
@@ -86,6 +135,7 @@ export default function ReactStepCodeEditor({
   passed = false,
   lastSavedCode,
   domChecks = [],
+  preActions = [],
   onCodeChange: onCodeChangeProp,
   onValidationResult: onValidationResultProp,
 }: ReactStepCodeEditorProps) {
@@ -120,6 +170,9 @@ export default function ReactStepCodeEditor({
     try {
       let snapshot: DomSnapshotEntry[] = [];
       if (previewRef.current && domChecks.length > 0) {
+        if (preActions.length > 0) {
+          await executePreActions(previewRef.current, preActions);
+        }
         snapshot = captureSnapshot(previewRef.current, domChecks);
       }
 
@@ -143,7 +196,7 @@ export default function ReactStepCodeEditor({
     } finally {
       setIsValidating(false);
     }
-  }, [code, domChecks, onValidate, onPass, onValidationResultProp]);
+  }, [code, domChecks, preActions, onValidate, onPass, onValidationResultProp]);
 
   const handleReset = useCallback(() => {
     setCode(starterCode);
@@ -198,7 +251,7 @@ export default function ReactStepCodeEditor({
         <div className="h-72">
           {activeTab === "code" ? (
             <div className="h-full overflow-auto bg-gray-900">
-              <LiveProvider code={liveCode} noInline>
+              <LiveProvider code={liveCode} noInline scope={liveScope}>
                 <LiveEditor
                   className="font-mono! text-sm! bg-gray-900! min-h-full!"
                   style={{
@@ -222,7 +275,7 @@ export default function ReactStepCodeEditor({
             </div>
           ) : (
             <div className="h-full overflow-auto bg-white dark:bg-gray-900 p-4">
-              <LiveProvider code={liveCode} noInline>
+              <LiveProvider code={liveCode} noInline scope={liveScope}>
                 <LiveError className="text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md mb-4 text-sm font-mono" />
                 <div ref={previewRef} data-preview-id={styleId}>
                   <LivePreview className="react-live-preview" />

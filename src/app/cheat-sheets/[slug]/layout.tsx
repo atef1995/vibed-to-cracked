@@ -61,6 +61,11 @@ export async function generateMetadata({
     return {
       title: `${formattedTitle} Cheat Sheet | Vibed to Cracked`,
       description: "Quick reference cheat sheet for programmers.",
+      twitter: {
+        card: "summary_large_image",
+        title: `${formattedTitle} Cheat Sheet`,
+        description: "Quick reference cheat sheet for programmers.",
+      },
       alternates: {
         canonical: `/cheat-sheets/${slug}`,
       },

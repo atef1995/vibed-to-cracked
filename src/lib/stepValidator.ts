@@ -10,6 +10,12 @@
  * 4. Returns pass/fail with feedback
  */
 
+export interface PreAction {
+  type: "click" | "input";
+  selector: string;
+  value?: string; // required for "input" actions
+}
+
 export interface DomCheck {
   selector: string;
   property: "textContent" | "exists" | "count" | "attribute";
@@ -26,6 +32,7 @@ export interface ValidationConfig {
   taskInstructions?: string;
   starterCode?: string; // JSX starter code pre-filled in the React editor
   domChecks?: DomCheck[];
+  preActions?: PreAction[]; // interactions to simulate before capturing DOM snapshot
 }
 
 export interface PatternCheck {

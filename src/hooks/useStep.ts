@@ -37,6 +37,11 @@ export interface StepData {
       attribute?: string;
       message: string;
     }[];
+    preActions?: {
+      type: "click" | "input";
+      selector: string;
+      value?: string;
+    }[];
   } | null;
   prevStep: StepNav | null;
   nextStep: StepNav | null;
@@ -163,7 +168,15 @@ export function useStep(tutorialSlug: string, stepSlug: string) {
       output: string;
       timeSpent?: number;
       domSnapshot?: unknown[];
-    }) => validateStepCode(tutorialSlug, stepSlug, code, output, timeSpent, domSnapshot),
+    }) =>
+      validateStepCode(
+        tutorialSlug,
+        stepSlug,
+        code,
+        output,
+        timeSpent,
+        domSnapshot
+      ),
     onSuccess: (result) => {
       if (result.passed) {
         // Invalidate step data to refresh progress

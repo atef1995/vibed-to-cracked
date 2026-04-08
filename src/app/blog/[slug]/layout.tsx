@@ -13,8 +13,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  const { slug } = await params;
   try {
-    const { slug } = await params;
     const post = await BlogService.getPostBySlug(slug);
 
     if (!post) {
@@ -57,6 +57,9 @@ export async function generateMetadata({
     return {
       title: "Blog Post | Vibed to Cracked",
       description: "Read this article on Vibed to Cracked blog.",
+      alternates: {
+        canonical: `/blog/${slug}`,
+      },
     };
   }
 }
@@ -101,9 +104,24 @@ export default async function BlogPostLayout({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: "Home", item: `${siteUrl}` },
-          { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}/blog` },
-          { "@type": "ListItem", position: 3, name: post.title, item: `${siteUrl}/blog/${slug}` },
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${siteUrl}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Blog",
+            item: `${siteUrl}/blog`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: post.title,
+            item: `${siteUrl}/blog/${slug}`,
+          },
         ],
       };
     }
@@ -116,13 +134,17 @@ export default async function BlogPostLayout({
       {jsonLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\u003c"),
+          }}
         />
       )}
       {breadcrumbLd && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbLd).replace(/</g, "\u003c"),
+          }}
         />
       )}
       {children}

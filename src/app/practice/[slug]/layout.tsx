@@ -37,7 +37,8 @@ export async function generateMetadata({
       openGraph: {
         title: `${challenge.title} - Coding Challenge`,
         description:
-          challenge.description ?? "Practice your coding skills with this challenge.",
+          challenge.description ??
+          "Practice your coding skills with this challenge.",
         type: "website",
         url: `/practice/${slug}`,
         siteName: "Vibed to Cracked",
@@ -54,8 +55,7 @@ export async function generateMetadata({
   } catch {
     return {
       title: "Coding Challenge | Vibed to Cracked",
-      description:
-        "Solve coding challenges to build real programming skills.",
+      description: "Solve coding challenges to build real programming skills.",
       alternates: {
         canonical: `/practice/${slug}`,
       },
@@ -63,10 +63,58 @@ export async function generateMetadata({
   }
 }
 
-export default function PracticeSlugLayout({
+export default async function PracticeSlugLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
-  return children;
+  const { slug } = await params;
+
+  let challengeTitle = slug.replace(/-/g, " ");
+  try {
+    const challenge = await prisma.challenge.findUnique({
+      where: { slug },
+      select: { title: true },
+    });
+    if (challenge) challengeTitle = challenge.title;
+  } catch {}
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://vibed-to-cracked.com",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Practice",
+        item: "https://vibed-to-cracked.com/practice",
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: challengeTitle,
+        item: `https://vibed-to-cracked.com/practice/${slug}`,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbLd).replace(/</g, "\u003c"),
+        }}
+      />
+      {children}
+    </>
+  );
 }

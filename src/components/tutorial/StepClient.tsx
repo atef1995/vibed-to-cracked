@@ -537,6 +537,7 @@ export default function StepClient({
                         passed={isPassed}
                         lastSavedCode={step.progress?.userCode}
                         domChecks={step.validationConfig?.domChecks}
+                        preActions={step.validationConfig?.preActions}
                         onCodeChange={setCurrentCode}
                         onValidationResult={setLastValidationResult}
                       />
