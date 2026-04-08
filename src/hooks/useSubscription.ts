@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 import type { SubscriptionInfo } from "@/types/subscription";
 
-
 interface SubscriptionResponse {
   success: boolean;
   data: SubscriptionInfo;
@@ -125,7 +124,10 @@ export const useSubscriptionCancellation = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Failed to cancel subscription: ${response.status}`);
+        throw new Error(
+          errorData.error?.message ||
+            `Failed to cancel subscription: ${response.status}`
+        );
       }
 
       const data = await response.json();
@@ -138,12 +140,18 @@ export const useSubscriptionCancellation = () => {
     },
     onSuccess: async () => {
       // Invalidate and refetch both subscription queries to ensure UI updates
-      await queryClient.invalidateQueries({ queryKey: ["subscription", userId] });
-      await queryClient.invalidateQueries({ queryKey: ["subscription-access", userId] });
-      
+      await queryClient.invalidateQueries({
+        queryKey: ["subscription", userId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["subscription-access", userId],
+      });
+
       // Force refetch to ensure fresh data
       await queryClient.refetchQueries({ queryKey: ["subscription", userId] });
-      await queryClient.refetchQueries({ queryKey: ["subscription-access", userId] });
+      await queryClient.refetchQueries({
+        queryKey: ["subscription-access", userId],
+      });
     },
   });
 };
@@ -168,25 +176,36 @@ export const useSubscriptionReactivation = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `Failed to reactivate subscription: ${response.status}`);
+        throw new Error(
+          errorData.error?.message ||
+            `Failed to reactivate subscription: ${response.status}`
+        );
       }
 
       const data = await response.json();
 
       if (!data.success) {
-        throw new Error(data.error?.message || "Failed to reactivate subscription");
+        throw new Error(
+          data.error?.message || "Failed to reactivate subscription"
+        );
       }
 
       return data;
     },
     onSuccess: async () => {
       // Invalidate and refetch both subscription queries to ensure UI updates
-      await queryClient.invalidateQueries({ queryKey: ["subscription", userId] });
-      await queryClient.invalidateQueries({ queryKey: ["subscription-access", userId] });
-      
+      await queryClient.invalidateQueries({
+        queryKey: ["subscription", userId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["subscription-access", userId],
+      });
+
       // Force refetch to ensure fresh data
       await queryClient.refetchQueries({ queryKey: ["subscription", userId] });
-      await queryClient.refetchQueries({ queryKey: ["subscription-access", userId] });
+      await queryClient.refetchQueries({
+        queryKey: ["subscription-access", userId],
+      });
     },
   });
 };
@@ -197,29 +216,37 @@ export const checkContentAccess = (
   requiredPlan?: string,
   isPremium?: boolean
 ) => {
-  if (!subscription) return { canAccess: false, reason: 'Subscription not loaded' };
-
-  // Free content is always accessible
-  if (!isPremium && (!requiredPlan || requiredPlan === 'FREE')) {
+  // Free content is always accessible, even without a subscription (anonymous users)
+  if (!isPremium && (!requiredPlan || requiredPlan === "FREE")) {
     return { canAccess: true };
   }
 
+  if (!subscription)
+    return {
+      canAccess: false,
+      reason: "Subscription not loaded",
+      needsUpgrade: true,
+    };
+
   // Premium content requires active subscription
-  if (isPremium || (requiredPlan && requiredPlan !== 'FREE')) {
+  if (isPremium || (requiredPlan && requiredPlan !== "FREE")) {
     if (!subscription.canAccessPremium) {
       return {
         canAccess: false,
-        reason: 'Premium subscription required',
-        needsUpgrade: true
+        reason: "Premium subscription required",
+        needsUpgrade: true,
       };
     }
 
     // Check if user's plan meets the required plan level
-    if (requiredPlan && !planMeetsRequirement(subscription.plan, requiredPlan)) {
+    if (
+      requiredPlan &&
+      !planMeetsRequirement(subscription.plan, requiredPlan)
+    ) {
       return {
         canAccess: false,
         reason: `${requiredPlan} plan or higher required`,
-        needsUpgrade: true
+        needsUpgrade: true,
       };
     }
   }
@@ -227,20 +254,28 @@ export const checkContentAccess = (
   return { canAccess: true };
 };
 
-export const planMeetsRequirement = (userPlan: string, requiredPlan: string): boolean => {
-  const planHierarchy = ['FREE', 'VIBED', 'CRACKED'];
+export const planMeetsRequirement = (
+  userPlan: string,
+  requiredPlan: string
+): boolean => {
+  const planHierarchy = ["FREE", "VIBED", "CRACKED"];
   const userPlanIndex = planHierarchy.indexOf(userPlan);
   const requiredPlanIndex = planHierarchy.indexOf(requiredPlan);
   return userPlanIndex >= requiredPlanIndex;
 };
 
 // Utility functions for subscription status
-export const getSubscriptionStatusInfo = (subscription: SubscriptionInfo | undefined) => {
-  if (!subscription) return { message: "Loading...", color: "gray", isActionable: false };
+export const getSubscriptionStatusInfo = (
+  subscription: SubscriptionInfo | undefined
+) => {
+  if (!subscription)
+    return { message: "Loading...", color: "gray", isActionable: false };
 
   const now = new Date();
-  const endsAt = subscription.subscriptionEndsAt ? new Date(subscription.subscriptionEndsAt) : null;
-  
+  const endsAt = subscription.subscriptionEndsAt
+    ? new Date(subscription.subscriptionEndsAt)
+    : null;
+
   switch (subscription.status) {
     case "TRIAL":
       const daysLeft = subscription.daysLeftInTrial;
@@ -250,7 +285,7 @@ export const getSubscriptionStatusInfo = (subscription: SubscriptionInfo | undef
         isActionable: true,
         actionType: "cancel-trial" as const,
       };
-    
+
     case "ACTIVE":
       return {
         message: "Active subscription",
@@ -258,10 +293,12 @@ export const getSubscriptionStatusInfo = (subscription: SubscriptionInfo | undef
         isActionable: true,
         actionType: "cancel" as const,
       };
-    
+
     case "CANCELLED":
       if (endsAt && endsAt > now) {
-        const daysLeft = Math.ceil((endsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const daysLeft = Math.ceil(
+          (endsAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        );
         return {
           message: `Cancelled • ${daysLeft} days of access left`,
           color: "orange",
@@ -274,14 +311,14 @@ export const getSubscriptionStatusInfo = (subscription: SubscriptionInfo | undef
         color: "red",
         isActionable: false,
       };
-    
+
     case "EXPIRED":
       return {
         message: "Expired",
         color: "red",
         isActionable: false,
       };
-    
+
     default:
       return {
         message: subscription.status,
