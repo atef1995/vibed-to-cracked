@@ -49,8 +49,37 @@ export default async function CheatSheetPage({ params }: Props) {
     (!session ||
       (session.user as { subscription?: string })?.subscription === Plan.FREE);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: sheet.title,
+    description: sheet.description,
+    url: `https://vibed-to-cracked.com/cheat-sheets/${slug}`,
+    dateModified: sheet.updatedAt?.toISOString(),
+    proficiencyLevel: sheet.difficulty,
+    keywords: sheet.tags.join(", "),
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://vibed-to-cracked.com" },
+      { "@type": "ListItem", position: 2, name: "Cheat Sheets", item: "https://vibed-to-cracked.com/cheat-sheets" },
+      { "@type": "ListItem", position: 3, name: sheet.title, item: `https://vibed-to-cracked.com/cheat-sheets/${slug}` },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-10 px-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
       <div className="max-w-2xl mx-auto">
         <Link
           href="/cheat-sheets"

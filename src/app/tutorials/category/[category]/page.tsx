@@ -336,9 +336,9 @@ export default function CategoryPage() {
                 >
                   {/* Tutorial Header */}
                   <div className="mb-4">
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
                       {actualIndex + 1}. {tutorial.title}
-                    </h3>
+                    </h2>
                     {tutorial.description && (
                       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                         {tutorial.description}

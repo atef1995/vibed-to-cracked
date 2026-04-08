@@ -19,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
         url: "/exercises",
         siteName: "Vibed to Cracked",
       },
+      alternates: {
+        canonical: "/exercises",
+      },
       twitter: {
         card: "summary_large_image",
         title: `Interactive Coding Exercises - ${exerciseCount}+ Problems`,
@@ -40,6 +43,11 @@ export async function generateMetadata(): Promise<Metadata> {
         title: "Interactive Coding Exercises",
         description: "Practice coding with hands-on interactive exercises.",
         type: "website",
+        url: "/exercises",
+        siteName: "Vibed to Cracked",
+      },
+      alternates: {
+        canonical: "/exercises",
       },
     };
   }

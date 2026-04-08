@@ -46,6 +46,10 @@ export async function generateMetadata({
         description: `${exercise.description} Learn by solving this interactive exercise.`,
         type: "website",
         url: `/exercises/${slug}`,
+        siteName: "Vibed to Cracked",
+      },
+      alternates: {
+        canonical: `/exercises/${slug}`,
       },
       twitter: {
         card: "summary_large_image",
@@ -66,6 +70,11 @@ export async function generateMetadata({
         title: "Interactive Coding Exercise",
         description: "Practice coding with hands-on exercises.",
         type: "website",
+        url: `/exercises/${slug}`,
+        siteName: "Vibed to Cracked",
+      },
+      alternates: {
+        canonical: `/exercises/${slug}`,
       },
     };
   }

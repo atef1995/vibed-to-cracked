@@ -68,6 +68,7 @@ export default async function BlogPostLayout({
   const { slug } = await params;
 
   let jsonLd = null;
+  let breadcrumbLd = null;
   try {
     const post = await BlogService.getPostBySlug(slug);
     if (post) {
@@ -96,6 +97,15 @@ export default async function BlogPostLayout({
           name: "Vibed to Cracked",
         },
       };
+      breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: `${siteUrl}` },
+          { "@type": "ListItem", position: 2, name: "Blog", item: `${siteUrl}/blog` },
+          { "@type": "ListItem", position: 3, name: post.title, item: `${siteUrl}/blog/${slug}` },
+        ],
+      };
     }
   } catch {
     // JSON-LD is non-critical — page still renders
@@ -107,6 +117,12 @@ export default async function BlogPostLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {breadcrumbLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
       )}
       {children}

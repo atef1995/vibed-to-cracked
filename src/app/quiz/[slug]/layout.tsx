@@ -72,10 +72,44 @@ export async function generateMetadata({
   }
 }
 
-export default function QuizLayout({
+export default async function QuizLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ slug: string }>;
 }) {
-  return children;
+  const { slug } = await params;
+
+  let jsonLd = null;
+  try {
+    const quiz = await QuizService.getQuizBySlug(slug);
+    if (quiz) {
+      jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Quiz",
+        name: quiz.title,
+        description: `Test your ${quiz.title.toLowerCase()} knowledge with interactive questions.`,
+        url: `https://vibed-to-cracked.com/quiz/${slug}`,
+        educationalLevel: "beginner to advanced",
+        provider: {
+          "@type": "Organization",
+          name: "Vibed to Cracked",
+          url: "https://vibed-to-cracked.com",
+        },
+      };
+    }
+  } catch {}
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
+      {children}
+    </>
+  );
 }

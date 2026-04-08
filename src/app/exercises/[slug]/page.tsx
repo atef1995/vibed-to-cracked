@@ -129,9 +129,9 @@ export default function ExercisePage({
     return (
       <div className="min-h-screen bg-linear-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+          <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             {error || "Exercise Not Found"}
-          </h1>
+          </p>
           <Link
             href="/exercises"
             className="text-blue-600 dark:text-blue-400 hover:underline"
