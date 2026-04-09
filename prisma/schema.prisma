@@ -1403,3 +1403,45 @@ model MentorshipSession {
   @@index([status])
   @@map("mentorship_sessions")
 }
+
+// ============================================================================
+// Glossary & Comparisons (SEO content)
+// ============================================================================
+
+model GlossaryTerm {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  term             String
+  definition       String   @db.Text
+  category         String   // javascript, html, css, react, dsa, web, typescript, tooling
+  example          String?  @db.Text
+  relatedTutorials String[] @default([]) // category slugs
+  seeAlso          String[] @default([]) // other glossary term slugs
+  published        Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([published])
+  @@map("glossary_terms")
+}
+
+model Comparison {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  title            String
+  description      String   @db.Text
+  items            Json     @default("[]") // Array of { name, features: Record<string,string> }
+  verdict          String   @db.Text
+  codeExample      String?  @db.Text
+  relatedGlossary  String[] @default([]) // glossary term slugs
+  relatedTutorials String[] @default([]) // category slugs
+  published        Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([published])
+  @@map("comparisons")
+}

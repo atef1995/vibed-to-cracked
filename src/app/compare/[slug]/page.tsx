@@ -1,33 +1,40 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getComparisonBySlug,
-  getAllComparisonSlugs,
-} from "@/lib/comparisons";
-import { getTermBySlug } from "@/lib/glossary";
+import { prisma } from "@/lib/prisma";
+
+interface ComparisonItem {
+  name: string;
+  features: Record<string, string>;
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return getAllComparisonSlugs().map((slug) => ({ slug }));
+  const comparisons = await prisma.comparison.findMany({
+    where: { published: true },
+    select: { slug: true },
+  });
+  return comparisons.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const comparison = getComparisonBySlug(slug);
+  const comparison = await prisma.comparison.findUnique({ where: { slug } });
   if (!comparison) return {};
 
   const title = `${comparison.title} — Differences Explained with Examples`;
+
+  const items = comparison.items as unknown as ComparisonItem[];
 
   return {
     title,
     description: comparison.description.slice(0, 160),
     keywords: [
       comparison.title.toLowerCase(),
-      ...comparison.items.map((i) => i.name.toLowerCase()),
+      ...items.map((i) => i.name.toLowerCase()),
       "javascript comparison",
       "difference",
     ],
@@ -43,14 +50,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ComparisonPage({ params }: Props) {
   const { slug } = await params;
-  const comparison = getComparisonBySlug(slug);
-  if (!comparison) notFound();
+  const comparison = await prisma.comparison.findUnique({ where: { slug } });
+  if (!comparison || !comparison.published) notFound();
 
-  const featureKeys = Object.keys(comparison.items[0].features);
+  const items = comparison.items as unknown as ComparisonItem[];
+  const featureKeys = Object.keys(items[0].features);
 
-  const relatedTerms = (comparison.relatedGlossary || [])
-    .map((s) => getTermBySlug(s))
-    .filter(Boolean);
+  const relatedTerms = comparison.relatedGlossary.length > 0
+    ? await prisma.glossaryTerm.findMany({
+        where: { slug: { in: comparison.relatedGlossary }, published: true },
+      })
+    : [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
@@ -91,7 +101,7 @@ export default async function ComparisonPage({ params }: Props) {
                 <th className="text-left p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 font-semibold text-gray-700 dark:text-gray-300">
                   Feature
                 </th>
-                {comparison.items.map((item) => (
+                {items.map((item) => (
                   <th
                     key={item.name}
                     className="text-left p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 font-semibold text-gray-900 dark:text-gray-100"
@@ -107,7 +117,7 @@ export default async function ComparisonPage({ params }: Props) {
                   <td className="p-3 border border-gray-200 dark:border-gray-700 font-medium text-gray-700 dark:text-gray-300 bg-gray-50/50 dark:bg-gray-800/30">
                     {feature}
                   </td>
-                  {comparison.items.map((item) => (
+                  {items.map((item) => (
                     <td
                       key={item.name}
                       className="p-3 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400"
@@ -144,7 +154,7 @@ export default async function ComparisonPage({ params }: Props) {
         )}
 
         {/* Related tutorials */}
-        {comparison.relatedTutorials && comparison.relatedTutorials.length > 0 && (
+        {comparison.relatedTutorials.length > 0 && (
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
               Related Tutorials
@@ -171,25 +181,22 @@ export default async function ComparisonPage({ params }: Props) {
               Related Glossary Terms
             </h2>
             <div className="grid gap-2 sm:grid-cols-2">
-              {relatedTerms.map(
-                (term) =>
-                  term && (
-                    <Link
-                      key={term.slug}
-                      href={`/glossary/${term.slug}`}
-                      className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
-                    >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {term.term}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
-                        {term.definition.replace(/`[^`]+`/g, (m) =>
-                          m.slice(1, -1)
-                        )}
-                      </p>
-                    </Link>
-                  )
-              )}
+              {relatedTerms.map((term) => (
+                <Link
+                  key={term.slug}
+                  href={`/glossary/${term.slug}`}
+                  className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                >
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {term.term}
+                  </span>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                    {term.definition.replace(/`[^`]+`/g, (m) =>
+                      m.slice(1, -1)
+                    )}
+                  </p>
+                </Link>
+              ))}
             </div>
           </section>
         )}

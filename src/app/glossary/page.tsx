@@ -1,14 +1,20 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import {
-  getTermsGroupedByLetter,
-  glossaryTerms,
-  categoryLabels,
-  type GlossaryTerm,
-} from "@/lib/glossary";
+import { prisma } from "@/lib/prisma";
+
+const categoryLabels: Record<string, string> = {
+  javascript: "JavaScript",
+  html: "HTML",
+  css: "CSS",
+  react: "React",
+  dsa: "Data Structures",
+  web: "Web",
+  typescript: "TypeScript",
+  tooling: "Tooling",
+};
 
 export const metadata: Metadata = {
-  title: "JavaScript Glossary — 70+ Programming Terms Explained",
+  title: "JavaScript Glossary — Programming Terms Explained",
   description:
     "A comprehensive glossary of JavaScript, HTML, CSS, React, TypeScript, and web development terms with code examples. Perfect for beginners learning to code.",
   keywords: [
@@ -23,7 +29,7 @@ export const metadata: Metadata = {
     canonical: "/glossary",
   },
   openGraph: {
-    title: "JavaScript Glossary — 70+ Terms Explained",
+    title: "JavaScript Glossary — Programming Terms Explained",
     description:
       "Look up any JavaScript, React, CSS, or web development term with clear definitions and code examples.",
     url: "/glossary",
@@ -31,12 +37,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GlossaryPage() {
-  const grouped = getTermsGroupedByLetter();
+export default async function GlossaryPage() {
+  const terms = await prisma.glossaryTerm.findMany({
+    where: { published: true },
+    orderBy: { term: "asc" },
+  });
+
+  // Group terms by first letter
+  const grouped: Record<string, typeof terms> = {};
+  for (const t of terms) {
+    const letter = t.term[0].toUpperCase();
+    if (!grouped[letter]) grouped[letter] = [];
+    grouped[letter].push(t);
+  }
   const letters = Object.keys(grouped).sort();
 
+  // Category counts
   const categories = Object.entries(
-    glossaryTerms.reduce(
+    terms.reduce(
       (acc, t) => {
         acc[t.category] = (acc[t.category] || 0) + 1;
         return acc;
@@ -52,7 +70,7 @@ export default function GlossaryPage() {
           Programming Glossary
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-          {glossaryTerms.length} terms covering JavaScript, React, CSS, HTML,
+          {terms.length} terms covering JavaScript, React, CSS, HTML,
           TypeScript, data structures, and web development. Each term includes a
           clear definition and code example.
         </p>
@@ -65,7 +83,7 @@ export default function GlossaryPage() {
             key={cat}
             className="px-3 py-1 text-sm rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
           >
-            {categoryLabels[cat as GlossaryTerm["category"]] || cat} ({count})
+            {categoryLabels[cat] || cat} ({count})
           </span>
         ))}
       </div>
@@ -111,7 +129,7 @@ export default function GlossaryPage() {
                     </p>
                   </div>
                   <span className="shrink-0 text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
-                    {categoryLabels[term.category]}
+                    {categoryLabels[term.category] || term.category}
                   </span>
                 </Link>
               ))}
@@ -131,7 +149,7 @@ export default function GlossaryPage() {
             description:
               "JavaScript, React, CSS, and web development terms explained with code examples.",
             url: "https://vibed-to-cracked.com/glossary",
-            hasDefinedTerm: glossaryTerms.slice(0, 30).map((t) => ({
+            hasDefinedTerm: terms.slice(0, 30).map((t) => ({
               "@type": "DefinedTerm",
               name: t.term,
               description: t.definition.replace(/`[^`]+`/g, (m) =>

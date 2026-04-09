@@ -1,23 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getTermBySlug,
-  getAllSlugs,
-  categoryLabels,
-} from "@/lib/glossary";
+import { prisma } from "@/lib/prisma";
+
+const categoryLabels: Record<string, string> = {
+  javascript: "JavaScript",
+  html: "HTML",
+  css: "CSS",
+  react: "React",
+  dsa: "Data Structures",
+  web: "Web",
+  typescript: "TypeScript",
+  tooling: "Tooling",
+};
 
 interface Props {
   params: Promise<{ term: string }>;
 }
 
 export async function generateStaticParams() {
-  return getAllSlugs().map((slug) => ({ term: slug }));
+  const terms = await prisma.glossaryTerm.findMany({
+    where: { published: true },
+    select: { slug: true },
+  });
+  return terms.map((t) => ({ term: t.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { term: slug } = await params;
-  const term = getTermBySlug(slug);
+  const term = await prisma.glossaryTerm.findUnique({ where: { slug } });
   if (!term) return {};
 
   const title = `What is ${term.term} in JavaScript? — Definition & Example`;
@@ -49,12 +60,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function GlossaryTermPage({ params }: Props) {
   const { term: slug } = await params;
-  const term = getTermBySlug(slug);
-  if (!term) notFound();
+  const term = await prisma.glossaryTerm.findUnique({ where: { slug } });
+  if (!term || !term.published) notFound();
 
-  const relatedTerms = (term.seeAlso || [])
-    .map((s) => getTermBySlug(s))
-    .filter(Boolean);
+  const relatedTerms = term.seeAlso.length > 0
+    ? await prisma.glossaryTerm.findMany({
+        where: { slug: { in: term.seeAlso }, published: true },
+      })
+    : [];
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
@@ -82,7 +95,7 @@ export default async function GlossaryTermPage({ params }: Props) {
       <article>
         <header className="mb-8">
           <span className="text-sm px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 mb-4 inline-block">
-            {categoryLabels[term.category]}
+            {categoryLabels[term.category] || term.category}
           </span>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mt-3">
             {term.term}
@@ -109,7 +122,7 @@ export default async function GlossaryTermPage({ params }: Props) {
           </section>
         )}
 
-        {term.relatedTutorials && term.relatedTutorials.length > 0 && (
+        {term.relatedTutorials.length > 0 && (
           <section className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
               Learn More
@@ -135,25 +148,22 @@ export default async function GlossaryTermPage({ params }: Props) {
               Related Terms
             </h2>
             <div className="grid gap-2 sm:grid-cols-2">
-              {relatedTerms.map(
-                (related) =>
-                  related && (
-                    <Link
-                      key={related.slug}
-                      href={`/glossary/${related.slug}`}
-                      className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
-                    >
-                      <span className="font-medium text-gray-900 dark:text-gray-100">
-                        {related.term}
-                      </span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
-                        {related.definition.replace(/`[^`]+`/g, (m) =>
-                          m.slice(1, -1)
-                        )}
-                      </p>
-                    </Link>
-                  )
-              )}
+              {relatedTerms.map((related) => (
+                <Link
+                  key={related.slug}
+                  href={`/glossary/${related.slug}`}
+                  className="p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                >
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
+                    {related.term}
+                  </span>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
+                    {related.definition.replace(/`[^`]+`/g, (m) =>
+                      m.slice(1, -1)
+                    )}
+                  </p>
+                </Link>
+              ))}
             </div>
           </section>
         )}

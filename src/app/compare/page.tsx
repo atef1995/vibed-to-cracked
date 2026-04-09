@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { comparisons } from "@/lib/comparisons";
+import { prisma } from "@/lib/prisma";
+
+interface ComparisonItem {
+  name: string;
+  features: Record<string, string>;
+}
 
 export const metadata: Metadata = {
   title: "JavaScript Comparisons — Side-by-Side Feature Breakdowns",
@@ -16,7 +21,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ComparePage() {
+export default async function ComparePage() {
+  const comparisons = await prisma.comparison.findMany({
+    where: { published: true },
+    orderBy: { order: "asc" },
+  });
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <header className="mb-12">
@@ -31,30 +41,33 @@ export default function ComparePage() {
       </header>
 
       <div className="grid gap-4">
-        {comparisons.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/compare/${c.slug}`}
-            className="group p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
-          >
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2">
-              {c.title}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              {c.description}
-            </p>
-            <div className="flex gap-2 mt-3">
-              {c.items.map((item) => (
-                <span
-                  key={item.name}
-                  className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                >
-                  {item.name}
-                </span>
-              ))}
-            </div>
-          </Link>
-        ))}
+        {comparisons.map((c) => {
+          const items = c.items as unknown as ComparisonItem[];
+          return (
+            <Link
+              key={c.slug}
+              href={`/compare/${c.slug}`}
+              className="group p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+            >
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2">
+                {c.title}
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                {c.description}
+              </p>
+              <div className="flex gap-2 mt-3">
+                {items.map((item) => (
+                  <span
+                    key={item.name}
+                    className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                  >
+                    {item.name}
+                  </span>
+                ))}
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {/* JSON-LD */}

@@ -43,7 +43,11 @@ export default {
 
     // Glossary terms
     try {
-      const { glossaryTerms } = await import("./src/lib/glossary.ts");
+      const { prisma } = await import("./src/lib/prisma.ts");
+      const glossaryTerms = await prisma.glossaryTerm.findMany({
+        where: { published: true },
+        select: { slug: true },
+      });
       paths.push({
         loc: "/glossary",
         changefreq: "weekly",
@@ -62,7 +66,11 @@ export default {
 
     // Comparison pages
     try {
-      const { comparisons } = await import("./src/lib/comparisons.ts");
+      const { prisma } = await import("./src/lib/prisma.ts");
+      const comparisons = await prisma.comparison.findMany({
+        where: { published: true },
+        select: { slug: true },
+      });
       paths.push({
         loc: "/compare",
         changefreq: "weekly",
