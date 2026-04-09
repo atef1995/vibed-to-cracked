@@ -70,6 +70,20 @@ export default async function ComparePage() {
         })}
       </div>
 
+      {/* Cross-links */}
+      <section className="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
+        <p className="text-gray-600 dark:text-gray-400">
+          Need to look up a term? Check the{" "}
+          <Link href="/glossary" className="text-blue-600 dark:text-blue-400 underline hover:no-underline">
+            Programming Glossary
+          </Link>{" "}
+          or learn hands-on with our{" "}
+          <Link href="/tutorials" className="text-blue-600 dark:text-blue-400 underline hover:no-underline">
+            interactive tutorials
+          </Link>.
+        </p>
+      </section>
+
       {/* JSON-LD */}
       <script
         type="application/ld+json"

@@ -68,6 +68,48 @@ export default async function LearnPage() {
           </Link>
         ))}
       </div>
+
+      {/* Supplementary resources */}
+      <section className="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+          More Resources
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Link
+            href="/glossary"
+            className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+              Glossary
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Look up programming terms with definitions and code examples.
+            </p>
+          </Link>
+          <Link
+            href="/compare"
+            className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+              Comparisons
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Side-by-side breakdowns of commonly confused concepts.
+            </p>
+          </Link>
+          <Link
+            href="/cheat-sheets"
+            className="p-5 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+              Cheat Sheets
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Quick-reference guides for syntax and patterns.
+            </p>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

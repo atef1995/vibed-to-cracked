@@ -42,7 +42,23 @@ export default async function BlogPostPage({
     BlogService.incrementViewCount(slug).catch(() => {});
 
     return (
-      <BlogPostClient initialPost={postData} initialMdxSource={mdxSource} />
+      <>
+        <BlogPostClient initialPost={postData} initialMdxSource={mdxSource} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                { "@type": "ListItem", position: 1, name: "Home", item: "https://vibed-to-cracked.com" },
+                { "@type": "ListItem", position: 2, name: "Blog", item: "https://vibed-to-cracked.com/blog" },
+                { "@type": "ListItem", position: 3, name: post.title, item: `https://vibed-to-cracked.com/blog/${slug}` },
+              ],
+            }),
+          }}
+        />
+      </>
     );
   } catch {
     return <BlogPostClient initialPost={null} initialMdxSource={null} />;
