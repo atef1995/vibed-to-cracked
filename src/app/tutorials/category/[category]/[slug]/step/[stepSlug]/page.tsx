@@ -14,7 +14,6 @@ interface StepPageProps {
 }
 
 export default async function StepPage({ params }: StepPageProps) {
-  const session = await getServerSession(authOptions);
   const { category, slug, stepSlug } = await params;
 
   return (

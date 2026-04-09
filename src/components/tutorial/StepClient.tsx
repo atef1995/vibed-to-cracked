@@ -474,7 +474,7 @@ export default function StepClient({
           </div>
 
           {/* Step bar (mobile: horizontal, desktop: sidebar) */}
-          <div className="flex flex-col sm:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             {stepList?.steps && (
               <StepStepper
                 steps={stepList.steps}
