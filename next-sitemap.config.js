@@ -79,6 +79,30 @@ export default {
       // non-fatal
     }
 
+    // Topic hub pages
+    const topicSlugs = [
+      "fundamentals",
+      "html",
+      "css",
+      "dom",
+      "oop",
+      "async",
+      "data-structures",
+      "advanced",
+    ];
+    paths.push({
+      loc: "/learn",
+      changefreq: "weekly",
+      priority: 0.9,
+    });
+    for (const slug of topicSlugs) {
+      paths.push({
+        loc: `/learn/${slug}`,
+        changefreq: "weekly",
+        priority: 0.8,
+      });
+    }
+
     try {
       const res = await fetch(`${baseUrl}/api/tutorials`);
       if (res.ok) {
