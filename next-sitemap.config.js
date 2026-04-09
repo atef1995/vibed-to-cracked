@@ -41,6 +41,44 @@ export default {
       priority: 0.8,
     });
 
+    // Glossary terms
+    try {
+      const { glossaryTerms } = await import("./src/lib/glossary.ts");
+      paths.push({
+        loc: "/glossary",
+        changefreq: "weekly",
+        priority: 0.8,
+      });
+      for (const term of glossaryTerms) {
+        paths.push({
+          loc: `/glossary/${term.slug}`,
+          changefreq: "monthly",
+          priority: 0.6,
+        });
+      }
+    } catch {
+      // non-fatal
+    }
+
+    // Comparison pages
+    try {
+      const { comparisons } = await import("./src/lib/comparisons.ts");
+      paths.push({
+        loc: "/compare",
+        changefreq: "weekly",
+        priority: 0.8,
+      });
+      for (const comp of comparisons) {
+        paths.push({
+          loc: `/compare/${comp.slug}`,
+          changefreq: "monthly",
+          priority: 0.7,
+        });
+      }
+    } catch {
+      // non-fatal
+    }
+
     try {
       const res = await fetch(`${baseUrl}/api/tutorials`);
       if (res.ok) {
