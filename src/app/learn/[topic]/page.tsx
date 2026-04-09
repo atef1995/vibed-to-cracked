@@ -26,7 +26,12 @@ const topicMeta: Record<
     title: "Learn HTML",
     description:
       "Learn HTML from scratch: elements, forms, semantic markup, accessibility. Tutorials, exercises, and quick-reference cheat sheets.",
-    keywords: ["learn html", "html tutorial", "html basics", "html for beginners"],
+    keywords: [
+      "learn html",
+      "html tutorial",
+      "html basics",
+      "html for beginners",
+    ],
   },
   css: {
     title: "Learn CSS",
@@ -134,12 +139,24 @@ export default async function TopicHubPage({ params }: Props) {
   const [tutorials, exercises, quizzes, cheatSheets] = await Promise.all([
     prisma.tutorial.findMany({
       where: { categoryId: category.id, published: true },
-      select: { id: true, title: true, slug: true, description: true, difficulty: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        difficulty: true,
+      },
       orderBy: { order: "asc" },
     }),
     prisma.exercise.findMany({
       where: { tutorialCategoryId: category.id, published: true },
-      select: { id: true, title: true, slug: true, description: true, difficulty: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        difficulty: true,
+      },
       orderBy: { order: "asc" },
     }),
     prisma.quiz.findMany({
@@ -148,7 +165,6 @@ export default async function TopicHubPage({ params }: Props) {
         id: true,
         title: true,
         slug: true,
-        description: true,
         tutorial: { select: { title: true } },
       },
     }),
@@ -294,9 +310,9 @@ export default async function TopicHubPage({ params }: Props) {
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                   {q.title}
                 </h3>
-                {q.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                    {q.description}
+                {q.tutorial && (
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    {q.tutorial.title}
                   </p>
                 )}
               </Link>
