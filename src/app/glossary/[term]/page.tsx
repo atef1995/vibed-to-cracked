@@ -63,25 +63,35 @@ export default async function GlossaryTermPage({ params }: Props) {
   const term = await prisma.glossaryTerm.findUnique({ where: { slug } });
   if (!term || !term.published) notFound();
 
-  const relatedTerms = term.seeAlso.length > 0
-    ? await prisma.glossaryTerm.findMany({
-        where: { slug: { in: term.seeAlso }, published: true },
-      })
-    : [];
+  const relatedTerms =
+    term.seeAlso.length > 0
+      ? await prisma.glossaryTerm.findMany({
+          where: { slug: { in: term.seeAlso }, published: true },
+        })
+      : [];
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="mb-8 text-sm text-gray-500 dark:text-gray-400">
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-8 text-sm text-gray-500 dark:text-gray-400"
+      >
         <ol className="flex items-center gap-1">
           <li>
-            <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <Link
+              href="/"
+              className="hover:text-blue-600 dark:hover:text-blue-400"
+            >
               Home
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
-            <Link href="/glossary" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <Link
+              href="/glossary"
+              className="hover:text-blue-600 dark:hover:text-blue-400"
+            >
               Glossary
             </Link>
           </li>
@@ -134,7 +144,9 @@ export default async function GlossaryTermPage({ params }: Props) {
                   href={`/tutorials/category/${cat}`}
                   className="px-4 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
                 >
-                  {cat.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
+                  {cat
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
                   tutorials
                 </Link>
               ))}

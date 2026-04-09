@@ -51,9 +51,24 @@ export default async function BlogPostPage({
               "@context": "https://schema.org",
               "@type": "BreadcrumbList",
               itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "https://vibed-to-cracked.com" },
-                { "@type": "ListItem", position: 2, name: "Blog", item: "https://vibed-to-cracked.com/blog" },
-                { "@type": "ListItem", position: 3, name: post.title, item: `https://vibed-to-cracked.com/blog/${slug}` },
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://vibed-to-cracked.com",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Blog",
+                  item: "https://vibed-to-cracked.com/blog",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: post.title,
+                  item: `https://vibed-to-cracked.com/blog/${slug}`,
+                },
               ],
             }),
           }}

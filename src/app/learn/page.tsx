@@ -9,8 +9,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/learn" },
   openGraph: {
     title: "Learn JavaScript — Tutorials, Exercises, Quizzes & Cheat Sheets",
-    description:
-      "Pick a topic and start learning JavaScript interactively.",
+    description: "Pick a topic and start learning JavaScript interactively.",
     url: "/learn",
     type: "website",
   },

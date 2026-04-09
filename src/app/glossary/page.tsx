@@ -142,13 +142,20 @@ export default async function GlossaryPage() {
       <section className="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
         <p className="text-gray-600 dark:text-gray-400">
           See how these concepts compare side by side in our{" "}
-          <Link href="/compare" className="text-blue-600 dark:text-blue-400 underline hover:no-underline">
+          <Link
+            href="/compare"
+            className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
+          >
             JavaScript Comparisons
           </Link>{" "}
           or start learning with{" "}
-          <Link href="/tutorials" className="text-blue-600 dark:text-blue-400 underline hover:no-underline">
+          <Link
+            href="/tutorials"
+            className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
+          >
             interactive tutorials
-          </Link>.
+          </Link>
+          .
         </p>
       </section>
 

@@ -348,7 +348,9 @@ export function Header() {
               <>
                 <div className="mt-3 pt-3 border-t dark:border-gray-700 grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
                   {navigationItems
-                    .filter((item) => !publicLinks.some((p) => p.href === item.href))
+                    .filter(
+                      (item) => !publicLinks.some((p) => p.href === item.href)
+                    )
                     .map((item) => (
                       <Link
                         key={item.href}

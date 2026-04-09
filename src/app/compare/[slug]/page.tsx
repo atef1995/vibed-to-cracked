@@ -56,25 +56,35 @@ export default async function ComparisonPage({ params }: Props) {
   const items = comparison.items as unknown as ComparisonItem[];
   const featureKeys = Object.keys(items[0].features);
 
-  const relatedTerms = comparison.relatedGlossary.length > 0
-    ? await prisma.glossaryTerm.findMany({
-        where: { slug: { in: comparison.relatedGlossary }, published: true },
-      })
-    : [];
+  const relatedTerms =
+    comparison.relatedGlossary.length > 0
+      ? await prisma.glossaryTerm.findMany({
+          where: { slug: { in: comparison.relatedGlossary }, published: true },
+        })
+      : [];
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="mb-8 text-sm text-gray-500 dark:text-gray-400">
+      <nav
+        aria-label="Breadcrumb"
+        className="mb-8 text-sm text-gray-500 dark:text-gray-400"
+      >
         <ol className="flex items-center gap-1">
           <li>
-            <Link href="/" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <Link
+              href="/"
+              className="hover:text-blue-600 dark:hover:text-blue-400"
+            >
               Home
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
-            <Link href="/compare" className="hover:text-blue-600 dark:hover:text-blue-400">
+            <Link
+              href="/compare"
+              className="hover:text-blue-600 dark:hover:text-blue-400"
+            >
               Compare
             </Link>
           </li>
@@ -166,7 +176,9 @@ export default async function ComparisonPage({ params }: Props) {
                   href={`/tutorials/category/${cat}`}
                   className="px-4 py-2 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-sm font-medium hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors"
                 >
-                  {cat.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
+                  {cat
+                    .replace(/-/g, " ")
+                    .replace(/\b\w/g, (c) => c.toUpperCase())}{" "}
                   tutorials
                 </Link>
               ))}
@@ -191,9 +203,7 @@ export default async function ComparisonPage({ params }: Props) {
                     {term.term}
                   </span>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-1">
-                    {term.definition.replace(/`[^`]+`/g, (m) =>
-                      m.slice(1, -1)
-                    )}
+                    {term.definition.replace(/`[^`]+`/g, (m) => m.slice(1, -1))}
                   </p>
                 </Link>
               ))}

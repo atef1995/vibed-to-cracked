@@ -34,10 +34,30 @@ export default async function TutorialPage({ params }: TutorialPageProps) {
               "@context": "https://schema.org",
               "@type": "BreadcrumbList",
               itemListElement: [
-                { "@type": "ListItem", position: 1, name: "Home", item: "https://vibed-to-cracked.com" },
-                { "@type": "ListItem", position: 2, name: "Tutorials", item: "https://vibed-to-cracked.com/tutorials" },
-                { "@type": "ListItem", position: 3, name: tutorial.category.title, item: `https://vibed-to-cracked.com/tutorials/category/${category}` },
-                { "@type": "ListItem", position: 4, name: tutorial.title, item: `https://vibed-to-cracked.com/tutorials/category/${category}/${slug}` },
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://vibed-to-cracked.com",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Tutorials",
+                  item: "https://vibed-to-cracked.com/tutorials",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: tutorial.category.title,
+                  item: `https://vibed-to-cracked.com/tutorials/category/${category}`,
+                },
+                {
+                  "@type": "ListItem",
+                  position: 4,
+                  name: tutorial.title,
+                  item: `https://vibed-to-cracked.com/tutorials/category/${category}/${slug}`,
+                },
               ],
             }),
           }}
