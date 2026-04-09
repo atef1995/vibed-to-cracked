@@ -327,7 +327,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           loading
           height={isExpanded ? "100%" : height}
           defaultLanguage={
-            language === "nodejs" || language === "node"
+            language === "nodejs" || language === "node" || language === "jsx"
               ? "javascript"
               : language
           }
@@ -382,6 +382,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           onMount={(editor, monaco) => {
             // Store editor reference
             editorRef.current = editor;
+
+            // Enable JSX syntax support in Monaco's JavaScript mode
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const ts = (monaco.languages as any).typescript;
+            ts.javascriptDefaults.setCompilerOptions({
+              jsx: ts.JsxEmit.React,
+              target: ts.ScriptTarget.ESNext,
+              allowNonTsExtensions: true,
+            });
 
             // Disable copy/cut when read-only to prevent solution copying
             if (readOnly) {
