@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { PageLayout } from "@/components/ui/PageLayout";
 
 export const dynamic = "force-dynamic";
 
@@ -30,83 +31,85 @@ export default async function ComparePage() {
   });
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          JavaScript Comparisons
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-          Side-by-side breakdowns of commonly confused JavaScript, CSS, and web
-          development concepts. Each comparison includes a feature table, code
-          example, and clear verdict.
-        </p>
-      </header>
+    <PageLayout>
+      <div className="max-w-4xl mx-auto">
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            JavaScript Comparisons
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
+            Side-by-side breakdowns of commonly confused JavaScript, CSS, and
+            web development concepts. Each comparison includes a feature table,
+            code example, and clear verdict.
+          </p>
+        </header>
 
-      <div className="grid gap-4">
-        {comparisons.map((c) => {
-          const items = c.items as unknown as ComparisonItem[];
-          return (
+        <div className="grid gap-4">
+          {comparisons.map((c) => {
+            const items = c.items as unknown as ComparisonItem[];
+            return (
+              <Link
+                key={c.slug}
+                href={`/compare/${c.slug}`}
+                className="group p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+              >
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2">
+                  {c.title}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">
+                  {c.description}
+                </p>
+                <div className="flex gap-2 mt-3">
+                  {items.map((item) => (
+                    <span
+                      key={item.name}
+                      className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                    >
+                      {item.name}
+                    </span>
+                  ))}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Cross-links */}
+        <section className="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
+          <p className="text-gray-600 dark:text-gray-400">
+            Need to look up a term? Check the{" "}
             <Link
-              key={c.slug}
-              href={`/compare/${c.slug}`}
-              className="group p-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+              href="/glossary"
+              className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
             >
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors mb-2">
-                {c.title}
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
-                {c.description}
-              </p>
-              <div className="flex gap-2 mt-3">
-                {items.map((item) => (
-                  <span
-                    key={item.name}
-                    className="text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                  >
-                    {item.name}
-                  </span>
-                ))}
-              </div>
+              Programming Glossary
+            </Link>{" "}
+            or learn hands-on with our{" "}
+            <Link
+              href="/tutorials"
+              className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
+            >
+              interactive tutorials
             </Link>
-          );
-        })}
+            .
+          </p>
+        </section>
+
+        {/* JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CollectionPage",
+              name: "JavaScript Comparisons",
+              description:
+                "Side-by-side comparisons of JavaScript and web development concepts.",
+              url: "https://vibed-to-cracked.com/compare",
+            }),
+          }}
+        />
       </div>
-
-      {/* Cross-links */}
-      <section className="mt-16 pt-10 border-t border-gray-200 dark:border-gray-800">
-        <p className="text-gray-600 dark:text-gray-400">
-          Need to look up a term? Check the{" "}
-          <Link
-            href="/glossary"
-            className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
-          >
-            Programming Glossary
-          </Link>{" "}
-          or learn hands-on with our{" "}
-          <Link
-            href="/tutorials"
-            className="text-blue-600 dark:text-blue-400 underline hover:no-underline"
-          >
-            interactive tutorials
-          </Link>
-          .
-        </p>
-      </section>
-
-      {/* JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: "JavaScript Comparisons",
-            description:
-              "Side-by-side comparisons of JavaScript and web development concepts.",
-            url: "https://vibed-to-cracked.com/compare",
-          }),
-        }}
-      />
-    </div>
+    </PageLayout>
   );
 }

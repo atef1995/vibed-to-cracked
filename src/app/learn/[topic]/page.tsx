@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { PageLayout } from "@/components/ui/PageLayout";
 
 export const dynamic = "force-dynamic";
 
@@ -181,225 +182,227 @@ export default async function TopicHubPage({ params }: Props) {
     tutorials.length + exercises.length + quizzes.length + cheatSheets.length;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-12">
-      {/* Breadcrumb */}
-      <nav
-        aria-label="Breadcrumb"
-        className="mb-8 text-sm text-gray-500 dark:text-gray-400"
-      >
-        <ol className="flex items-center gap-1">
-          <li>
-            <Link
-              href="/"
-              className="hover:text-blue-600 dark:hover:text-blue-400"
-            >
-              Home
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li>
-            <Link
-              href="/learn"
-              className="hover:text-blue-600 dark:hover:text-blue-400"
-            >
-              Learn
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li className="text-gray-900 dark:text-gray-100 font-medium">
-            {category.title}
-          </li>
-        </ol>
-      </nav>
-
-      <header className="mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          {meta.title}
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
-          {meta.description}
-        </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-          {totalContent} resources available
-        </p>
-      </header>
-
-      {/* Tutorials */}
-      {tutorials.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Tutorials
-          </h2>
-          <div className="grid gap-3">
-            {tutorials.map((t) => (
+    <PageLayout>
+      <div className="max-w-5xl mx-auto">
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-8 text-sm text-gray-500 dark:text-gray-400"
+        >
+          <ol className="flex items-center gap-1">
+            <li>
               <Link
-                key={t.id}
-                href={`/tutorials/category/${topic}/${t.slug}`}
-                className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                href="/"
+                className="hover:text-blue-600 dark:hover:text-blue-400"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      {t.title}
-                    </h3>
-                    {t.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                        {t.description}
-                      </p>
+                Home
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li>
+              <Link
+                href="/learn"
+                className="hover:text-blue-600 dark:hover:text-blue-400"
+              >
+                Learn
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li className="text-gray-900 dark:text-gray-100 font-medium">
+              {category.title}
+            </li>
+          </ol>
+        </nav>
+
+        <header className="mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+            {meta.title}
+          </h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl">
+            {meta.description}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
+            {totalContent} resources available
+          </p>
+        </header>
+
+        {/* Tutorials */}
+        {tutorials.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Tutorials
+            </h2>
+            <div className="grid gap-3">
+              {tutorials.map((t) => (
+                <Link
+                  key={t.id}
+                  href={`/tutorials/category/${topic}/${t.slug}`}
+                  className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        {t.title}
+                      </h3>
+                      {t.description && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                          {t.description}
+                        </p>
+                      )}
+                    </div>
+                    {t.difficulty && (
+                      <span className="shrink-0 text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 ml-3">
+                        {t.difficulty}
+                      </span>
                     )}
                   </div>
-                  {t.difficulty && (
-                    <span className="shrink-0 text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 ml-3">
-                      {t.difficulty}
-                    </span>
-                  )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Exercises */}
-      {exercises.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Exercises
-          </h2>
-          <div className="grid gap-3">
-            {exercises.map((e) => (
-              <Link
-                key={e.id}
-                href={`/exercises/${e.slug}`}
-                className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
-                      {e.title}
-                    </h3>
-                    {e.description && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                        {e.description}
-                      </p>
+        {/* Exercises */}
+        {exercises.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Exercises
+            </h2>
+            <div className="grid gap-3">
+              {exercises.map((e) => (
+                <Link
+                  key={e.id}
+                  href={`/exercises/${e.slug}`}
+                  className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-green-300 dark:hover:border-green-600 transition-colors"
+                >
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors">
+                        {e.title}
+                      </h3>
+                      {e.description && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                          {e.description}
+                        </p>
+                      )}
+                    </div>
+                    {e.difficulty && (
+                      <span className="shrink-0 text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 ml-3">
+                        {e.difficulty}
+                      </span>
                     )}
                   </div>
-                  {e.difficulty && (
-                    <span className="shrink-0 text-xs px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 ml-3">
-                      {e.difficulty}
-                    </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Quizzes */}
+        {quizzes.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Quizzes
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {quizzes.map((q) => (
+                <Link
+                  key={q.id}
+                  href={`/quiz/${q.slug}`}
+                  className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-colors"
+                >
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                    {q.title}
+                  </h3>
+                  {q.tutorial && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {q.tutorial.title}
+                    </p>
                   )}
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Quizzes */}
-      {quizzes.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Quizzes
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {quizzes.map((q) => (
-              <Link
-                key={q.id}
-                href={`/quiz/${q.slug}`}
-                className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-purple-300 dark:hover:border-purple-600 transition-colors"
-              >
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                  {q.title}
-                </h3>
-                {q.tutorial && (
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {q.tutorial.title}
-                  </p>
-                )}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+        {/* Cheat Sheets */}
+        {cheatSheets.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Cheat Sheets
+            </h2>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {cheatSheets.map((cs) => (
+                <Link
+                  key={cs.id}
+                  href={`/cheat-sheets/${cs.slug}`}
+                  className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors"
+                >
+                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                    {cs.title}
+                  </h3>
+                  {cs.description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                      {cs.description}
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
-      {/* Cheat Sheets */}
-      {cheatSheets.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-            Cheat Sheets
-          </h2>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {cheatSheets.map((cs) => (
-              <Link
-                key={cs.id}
-                href={`/cheat-sheets/${cs.slug}`}
-                className="group p-4 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-amber-300 dark:hover:border-amber-600 transition-colors"
-              >
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
-                  {cs.title}
-                </h3>
-                {cs.description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                    {cs.description}
-                  </p>
-                )}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
+        {/* JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "CollectionPage",
+              name: meta.title,
+              description: meta.description,
+              url: `https://vibed-to-cracked.com/learn/${topic}`,
+              hasPart: tutorials.map((t) => ({
+                "@type": "Course",
+                name: t.title,
+                description: t.description,
+                url: `https://vibed-to-cracked.com/tutorials/category/${topic}/${t.slug}`,
+              })),
+            }),
+          }}
+        />
 
-      {/* JSON-LD */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: meta.title,
-            description: meta.description,
-            url: `https://vibed-to-cracked.com/learn/${topic}`,
-            hasPart: tutorials.map((t) => ({
-              "@type": "Course",
-              name: t.title,
-              description: t.description,
-              url: `https://vibed-to-cracked.com/tutorials/category/${topic}/${t.slug}`,
-            })),
-          }),
-        }}
-      />
-
-      {/* BreadcrumbList */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "BreadcrumbList",
-            itemListElement: [
-              {
-                "@type": "ListItem",
-                position: 1,
-                name: "Home",
-                item: "https://vibed-to-cracked.com",
-              },
-              {
-                "@type": "ListItem",
-                position: 2,
-                name: "Learn",
-                item: "https://vibed-to-cracked.com/learn",
-              },
-              {
-                "@type": "ListItem",
-                position: 3,
-                name: category.title,
-                item: `https://vibed-to-cracked.com/learn/${topic}`,
-              },
-            ],
-          }),
-        }}
-      />
-    </div>
+        {/* BreadcrumbList */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: "https://vibed-to-cracked.com",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Learn",
+                  item: "https://vibed-to-cracked.com/learn",
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: category.title,
+                  item: `https://vibed-to-cracked.com/learn/${topic}`,
+                },
+              ],
+            }),
+          }}
+        />
+      </div>
+    </PageLayout>
   );
 }

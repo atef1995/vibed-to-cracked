@@ -175,7 +175,7 @@ export function Header() {
     <header className="bg-white dark:bg-gray-900 shadow-sm border-b dark:border-gray-700 sticky top-0 z-50">
       <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
         <div
-          className={`flex items-center justify-between transition-all duration-300 ease-in-out overflow-hidden ${
+          className={`flex items-center justify-between transition-all duration-1000 ease-in-out overflow-hidden ${
             isExpanded ? "max-h-96" : "max-h-16"
           }`}
         >
@@ -186,41 +186,43 @@ export function Header() {
             <span className="text-red-600">Cracked</span>
           </Link>
 
-          {/* Public Navigation - Always visible on desktop */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
-            {publicLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
-                  pathname?.startsWith(link.href)
-                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 font-medium"
-                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
-                }`}
-              >
-                <link.icon className="w-4 h-4" />
-                <span>{link.label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          {/* Navigation - Desktop Only */}
-          {session && isExpanded && (
-            <nav
-              className={`hidden lg:grid grid-cols-4 grid-rows-2 gap-4 xl:gap-6 max-w-3xl`}
-            >
-              {navigationItems.map((item) => (
+          <div className="flex flex-col gap-5">
+            {/* Public Navigation - Always visible on desktop */}
+            <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+              {publicLinks.map((link) => (
                 <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 ${item.colors.desktop}`}
+                  key={link.href}
+                  href={link.href}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
+                    pathname?.startsWith(link.href)
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 font-medium"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <link.icon className="w-4 h-4" />
+                  <span>{link.label}</span>
                 </Link>
               ))}
             </nav>
-          )}
+
+            {/* Navigation - Desktop Only */}
+            {session && isExpanded && (
+              <nav
+                className={`hidden lg:grid grid-cols-3 grid-rows-3 gap-4 xl:gap-6 max-w-3xl `}
+              >
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 ${item.colors.desktop}`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            )}
+          </div>
 
           {/* Right Side - Compact on mobile */}
           <div className="flex items-center gap-2 sm:gap-4 ">
@@ -282,7 +284,7 @@ export function Header() {
 
                 {/* User Dropdown */}
                 {showDropdownMenu && (
-                  <div className="fixed  mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 py-2">
+                  <div className="fixed left-1/2 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border dark:border-gray-700 py-2">
                     <Link
                       href="/settings"
                       className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-slate-600 dark:hover:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900/20 transition-colors"

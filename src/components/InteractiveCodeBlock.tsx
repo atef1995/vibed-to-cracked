@@ -42,7 +42,7 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
   files,
 }) => {
   language = language?.replace(/language-/, "") || "javascript";
-  if (language === "js") language = "javascript";
+  if (language === "js" || language === "dsa") language = "javascript";
 
   // Keep nodejs/node as separate language for proper module system selection
   // but normalize for Monaco editor display
@@ -52,8 +52,12 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
     language === "html" ||
     language === "bash" ||
     language === "css" ||
-    language === "jsx"
+    language === "jsx" ||
+    language === "web"
   ) {
+    editable = false;
+  } else if (language === "react") {
+    language = "jsx";
     editable = false;
   }
 
