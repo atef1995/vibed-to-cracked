@@ -168,7 +168,7 @@ export default function TutorialsPage() {
   if (error) {
     return (
       <PageLayout
-        title="JavaScript Tutorials"
+        title="All Tutorials"
         subtitle="Interactive lessons tailored to your learning style"
       >
         <div className="flex items-center justify-center h-64">
