@@ -2,7 +2,7 @@ import { MOODS } from "@/lib/moods";
 import Card, { CardAction } from "../ui/Card";
 import { ProgressBadge } from "../ProgressComponents";
 import { Target } from "lucide-react";
-import { Quiz } from "@/app/quizzes/page";
+import { Quiz } from "@/app/quizzes/QuizzesPageClient";
 import { useRouter } from "next/navigation";
 import { devMode } from "@/lib/services/envService";
 import { getMoodIcon } from "@/lib/getMoodIcon";
