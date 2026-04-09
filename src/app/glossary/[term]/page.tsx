@@ -19,11 +19,15 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const terms = await prisma.glossaryTerm.findMany({
-    where: { published: true },
-    select: { slug: true },
-  });
-  return terms.map((t) => ({ term: t.slug }));
+  try {
+    const terms = await prisma.glossaryTerm.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    return terms.map((t) => ({ term: t.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

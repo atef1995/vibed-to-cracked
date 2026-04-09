@@ -13,11 +13,15 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const comparisons = await prisma.comparison.findMany({
-    where: { published: true },
-    select: { slug: true },
-  });
-  return comparisons.map((c) => ({ slug: c.slug }));
+  try {
+    const comparisons = await prisma.comparison.findMany({
+      where: { published: true },
+      select: { slug: true },
+    });
+    return comparisons.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
