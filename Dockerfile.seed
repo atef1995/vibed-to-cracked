@@ -11,5 +11,6 @@ RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholde
 
 COPY scripts ./scripts
 COPY src/content/tutorials ./src/content/tutorials
+COPY src/lib ./src/lib
 
 ENTRYPOINT ["npx", "tsx"]
