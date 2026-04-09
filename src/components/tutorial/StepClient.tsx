@@ -33,6 +33,7 @@ import { useTutorChat } from "@/hooks/useTutorChat";
 import type { TutorContext } from "@/hooks/useTutorChat";
 import type { ValidationResponse } from "@/hooks/useStep";
 import { SignupNudge } from "@/components/auth/SignupNudge";
+import { formatInstructions } from "@/lib/formatInstructions";
 
 const MultiFileCodeEditor = dynamic(
   () => import("@/components/MultiFileCodeEditor"),
@@ -521,9 +522,14 @@ export default function StepClient({
                         <h4 className="text-blue-800 dark:text-blue-300 font-semibold text-sm mb-1">
                           Your Task
                         </h4>
-                        <p className="text-blue-700 dark:text-blue-200 text-sm">
-                          {step.validationConfig.taskInstructions}
-                        </p>
+                        <p
+                          className="text-blue-700 dark:text-blue-200 text-sm leading-relaxed"
+                          dangerouslySetInnerHTML={{
+                            __html: formatInstructions(
+                              step.validationConfig.taskInstructions
+                            ),
+                          }}
+                        />
                       </div>
                     )}
                     {step.validationType === "jsx" ? (

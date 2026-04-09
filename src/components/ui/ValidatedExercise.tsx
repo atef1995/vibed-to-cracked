@@ -21,6 +21,7 @@ import { submitExerciseAction } from "@/lib/actions";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "./Toast";
 import { getValidator } from "@/lib/exerciseValidators";
+import { formatInstructions } from "@/lib/formatInstructions";
 
 function generatePreviewHTMLFrom(html: string, css: string, js: string) {
   return `<!DOCTYPE html>
@@ -424,21 +425,7 @@ export function ValidatedExercise({
         <p
           className="text-blue-700 dark:text-blue-200 text-sm leading-relaxed prose"
           dangerouslySetInnerHTML={{
-            __html: instructions
-              .replace(
-                /&lt;(\/?[a-zA-Z][a-zA-Z0-9]*(?:\s[^&]*?)?)\s*&gt;|<(\/?[a-zA-Z][a-zA-Z0-9]*(?:\s[^>]*?)?)\s*>/g,
-                (_m, escaped, raw) => {
-                  const tag = escaped || raw;
-                  return `<code class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-semibold bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300 border border-orange-200/60 dark:border-orange-700/50">&lt;${tag}&gt;</code>`;
-                }
-              )
-              .replace(
-                /&#39;([^&#]+?)&#39;|'([^']+?)'/g,
-                (_m, escaped, raw) => {
-                  const val = escaped || raw;
-                  return `<code class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-semibold bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 border border-violet-200/60 dark:border-violet-700/50">${val}</code>`;
-                }
-              ),
+            __html: formatInstructions(instructions),
           }}
         />
       </div>
