@@ -24,6 +24,9 @@ import {
   FileText,
   Newspaper,
   ShoppingBag,
+  GraduationCap,
+  BookA,
+  ArrowLeftRight,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -46,6 +49,14 @@ export function Header() {
     setIsExpanded(false);
     setShowDropdownMenu(false);
   }, [pathname]);
+
+  const publicLinks = [
+    { href: "/tutorials", label: "Tutorials", icon: BookOpen },
+    { href: "/learn", label: "Learn", icon: GraduationCap },
+    { href: "/glossary", label: "Glossary", icon: BookA },
+    { href: "/compare", label: "Compare", icon: ArrowLeftRight },
+    { href: "/blog", label: "Blog", icon: Newspaper },
+  ];
 
   const navigationItems = [
     {
@@ -175,6 +186,24 @@ export function Header() {
             <span className="text-red-600">Cracked</span>
           </Link>
 
+          {/* Public Navigation - Always visible on desktop */}
+          <nav className="hidden md:flex items-center gap-1 lg:gap-2">
+            {publicLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors ${
+                  pathname?.startsWith(link.href)
+                    ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 font-medium"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                }`}
+              >
+                <link.icon className="w-4 h-4" />
+                <span>{link.label}</span>
+              </Link>
+            ))}
+          </nav>
+
           {/* Navigation - Desktop Only */}
           {session && isExpanded && (
             <nav
@@ -225,20 +254,18 @@ export function Header() {
             )}
 
             {/* Mobile Menu Toggle */}
-            {session && (
-              <button
-                ref={mobileMenuButtonRef}
-                onClick={() => setShowMobileNav(!showMobileNav)}
-                className="lg:hidden flex items-center justify-center w-8 h-8 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
-                title={showMobileNav ? "Close menu" : "Open menu"}
-              >
-                {showMobileNav ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </button>
-            )}
+            <button
+              ref={mobileMenuButtonRef}
+              onClick={() => setShowMobileNav(!showMobileNav)}
+              className="md:hidden flex items-center justify-center w-8 h-8 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors cursor-pointer"
+              title={showMobileNav ? "Close menu" : "Open menu"}
+            >
+              {showMobileNav ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </button>
 
             {/* User Menu */}
             {session ? (
@@ -288,58 +315,84 @@ export function Header() {
         </div>
 
         {/* Mobile Navigation - Collapsible */}
-        {session && (
-          <div
-            ref={mobileNavRef}
-            className={`lg:hidden transition-all duration-300 ease-in-out overflow-hidden ${
-              showMobileNav ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-            }`}
-          >
-            <nav className="mt-3 pt-3 border-t dark:border-gray-700">
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setShowMobileNav(false)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-all duration-200 transform active:scale-95 ${item.colors.mobile}`}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="text-xs text-center font-medium leading-tight">
-                      {item.label}
-                    </span>
-                  </Link>
-                ))}
-                <button
-                  title="logout"
-                  onClick={() => {
-                    signOut({ callbackUrl: "/" });
-                  }}
-                  className="flex flex-col items-center gap-2 p-3 rounded-lg transition-all duration-200 transform active:scale-95 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
+        <div
+          ref={mobileNavRef}
+          className={`md:hidden transition-all duration-300 ease-in-out overflow-hidden ${
+            showMobileNav ? "max-h-128 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <nav className="mt-3 pt-3 border-t dark:border-gray-700">
+            {/* Public links - always visible */}
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 max-w-2xl mx-auto">
+              {publicLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setShowMobileNav(false)}
+                  className={`flex flex-col items-center gap-1.5 p-2.5 rounded-lg transition-all duration-200 active:scale-95 ${
+                    pathname?.startsWith(link.href)
+                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 font-medium"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
                 >
-                  <LogOut className="w-5 h-5" />
+                  <link.icon className="w-5 h-5" />
                   <span className="text-xs text-center font-medium leading-tight">
-                    Logout
+                    {link.label}
                   </span>
-                </button>
-              </div>
+                </Link>
+              ))}
+            </div>
 
-              {/* Mobile Mood Indicator */}
-              <div className="mt-4 pt-3 border-t dark:border-gray-700 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                  <span>Learning in</span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
-                    {currentMood.name}
-                  </span>
-                  {(() => {
-                    const Icon = getMoodIcon(currentMood.icon);
-                    return <Icon className="w-4 h-4" />;
-                  })()}
+            {/* Authenticated nav items */}
+            {session && (
+              <>
+                <div className="mt-3 pt-3 border-t dark:border-gray-700 grid grid-cols-3 sm:grid-cols-4 gap-3 max-w-2xl mx-auto">
+                  {navigationItems
+                    .filter((item) => !publicLinks.some((p) => p.href === item.href))
+                    .map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setShowMobileNav(false)}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg transition-all duration-200 transform active:scale-95 ${item.colors.mobile}`}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span className="text-xs text-center font-medium leading-tight">
+                          {item.label}
+                        </span>
+                      </Link>
+                    ))}
+                  <button
+                    title="logout"
+                    onClick={() => {
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="flex flex-col items-center gap-2 p-3 rounded-lg transition-all duration-200 transform active:scale-95 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer"
+                  >
+                    <LogOut className="w-5 h-5" />
+                    <span className="text-xs text-center font-medium leading-tight">
+                      Logout
+                    </span>
+                  </button>
                 </div>
-              </div>
-            </nav>
-          </div>
-        )}
+
+                {/* Mobile Mood Indicator */}
+                <div className="mt-4 pt-3 border-t dark:border-gray-700 text-center">
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <span>Learning in</span>
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                      {currentMood.name}
+                    </span>
+                    {(() => {
+                      const Icon = getMoodIcon(currentMood.icon);
+                      return <Icon className="w-4 h-4" />;
+                    })()}
+                  </div>
+                </div>
+              </>
+            )}
+          </nav>
+        </div>
       </div>
     </header>
   );

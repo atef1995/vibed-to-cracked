@@ -29,6 +29,9 @@ import {
   MessageSquare,
   Wrench,
   Lock,
+  GraduationCap,
+  BookA,
+  ArrowLeftRight,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "@/components/ui/PageLayout";
@@ -83,6 +86,27 @@ function StatusBadge({
 }
 
 const exploreLinks = [
+  {
+    href: "/learn",
+    icon: GraduationCap,
+    label: "Learn",
+    color: "text-indigo-600 dark:text-indigo-400",
+    hoverBorder: "hover:border-indigo-200 dark:hover:border-indigo-500",
+  },
+  {
+    href: "/glossary",
+    icon: BookA,
+    label: "Glossary",
+    color: "text-violet-600 dark:text-violet-400",
+    hoverBorder: "hover:border-violet-200 dark:hover:border-violet-500",
+  },
+  {
+    href: "/compare",
+    icon: ArrowLeftRight,
+    label: "Compare",
+    color: "text-orange-600 dark:text-orange-400",
+    hoverBorder: "hover:border-orange-200 dark:hover:border-orange-500",
+  },
   {
     href: "/blog",
     icon: Newspaper,
