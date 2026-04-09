@@ -6,6 +6,8 @@ import React, {
   useRef as useReactRef,
   useMemo,
   useCallback,
+  useContext,
+  createContext,
   useRef,
   useId,
 } from "react";
@@ -118,6 +120,32 @@ async function executePreActions(
   }
 }
 
+/** Extracts CSS from inline <style> JSX tags in user code. */
+function extractStyleContent(code: string): string {
+  const styleRegex =
+    /<style[^>]*>\s*\{`([\s\S]*?)`\}\s*<\/style>|<style[^>]*>\s*\{["']([\s\S]*?)["']\}\s*<\/style>/g;
+  const parts: string[] = [];
+  let match;
+  while ((match = styleRegex.exec(code)) !== null) {
+    parts.push(match[1] ?? match[2] ?? "");
+  }
+  return parts.join("\n");
+}
+
+/** Prefixes CSS selectors so styles are scoped to a specific preview container. */
+function scopeCss(css: string, scopeId: string): string {
+  if (!css.trim()) return "";
+  return css.replace(
+    /([.#]?[\w-]+)\s*\{/g,
+    (_match, selector: string) => {
+      if (selector.startsWith(".") || selector.startsWith("#")) {
+        return `[data-preview-id="${scopeId}"] ${selector} {`;
+      }
+      return `[data-preview-id="${scopeId}"] ${_match}`;
+    }
+  );
+}
+
 /** Scope passed to react-live so user code can use hooks. */
 const liveScope = {
   React,
@@ -126,6 +154,8 @@ const liveScope = {
   useRef: useReactRef,
   useMemo,
   useCallback,
+  useContext,
+  createContext,
 };
 
 export default function ReactStepCodeEditor({
@@ -147,6 +177,12 @@ export default function ReactStepCodeEditor({
   const [hasError, setHasError] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const styleId = useId();
+
+  // Extract and scope CSS from user code so <style> tags don't leak globally
+  const scopedCss = useMemo(
+    () => scopeCss(extractStyleContent(code), styleId),
+    [code, styleId]
+  );
 
   const handleCodeChange = useCallback(
     (newCode: string) => {
@@ -275,6 +311,9 @@ export default function ReactStepCodeEditor({
             </div>
           ) : (
             <div className="h-full overflow-auto bg-white dark:bg-gray-900 p-4">
+              {scopedCss && (
+                <style dangerouslySetInnerHTML={{ __html: scopedCss }} />
+              )}
               <LiveProvider code={liveCode} noInline scope={liveScope}>
                 <LiveError className="text-red-500 bg-red-50 dark:bg-red-900/20 p-3 rounded-md mb-4 text-sm font-mono" />
                 <div ref={previewRef} data-preview-id={styleId}>
