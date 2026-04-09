@@ -20,6 +20,7 @@ import {
   RotateCcw,
   CodeIcon,
   AppWindowIcon,
+  Eye,
 } from "lucide-react";
 import type { ValidationResponse } from "@/hooks/useStep";
 import type {
@@ -42,6 +43,7 @@ interface ReactStepCodeEditorProps {
   preActions?: PreAction[];
   onCodeChange?: (code: string) => void;
   onValidationResult?: (result: ValidationResponse) => void;
+  solutionCode?: string;
 }
 
 /** Strips import/export lines and appends render() for react-live. */
@@ -135,15 +137,12 @@ function extractStyleContent(code: string): string {
 /** Prefixes CSS selectors so styles are scoped to a specific preview container. */
 function scopeCss(css: string, scopeId: string): string {
   if (!css.trim()) return "";
-  return css.replace(
-    /([.#]?[\w-]+)\s*\{/g,
-    (_match, selector: string) => {
-      if (selector.startsWith(".") || selector.startsWith("#")) {
-        return `[data-preview-id="${scopeId}"] ${selector} {`;
-      }
-      return `[data-preview-id="${scopeId}"] ${_match}`;
+  return css.replace(/([.#]?[\w-]+)\s*\{/g, (_match, selector: string) => {
+    if (selector.startsWith(".") || selector.startsWith("#")) {
+      return `[data-preview-id="${scopeId}"] ${selector} {`;
     }
-  );
+    return `[data-preview-id="${scopeId}"] ${_match}`;
+  });
 }
 
 /** Scope passed to react-live so user code can use hooks. */
@@ -168,6 +167,7 @@ export default function ReactStepCodeEditor({
   preActions = [],
   onCodeChange: onCodeChangeProp,
   onValidationResult: onValidationResultProp,
+  solutionCode,
 }: ReactStepCodeEditorProps) {
   const [code, setCode] = useState(lastSavedCode || starterCode);
   const [liveCode, setLiveCode] = useState(prepareForLive(code));
@@ -175,6 +175,7 @@ export default function ReactStepCodeEditor({
   const [isValidating, setIsValidating] = useState(false);
   const [result, setResult] = useState<ValidationResponse | null>(null);
   const [hasError, setHasError] = useState(false);
+  const [showSolutionConfirm, setShowSolutionConfirm] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const styleId = useId();
 
@@ -240,6 +241,16 @@ export default function ReactStepCodeEditor({
     setResult(null);
     setHasError(false);
   }, [starterCode]);
+
+  const handleShowSolution = useCallback(() => {
+    if (!solutionCode) return;
+    setCode(solutionCode);
+    setLiveCode(prepareForLive(solutionCode));
+    setResult(null);
+    setHasError(false);
+    setShowSolutionConfirm(false);
+    onCodeChangeProp?.(solutionCode);
+  }, [solutionCode, onCodeChangeProp]);
 
   return (
     <div className="space-y-4">
@@ -347,6 +358,39 @@ export default function ReactStepCodeEditor({
           <RotateCcw className="w-3.5 h-3.5" />
           Reset
         </button>
+
+        {solutionCode && !passed && (
+          <div className="relative ml-auto">
+            <button
+              onClick={() => setShowSolutionConfirm((v) => !v)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-500 dark:text-gray-500 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+            >
+              <Eye className="w-3.5 h-3.5" />
+              Show Solution
+            </button>
+            {showSolutionConfirm && (
+              <div className="absolute bottom-full right-0 mb-2 w-56 p-3 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg z-10">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                  This will replace your current code. Are you sure?
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleShowSolution}
+                    className="flex-1 px-2 py-1 text-xs font-medium rounded bg-amber-500 hover:bg-amber-600 text-white transition-colors"
+                  >
+                    Yes, show it
+                  </button>
+                  <button
+                    onClick={() => setShowSolutionConfirm(false)}
+                    className="flex-1 px-2 py-1 text-xs font-medium rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Feedback area — reserved space to prevent layout shift */}

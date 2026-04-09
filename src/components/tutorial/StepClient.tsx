@@ -541,6 +541,13 @@ export default function StepClient({
                         preActions={step.validationConfig?.preActions}
                         onCodeChange={setCurrentCode}
                         onValidationResult={setLastValidationResult}
+                        solutionCode={
+                          step.validationConfig?.hints?.length
+                            ? step.validationConfig.hints[
+                                step.validationConfig.hints.length - 1
+                              ]
+                            : undefined
+                        }
                       />
                     ) : (
                       <StepCodeEditor
