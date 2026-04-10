@@ -27,6 +27,7 @@ import {
   GraduationCap,
   BookA,
   ArrowLeftRight,
+  Video,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -101,6 +102,17 @@ export function Header() {
           "text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20",
         mobile:
           "text-gray-600 dark:text-gray-400 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20",
+      },
+    },
+    {
+      href: "/mock-interview",
+      label: "Mock Interview",
+      icon: Video,
+      colors: {
+        desktop:
+          "text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20",
+        mobile:
+          "text-gray-600 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20",
       },
     },
     {
