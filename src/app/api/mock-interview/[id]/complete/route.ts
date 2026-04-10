@@ -43,42 +43,69 @@ export async function POST(
         responseText?: string | null;
         responseCode?: string | null;
         score?: number | null;
-        feedback?: Record<string, unknown> | null;
+        feedback?: unknown;
       }) => ({
         questionText: r.questionText,
         responseText: r.responseText,
         responseCode: r.responseCode,
         score: r.score,
-        feedback: r.feedback,
+        feedback: r.feedback as Record<string, unknown> | null,
       })
     );
 
+    // Check how many rounds actually have responses
+    const answeredRounds = rounds.filter(
+      (r: { responseText?: string | null; responseCode?: string | null }) =>
+        r.responseText || r.responseCode
+    );
+
     let assessment;
-    try {
-      assessment = await InterviewAIService.generateOverallAssessment(
-        interview.company.slug,
-        interview.company.name,
-        rounds
-      );
-    } catch (err) {
-      console.error("Failed to generate assessment:", err);
-      // Calculate simple average as fallback
-      const scores = rounds
-        .map((r: { score?: number | null }) => r.score)
-        .filter((s: number | null | undefined): s is number => s != null);
-      const avg =
-        scores.length > 0
-          ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length
-          : 5;
+
+    if (answeredRounds.length === 0) {
+      // No questions answered — skip AI, score is 0
       assessment = {
-        overallScore: Math.round(avg * 10) / 10,
-        hiringRecommendation: avg >= 7 ? "Lean Hire" : "Lean No Hire",
-        categoryScores: {},
+        overallScore: 0,
+        hiringRecommendation: "No Hire" as const,
+        categoryScores: {
+          communication: 0,
+          technicalDepth: 0,
+          problemSolving: 0,
+          codeQuality: 0,
+          culturalFit: 0,
+        },
         topStrengths: [],
-        areasToImprove: [],
+        areasToImprove: [
+          "Answer at least one question to receive feedback",
+        ],
         detailedFeedback:
-          "Assessment could not be generated. Score based on round averages.",
+          "The interview was ended before any questions were answered. No assessment can be provided.",
       };
+    } else {
+      try {
+        assessment = await InterviewAIService.generateOverallAssessment(
+          interview.company.slug,
+          interview.company.name,
+          rounds
+        );
+      } catch (err) {
+        console.error("Failed to generate assessment:", err);
+        const scores = rounds
+          .map((r: { score?: number | null }) => r.score)
+          .filter((s: number | null | undefined): s is number => s != null);
+        const avg =
+          scores.length > 0
+            ? scores.reduce((a: number, b: number) => a + b, 0) / scores.length
+            : 0;
+        assessment = {
+          overallScore: Math.round(avg * 10) / 10,
+          hiringRecommendation: avg >= 7 ? "Lean Hire" : "Lean No Hire",
+          categoryScores: {},
+          topStrengths: [],
+          areasToImprove: [],
+          detailedFeedback:
+            "Assessment could not be generated. Score based on round averages.",
+        };
+      }
     }
 
     // Complete the interview

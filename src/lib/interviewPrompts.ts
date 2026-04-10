@@ -185,13 +185,22 @@ export function buildOverallAssessmentPrompt(
   }>
 ): string {
   const roundSummaries = rounds
-    .map(
-      (r, i) =>
-        `Round ${i + 1}: Q: "${r.questionText}" | Score: ${r.score ?? "N/A"}/10`
-    )
+    .map((r, i) => {
+      const answered = r.responseText || r.responseCode;
+      const response = answered
+        ? `Response: "${(r.responseText || r.responseCode || "").slice(0, 300)}"`
+        : "Response: [NO ANSWER — candidate skipped this question]";
+      return `Round ${i + 1}: Q: "${r.questionText}" | Score: ${r.score ?? "N/A"}/10 | ${response}`;
+    })
     .join("\n");
 
+  const answeredCount = rounds.filter(
+    (r) => r.responseText || r.responseCode
+  ).length;
+
   return `Generate an overall interview assessment for a candidate interviewing at ${companyName}.
+
+The candidate answered ${answeredCount} out of ${rounds.length} questions. Unanswered questions should count as 0.
 
 Round-by-round summary:
 ${roundSummaries}
