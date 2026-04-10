@@ -130,6 +130,11 @@ model User {
   // Mentorship sessions
   mentorshipSessions MentorshipSession[]
 
+  // Mock interview system
+  interviewCredits           Int                        @default(0)
+  mockInterviews             MockInterview[]
+  interviewCreditTransactions InterviewCreditTransaction[]
+
   @@map("users")
 }
 
@@ -1444,4 +1449,127 @@ model Comparison {
 
   @@index([published])
   @@map("comparisons")
+}
+
+// ── Mock Interview System ──────────────────────────────────────────
+
+model InterviewCompany {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  name           String
+  logoUrl        String?
+  description    String   @db.Text
+  interviewStyle String   @db.Text
+  color          String   @default("#6366f1")
+  published      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  questions      InterviewQuestion[]
+  mockInterviews MockInterview[]
+
+  @@index([published])
+  @@map("interview_companies")
+}
+
+model InterviewQuestion {
+  id                 String   @id @default(cuid())
+  companyId          String
+  type               String   // BEHAVIORAL | TECHNICAL | SYSTEM_DESIGN
+  difficulty         String   @default("MEDIUM") // EASY | MEDIUM | HARD
+  question           String   @db.Text
+  followUps          Json     @default("[]")
+  evaluationCriteria Json     @default("{}")
+  category           String   // e.g. "Leadership Principles", "Data Structures"
+  starterCode        String?  @db.Text
+  expectedApproach   String   @db.Text
+  source             String   @default("manual") // glassdoor | leetcode | blind | blog | manual
+  reportedYear       Int?
+  order              Int      @default(0)
+  published          Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  company            InterviewCompany    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  rounds             MockInterviewRound[]
+
+  @@index([companyId])
+  @@index([type])
+  @@index([published])
+  @@map("interview_questions")
+}
+
+model MockInterview {
+  id            String   @id @default(cuid())
+  userId        String
+  companyId     String
+  interviewType String   // BEHAVIORAL | TECHNICAL | MIXED
+  status        String   @default("IN_PROGRESS") // IN_PROGRESS | COMPLETED | ABANDONED
+  overallScore  Float?
+  feedback      Json?
+  questionsAsked Int     @default(0)
+  duration      Int      @default(0) // seconds
+  isPreview     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company       InterviewCompany  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  rounds        MockInterviewRound[]
+
+  @@index([userId])
+  @@index([companyId])
+  @@index([status])
+  @@map("mock_interviews")
+}
+
+model MockInterviewRound {
+  id           String   @id @default(cuid())
+  interviewId  String
+  questionId   String?
+  questionText String   @db.Text
+  responseText String?  @db.Text
+  responseCode String?  @db.Text
+  responseType String   @default("TEXT") // VOICE | TEXT
+  score        Float?
+  feedback     Json?
+  order        Int      @default(0)
+  duration     Int      @default(0) // seconds
+  createdAt    DateTime @default(now())
+
+  interview    MockInterview      @relation(fields: [interviewId], references: [id], onDelete: Cascade)
+  question     InterviewQuestion? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@index([interviewId])
+  @@map("mock_interview_rounds")
+}
+
+model InterviewCreditPack {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  credits      Int
+  price        Float
+  currency     String   @default("USD")
+  stripePriceId String?
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("interview_credit_packs")
+}
+
+model InterviewCreditTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int      // positive = add, negative = spend
+  type        String   // PURCHASE | SUBSCRIPTION | REFUND | BONUS
+  referenceId String?
+  description String
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("interview_credit_transactions")
 }

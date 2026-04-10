@@ -43,6 +43,7 @@ const InteractiveCodeBlock: React.FC<InteractiveCodeBlockProps> = ({
 }) => {
   language = language?.replace(/language-/, "") || "javascript";
   if (language === "js" || language === "dsa") language = "javascript";
+  if (language === "ts") language = "typescript";
 
   // Keep nodejs/node as separate language for proper module system selection
   // but normalize for Monaco editor display

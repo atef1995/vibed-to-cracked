@@ -49,12 +49,15 @@ export const PLAN_CONFIGS = {
     storageGB: 0.5,
     aiTutorMessagesPerDay: 5,
     mentorshipSessionsPerMonth: 0,
+    mockInterviewCreditsIncluded: 0,
+    mockInterviewPreview: true,
     features: [
       "Limited tutorials (5/month)",
       "Limited challenges (3/month)",
       "Limited quizzes (2/month)",
       "0.5GB storage",
       "AI tutor (5 messages/day)",
+      "30s interview preview",
     ],
   },
   [Plan.VIBED]: {
@@ -67,6 +70,8 @@ export const PLAN_CONFIGS = {
     storageGB: 10,
     aiTutorMessagesPerDay: 50,
     mentorshipSessionsPerMonth: 0,
+    mockInterviewCreditsIncluded: 0,
+    mockInterviewPreview: true,
     features: [
       "Unlimited tutorials",
       "Unlimited challenges",
@@ -76,6 +81,7 @@ export const PLAN_CONFIGS = {
       "Ad-free experience",
       "Advanced analytics",
       "AI tutor (50 messages/day)",
+      "30s interview preview",
     ],
   },
   [Plan.CRACKED]: {
@@ -88,6 +94,8 @@ export const PLAN_CONFIGS = {
     storageGB: 50,
     aiTutorMessagesPerDay: null, // Unlimited
     mentorshipSessionsPerMonth: 4,
+    mockInterviewCreditsIncluded: 5,
+    mockInterviewPreview: true,
     features: [
       "All Vibed features",
       "50GB storage",
@@ -97,6 +105,7 @@ export const PLAN_CONFIGS = {
       "Team collaboration",
       "Offline access",
       "Unlimited AI tutor",
+      "5 AI mock interview credits/month",
     ],
   },
 } as const;

@@ -418,6 +418,7 @@ export default function StepClient({
   const canAdvance = isPassed;
   const initialCode =
     step.validationConfig?.initialCode || "// Write your code here\n";
+  const editorLanguage = category === "oop" ? "typescript" : "javascript";
 
   // Extend mdxComponents with ValidatedExercise wired to step completion
   const nextStepHref = step.nextStep
@@ -563,6 +564,7 @@ export default function StepClient({
                         onPass={handlePass}
                         passed={isPassed}
                         lastSavedCode={step.progress?.userCode}
+                        language={editorLanguage}
                         onCodeChange={setCurrentCode}
                         onOutputChange={setCurrentOutput}
                         onValidationResult={setLastValidationResult}
