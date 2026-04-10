@@ -51,6 +51,11 @@ export class WebhookService {
         return await this.handleStoreOrderCheckout(session);
       }
 
+      // Check if this is an interview credit purchase
+      if (session.metadata?.type === "interview_credits") {
+        return await this.handleInterviewCreditPurchase(session);
+      }
+
       // Handle subscription checkout (existing logic)
       if (!session.customer || !session.metadata?.userId) {
         if (debugMode) {
@@ -128,6 +133,38 @@ export class WebhookService {
     } catch (error) {
       console.error("❌ Error handling checkout session completed:", error);
       throw error;
+    }
+  }
+
+  /**
+   * Handle interview credit pack purchase
+   */
+  static async handleInterviewCreditPurchase(
+    session: Stripe.Checkout.Session
+  ): Promise<void> {
+    try {
+      const userId = session.metadata?.userId;
+      const credits = parseInt(session.metadata?.credits || "0", 10);
+
+      if (!userId || !credits) {
+        console.error("Missing userId or credits in interview credit purchase metadata");
+        return;
+      }
+
+      const { InterviewCreditService } = await import("@/lib/interviewCreditService");
+      await InterviewCreditService.addCredits(
+        userId,
+        credits,
+        "PURCHASE",
+        session.id,
+        `Purchased ${credits} interview credits`
+      );
+
+      if (debugMode) {
+        console.log(`Added ${credits} interview credits to user ${userId}`);
+      }
+    } catch (error) {
+      console.error("Error processing interview credit purchase:", error);
     }
   }
 
@@ -728,6 +765,17 @@ export class WebhookService {
           status: "COMPLETED",
         },
       });
+
+      // Grant monthly interview credits for CRACKED users
+      const userPlan = subscription.metadata?.plan;
+      if (userPlan === "CRACKED") {
+        try {
+          const { InterviewCreditService } = await import("@/lib/interviewCreditService");
+          await InterviewCreditService.processSubscriptionCredits(userId);
+        } catch (creditError) {
+          console.error("Failed to grant monthly interview credits:", creditError);
+        }
+      }
 
       if (debugMode) {
         console.log(
