@@ -26,7 +26,11 @@ export class MockInterviewService {
     });
   }
 
-  static async getUserInterviews(userId: string, page: number = 1, pageSize: number = 10) {
+  static async getUserInterviews(
+    userId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ) {
     const [interviews, total] = await Promise.all([
       prisma.mockInterview.findMany({
         where: { userId },
@@ -48,11 +52,7 @@ export class MockInterviewService {
     };
   }
 
-  static async startInterview(
-    userId: string,
-    companyId: string,
-    type: string
-  ) {
+  static async startInterview(userId: string, companyId: string, type: string) {
     // Deduct credit first (throws if insufficient)
     const questions = await this.selectQuestions(companyId, type);
 
@@ -80,7 +80,9 @@ export class MockInterviewService {
     });
 
     if (existing) {
-      throw new Error("You have already used your free preview for this company");
+      throw new Error(
+        "You have already used your free preview for this company"
+      );
     }
 
     const questions = await this.selectQuestions(

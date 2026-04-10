@@ -17,10 +17,7 @@ export async function POST(request: NextRequest) {
 
     const { packSlug } = await request.json();
     if (!packSlug) {
-      return NextResponse.json(
-        { error: "Missing packSlug" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing packSlug" }, { status: 400 });
     }
 
     const pack = await InterviewCreditService.getCreditPackBySlug(packSlug);

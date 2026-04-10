@@ -548,7 +548,8 @@ export default function DashboardPage() {
             AI Mock Interviews
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Practice with real tech company questions and get a 0-10 hiring score
+            Practice with real tech company questions and get a 0-10 hiring
+            score
           </p>
         </div>
         <ArrowRight className="h-4 w-4 shrink-0 text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />

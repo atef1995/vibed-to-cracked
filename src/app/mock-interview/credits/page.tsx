@@ -180,7 +180,8 @@ export default function CreditsPage() {
                     {formatPrice(pack.price, pack.currency)}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                    {pack.credits} credits ({formatPrice(pack.price / pack.credits, pack.currency)}/ea)
+                    {pack.credits} credits (
+                    {formatPrice(pack.price / pack.credits, pack.currency)}/ea)
                   </p>
                   <button
                     onClick={() => handlePurchase(pack.slug)}
@@ -200,55 +201,56 @@ export default function CreditsPage() {
         )}
 
         {/* Transaction History */}
-        {data?.history?.transactions && data.history.transactions.length > 0 && (
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-              Transaction History
-            </h2>
-            <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-gray-700">
-                    <th className="text-left p-4 font-medium text-gray-500 dark:text-gray-400">
-                      Date
-                    </th>
-                    <th className="text-left p-4 font-medium text-gray-500 dark:text-gray-400">
-                      Description
-                    </th>
-                    <th className="text-right p-4 font-medium text-gray-500 dark:text-gray-400">
-                      Credits
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.history.transactions.map((tx) => (
-                    <tr
-                      key={tx.id}
-                      className="border-b border-gray-50 dark:border-gray-700/50 last:border-0"
-                    >
-                      <td className="p-4 text-gray-600 dark:text-gray-300">
-                        {new Date(tx.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-4 text-gray-900 dark:text-white">
-                        {tx.description}
-                      </td>
-                      <td
-                        className={`p-4 text-right font-medium ${
-                          tx.amount > 0
-                            ? "text-green-600 dark:text-green-400"
-                            : "text-red-600 dark:text-red-400"
-                        }`}
-                      >
-                        {tx.amount > 0 ? "+" : ""}
-                        {tx.amount}
-                      </td>
+        {data?.history?.transactions &&
+          data.history.transactions.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                Transaction History
+              </h2>
+              <div className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 dark:border-gray-700">
+                      <th className="text-left p-4 font-medium text-gray-500 dark:text-gray-400">
+                        Date
+                      </th>
+                      <th className="text-left p-4 font-medium text-gray-500 dark:text-gray-400">
+                        Description
+                      </th>
+                      <th className="text-right p-4 font-medium text-gray-500 dark:text-gray-400">
+                        Credits
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {data.history.transactions.map((tx) => (
+                      <tr
+                        key={tx.id}
+                        className="border-b border-gray-50 dark:border-gray-700/50 last:border-0"
+                      >
+                        <td className="p-4 text-gray-600 dark:text-gray-300">
+                          {new Date(tx.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="p-4 text-gray-900 dark:text-white">
+                          {tx.description}
+                        </td>
+                        <td
+                          className={`p-4 text-right font-medium ${
+                            tx.amount > 0
+                              ? "text-green-600 dark:text-green-400"
+                              : "text-red-600 dark:text-red-400"
+                          }`}
+                        >
+                          {tx.amount > 0 ? "+" : ""}
+                          {tx.amount}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </PageLayout>
   );

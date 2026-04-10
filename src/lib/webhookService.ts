@@ -147,11 +147,14 @@ export class WebhookService {
       const credits = parseInt(session.metadata?.credits || "0", 10);
 
       if (!userId || !credits) {
-        console.error("Missing userId or credits in interview credit purchase metadata");
+        console.error(
+          "Missing userId or credits in interview credit purchase metadata"
+        );
         return;
       }
 
-      const { InterviewCreditService } = await import("@/lib/interviewCreditService");
+      const { InterviewCreditService } =
+        await import("@/lib/interviewCreditService");
       await InterviewCreditService.addCredits(
         userId,
         credits,
@@ -770,10 +773,14 @@ export class WebhookService {
       const userPlan = subscription.metadata?.plan;
       if (userPlan === "CRACKED") {
         try {
-          const { InterviewCreditService } = await import("@/lib/interviewCreditService");
+          const { InterviewCreditService } =
+            await import("@/lib/interviewCreditService");
           await InterviewCreditService.processSubscriptionCredits(userId);
         } catch (creditError) {
-          console.error("Failed to grant monthly interview credits:", creditError);
+          console.error(
+            "Failed to grant monthly interview credits:",
+            creditError
+          );
         }
       }
 

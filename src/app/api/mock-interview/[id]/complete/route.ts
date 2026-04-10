@@ -76,7 +76,8 @@ export async function POST(
         categoryScores: {},
         topStrengths: [],
         areasToImprove: [],
-        detailedFeedback: "Assessment could not be generated. Score based on round averages.",
+        detailedFeedback:
+          "Assessment could not be generated. Score based on round averages.",
       };
     }
 

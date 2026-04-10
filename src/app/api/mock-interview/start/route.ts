@@ -26,10 +26,7 @@ export async function POST(request: NextRequest) {
 
     const company = await MockInterviewService.getCompanyBySlug(companySlug);
     if (!company) {
-      return NextResponse.json(
-        { error: "Company not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
     if (isPreview) {
@@ -62,7 +59,8 @@ export async function POST(request: NextRequest) {
     );
 
     // Generate intro speech
-    const mood = (session as Record<string, unknown>).mood as string || "CHILL";
+    const mood =
+      ((session as Record<string, unknown>).mood as string) || "CHILL";
     let introSpeech = "";
     try {
       introSpeech = await InterviewAIService.generateIntro(

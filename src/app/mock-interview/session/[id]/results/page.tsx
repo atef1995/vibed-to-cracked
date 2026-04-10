@@ -105,13 +105,7 @@ function ScoreRing({ score }: { score: number }) {
   );
 }
 
-function CategoryBar({
-  label,
-  score,
-}: {
-  label: string;
-  score: number;
-}) {
+function CategoryBar({ label, score }: { label: string; score: number }) {
   const normalizedScore = Math.min(10, Math.max(0, score));
   const width = normalizedScore * 10;
 

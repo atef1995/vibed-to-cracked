@@ -93,7 +93,8 @@ export default function MockInterviewLanding() {
                 Real Questions
               </p>
               <p className="text-lg font-semibold text-gray-900 dark:text-white">
-                {companies.reduce((sum, c) => sum + c._count.questions, 0) || "65+"}
+                {companies.reduce((sum, c) => sum + c._count.questions, 0) ||
+                  "65+"}
               </p>
             </div>
           </div>
@@ -116,7 +117,8 @@ export default function MockInterviewLanding() {
         {!session?.user && (
           <div className="mb-8 p-4 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-lg">
             <p className="text-sm text-violet-900 dark:text-violet-100">
-              Sign in to start mock interviews and track your progress. Every company offers a free 30-second preview.
+              Sign in to start mock interviews and track your progress. Every
+              company offers a free 30-second preview.
             </p>
           </div>
         )}
@@ -141,10 +143,7 @@ export default function MockInterviewLanding() {
         {!isLoading && companies.length > 0 && (
           <ContentGrid columns="3">
             {companies.map((company) => (
-              <Link
-                key={company.slug}
-                href={`/mock-interview/${company.slug}`}
-              >
+              <Link key={company.slug} href={`/mock-interview/${company.slug}`}>
                 <Card onClick={() => {}}>
                   <div className="flex items-start gap-4 mb-3">
                     <div

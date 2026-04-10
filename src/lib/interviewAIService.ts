@@ -25,7 +25,9 @@ async function callClaude(
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    console.warn("ANTHROPIC_API_KEY not set, falling back to OpenAI for evaluation");
+    console.warn(
+      "ANTHROPIC_API_KEY not set, falling back to OpenAI for evaluation"
+    );
     return callGPT(systemPrompt, userMessage);
   }
 
@@ -80,7 +82,10 @@ function parseJSON<T>(text: string): T | null {
   try {
     return JSON.parse(jsonStr) as T;
   } catch {
-    console.error("Failed to parse AI response as JSON:", jsonStr.slice(0, 200));
+    console.error(
+      "Failed to parse AI response as JSON:",
+      jsonStr.slice(0, 200)
+    );
     return null;
   }
 }
@@ -312,11 +317,13 @@ export class InterviewAIService {
 
     // Apply company-specific scoring weights
     const weights = getScoringWeights(companySlug);
-    const weightedScore = Object.entries(weights).reduce((sum, [cat, weight]) => {
-      const catScore =
-        parsed.categoryScores[cat] ?? parsed.overallScore;
-      return sum + catScore * weight;
-    }, 0);
+    const weightedScore = Object.entries(weights).reduce(
+      (sum, [cat, weight]) => {
+        const catScore = parsed.categoryScores[cat] ?? parsed.overallScore;
+        return sum + catScore * weight;
+      },
+      0
+    );
 
     parsed.overallScore = Math.round(weightedScore * 10) / 10;
 

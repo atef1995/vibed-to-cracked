@@ -3,6 +3,7 @@
 import { use, useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
   Mic,
   MicOff,
@@ -15,6 +16,16 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { SessionState, InterviewStatus } from "@/lib/interviewConstants";
+import VoiceInput from "@/components/mock-interview/VoiceInput";
+
+const InterviewAvatar = dynamic(
+  () => import("@/components/mock-interview/InterviewAvatar"),
+  { ssr: false }
+);
+const InterviewCodeEditor = dynamic(
+  () => import("@/components/mock-interview/InterviewCodeEditor"),
+  { ssr: false }
+);
 
 interface Round {
   id: string;
@@ -192,7 +203,8 @@ export default function InterviewSessionPage({
   const answeredRounds = interview.rounds.filter(
     (r) => r.responseText || r.responseCode
   ).length;
-  const progressPercent = totalRounds > 0 ? (answeredRounds / totalRounds) * 100 : 0;
+  const progressPercent =
+    totalRounds > 0 ? (answeredRounds / totalRounds) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
@@ -248,14 +260,15 @@ export default function InterviewSessionPage({
 
       {/* Main Content */}
       <div className="flex-1 max-w-5xl mx-auto w-full px-4 py-8">
-        {/* AI Speech bubble */}
-        {aiSpeech && (
-          <div className="mb-6 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <p className="text-gray-700 dark:text-gray-300 text-sm italic">
-              {aiSpeech}
-            </p>
-          </div>
-        )}
+        {/* Avatar + AI Speech */}
+        <div className="mb-6">
+          <InterviewAvatar
+            companySlug={interview.company.slug}
+            companyName={interview.company.name}
+            companyColor={interview.company.color}
+            speechText={aiSpeech || undefined}
+          />
+        </div>
 
         {/* Scoring State */}
         {sessionState === SessionState.SCORING && (
@@ -277,8 +290,8 @@ export default function InterviewSessionPage({
               Preview Complete
             </h2>
             <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-md">
-              Get interview credits to unlock full interviews with scoring, feedback,
-              and company-specific evaluation.
+              Get interview credits to unlock full interviews with scoring,
+              feedback, and company-specific evaluation.
             </p>
             <div className="flex gap-4">
               <button
@@ -371,15 +384,11 @@ export default function InterviewSessionPage({
 
               {/* Response Input */}
               {isCodeMode ? (
-                <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-                  <textarea
-                    value={responseCode}
-                    onChange={(e) => setResponseCode(e.target.value)}
-                    rows={12}
-                    className="w-full p-4 bg-gray-950 text-green-400 font-mono text-sm resize-none focus:outline-none"
-                    placeholder="// Write your code here..."
-                  />
-                </div>
+                <InterviewCodeEditor
+                  code={responseCode}
+                  onChange={setResponseCode}
+                  starterCode={currentRound.question?.starterCode || undefined}
+                />
               ) : (
                 <textarea
                   value={responseText}
@@ -392,20 +401,31 @@ export default function InterviewSessionPage({
 
               {/* Submit */}
               <div className="flex items-center justify-between">
-                <button
-                  onClick={() => {
-                    setSessionState(SessionState.CLOSING);
-                  }}
-                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-1"
-                >
-                  <SkipForward className="h-4 w-4" />
-                  End Interview
-                </button>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setSessionState(SessionState.CLOSING);
+                    }}
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-1"
+                  >
+                    <SkipForward className="h-4 w-4" />
+                    End Interview
+                  </button>
+                  {!isCodeMode && (
+                    <VoiceInput
+                      onTranscript={(text) =>
+                        setResponseText((prev) =>
+                          prev ? prev + " " + text : text
+                        )
+                      }
+                      disabled={submitting}
+                    />
+                  )}
+                </div>
                 <button
                   onClick={submitResponse}
                   disabled={
-                    submitting ||
-                    (!responseText.trim() && !responseCode.trim())
+                    submitting || (!responseText.trim() && !responseCode.trim())
                   }
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

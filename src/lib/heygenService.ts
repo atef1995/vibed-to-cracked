@@ -14,7 +14,8 @@ function getApiKey(): string {
 
 export class HeyGenService {
   static async createAvatarSession(companySlug?: string) {
-    const avatarId = COMPANY_AVATARS[companySlug || ""] || COMPANY_AVATARS.default;
+    const avatarId =
+      COMPANY_AVATARS[companySlug || ""] || COMPANY_AVATARS.default;
 
     const response = await fetch(`${HEYGEN_API_BASE}/streaming.new`, {
       method: "POST",

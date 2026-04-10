@@ -87,10 +87,7 @@ export const INTERVIEW_CONFIG = {
 } as const;
 
 // Scoring weights by company slug
-export const COMPANY_SCORING_WEIGHTS: Record<
-  string,
-  Record<string, number>
-> = {
+export const COMPANY_SCORING_WEIGHTS: Record<string, Record<string, number>> = {
   amazon: {
     culturalFit: 0.3,
     communication: 0.25,
@@ -117,10 +114,10 @@ export const COMPANY_SCORING_WEIGHTS: Record<
   },
 };
 
-export function getScoringWeights(
-  companySlug: string
-): Record<string, number> {
-  return COMPANY_SCORING_WEIGHTS[companySlug] || COMPANY_SCORING_WEIGHTS.default;
+export function getScoringWeights(companySlug: string): Record<string, number> {
+  return (
+    COMPANY_SCORING_WEIGHTS[companySlug] || COMPANY_SCORING_WEIGHTS.default
+  );
 }
 
 // Evaluation categories
