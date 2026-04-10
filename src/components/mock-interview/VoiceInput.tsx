@@ -36,7 +36,10 @@ declare global {
   }
 }
 
-export default function VoiceInput({ onTranscript, disabled }: VoiceInputProps) {
+export default function VoiceInput({
+  onTranscript,
+  disabled,
+}: VoiceInputProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(false);
   const [interim, setInterim] = useState("");

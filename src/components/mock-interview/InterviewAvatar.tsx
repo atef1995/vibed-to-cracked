@@ -92,9 +92,7 @@ export default function InterviewAvatar({
 
         if (sdpRes.ok) {
           const sdpData = await sdpRes.json();
-          await pc.setRemoteDescription(
-            new RTCSessionDescription(sdpData)
-          );
+          await pc.setRemoteDescription(new RTCSessionDescription(sdpData));
         }
       } else {
         // No WebRTC URL — avatar not fully configured, show fallback

@@ -4,9 +4,7 @@ import dynamic from "next/dynamic";
 
 const CodeEditor = dynamic(() => import("@/components/CodeEditor"), {
   ssr: false,
-  loading: () => (
-    <div className="h-75 bg-gray-950 rounded-xl animate-pulse" />
-  ),
+  loading: () => <div className="h-75 bg-gray-950 rounded-xl animate-pulse" />,
 });
 
 interface InterviewCodeEditorProps {

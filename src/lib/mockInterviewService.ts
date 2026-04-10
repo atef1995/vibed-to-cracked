@@ -53,7 +53,6 @@ export class MockInterviewService {
   }
 
   static async startInterview(userId: string, companyId: string, type: string) {
-    // Deduct credit first (throws if insufficient)
     const questions = await this.selectQuestions(companyId, type);
 
     const interview = await prisma.mockInterview.create({
@@ -63,8 +62,21 @@ export class MockInterviewService {
         interviewType: type,
         questionsAsked: questions.length,
         isPreview: false,
+        rounds: {
+          create: questions.map((q, i) => ({
+            questionId: q.id,
+            questionText: q.question,
+            order: i,
+          })),
+        },
       },
-      include: { company: true },
+      include: {
+        company: true,
+        rounds: {
+          orderBy: { order: "asc" },
+          include: { question: true },
+        },
+      },
     });
 
     // Deduct credit after successful creation
@@ -98,8 +110,21 @@ export class MockInterviewService {
         interviewType: InterviewType.MIXED,
         questionsAsked: questions.length,
         isPreview: true,
+        rounds: {
+          create: questions.map((q, i) => ({
+            questionId: q.id,
+            questionText: q.question,
+            order: i,
+          })),
+        },
       },
-      include: { company: true },
+      include: {
+        company: true,
+        rounds: {
+          orderBy: { order: "asc" },
+          include: { question: true },
+        },
+      },
     });
 
     return { interview, questions };
@@ -122,6 +147,7 @@ export class MockInterviewService {
                 difficulty: true,
                 category: true,
                 evaluationCriteria: true,
+                starterCode: true,
               },
             },
           },

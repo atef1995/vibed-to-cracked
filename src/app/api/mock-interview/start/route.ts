@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (isPreview) {
-      const interview = await MockInterviewService.startPreview(
+      const { interview } = await MockInterviewService.startPreview(
         session.user.id,
         company.id
       );
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const interview = await MockInterviewService.startInterview(
+    const { interview, questions } = await MockInterviewService.startInterview(
       session.user.id,
       company.id,
       interviewType
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
         mood,
         session.user.name || "there",
         interviewType,
-        interview.rounds?.length || 5
+        questions?.length || 5
       );
     } catch (err) {
       console.error("Failed to generate intro speech:", err);
