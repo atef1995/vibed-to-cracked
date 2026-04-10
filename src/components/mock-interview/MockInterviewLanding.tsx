@@ -148,7 +148,7 @@ export default function MockInterviewLanding() {
                 <Card onClick={() => {}}>
                   <div className="flex items-start gap-4 mb-3">
                     <div
-                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${getGradient(company.color)} flex items-center justify-center text-white font-bold text-lg shrink-0`}
+                      className={`w-12 h-12 rounded-xl bg-linear-to-br ${getGradient(company.color)} flex items-center justify-center text-white font-bold text-lg shrink-0`}
                     >
                       {company.name.charAt(0)}
                     </div>

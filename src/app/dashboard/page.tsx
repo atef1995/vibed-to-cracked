@@ -30,6 +30,7 @@ import {
   Wrench,
   Lock,
   GraduationCap,
+  Video,
   BookA,
   ArrowLeftRight,
 } from "lucide-react";
@@ -141,6 +142,13 @@ const exploreLinks = [
     label: "Visualizer",
     color: "text-red-600 dark:text-red-400",
     hoverBorder: "hover:border-red-200 dark:hover:border-red-500",
+  },
+  {
+    href: "/mock-interview",
+    icon: Video,
+    label: "Mock Interviews",
+    color: "text-violet-600 dark:text-violet-400",
+    hoverBorder: "hover:border-violet-200 dark:hover:border-violet-500",
   },
 ];
 
@@ -525,6 +533,25 @@ export default function DashboardPage() {
               : "text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300"
           }`}
         />
+      </Link>
+
+      {/* AI Mock Interviews */}
+      <Link
+        href="/mock-interview"
+        className="mb-10 flex items-center gap-4 rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all group bg-linear-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border-violet-100 dark:border-violet-800/40 hover:border-violet-200 dark:hover:border-violet-700"
+      >
+        <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-violet-100 dark:bg-violet-800/40">
+          <Video className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            AI Mock Interviews
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Practice with real tech company questions and get a 0-10 hiring score
+          </p>
+        </div>
+        <ArrowRight className="h-4 w-4 shrink-0 text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
       </Link>
 
       {/* 6. Explore More — compact links */}
