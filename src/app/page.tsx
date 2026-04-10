@@ -23,6 +23,10 @@ import {
   Bot,
   Play,
   Monitor,
+  Video,
+  ArrowRight,
+  BookOpen,
+  Brain,
 } from "lucide-react";
 import { MOODS } from "@/lib/moods";
 import { getMoodIcon } from "@/lib/getMoodIcon";
@@ -259,15 +263,15 @@ export default function HomePage() {
         ))}
       </div>
       {/* Hero Section */}
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 pt-10 pb-6">
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-8"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           <motion.h1
-            className="text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6"
+            className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
@@ -280,7 +284,7 @@ export default function HomePage() {
             />
           </motion.h1>
           <motion.p
-            className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-8"
+            className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-6"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -290,7 +294,7 @@ export default function HomePage() {
             path that fits your energy level.
           </motion.p>
           <motion.div
-            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+            className="flex flex-col sm:flex-row gap-3 justify-center items-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
@@ -314,12 +318,90 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
 
+        {/* Quick Feature Nav Strip — visible without scrolling */}
+        <motion.div
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+        >
+          {[
+            {
+              icon: BookOpen,
+              label: "Tutorials",
+              desc: "Step-by-step lessons",
+              href: "/tutorials",
+              color: "blue",
+            },
+            {
+              icon: Brain,
+              label: "Quizzes",
+              desc: "Test your knowledge",
+              href: "/quiz",
+              color: "green",
+            },
+            {
+              icon: Code2,
+              label: "Exercises",
+              desc: "Practice coding",
+              href: "/exercises",
+              color: "orange",
+            },
+            {
+              icon: Video,
+              label: "Mock Interviews",
+              desc: "AI interview prep",
+              href: "/mock-interview",
+              color: "violet",
+            },
+          ].map((item) => (
+            <motion.div key={item.label} whileHover={{ y: -2 }}>
+              <Link
+                href={item.href}
+                className={`flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:shadow-md transition-all group`}
+              >
+                <div
+                  className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                    item.color === "blue"
+                      ? "bg-blue-100 dark:bg-blue-900/30"
+                      : item.color === "green"
+                        ? "bg-green-100 dark:bg-green-900/30"
+                        : item.color === "orange"
+                          ? "bg-orange-100 dark:bg-orange-900/30"
+                          : "bg-violet-100 dark:bg-violet-900/30"
+                  }`}
+                >
+                  <item.icon
+                    className={`w-5 h-5 ${
+                      item.color === "blue"
+                        ? "text-blue-600 dark:text-blue-400"
+                        : item.color === "green"
+                          ? "text-green-600 dark:text-green-400"
+                          : item.color === "orange"
+                            ? "text-orange-600 dark:text-orange-400"
+                            : "text-violet-600 dark:text-violet-400"
+                    }`}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    {item.label}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {item.desc}
+                  </p>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </motion.div>
+
         {/* Platform Demo Showcase */}
         <motion.div
-          className="mb-16 max-w-5xl mx-auto"
+          className="mb-10 max-w-4xl mx-auto"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          transition={{ duration: 0.8, delay: 1.0 }}
         >
           <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-2xl bg-gray-900 aspect-video group">
             {/* Replace this div's contents with a <video> or <img> tag */}
@@ -350,7 +432,7 @@ export default function HomePage() {
         {/* Mood Selection Preview */}
         <motion.div
           id="mood-selection"
-          className="mb-16 relative"
+          className="mb-12 relative"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
@@ -917,6 +999,147 @@ export default function HomePage() {
           </div>
         </motion.div>
 
+        {/* Mock Interview Feature Section */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <motion.h2
+            className="text-3xl font-bold text-center mb-4 text-gray-900 dark:text-gray-100"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            Ace Your Next Tech Interview
+          </motion.h2>
+          <motion.p
+            className="text-center text-gray-600 dark:text-gray-400 mb-12 max-w-2xl mx-auto"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Practice with AI interviewers using real questions from Google,
+            Meta, Amazon, and more. Get scored on technical accuracy, communication, and problem-solving.
+          </motion.p>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto items-center">
+            {/* Left: Interview preview card */}
+            <motion.div
+              className="relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-xl"
+              initial={{ opacity: 0, x: -40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+            >
+              {/* Header bar */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                <Video className="w-5 h-5 text-violet-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                  Mock Interview Session
+                </span>
+                <span className="ml-auto text-xs bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-2 py-0.5 rounded-full font-medium">
+                  Live
+                </span>
+              </div>
+              {/* Interview content */}
+              <div className="p-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
+                    <Brain className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Google Frontend Interview</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Senior Engineer Level</p>
+                  </div>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 italic">
+                    &quot;Can you explain the difference between event bubbling and event capturing? Give me a practical example.&quot;
+                  </p>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-4">
+                    <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                      <Target className="w-4 h-4" /> 5 rounds
+                    </span>
+                    <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                      <Trophy className="w-4 h-4" /> AI scored
+                    </span>
+                  </div>
+                  <span className="text-violet-600 dark:text-violet-400 font-semibold">8.5/10</span>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right: Feature bullets + CTA */}
+            <motion.div
+              className="space-y-5"
+              initial={{ opacity: 0, x: 40 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+            >
+              {[
+                {
+                  icon: Sparkles,
+                  title: "Real Company Questions",
+                  desc: "Practice with actual interview questions from FAANG companies, startups, and everything in between.",
+                },
+                {
+                  icon: MessageCircle,
+                  title: "AI-Powered Feedback",
+                  desc: "Get detailed scores on technical accuracy, code quality, communication, and problem-solving approach.",
+                },
+                {
+                  icon: Target,
+                  title: "Multiple Difficulty Levels",
+                  desc: "From junior to senior roles. Pick your target company and seniority level for tailored questions.",
+                },
+              ].map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  className="flex gap-4 items-start"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.4 + i * 0.1 }}
+                >
+                  <div className="shrink-0 w-10 h-10 rounded-lg bg-violet-600/10 dark:bg-violet-400/10 flex items-center justify-center">
+                    <item.icon className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {item.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+              >
+                <Link
+                  href="/mock-interview"
+                  className="inline-flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Try Mock Interview <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.div>
+
         {/* Features Section */}
         <motion.div
           className="mb-16"
@@ -1234,6 +1457,12 @@ export default function HomePage() {
                   },
                   {
                     feature: "AI Tutor on Every Page",
+                    youtube: false,
+                    bootcamp: false,
+                    us: true,
+                  },
+                  {
+                    feature: "AI Mock Interview Prep",
                     youtube: false,
                     bootcamp: false,
                     us: true,
