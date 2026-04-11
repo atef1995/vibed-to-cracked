@@ -1,9 +1,10 @@
 const DECART_API_BASE = "https://api.decart.ai/v1";
 
 // Default avatar IDs for Decart
-// Replace with actual avatar IDs from your Decart account at decart.ai
+// Configure per-company avatar IDs via environment variables or the COMPANY_AVATARS map.
+// Set DECART_DEFAULT_AVATAR_ID to the ID of your default avatar from the Decart dashboard.
 const COMPANY_AVATARS: Record<string, string> = {
-  default: "REPLACE_WITH_DECART_AVATAR_ID",
+  default: process.env.DECART_DEFAULT_AVATAR_ID ?? "",
 };
 
 function getApiKey(): string {
@@ -48,8 +49,9 @@ export class DecartService {
 
   static async speak(sessionId: string, text: string) {
     validateSessionId(sessionId);
+    const safeId = encodeURIComponent(sessionId);
     const response = await fetch(
-      `${DECART_API_BASE}/sessions/${sessionId}/speak`,
+      `${DECART_API_BASE}/sessions/${safeId}/speak`,
       {
         method: "POST",
         headers: {
@@ -69,8 +71,9 @@ export class DecartService {
 
   static async closeSession(sessionId: string) {
     validateSessionId(sessionId);
+    const safeId = encodeURIComponent(sessionId);
     const response = await fetch(
-      `${DECART_API_BASE}/sessions/${sessionId}`,
+      `${DECART_API_BASE}/sessions/${safeId}`,
       {
         method: "DELETE",
         headers: {

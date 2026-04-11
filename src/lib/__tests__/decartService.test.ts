@@ -9,7 +9,11 @@ describe("DecartService", () => {
   beforeEach(() => {
     originalFetch = global.fetch;
     originalEnv = process.env;
-    process.env = { ...originalEnv, DECART_API_KEY: MOCK_API_KEY };
+    process.env = {
+      ...originalEnv,
+      DECART_API_KEY: MOCK_API_KEY,
+      DECART_DEFAULT_AVATAR_ID: "avatar-abc123",
+    };
     global.fetch = jest.fn();
   });
 
@@ -55,7 +59,7 @@ describe("DecartService", () => {
             Authorization: `Bearer ${MOCK_API_KEY}`,
             "Content-Type": "application/json",
           }),
-          body: JSON.stringify({ avatar_id: "default" }),
+          body: JSON.stringify({ avatar_id: "avatar-abc123" }),
         })
       );
     });
@@ -159,8 +163,8 @@ describe("DecartService", () => {
     it("does not throw when the close API returns a non-ok response", async () => {
       (global.fetch as jest.Mock).mockResolvedValueOnce({ ok: false });
 
-      // Should not throw — only logs the error
-      await expect(DecartService.closeSession("sess-123")).resolves.not.toThrow();
+      // Should resolve without throwing — only logs the error internally
+      await DecartService.closeSession("sess-123");
     });
 
     it("throws when the session ID contains invalid characters", async () => {

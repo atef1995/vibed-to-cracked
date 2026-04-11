@@ -116,9 +116,11 @@ export default function InterviewAvatar({
         onReady?.();
         if (welcomeMessage) {
           try {
+            // repeat() sends the text to the avatar and returns a request ID string
+            // (not a Promise); errors are caught synchronously.
             session.repeat(welcomeMessage);
           } catch (err) {
-            console.error("Welcome message failed:", err);
+            console.error("Welcome message failed (HeyGen SDK):", err);
           }
         }
       });
@@ -148,6 +150,7 @@ export default function InterviewAvatar({
       speakViaDecart(speechText);
     } else if (sessionRef.current) {
       try {
+        // repeat() is synchronous and returns a request ID string; errors throw synchronously.
         sessionRef.current.repeat(speechText);
       } catch (err) {
         console.error("Avatar speak failed:", err);
