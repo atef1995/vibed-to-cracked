@@ -80,7 +80,7 @@ describe("DecartService", () => {
       expect(global.fetch).toHaveBeenCalledWith(
         expect.any(String),
         expect.objectContaining({
-          body: JSON.stringify({ avatar_id: "default" }),
+          body: JSON.stringify({ avatar_id: "avatar-abc123" }),
         })
       );
     });
