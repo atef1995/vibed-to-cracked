@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Loader, VideoOff, Volume2, VolumeOff } from "lucide-react";
+import {
+  LiveAvatarSession,
+  SessionState,
+  SessionEvent,
+} from "@heygen/liveavatar-web-sdk";
 
 interface InterviewAvatarProps {
   companySlug: string;
@@ -19,19 +24,20 @@ export default function InterviewAvatar({
   onReady,
 }: InterviewAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const sessionRef = useRef<LiveAvatarSession | null>(null);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const lastSpeechRef = useRef<string>("");
+  const sessionIdRef = useRef<string | null>(null);
 
   const initSession = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // Get session token from our backend
       const res = await fetch("/api/mock-interview/avatar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -47,58 +53,43 @@ export default function InterviewAvatar({
         throw new Error("Failed to create avatar session");
       }
 
-      const data = await res.json();
-      const { sessionId: sid, url, accessToken } = data;
-      setSessionId(sid);
+      const { data } = await res.json();
+      const { sessionId, sessionToken } = data;
 
-      // Set up WebRTC connection
-      const pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      if (!sessionToken) {
+        setError("unavailable");
+        setLoading(false);
+        return;
+      }
+
+      sessionIdRef.current = sessionId;
+
+      // Create LiveAvatar session using the SDK
+      const session = new LiveAvatarSession(sessionToken, {
+        voiceChat: false,
       });
-      peerConnectionRef.current = pc;
+      sessionRef.current = session;
 
-      pc.ontrack = (event) => {
-        if (videoRef.current && event.streams[0]) {
-          videoRef.current.srcObject = event.streams[0];
-          setConnected(true);
-          setLoading(false);
-          onReady?.();
+      // Listen for stream ready
+      session.on(SessionEvent.SESSION_STREAM_READY, () => {
+        if (videoRef.current) {
+          session.attach(videoRef.current);
         }
-      };
+        setConnected(true);
+        setLoading(false);
+        onReady?.();
+      });
 
-      pc.oniceconnectionstatechange = () => {
-        if (
-          pc.iceConnectionState === "disconnected" ||
-          pc.iceConnectionState === "failed"
-        ) {
+      // Listen for state changes
+      session.on(SessionEvent.SESSION_STATE_CHANGED, (state: SessionState) => {
+        if (state === SessionState.DISCONNECTED) {
           setConnected(false);
           setError("disconnected");
         }
-      };
+      });
 
-      // Connect to HeyGen streaming URL via SDP
-      if (url && accessToken) {
-        const sdpRes = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            sdp: await createOffer(pc),
-            type: "offer",
-          }),
-        });
-
-        if (sdpRes.ok) {
-          const sdpData = await sdpRes.json();
-          await pc.setRemoteDescription(new RTCSessionDescription(sdpData));
-        }
-      } else {
-        // No WebRTC URL — avatar not fully configured, show fallback
-        setError("unavailable");
-        setLoading(false);
-      }
+      // Start the session
+      await session.start();
     } catch (err) {
       console.error("Avatar init failed:", err);
       setError("unavailable");
@@ -106,33 +97,38 @@ export default function InterviewAvatar({
     }
   }, [companySlug, onReady]);
 
-  // Create WebRTC offer
-  async function createOffer(pc: RTCPeerConnection): Promise<string> {
-    pc.addTransceiver("video", { direction: "recvonly" });
-    pc.addTransceiver("audio", { direction: "recvonly" });
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    return offer.sdp || "";
-  }
-
-  // Send speech text to avatar
+  // Send speech text to avatar via SDK repeat() method
   useEffect(() => {
-    if (!sessionId || !speechText || speechText === lastSpeechRef.current)
+    if (
+      !sessionRef.current ||
+      !speechText ||
+      speechText === lastSpeechRef.current ||
+      !connected
+    )
       return;
     lastSpeechRef.current = speechText;
 
-    fetch("/api/mock-interview/avatar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, text: speechText }),
-    }).catch((err) => console.error("Avatar speak failed:", err));
-  }, [sessionId, speechText]);
+    sessionRef.current
+      .repeat(speechText)
+      .catch((err: unknown) => console.error("Avatar speak failed:", err));
+  }, [speechText, connected]);
 
   // Init on mount
   useEffect(() => {
     initSession();
     return () => {
-      peerConnectionRef.current?.close();
+      // Clean up: stop SDK session and notify backend
+      sessionRef.current?.stop().catch(() => {});
+      if (sessionIdRef.current) {
+        fetch("/api/mock-interview/avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "stop",
+            sessionId: sessionIdRef.current,
+          }),
+        }).catch(() => {});
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

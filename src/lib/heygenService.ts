@@ -1,9 +1,9 @@
-const HEYGEN_API_BASE = "https://api.heygen.com/v1";
+const LIVEAVATAR_API_BASE = "https://api.liveavatar.com/v1";
 
-// Default avatar IDs mapped to company styles
-// These are placeholder HeyGen avatar IDs — replace with actual IDs from your HeyGen account
+// Default avatar IDs for LiveAvatar
+// Replace with actual avatar IDs from your LiveAvatar account at app.liveavatar.com
 const COMPANY_AVATARS: Record<string, string> = {
-  default: "josh_lite3_20230714",
+  default: "ef08839c-0d44-4c67-8e2b-cfb245e1a5b5",
 };
 
 function getApiKey(): string {
@@ -17,68 +17,51 @@ export class HeyGenService {
     const avatarId =
       COMPANY_AVATARS[companySlug || ""] || COMPANY_AVATARS.default;
 
-    const response = await fetch(`${HEYGEN_API_BASE}/streaming.new`, {
+    const response = await fetch(`${LIVEAVATAR_API_BASE}/sessions/token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": getApiKey(),
+        "X-API-KEY": getApiKey(),
       },
       body: JSON.stringify({
-        quality: "medium",
-        avatar_name: avatarId,
-        voice: { voice_id: "default" },
+        avatar_id: avatarId,
+        avatar_persona: {
+          language: "en",
+        },
+        mode: "FULL",
+        is_sandbox: process.env.NODE_ENV !== "production",
+        interactivity_type: "PUSH_TO_TALK",
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error("HeyGen session creation failed:", error);
+      console.error("LiveAvatar session token creation failed:", error);
       throw new Error("Failed to create avatar session");
     }
 
-    const data = await response.json();
+    const result = await response.json();
     return {
-      sessionId: data.data?.session_id,
-      accessToken: data.data?.access_token,
-      url: data.data?.url,
+      sessionId: result.data?.session_id,
+      sessionToken: result.data?.session_token,
     };
   }
 
-  static async sendSpeakCommand(sessionId: string, text: string) {
-    const response = await fetch(`${HEYGEN_API_BASE}/streaming.task`, {
+  static async closeSession(sessionId: string) {
+    const response = await fetch(`${LIVEAVATAR_API_BASE}/sessions/stop`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-api-key": getApiKey(),
+        "X-API-KEY": getApiKey(),
       },
       body: JSON.stringify({
         session_id: sessionId,
-        text,
-        task_type: "talk",
+        reason: "USER_CLOSED",
       }),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error("HeyGen speak command failed:", error);
-      throw new Error("Failed to send speak command");
-    }
-
-    return response.json();
-  }
-
-  static async closeSession(sessionId: string) {
-    const response = await fetch(`${HEYGEN_API_BASE}/streaming.stop`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": getApiKey(),
-      },
-      body: JSON.stringify({ session_id: sessionId }),
-    });
-
-    if (!response.ok) {
-      console.error("HeyGen session close failed");
+      console.error("LiveAvatar session close failed");
     }
   }
 

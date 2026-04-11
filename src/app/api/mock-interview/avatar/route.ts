@@ -17,15 +17,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { companySlug } = await request.json();
+    const body = await request.json();
 
+    // Handle stop request
+    if (body.action === "stop" && body.sessionId) {
+      await HeyGenService.closeSession(body.sessionId);
+      return NextResponse.json({ data: { success: true } });
+    }
+
+    // Create new session token
+    const { companySlug } = body;
     const avatarSession = await HeyGenService.createAvatarSession(companySlug);
 
-    return NextResponse.json(avatarSession);
+    return NextResponse.json({ data: avatarSession });
   } catch (error) {
-    console.error("Error creating avatar session:", error);
+    console.error("Error in avatar route:", error);
     return NextResponse.json(
-      { error: "Failed to create avatar session" },
+      { error: "Failed to process avatar request" },
       { status: 500 }
     );
   }
