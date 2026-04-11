@@ -1,21 +1,23 @@
 const LIVEAVATAR_API_BASE = "https://api.liveavatar.com/v1";
 
-// Default avatar IDs for LiveAvatar
-// Replace with actual avatar IDs from your LiveAvatar account at app.liveavatar.com
-const COMPANY_AVATARS: Record<string, string> = {
-  default: "ef08839c-0d44-4c67-8e2b-cfb245e1a5b5",
+// Public avatar IDs from LiveAvatar
+const INTERVIEW_AVATARS: Record<string, string> = {
+  TECHNICAL: "64b526e4-741c-43b6-a918-4e40f3261c7a", // Bryan Tech Expert
+  BEHAVIORAL: "cd1d101c-9273-431b-8069-63beef736bec", // Judy HR
+  MIXED: "64b526e4-741c-43b6-a918-4e40f3261c7a", // Bryan Tech Expert for mixed
+  default: "64b526e4-741c-43b6-a918-4e40f3261c7a",
 };
 
 function getApiKey(): string {
-  const key = process.env.HEYGEN_API_KEY;
-  if (!key) throw new Error("HEYGEN_API_KEY is not configured");
+  const key = process.env.LIVEAVATAR_API_KEY || process.env.HEYGEN_API_KEY;
+  if (!key) throw new Error("LIVEAVATAR_API_KEY is not configured");
   return key;
 }
 
 export class HeyGenService {
-  static async createAvatarSession(companySlug?: string) {
+  static async createAvatarSession(interviewType?: string) {
     const avatarId =
-      COMPANY_AVATARS[companySlug || ""] || COMPANY_AVATARS.default;
+      INTERVIEW_AVATARS[interviewType || ""] || INTERVIEW_AVATARS.default;
 
     const response = await fetch(`${LIVEAVATAR_API_BASE}/sessions/token`, {
       method: "POST",
@@ -66,6 +68,6 @@ export class HeyGenService {
   }
 
   static isConfigured(): boolean {
-    return !!process.env.HEYGEN_API_KEY;
+    return !!(process.env.LIVEAVATAR_API_KEY || process.env.HEYGEN_API_KEY);
   }
 }

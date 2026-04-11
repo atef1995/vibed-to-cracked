@@ -266,6 +266,7 @@ export default function InterviewSessionPage({
             companySlug={interview.company.slug}
             companyName={interview.company.name}
             companyColor={interview.company.color}
+            interviewType={interview.interviewType}
             speechText={aiSpeech || undefined}
           />
         </div>

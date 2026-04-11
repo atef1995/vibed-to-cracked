@@ -12,6 +12,7 @@ interface InterviewAvatarProps {
   companySlug: string;
   companyName: string;
   companyColor: string;
+  interviewType?: string;
   speechText?: string;
   onReady?: () => void;
 }
@@ -20,6 +21,7 @@ export default function InterviewAvatar({
   companySlug,
   companyName,
   companyColor,
+  interviewType,
   speechText,
   onReady,
 }: InterviewAvatarProps) {
@@ -41,7 +43,7 @@ export default function InterviewAvatar({
       const res = await fetch("/api/mock-interview/avatar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ companySlug }),
+        body: JSON.stringify({ interviewType }),
       });
 
       if (!res.ok) {

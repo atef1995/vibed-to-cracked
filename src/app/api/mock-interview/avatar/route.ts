@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Create new session token
-    const { companySlug } = body;
-    const avatarSession = await HeyGenService.createAvatarSession(companySlug);
+    const { interviewType } = body;
+    const avatarSession = await HeyGenService.createAvatarSession(interviewType);
 
     return NextResponse.json({ data: avatarSession });
   } catch (error) {
