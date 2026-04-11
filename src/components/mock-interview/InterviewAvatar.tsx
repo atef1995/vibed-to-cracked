@@ -32,6 +32,7 @@ export default function InterviewAvatar({
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
   const lastSpeechRef = useRef<string>("");
+  const pendingSpeechRef = useRef<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
 
   const initSession = useCallback(async () => {
@@ -80,6 +81,17 @@ export default function InterviewAvatar({
         setConnected(true);
         setLoading(false);
         onReady?.();
+
+        // Send any pending speech that arrived before stream was ready
+        if (pendingSpeechRef.current) {
+          try {
+            session.repeat(pendingSpeechRef.current);
+            lastSpeechRef.current = pendingSpeechRef.current;
+          } catch (err) {
+            console.error("Avatar speak failed:", err);
+          }
+          pendingSpeechRef.current = null;
+        }
       });
 
       // Listen for state changes
@@ -97,22 +109,32 @@ export default function InterviewAvatar({
       setError("unavailable");
       setLoading(false);
     }
-  }, [companySlug, onReady]);
+  }, [interviewType, onReady]);
+
+  // Clear dedup ref when speech resets so same text can be re-sent next round
+  useEffect(() => {
+    if (!speechText) {
+      lastSpeechRef.current = "";
+    }
+  }, [speechText]);
 
   // Send speech text to avatar via SDK repeat() method
   useEffect(() => {
-    if (
-      !sessionRef.current ||
-      !speechText ||
-      speechText === lastSpeechRef.current ||
-      !connected
-    )
-      return;
-    lastSpeechRef.current = speechText;
+    if (!speechText || speechText === lastSpeechRef.current) return;
 
-    sessionRef.current
-      .repeat(speechText)
-      .catch((err: unknown) => console.error("Avatar speak failed:", err));
+    // If not connected yet, queue it for when stream is ready
+    if (!sessionRef.current || !connected) {
+      pendingSpeechRef.current = speechText;
+      return;
+    }
+
+    try {
+      sessionRef.current.repeat(speechText);
+      lastSpeechRef.current = speechText;
+      pendingSpeechRef.current = null;
+    } catch (err) {
+      console.error("Avatar speak failed:", err);
+    }
   }, [speechText, connected]);
 
   // Init on mount
