@@ -1,18 +1,21 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { Loader, VideoOff, Volume2, VolumeOff } from "lucide-react";
+import { Loader, Volume2, VolumeOff } from "lucide-react";
 import {
   LiveAvatarSession,
   SessionState,
   SessionEvent,
 } from "@heygen/liveavatar-web-sdk";
 
+type AvatarProvider = "heygen" | "decart";
+
 interface InterviewAvatarProps {
   companySlug: string;
   companyName: string;
   companyColor: string;
   speechText?: string;
+  welcomeMessage?: string;
   onReady?: () => void;
 }
 
@@ -21,6 +24,7 @@ export default function InterviewAvatar({
   companyName,
   companyColor,
   speechText,
+  welcomeMessage,
   onReady,
 }: InterviewAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -29,15 +33,34 @@ export default function InterviewAvatar({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [muted, setMuted] = useState(false);
+  const [provider, setProvider] = useState<AvatarProvider>("heygen");
+  const [streamUrl, setStreamUrl] = useState<string | null>(null);
   const lastSpeechRef = useRef<string>("");
   const sessionIdRef = useRef<string | null>(null);
+  const providerRef = useRef<AvatarProvider>("heygen");
+
+  const speakViaDecart = useCallback(async (text: string) => {
+    if (!sessionIdRef.current) return;
+    try {
+      await fetch("/api/mock-interview/avatar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "speak",
+          sessionId: sessionIdRef.current,
+          text,
+        }),
+      });
+    } catch (err) {
+      console.error("Decart speak failed:", err);
+    }
+  }, []);
 
   const initSession = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Get session token from our backend
       const res = await fetch("/api/mock-interview/avatar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,23 +77,36 @@ export default function InterviewAvatar({
       }
 
       const { data } = await res.json();
-      const { sessionId, sessionToken } = data;
+      const { sessionId, provider: sessionProvider } = data;
+      sessionIdRef.current = sessionId;
+      providerRef.current = sessionProvider;
+      setProvider(sessionProvider);
 
+      if (sessionProvider === "decart") {
+        // Decart: render via iframe using the returned stream URL
+        setStreamUrl(data.streamUrl);
+        setConnected(true);
+        setLoading(false);
+        onReady?.();
+        if (welcomeMessage) {
+          await speakViaDecart(welcomeMessage);
+        }
+        return;
+      }
+
+      // HeyGen: use the LiveAvatar SDK
+      const { sessionToken } = data;
       if (!sessionToken) {
         setError("unavailable");
         setLoading(false);
         return;
       }
 
-      sessionIdRef.current = sessionId;
-
-      // Create LiveAvatar session using the SDK
       const session = new LiveAvatarSession(sessionToken, {
         voiceChat: false,
       });
       sessionRef.current = session;
 
-      // Listen for stream ready
       session.on(SessionEvent.SESSION_STREAM_READY, () => {
         if (videoRef.current) {
           session.attach(videoRef.current);
@@ -78,9 +114,17 @@ export default function InterviewAvatar({
         setConnected(true);
         setLoading(false);
         onReady?.();
+        if (welcomeMessage) {
+          try {
+            // repeat() sends the text to the avatar and returns a request ID string
+            // (not a Promise); the return value is intentionally unused.
+            void session.repeat(welcomeMessage);
+          } catch (err) {
+            console.error("Welcome message failed (HeyGen SDK):", err);
+          }
+        }
       });
 
-      // Listen for state changes
       session.on(SessionEvent.SESSION_STATE_CHANGED, (state: SessionState) => {
         if (state === SessionState.DISCONNECTED) {
           setConnected(false);
@@ -88,36 +132,37 @@ export default function InterviewAvatar({
         }
       });
 
-      // Start the session
       await session.start();
     } catch (err) {
       console.error("Avatar init failed:", err);
       setError("unavailable");
       setLoading(false);
     }
-  }, [companySlug, onReady]);
+  }, [companySlug, onReady, welcomeMessage, speakViaDecart]);
 
-  // Send speech text to avatar via SDK repeat() method
+  // Send speech text to avatar
   useEffect(() => {
-    if (
-      !sessionRef.current ||
-      !speechText ||
-      speechText === lastSpeechRef.current ||
-      !connected
-    )
+    if (!speechText || speechText === lastSpeechRef.current || !connected)
       return;
     lastSpeechRef.current = speechText;
 
-    sessionRef.current
-      .repeat(speechText)
-      .catch((err: unknown) => console.error("Avatar speak failed:", err));
-  }, [speechText, connected]);
+    if (providerRef.current === "decart") {
+      speakViaDecart(speechText);
+    } else if (sessionRef.current) {
+      try {
+        // repeat() is synchronous and returns a request ID string;
+        // the return value is intentionally unused.
+        void sessionRef.current.repeat(speechText);
+      } catch (err) {
+        console.error("Avatar speak failed:", err);
+      }
+    }
+  }, [speechText, connected, speakViaDecart]);
 
   // Init on mount
   useEffect(() => {
     initSession();
     return () => {
-      // Clean up: stop SDK session and notify backend
       sessionRef.current?.stop().catch(() => {});
       if (sessionIdRef.current) {
         fetch("/api/mock-interview/avatar", {
@@ -126,6 +171,7 @@ export default function InterviewAvatar({
           body: JSON.stringify({
             action: "stop",
             sessionId: sessionIdRef.current,
+            provider: providerRef.current,
           }),
         }).catch(() => {});
       }
@@ -155,6 +201,36 @@ export default function InterviewAvatar({
     );
   }
 
+  // Decart: iframe-based rendering
+  if (provider === "decart" && streamUrl) {
+    return (
+      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-900">
+        {loading && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-gray-900">
+            <Loader className="h-8 w-8 animate-spin text-violet-400 mb-3" />
+            <p className="text-sm text-gray-400">Connecting avatar...</p>
+          </div>
+        )}
+        {connected && (
+          <iframe
+            src={streamUrl}
+            className="w-full h-full border-0"
+            allow="camera; microphone; autoplay"
+            title={`${companyName} interviewer avatar`}
+          />
+        )}
+        {speechText && connected && (
+          <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-4 py-3">
+            <p className="text-white text-sm text-center leading-relaxed">
+              {speechText}
+            </p>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // HeyGen: video-element rendering via SDK
   return (
     <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-900">
       {loading && (
@@ -182,7 +258,6 @@ export default function InterviewAvatar({
           )}
         </button>
       )}
-      {/* Subtitle overlay for speech */}
       {speechText && connected && (
         <div className="absolute bottom-0 left-0 right-0 bg-black/70 px-4 py-3">
           <p className="text-white text-sm text-center leading-relaxed">
