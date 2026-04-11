@@ -1,12 +1,10 @@
 "use client";
 
-import { use, useState, useEffect, useCallback } from "react";
+import { use, useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import {
-  Mic,
-  MicOff,
   Send,
   SkipForward,
   StopCircle,
@@ -14,6 +12,7 @@ import {
   Code,
   MessageSquare,
   ChevronRight,
+  PlayCircle,
 } from "lucide-react";
 import { SessionState, InterviewStatus } from "@/lib/interviewConstants";
 import VoiceInput from "@/components/mock-interview/VoiceInput";
@@ -55,6 +54,25 @@ interface InterviewData {
   rounds: Round[];
 }
 
+async function generateSpeech(
+  interviewId: string,
+  type: "intro" | "question" | "closing",
+  extra?: { questionText?: string; questionType?: string; starterCode?: string | null }
+): Promise<string> {
+  try {
+    const res = await fetch(`/api/mock-interview/${interviewId}/speech`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, ...extra }),
+    });
+    if (!res.ok) return "";
+    const data = await res.json();
+    return data.data?.speech || "";
+  } catch {
+    return "";
+  }
+}
+
 export default function InterviewSessionPage({
   params,
 }: {
@@ -75,6 +93,15 @@ export default function InterviewSessionPage({
   const [isCodeMode, setIsCodeMode] = useState(false);
   const [aiSpeech, setAiSpeech] = useState("");
   const [previewTimer, setPreviewTimer] = useState<number | null>(null);
+  const [avatarReady, setAvatarReady] = useState(false);
+  const [introLoading, setIntroLoading] = useState(false);
+  const [beginning, setBeginning] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const firstRoundRef = useRef<Round | null>(null);
+  const hasResumed = useRef(false);
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevStateRef = useRef<string>(SessionState.INTRO);
 
   // Fetch interview data
   useEffect(() => {
@@ -85,23 +112,37 @@ export default function InterviewSessionPage({
         const data = await res.json();
         setInterview(data.interview);
 
+        if (data.interview.status === InterviewStatus.COMPLETED) {
+          router.replace(`/mock-interview/session/${id}/results`);
+          return;
+        }
+
         // Find first unanswered round
         const pending = data.interview.rounds.find(
           (r: Round) => !r.responseText && !r.responseCode
         );
         if (pending) {
-          setCurrentRound(pending);
-          setSessionState(SessionState.QUESTION);
-          if (pending.question?.type === "TECHNICAL") {
-            setIsCodeMode(true);
-            setResponseCode(pending.question?.starterCode || "");
+          firstRoundRef.current = pending;
+
+          // If some rounds were already answered, this is a resume — skip intro
+          const answeredCount = data.interview.rounds.filter(
+            (r: Round) => r.responseText || r.responseCode
+          ).length;
+          if (answeredCount > 0) {
+            hasResumed.current = true;
+            setCurrentRound(pending);
+            setSessionState(SessionState.QUESTION);
+            if (pending.question?.type === "TECHNICAL") {
+              setIsCodeMode(true);
+              setResponseCode(pending.question?.starterCode || "");
+            }
           }
-        } else if (data.interview.status === InterviewStatus.COMPLETED) {
-          router.replace(`/mock-interview/session/${id}/results`);
-          return;
+          // Otherwise stay in INTRO — the avatar welcome will play
+        } else {
+          // All rounds answered but interview not yet completed — go straight to closing
+          setSessionState(SessionState.CLOSING);
         }
 
-        // Preview timer
         if (data.interview.isPreview) {
           setPreviewTimer(30);
         }
@@ -114,14 +155,83 @@ export default function InterviewSessionPage({
     fetchInterview();
   }, [id, router]);
 
-  // Preview countdown
+  // Generate intro speech once both avatar and interview data are ready
+  useEffect(() => {
+    if (
+      !avatarReady ||
+      !interview ||
+      sessionState !== SessionState.INTRO ||
+      hasResumed.current
+    )
+      return;
+
+    let cancelled = false;
+    setIntroLoading(true);
+
+    generateSpeech(id, "intro").then((speech) => {
+      if (cancelled) return;
+      setAiSpeech(speech);
+      setIntroLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [avatarReady, interview, sessionState, id]);
+
+  // Fallback: if avatar never connects, let the user proceed after 15 seconds
+  useEffect(() => {
+    if (avatarReady || loading) return;
+    const timer = setTimeout(() => {
+      setAvatarReady(true);
+    }, 15_000);
+    return () => clearTimeout(timer);
+  }, [avatarReady, loading]);
+
+  // Clean up dangling transition timers on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    };
+  }, []);
+
+  // Begin the interview — transition from INTRO to first question
+  const beginInterview = useCallback(async () => {
+    if (beginning) return;
+    const round = firstRoundRef.current;
+    if (!round) return;
+
+    setBeginning(true);
+    setCurrentRound(round);
+    if (round.question?.type === "TECHNICAL") {
+      setIsCodeMode(true);
+      setResponseCode(round.question?.starterCode || "");
+    }
+
+    // Clear speech first so avatar dedup ref resets
+    setAiSpeech("");
+
+    // Generate question delivery speech for the first question
+    const questionSpeech = await generateSpeech(id, "question", {
+      questionText: round.questionText,
+      questionType: round.question?.type,
+      starterCode: round.question?.starterCode,
+    });
+
+    setAiSpeech(questionSpeech);
+    setSessionState(SessionState.QUESTION);
+    setBeginning(false);
+  }, [id, beginning]);
+
+  // Preview countdown — paused during INTRO so timer doesn't expire before interview begins
   useEffect(() => {
     if (previewTimer === null || previewTimer <= 0) return;
+    if (sessionState === SessionState.INTRO) return;
     const timer = setTimeout(() => {
       setPreviewTimer((prev) => (prev !== null ? prev - 1 : null));
     }, 1000);
     return () => clearTimeout(timer);
-  }, [previewTimer]);
+  }, [previewTimer, sessionState]);
 
   useEffect(() => {
     if (previewTimer === 0) {
@@ -132,6 +242,7 @@ export default function InterviewSessionPage({
   const submitResponse = useCallback(async () => {
     if (!currentRound || submitting) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     try {
       const res = await fetch(`/api/mock-interview/${id}/respond`, {
@@ -148,25 +259,50 @@ export default function InterviewSessionPage({
       if (!res.ok) throw new Error("Failed to submit");
       const data = await res.json();
 
-      if (data.transitionSpeech) {
-        setAiSpeech(data.transitionSpeech);
-        setSessionState(SessionState.TRANSITION);
-      }
-
       if (data.nextRound) {
-        setTimeout(() => {
-          setCurrentRound(data.nextRound);
+        // Clear speech so avatar dedup ref resets for next question
+        setAiSpeech("");
+
+        // Show transition speech while we generate the next question delivery
+        if (data.transitionSpeech) {
+          setAiSpeech(data.transitionSpeech);
+          setSessionState(SessionState.TRANSITION);
+        }
+
+        // After a short pause for the transition, deliver the next question
+        if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+        transitionTimerRef.current = setTimeout(async () => {
+          const nextRound = data.nextRound;
+          setCurrentRound(nextRound);
           setResponseText("");
-          setResponseCode(data.nextRound.question?.starterCode || "");
-          setIsCodeMode(data.nextRound.question?.type === "TECHNICAL");
-          setSessionState(SessionState.QUESTION);
+          setResponseCode(nextRound.question?.starterCode || "");
+          setIsCodeMode(nextRound.question?.type === "TECHNICAL");
+
           setAiSpeech("");
-        }, 2000);
+          const questionSpeech = await generateSpeech(id, "question", {
+            questionText: nextRound.questionText,
+            questionType: nextRound.question?.type,
+            starterCode: nextRound.question?.starterCode,
+          });
+
+          setAiSpeech(questionSpeech);
+          setSessionState(SessionState.QUESTION);
+        }, 3000);
       } else if (data.isComplete) {
-        setSessionState(SessionState.CLOSING);
+        // Generate closing speech before showing results
+        setAiSpeech("");
+        setSessionState(SessionState.TRANSITION);
+        const closingSpeech = await generateSpeech(id, "closing");
+        setAiSpeech(closingSpeech);
+
+        if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+        transitionTimerRef.current = setTimeout(() => {
+          setSessionState(SessionState.CLOSING);
+        }, 4000);
       }
     } catch (err) {
       console.error("Submit failed:", err);
+      setSubmitError("Failed to submit your response. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -174,6 +310,7 @@ export default function InterviewSessionPage({
 
   const completeInterview = useCallback(async () => {
     setCompleting(true);
+    prevStateRef.current = sessionState;
     setSessionState(SessionState.SCORING);
     try {
       const res = await fetch(`/api/mock-interview/${id}/complete`, {
@@ -183,9 +320,28 @@ export default function InterviewSessionPage({
       router.push(`/mock-interview/session/${id}/results`);
     } catch (err) {
       console.error("Complete failed:", err);
+      // Revert to previous state so user can retry
+      setSessionState(prevStateRef.current);
       setCompleting(false);
     }
-  }, [id, router]);
+  }, [id, router, sessionState]);
+
+  // "End Interview" from the question area — generate closing speech first
+  const endInterviewEarly = useCallback(async () => {
+    setAiSpeech("");
+    setSessionState(SessionState.TRANSITION);
+    const closingSpeech = await generateSpeech(id, "closing");
+    setAiSpeech(closingSpeech);
+
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current);
+    transitionTimerRef.current = setTimeout(() => {
+      setSessionState(SessionState.CLOSING);
+    }, 4000);
+  }, [id]);
+
+  const handleAvatarReady = useCallback(() => {
+    setAvatarReady(true);
+  }, []);
 
   if (loading) {
     return (
@@ -268,8 +424,54 @@ export default function InterviewSessionPage({
             companyColor={interview.company.color}
             interviewType={interview.interviewType}
             speechText={aiSpeech || undefined}
+            onReady={handleAvatarReady}
           />
         </div>
+
+        {/* Intro State — Avatar welcomes the candidate */}
+        {sessionState === SessionState.INTRO && (
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            {introLoading || !avatarReady ? (
+              <>
+                <Loader className="h-8 w-8 animate-spin text-violet-500 mb-4" />
+                <p className="text-gray-600 dark:text-gray-300">
+                  Your interviewer is getting ready...
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-600 dark:text-gray-300 mb-6 max-w-lg">
+                  {interview.company.name} is ready to begin your{" "}
+                  {interview.interviewType.toLowerCase()} interview.{" "}
+                  {totalRounds} questions ahead. Take a breath and click below
+                  when you are ready.
+                </p>
+                <button
+                  onClick={beginInterview}
+                  disabled={beginning}
+                  className="flex items-center gap-2 px-8 py-3 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors text-lg disabled:opacity-50"
+                >
+                  {beginning ? (
+                    <Loader className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <PlayCircle className="h-5 w-5" />
+                  )}
+                  {beginning ? "Starting..." : "I'm Ready"}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Transition State — Avatar speaks between questions */}
+        {sessionState === SessionState.TRANSITION && (
+          <div className="flex flex-col items-center justify-center py-16">
+            <Loader className="h-6 w-6 animate-spin text-violet-400 mb-3" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Moving to the next question...
+            </p>
+          </div>
+        )}
 
         {/* Scoring State */}
         {sessionState === SessionState.SCORING && (
@@ -404,10 +606,9 @@ export default function InterviewSessionPage({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
-                    onClick={() => {
-                      setSessionState(SessionState.CLOSING);
-                    }}
-                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-1"
+                    onClick={endInterviewEarly}
+                    disabled={submitting}
+                    className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 flex items-center gap-1 disabled:opacity-50"
                   >
                     <SkipForward className="h-4 w-4" />
                     End Interview
@@ -438,6 +639,13 @@ export default function InterviewSessionPage({
                   Submit Answer
                 </button>
               </div>
+
+              {/* Submit error feedback */}
+              {submitError && (
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  {submitError}
+                </p>
+              )}
             </div>
           )}
       </div>

@@ -51,6 +51,7 @@ export default function InterviewAvatar({
         if (res.status === 503) {
           setError("unavailable");
           setLoading(false);
+          onReady?.();
           return;
         }
         throw new Error("Failed to create avatar session");
@@ -62,6 +63,7 @@ export default function InterviewAvatar({
       if (!sessionToken) {
         setError("unavailable");
         setLoading(false);
+        onReady?.();
         return;
       }
 
@@ -108,6 +110,7 @@ export default function InterviewAvatar({
       console.error("Avatar init failed:", err);
       setError("unavailable");
       setLoading(false);
+      onReady?.();
     }
   }, [interviewType, onReady]);
 
@@ -137,8 +140,11 @@ export default function InterviewAvatar({
     }
   }, [speechText, connected]);
 
-  // Init on mount
+  // Init on mount (guarded against React Strict Mode double-invocation)
+  const mountedRef = useRef(false);
   useEffect(() => {
+    if (mountedRef.current) return;
+    mountedRef.current = true;
     initSession();
     return () => {
       // Clean up: stop SDK session and notify backend
