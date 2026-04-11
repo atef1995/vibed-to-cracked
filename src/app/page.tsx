@@ -1024,7 +1024,8 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.1 }}
           >
             Practice with AI interviewers using real questions from Google,
-            Meta, Amazon, and more. Get scored on technical accuracy, communication, and problem-solving.
+            Meta, Amazon, and more. Get scored on technical accuracy,
+            communication, and problem-solving.
           </motion.p>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto items-center">
@@ -1053,13 +1054,18 @@ export default function HomePage() {
                     <Brain className="w-5 h-5 text-violet-600 dark:text-violet-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">Google Frontend Interview</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Senior Engineer Level</p>
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Google Frontend Interview
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Senior Engineer Level
+                    </p>
                   </div>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
                   <p className="text-sm text-gray-700 dark:text-gray-300 italic">
-                    &quot;Can you explain the difference between event bubbling and event capturing? Give me a practical example.&quot;
+                    &quot;Can you explain the difference between event bubbling
+                    and event capturing? Give me a practical example.&quot;
                   </p>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -1071,7 +1077,9 @@ export default function HomePage() {
                       <Trophy className="w-4 h-4" /> AI scored
                     </span>
                   </div>
-                  <span className="text-violet-600 dark:text-violet-400 font-semibold">8.5/10</span>
+                  <span className="text-violet-600 dark:text-violet-400 font-semibold">
+                    8.5/10
+                  </span>
                 </div>
               </div>
             </motion.div>
