@@ -16,6 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     projects,
     blogPosts,
     cheatSheets,
+    glossaryTerms,
+    comparisons,
   ] = await Promise.all([
     prisma.tutorial.findMany({
       where: { published: true },
@@ -52,7 +54,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { published: true },
       select: { slug: true, updatedAt: true },
     }),
+    prisma.glossaryTerm.findMany({
+      where: { published: true },
+      select: { slug: true, updatedAt: true },
+    }),
+    prisma.comparison.findMany({
+      where: { published: true },
+      select: { slug: true, updatedAt: true },
+    }),
   ]);
+
+  const topicSlugs = [
+    "fundamentals",
+    "html",
+    "css",
+    "dom",
+    "oop",
+    "async",
+    "data-structures",
+    "advanced",
+  ];
 
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, priority: 1.0, changeFrequency: "weekly" },
@@ -68,6 +89,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
     },
     { url: `${BASE_URL}/pricing`, priority: 0.8, changeFrequency: "monthly" },
+    { url: `${BASE_URL}/glossary`, priority: 0.8, changeFrequency: "weekly" },
+    { url: `${BASE_URL}/compare`, priority: 0.8, changeFrequency: "weekly" },
+    { url: `${BASE_URL}/learn`, priority: 0.9, changeFrequency: "weekly" },
+    {
+      url: `${BASE_URL}/tools/complexity-visualizer`,
+      priority: 0.8,
+      changeFrequency: "monthly",
+    },
+    ...topicSlugs.map((slug) => ({
+      url: `${BASE_URL}/learn/${slug}`,
+      priority: 0.8,
+      changeFrequency: "weekly" as const,
+    })),
   ];
 
   return [
@@ -117,6 +151,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...cheatSheets.map((cs) => ({
       url: `${BASE_URL}/cheat-sheets/${cs.slug}`,
       lastModified: cs.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...glossaryTerms.map((g) => ({
+      url: `${BASE_URL}/glossary/${g.slug}`,
+      lastModified: g.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+    ...comparisons.map((c) => ({
+      url: `${BASE_URL}/compare/${c.slug}`,
+      lastModified: c.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
