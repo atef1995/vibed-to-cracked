@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import type { Prisma } from "@/generated/client";
 import { authOptions } from "@/lib/auth";
 import { MockInterviewService } from "@/lib/mockInterviewService";
 import { InterviewAIService } from "@/lib/interviewAIService";
@@ -49,7 +50,9 @@ export async function POST(
     // Find the current round to update
     const currentRound = roundId
       ? interview.rounds.find((r: { id: string }) => r.id === roundId)
-      : interview.rounds.find((r: { responseText: string | null }) => !r.responseText);
+      : interview.rounds.find(
+          (r: { responseText: string | null }) => !r.responseText
+        );
 
     if (!currentRound) {
       return NextResponse.json(
@@ -66,21 +69,21 @@ export async function POST(
     });
 
     // Evaluate the response
-    const question = currentRound.question || currentRound;
+    const question = currentRound.question;
     let evaluation = null;
     try {
       evaluation = await InterviewAIService.evaluateResponse(
         currentRound.questionText,
         responseText || responseCode || "",
-        question.evaluationCriteria || {},
-        question.type || "BEHAVIORAL",
+        (question?.evaluationCriteria as Record<string, string>) || {},
+        question?.type || "BEHAVIORAL",
         responseCode
       );
 
       // Save evaluation score/feedback to round
       await MockInterviewService.updateRound(currentRound.id, {
         score: evaluation.score,
-        feedback: evaluation as unknown as Record<string, unknown>,
+        feedback: evaluation as unknown as Prisma.InputJsonValue,
       });
     } catch (err) {
       console.error("Failed to evaluate response:", err);
@@ -93,7 +96,7 @@ export async function POST(
     );
 
     let transitionSpeech = "";
-    const mood = (session as Record<string, unknown>).mood as string || "CHILL";
+    const mood = session.user.mood || "CHILL";
     const company = interview.company;
 
     if (nextRound) {

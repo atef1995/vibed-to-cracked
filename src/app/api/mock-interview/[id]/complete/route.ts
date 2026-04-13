@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import type { Prisma } from "@/generated/client";
 import { authOptions } from "@/lib/auth";
 import { MockInterviewService } from "@/lib/mockInterviewService";
 import { InterviewAIService } from "@/lib/interviewAIService";
@@ -74,9 +75,7 @@ export async function POST(
           culturalFit: 0,
         },
         topStrengths: [],
-        areasToImprove: [
-          "Answer at least one question to receive feedback",
-        ],
+        areasToImprove: ["Answer at least one question to receive feedback"],
         detailedFeedback:
           "The interview was ended before any questions were answered. No assessment can be provided.",
       };
@@ -112,7 +111,7 @@ export async function POST(
     await MockInterviewService.completeInterview(
       id,
       assessment.overallScore,
-      assessment as unknown as Record<string, unknown>
+      assessment as unknown as Prisma.InputJsonValue
     );
 
     // Award XP

@@ -40,8 +40,7 @@ export async function POST(
     }
 
     const { company } = interview;
-    const mood =
-      ((session as unknown as Record<string, unknown>).mood as string) || "CHILL";
+    const mood = session.user.mood || "CHILL";
 
     let speech = "";
 

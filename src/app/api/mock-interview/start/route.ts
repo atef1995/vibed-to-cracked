@@ -59,8 +59,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Generate intro speech
-    const mood =
-      ((session as Record<string, unknown>).mood as string) || "CHILL";
+    const mood = session.user.mood || "CHILL";
     let introSpeech = "";
     try {
       introSpeech = await InterviewAIService.generateIntro(

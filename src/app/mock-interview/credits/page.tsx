@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -48,7 +49,7 @@ function formatPrice(price: number, currency: string) {
   }).format(price);
 }
 
-export default function CreditsPage() {
+function CreditsPageContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -142,7 +143,7 @@ export default function CreditsPage() {
         </div>
 
         {/* CRACKED badge */}
-        {(session as Record<string, unknown>).subscription === "CRACKED" && (
+        {session.user.subscription === "CRACKED" && (
           <div className="mb-6 flex items-center gap-3 p-4 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-700 rounded-xl">
             <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             <p className="text-sm text-violet-800 dark:text-violet-200">
@@ -253,5 +254,13 @@ export default function CreditsPage() {
           )}
       </div>
     </PageLayout>
+  );
+}
+
+export default function CreditsPage() {
+  return (
+    <Suspense>
+      <CreditsPageContent />
+    </Suspense>
   );
 }

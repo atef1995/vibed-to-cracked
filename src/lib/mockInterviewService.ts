@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/client";
 import {
   InterviewStatus,
   InterviewType,
@@ -165,7 +166,7 @@ export class MockInterviewService {
       responseCode?: string;
       responseType?: string;
       score?: number;
-      feedback?: Record<string, unknown>;
+      feedback?: Prisma.InputJsonValue;
       order: number;
       duration?: number;
     }
@@ -178,10 +179,10 @@ export class MockInterviewService {
         responseText: data.responseText || null,
         responseCode: data.responseCode || null,
         responseType: data.responseType || "TEXT",
-        score: data.score || null,
-        feedback: data.feedback || null,
+        score: data.score ?? undefined,
+        feedback: data.feedback,
         order: data.order,
-        duration: data.duration || null,
+        duration: data.duration ?? undefined,
       },
     });
   }
@@ -193,7 +194,7 @@ export class MockInterviewService {
       responseCode?: string;
       responseType?: string;
       score?: number;
-      feedback?: Record<string, unknown>;
+      feedback?: Prisma.InputJsonValue;
       duration?: number;
     }
   ) {
@@ -206,7 +207,7 @@ export class MockInterviewService {
   static async completeInterview(
     interviewId: string,
     overallScore: number,
-    feedback: Record<string, unknown>
+    feedback: Prisma.InputJsonValue
   ) {
     return prisma.mockInterview.update({
       where: { id: interviewId },
