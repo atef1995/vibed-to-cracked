@@ -72,3 +72,5 @@ private
 atef@173.212.253.103
 prisma/mydatabase.bak
 skills-lock.json
+.agents/skills
+scripts

@@ -18,6 +18,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     cheatSheets,
     glossaryTerms,
     comparisons,
+    interviewCompanies,
+    interviewQuestions,
   ] = await Promise.all([
     prisma.tutorial.findMany({
       where: { published: true },
@@ -62,6 +64,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { published: true },
       select: { slug: true, updatedAt: true },
     }),
+    prisma.interviewCompany.findMany({
+      where: { published: true, prepGuide: { isNot: null } },
+      select: { slug: true, updatedAt: true },
+    }),
+    prisma.questionWalkthrough.findMany({
+      where: {
+        published: true,
+        requiredPlan: "FREE",
+        question: { published: true, company: { published: true } },
+      },
+      select: {
+        questionId: true,
+        updatedAt: true,
+        question: { select: { company: { select: { slug: true } } } },
+      },
+    }),
   ]);
 
   const topicSlugs = [
@@ -91,6 +109,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/pricing`, priority: 0.8, changeFrequency: "monthly" },
     { url: `${BASE_URL}/glossary`, priority: 0.8, changeFrequency: "weekly" },
     { url: `${BASE_URL}/compare`, priority: 0.8, changeFrequency: "weekly" },
+    {
+      url: `${BASE_URL}/interview-prep`,
+      priority: 0.8,
+      changeFrequency: "weekly",
+    },
     { url: `${BASE_URL}/learn`, priority: 0.9, changeFrequency: "weekly" },
     {
       url: `${BASE_URL}/tools/complexity-visualizer`,
@@ -163,6 +186,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...comparisons.map((c) => ({
       url: `${BASE_URL}/compare/${c.slug}`,
       lastModified: c.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    })),
+    ...interviewCompanies.map((c) => ({
+      url: `${BASE_URL}/interview-prep/${c.slug}`,
+      lastModified: c.updatedAt,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    })),
+    ...interviewQuestions.map((w) => ({
+      url: `${BASE_URL}/interview-prep/${w.question.company.slug}/${w.questionId}`,
+      lastModified: w.updatedAt,
       changeFrequency: "monthly" as const,
       priority: 0.7,
     })),
