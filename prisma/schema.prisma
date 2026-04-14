@@ -134,6 +134,7 @@ model User {
   interviewCredits           Int                        @default(0)
   mockInterviews             MockInterview[]
   interviewCreditTransactions InterviewCreditTransaction[]
+  prepStudyProgress          PrepStudyProgress[]
 
   @@map("users")
 }
@@ -1467,6 +1468,7 @@ model InterviewCompany {
 
   questions      InterviewQuestion[]
   mockInterviews MockInterview[]
+  prepGuide      InterviewPrepGuide?
 
   @@index([published])
   @@map("interview_companies")
@@ -1492,6 +1494,7 @@ model InterviewQuestion {
 
   company            InterviewCompany    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   rounds             MockInterviewRound[]
+  walkthrough        QuestionWalkthrough?
 
   @@index([companyId])
   @@index([type])
@@ -1572,4 +1575,60 @@ model InterviewCreditTransaction {
 
   @@index([userId, createdAt])
   @@map("interview_credit_transactions")
+}
+
+model InterviewPrepGuide {
+  id               String   @id @default(cuid())
+  companyId        String   @unique
+  overview         String   @db.Text
+  cultureBreakdown String   @db.Text
+  interviewerTips  String   @db.Text
+  published        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  company          InterviewCompany @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("interview_prep_guides")
+}
+
+model QuestionWalkthrough {
+  id              String   @id @default(cuid())
+  questionId      String   @unique
+  modelAnswer     String   @db.Text
+  scoringRubric   Json     @default("{}")
+  commonMistakes  Json     @default("[]")
+  followUpQuestions Json   @default("[]")
+  timeGuidance    String
+  approaches      Json     @default("[]")
+  requiredPlan    String   @default("FREE")
+  order           Int      @default(0)
+  published       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  question        InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  studyProgress   PrepStudyProgress[]
+
+  @@index([questionId])
+  @@map("question_walkthroughs")
+}
+
+model PrepStudyProgress {
+  id             String   @id @default(cuid())
+  userId         String
+  walkthroughId  String
+  confidence     String   @default("UNKNOWN")
+  studied        Boolean  @default(false)
+  studyCount     Int      @default(0)
+  lastStudiedAt  DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  walkthrough    QuestionWalkthrough @relation(fields: [walkthroughId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, walkthroughId])
+  @@index([userId])
+  @@map("prep_study_progress")
 }
