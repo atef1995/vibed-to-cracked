@@ -27,6 +27,7 @@ import {
   ArrowRight,
   BookOpen,
   Brain,
+  Briefcase,
 } from "lucide-react";
 import { MOODS } from "@/lib/moods";
 import { getMoodIcon } from "@/lib/getMoodIcon";
@@ -320,7 +321,7 @@ export default function HomePage() {
 
         {/* Quick Feature Nav Strip — visible without scrolling */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto mb-8"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 max-w-5xl mx-auto mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
@@ -354,6 +355,13 @@ export default function HomePage() {
               href: "/mock-interview",
               color: "violet",
             },
+            {
+              icon: Briefcase,
+              label: "Interview Prep",
+              desc: "Company guides",
+              href: "/interview-prep",
+              color: "amber",
+            },
           ].map((item) => (
             <motion.div key={item.label} whileHover={{ y: -2 }}>
               <Link
@@ -368,7 +376,9 @@ export default function HomePage() {
                         ? "bg-green-100 dark:bg-green-900/30"
                         : item.color === "orange"
                           ? "bg-orange-100 dark:bg-orange-900/30"
-                          : "bg-violet-100 dark:bg-violet-900/30"
+                          : item.color === "amber"
+                            ? "bg-amber-100 dark:bg-amber-900/30"
+                            : "bg-violet-100 dark:bg-violet-900/30"
                   }`}
                 >
                   <item.icon
@@ -379,7 +389,9 @@ export default function HomePage() {
                           ? "text-green-600 dark:text-green-400"
                           : item.color === "orange"
                             ? "text-orange-600 dark:text-orange-400"
-                            : "text-violet-600 dark:text-violet-400"
+                            : item.color === "amber"
+                              ? "text-amber-600 dark:text-amber-400"
+                              : "text-violet-600 dark:text-violet-400"
                     }`}
                   />
                 </div>

@@ -33,6 +33,7 @@ import {
   Video,
   BookA,
   ArrowLeftRight,
+  Briefcase,
 } from "lucide-react";
 import Link from "next/link";
 import { PageLayout } from "@/components/ui/PageLayout";
@@ -149,6 +150,13 @@ const exploreLinks = [
     label: "Mock Interviews",
     color: "text-violet-600 dark:text-violet-400",
     hoverBorder: "hover:border-violet-200 dark:hover:border-violet-500",
+  },
+  {
+    href: "/interview-prep",
+    icon: Briefcase,
+    label: "Interview Prep",
+    color: "text-amber-600 dark:text-amber-400",
+    hoverBorder: "hover:border-amber-200 dark:hover:border-amber-500",
   },
 ];
 
@@ -553,6 +561,26 @@ export default function DashboardPage() {
           </p>
         </div>
         <ArrowRight className="h-4 w-4 shrink-0 text-violet-400 group-hover:text-violet-600 dark:group-hover:text-violet-300 transition-colors" />
+      </Link>
+
+      {/* Interview Prep */}
+      <Link
+        href="/interview-prep"
+        className="mb-10 flex items-center gap-4 rounded-2xl p-5 border shadow-sm hover:shadow-md transition-all group bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-amber-100 dark:border-amber-800/40 hover:border-amber-200 dark:hover:border-amber-700"
+      >
+        <div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-amber-100 dark:bg-amber-800/40">
+          <Briefcase className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            Interview Prep
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Company-specific guides with question walkthroughs, model answers,
+            and scoring rubrics
+          </p>
+        </div>
+        <ArrowRight className="h-4 w-4 shrink-0 text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors" />
       </Link>
 
       {/* 6. Explore More — compact links */}
